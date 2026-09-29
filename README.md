@@ -99,3 +99,16 @@ node tools/calibrate.mjs
 ## 许可
 
 待定（见 `docs/license.txt`）。
+
+---
+
+## 提交约定
+
+* **提交信息用中文**，说清「改了什么 + 为什么」，带上关键数字
+  （面数、bbox、railtype 数量等）。
+* 多行提交信息**写进临时文件再 `git commit -F`** —— 直接 `-m` 会被 shell 拆坏引号。
+* **改动 `railtype` 之后必须跑 `make check` 再提交**（见上方说明）。
+* **改过 `models/*.model` 之后先跑 `make` 确认能出 GRF**，并把
+  `make diag` 产出的对照图看一遍。
+* `gfx/` 与 `out/` **不入库**（`.gitignore`），由 `models/` + `tools/` 确定性重放。
+* 行尾统一 LF，由 `.gitattributes` 固定 —— 别让 autocrlf 把 Makefile 换成 CRLF。
