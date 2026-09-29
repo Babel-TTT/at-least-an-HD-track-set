@@ -81,6 +81,46 @@ export function rel(p) {
   return r.startsWith('..') ? p : r;
 }
 
+/**
+ * 手调偏移表：`<仓库根>/sprite-offsets.json`
+ *
+ * 为什么要有这个：`centerAnchor` 反推出来的 xrel/yrel 在**几何**上是对的，
+ * 但如果实机里发现某个朝向的精灵有系统性偏移（引擎侧的额外处理、
+ * 或者 flatiso 取景与我们的理解有半像素差），就需要一个不改模型、
+ * 不改算法就能微调的地方。
+ *
+ * 格式（像素，整数；叠加在反推结果上）：
+ *   {
+ *     "_note": "key = 模型名 或 模型名#朝向",
+ *     "probe_half_upper#0": [0, -3],
+ *     "*": [1, 0]
+ *   }
+ *
+ * ⚠ 这是**定标微调**，不是常规手段。能用几何解释的偏移要回去改几何；
+ *   只有解释不了的系统性偏移才动这里，并在提交信息里写清原因。
+ */
+let _offsets = null;
+export function spriteOffsets() {
+  if (_offsets) return _offsets;
+  _offsets = {};
+  const f = path.join(ROOT, 'sprite-offsets.json');
+  if (!fs.existsSync(f)) return _offsets;
+  try {
+    // 去掉可能存在的 BOM —— PowerShell 的 Set-Content -Encoding UTF8 会加，
+    // 而带 BOM 的字符串 JSON.parse 会直接抛错（踩过，见 docs/踩坑.md C5.1）
+    let txt = fs.readFileSync(f, 'utf8');
+    if (txt.charCodeAt(0) === 0xFEFF) txt = txt.slice(1);
+    const raw = JSON.parse(txt);
+    for (const [k, v] of Object.entries(raw)) {
+      if (k.startsWith('_')) continue;
+      if (Array.isArray(v) && v.length === 2) _offsets[k] = v.map(Number);
+    }
+  } catch (err) {
+    process.stderr.write(`⚠ sprite-offsets.json 解析失败，忽略：${err.message}\n`);
+  }
+  return _offsets;
+}
+
 // ---------------------------------------------------------------------------
 // 摆放锚点：**不要直接用 flatiso 的 xrel/yrel**
 //
@@ -97,6 +137,8 @@ export function rel(p) {
 //   瓦片原点像素 = centerAnchor − 占地中心投影偏移
 //   占地中心 (cx, cy) 的投影偏移 = ( (cy−cx)·HW , (cx+cy)·HH )
 //   ⇒ NML 的 xrel = −原点像素x , yrel = −原点像素y
+//
+// 最后叠加 sprite-offsets.json 里的手调量（见上）。
 // ---------------------------------------------------------------------------
 export function anchorToXrelYrel(entry, view) {
   const HW = view?.HW ?? 128;
@@ -107,15 +149,29 @@ export function anchorToXrelYrel(entry, view) {
   const offX = (cy - cx) * HW;
   const offY = (cx + cy) * HH;
   const ca = entry.centerAnchor;
+
+  let xrel, yrel, fromCenterAnchor;
   if (!ca) {
-    // 没有 centerAnchor 就退回 flatiso 自己的值，但会记一笔
-    return { xrel: entry.xrel, yrel: entry.yrel, fromCenterAnchor: false };
+    xrel = entry.xrel;
+    yrel = entry.yrel;
+    fromCenterAnchor = false;
+  } else {
+    const originX = ca[0] - offX;
+    const originY = ca[1] - offY;
+    xrel = -Math.round(originX);
+    yrel = -Math.round(originY);
+    fromCenterAnchor = true;
   }
-  const originX = ca[0] - offX;
-  const originY = ca[1] - offY;
-  return {
-    xrel: -Math.round(originX),
-    yrel: -Math.round(originY),
-    fromCenterAnchor: true,
-  };
+
+  // 手调叠加
+  const name = String(entry.id ?? '').split('#')[0];
+  const vw = entry.view ?? 0;
+  const t = spriteOffsets();
+  const adj = t[`${name}#${vw}`] ?? t[name] ?? t['*'];
+  if (adj) {
+    xrel += adj[0];
+    yrel += adj[1];
+  }
+
+  return { xrel, yrel, fromCenterAnchor, adjusted: !!adj };
 }

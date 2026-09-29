@@ -64,14 +64,15 @@ export function genTemplate() {
   for (const [name, list] of byModel) {
     for (const e of list) {
       const [x, y, w, h] = e.rect;
-      const { xrel, yrel } = anchorToXrelYrel(e, man.view);
+      const { xrel, yrel, adjusted } = anchorToXrelYrel(e, man.view);
       const file = `gfx/${e.sheet}`;
       L.push(`template t_${name}_v${e.view ?? 0}() {`);
       L.push(
         `  [${x}, ${y}, ${w}, ${h}, ${xrel}, ${yrel}, "${file}"]` +
-        `   // az ${e.azimuth ?? 0}`,
+        `   // az ${e.azimuth ?? 0}${adjusted ? '  ← 含手调偏移' : ''}`,
       );
       L.push('}');
+      if (adjusted) log(`  ↳ 手调偏移生效：${name}#${e.view ?? 0} → xrel=${xrel} yrel=${yrel}`);
     }
     L.push('');
   }
