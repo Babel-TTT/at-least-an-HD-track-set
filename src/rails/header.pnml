@@ -1,0 +1,64 @@
+// ============================================================================
+// src/rails/header.pnml —— GRF 头、参数、basecost
+// ============================================================================
+
+grf {
+    grfid:   "\5F\5F\03\80";
+    name:    string(STR_GRF_NAME);
+    desc:    string(STR_GRF_DESC);
+    url:     string(STR_GRF_URL);
+    version: 1;
+    min_compatible_version: 1;
+
+    /* 建设费倍率（相对默认值） */
+    param 0 {
+        param_construction_cost {
+            type: int;
+            name: string(STR_PARAM_CONSTRUCTION_COST);
+            desc: string(STR_PARAM_CONSTRUCTION_COST_DESC);
+            min_value: 0;
+            max_value: 8;
+            def_value: 4;
+            names: {
+                0: string(STR_COST_1_16);
+                1: string(STR_COST_1_8);
+                2: string(STR_COST_1_4);
+                3: string(STR_COST_1_2);
+                4: string(STR_COST_1_1);
+                5: string(STR_COST_2_1);
+                6: string(STR_COST_4_1);
+                7: string(STR_COST_8_1);
+                8: string(STR_COST_16_1);
+            };
+        }
+    }
+
+    /* 维护费倍率（相对默认值） */
+    param 1 {
+        param_maintenance_cost {
+            type: int;
+            name: string(STR_PARAM_MAINTENANCE_COST);
+            desc: string(STR_PARAM_MAINTENANCE_COST_DESC);
+            min_value: 0;
+            max_value: 8;
+            def_value: 4;
+            names: {
+                0: string(STR_COST_1_16);
+                1: string(STR_COST_1_8);
+                2: string(STR_COST_1_4);
+                3: string(STR_COST_1_2);
+                4: string(STR_COST_1_1);
+                5: string(STR_COST_2_1);
+                6: string(STR_COST_4_1);
+                7: string(STR_COST_8_1);
+                8: string(STR_COST_16_1);
+            };
+        }
+    }
+}
+
+/* param[0..1] 是以 4 为「不变」的档位，所以减去 4 得到倍率偏移 */
+basecost {
+    PR_BUILD_RAIL: param[0] - 4;
+    PR_MAINTENANCE_RAIL: param[1] - 4;
+}

@@ -1,0 +1,36 @@
+##grflangid 0x56
+##plural 0
+
+# STRING                                    :SIMPLIFIED CHINESE
+
+STR_GRF_NAME                                :中国风格轨道
+STR_GRF_DESC                                :{GOLD}中国风格轨道{}{BLACK}32bpp 高倍缩放的中国风格铁路轨道，使用标准化轨道编码，与中国包列车互通。{}美术由手写等距模型离线渲染而成。{}接触网杆塔与导线尚未提供，暂用原版。
+
+STR_GRF_URL                                 :https://github.com/
+
+# ---------------------------------------------------------------- 参数
+
+STR_PARAM_CONSTRUCTION_COST                 :建设费
+STR_PARAM_CONSTRUCTION_COST_DESC            :轨道建设费用的倍率。
+STR_PARAM_MAINTENANCE_COST                  :维护费
+STR_PARAM_MAINTENANCE_COST_DESC             :轨道维护费用的倍率。
+
+STR_COST_1_16                               :1/16
+STR_COST_1_8                                :1/8
+STR_COST_1_4                                :1/4
+STR_COST_1_2                                :1/2
+STR_COST_1_1                                :标准
+STR_COST_2_1                                :×2
+STR_COST_4_1                                :×4
+STR_COST_8_1                                :×8
+STR_COST_16_1                               :×16
+
+# ---------------------------------------------------------------- 轨道类型
+
+STR_RAIL_SADN                               :铁路（1881）
+STR_RAIL_SBDN                               :干线铁路（1911）
+STR_RAIL_SCDN                               :准高速铁路（1967）
+STR_RAIL_SBDA                               :电气化铁路（25kV AC）
+STR_RAIL_SCDA                               :电气化准高速铁路（25kV AC）
+STR_RAIL_SBEd                               :电气化厂矿铁路（1500V DC）
+STR_RAIL_SBDD                               :朝鲜电气化铁路（3000V DC）

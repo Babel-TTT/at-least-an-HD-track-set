@@ -1,0 +1,22 @@
+# ============================================================================
+# .gitignore —— 生成物不入库，由 models/ + tools/ 确定性重放得到
+# （与 flatiso 的惯例一致）
+# ============================================================================
+
+# flatiso 渲染产物
+/gfx/
+
+# 构建产物
+/out/
+
+# 自动生成的模板与清单
+/src/rails/templates.pnml
+/src/rails/sprite_map.json
+
+# nmlc 缓存
+/.nmlcache/
+
+# 杂项
+*.log
+Thumbs.db
+desktop.ini

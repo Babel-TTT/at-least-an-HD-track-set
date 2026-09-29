@@ -1,0 +1,14 @@
+// ============================================================================
+// china-style-track.pnml —— 构建入口（源文件）
+//
+// 结构与 xUSSR 通用轨道包一致：入口只做 include，内容在 src/rails/ 下。
+//
+// 这个文件不是 nmlc 的直接输入：
+//   tools/build.mjs 先用 gcc -E 预处理成 out/china-style-track.nml，再交给 nmlc。
+//   （nmlc 本身不带 #include / #define 预处理器，xUSSR 与 China-Set-Tracks 也都
+//     是先跑一遍 C 预处理器。）
+// ============================================================================
+
+#include "src/rails/header.pnml"
+#include "src/rails/railsprite.pnml"
+#include "src/rails/railtrack.pnml"

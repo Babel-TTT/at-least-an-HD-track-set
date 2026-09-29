@@ -1,0 +1,36 @@
+##grflangid 0x01
+##plural 0
+
+# STRING                                    :ENGLISH
+
+STR_GRF_NAME                                :China Style Tracks
+STR_GRF_DESC                                :{GOLD}China Style Tracks{}{BLACK}Chinese-style railway tracks in 32bpp with extra zoom. Standardized railtype labels, compatible with the China Set.{}Track art is rendered offline from hand-written isometric models.{}Catenary pylons and wires are not included yet — the default ones are used.
+
+STR_GRF_URL                                 :https://github.com/
+
+# ---------------------------------------------------------------- parameters
+
+STR_PARAM_CONSTRUCTION_COST                 :Construction cost
+STR_PARAM_CONSTRUCTION_COST_DESC            :Multiplier applied to track construction cost.
+STR_PARAM_MAINTENANCE_COST                  :Maintenance cost
+STR_PARAM_MAINTENANCE_COST_DESC             :Multiplier applied to track maintenance cost.
+
+STR_COST_1_16                               :1/16
+STR_COST_1_8                                :1/8
+STR_COST_1_4                                :1/4
+STR_COST_1_2                                :1/2
+STR_COST_1_1                                :Normal
+STR_COST_2_1                                :x2
+STR_COST_4_1                                :x4
+STR_COST_8_1                                :x8
+STR_COST_16_1                               :x16
+
+# ---------------------------------------------------------------- railtypes
+
+STR_RAIL_SADN                               :Railway (1881)
+STR_RAIL_SBDN                               :Main line (1911)
+STR_RAIL_SCDN                               :Semi-high-speed (1967)
+STR_RAIL_SBDA                               :Electrified railway (25kV AC)
+STR_RAIL_SCDA                               :Electrified semi-high-speed (25kV AC)
+STR_RAIL_SBEd                               :Industrial railway (1500V DC)
+STR_RAIL_SBDD                               :Korean electrified railway (3000V DC)

@@ -1,0 +1,259 @@
+// ============================================================================
+// src/rails/railtrack.pnml —— railtype 定义
+//
+// ⚠ P0 版本：只定义一期（D12）的 7 种轨道，且**暂不带 graphics 块**
+//   （= 走引擎原版精灵），用于先把「Windows 构建 + nmlc + GRF 能加载」跑通。
+//   P3 会扩到 CSV 的 31 种，并逐几何组挂上 4x 32bpp 精灵。
+//
+// 数据来源：中国轨道包.csv（人工修正版）
+//   label 规则见 美术要素方案.md §6 / 实现计划.md §6.1
+//   C5 裁定：速度按标准化方案的字母档取整，不按表里的实际值
+// ============================================================================
+
+/* 排序位（工具条里的先后）；数值越小越靠前 */
+#define SORT_EARLY   0x00
+#define SORT_STEAM   0x10
+#define SORT_DIESEL  0x20
+#define SORT_ELECTRIC 0x30
+#define SORT_HIGHSPEED 0x40
+
+/* ===========================================================================
+   ★★ 必须重定义内建的 RAIL / ELRL，把我们的 label 塞进它们的 powered 列表 ★★
+
+   为什么（核自 OpenTTD 源码）：
+
+     rail.h:426
+       HasPowerOnRail(引擎轨道, 瓦片轨道)
+         = _railtypes[引擎轨道].powered_railtypes.Test(瓦片轨道)
+
+     也就是说「车能不能在这条轨道上跑」取决于
+     **引擎所属轨道的 powered 表里有没有「瓦片轨道」**，方向是反的。
+
+   我们如果不重定义内建 RAIL，原版 RAIL 的 powered 表里就没有 SADN，
+   于是：原版列车在我们轨道上没动力 → **车库里一辆车都列不出来**。
+   （2026-09 实测踩到，见 docs/踩坑.md D4）
+
+   这是官方支持的做法 —— newgrf_act0_railtypes.cpp:83-85 原注释：
+     "Rail type compatibility bits are added to the existing bits to allow
+      multiple GRFs to modify compatibility with the default rail types."
+
+   xUSSR 也是这么干的：它的 rlan(RAIL) / elrn(ELRL) 两个 item 覆盖了内置类型，
+   并把全部自定义 label 塞进 powered 列表。
+
+   ⚠ 只改 compatible / powered，**不要**给它们设 name / cost / speed 等属性，
+     那会把原版属性覆盖掉。
+   =========================================================================== */
+
+item(FEAT_RAILTYPES, base_RAIL, 0) {
+    property {
+        label:                    "RAIL";
+        compatible_railtype_list: ["SADN", "SBDN", "SCDN", "SBDA", "SCDA", "SBEd", "SBDD"];
+        powered_railtype_list:    ["SADN", "SBDN", "SCDN", "SBDA", "SCDA", "SBEd", "SBDD"];
+    }
+}
+
+/* ELRL 只对电气化轨道供电（内燃车在电气化轨道上照样能跑，所以 compatible 给全） */
+item(FEAT_RAILTYPES, base_ELRL, 1) {
+    property {
+        label:                    "ELRL";
+        compatible_railtype_list: ["SADN", "SBDN", "SCDN", "SBDA", "SCDA", "SBEd", "SBDD"];
+        powered_railtype_list:    ["SBDA", "SCDA", "SBEd", "SBDD"];
+    }
+}
+
+
+/* ---------------------------------------------------------------------------
+   非电气化
+   --------------------------------------------------------------------------- */
+
+// SADN —— 铁路（1881，A 档 80km/h，轴重 D，非电）
+item(FEAT_RAILTYPES, rail_SADN, 4) {
+    property {
+        label:                  "SADN";
+        introduction_date:      date(1881, 1, 1);
+        name:                   string(STR_RAIL_SADN);
+        toolbar_caption:        string(STR_RAIL_SADN);
+        menu_text:              string(STR_RAIL_SADN);
+        build_window_caption:   string(STR_RAIL_SADN);
+        autoreplace_text:       string(STR_RAIL_SADN);
+        new_engine_text:        string(STR_RAIL_SADN);
+        compatible_railtype_list: ["RAIL", "ELRL",  "SADN", "SBDN", "SCDN",
+                                    "SACN", "SBCN", "SCCN",
+                                    "SABN", "SBBN", "SCBN"];
+        powered_railtype_list:    ["RAIL", "SADN", "SBDN", "SCDN",
+                                    "SACN", "SBCN", "SCCN",
+                                    "SABN", "SBBN", "SCBN"];
+        railtype_flags:         0;
+        curve_speed_multiplier: 1;
+        station_graphics:       RAILTYPE_STATION_NORMAL;
+        construction_cost:      2;
+        maintenance_cost:       1;
+        speed_limit:            80 km/h;
+        acceleration_model:     ACC_MODEL_RAIL;
+        map_colour:             0x57;
+        sort_order:             SORT_EARLY;
+    }
+    /* ⚠ P0/P1 探针：只为验证 4x 32bpp spriteset 语法、槽位顺序与摆放锚点。
+       P2 会换成正式的几何组精灵。其余 6 种轨道暂不带 graphics 块（走原版精灵）。 */
+    graphics {
+        underlay:        probe_underlay;
+        track_overlay:   probe_overlay;
+        tunnels:         probe_tunnels;
+    }
+}
+
+// SBDN —— 干线铁路（1911，B 档 120km/h，轴重 D，非电）
+item(FEAT_RAILTYPES, rail_SBDN, 5) {
+    property {
+        label:                  "SBDN";
+        introduction_date:      date(1911, 1, 1);
+        name:                   string(STR_RAIL_SBDN);
+        toolbar_caption:        string(STR_RAIL_SBDN);
+        menu_text:              string(STR_RAIL_SBDN);
+        build_window_caption:   string(STR_RAIL_SBDN);
+        autoreplace_text:       string(STR_RAIL_SBDN);
+        new_engine_text:        string(STR_RAIL_SBDN);
+        compatible_railtype_list: ["SADN", "SBDN", "SCDN", "SBDA", "SCDA", "RAIL"];
+        powered_railtype_list:    ["SADN", "SBDN", "SCDN", "RAIL"];
+        railtype_flags:         0;
+        curve_speed_multiplier: 1;
+        station_graphics:       RAILTYPE_STATION_NORMAL;
+        construction_cost:      4;
+        maintenance_cost:       2;
+        speed_limit:            120 km/h;
+        acceleration_model:     ACC_MODEL_RAIL;
+        map_colour:             0x58;
+        sort_order:             SORT_EARLY;
+    }
+}
+
+// SCDN —— 准高速铁路（1967，C 档 160km/h，轴重 D，非电）
+item(FEAT_RAILTYPES, rail_SCDN, 6) {
+    property {
+        label:                  "SCDN";
+        introduction_date:      date(1967, 1, 1);
+        name:                   string(STR_RAIL_SCDN);
+        toolbar_caption:        string(STR_RAIL_SCDN);
+        menu_text:              string(STR_RAIL_SCDN);
+        build_window_caption:   string(STR_RAIL_SCDN);
+        autoreplace_text:       string(STR_RAIL_SCDN);
+        new_engine_text:        string(STR_RAIL_SCDN);
+        compatible_railtype_list: ["SADN", "SBDN", "SCDN", "SBDA", "SCDA", "RAIL"];
+        powered_railtype_list:    ["SADN", "SBDN", "SCDN", "RAIL"];
+        railtype_flags:         0;
+        curve_speed_multiplier: 1;
+        station_graphics:       RAILTYPE_STATION_NORMAL;
+        construction_cost:      8;
+        maintenance_cost:       4;
+        speed_limit:            160 km/h;
+        acceleration_model:     ACC_MODEL_RAIL;
+        map_colour:             0x59;
+        sort_order:             SORT_DIESEL;
+    }
+}
+
+/* ---------------------------------------------------------------------------
+   电气化
+   ⚠ 本期不提供接触网精灵（catenary_pylons / catenary_wire），
+     杆塔与导线走引擎原版 —— 见 实现计划.md §7。
+   --------------------------------------------------------------------------- */
+
+// SBDA —— 电气化铁路（1958，B 档 120km/h，轴重 D，25kV AC）
+item(FEAT_RAILTYPES, rail_SBDA, 7) {
+    property {
+        label:                  "SBDA";
+        introduction_date:      date(1958, 1, 1);
+        name:                   string(STR_RAIL_SBDA);
+        toolbar_caption:        string(STR_RAIL_SBDA);
+        menu_text:              string(STR_RAIL_SBDA);
+        build_window_caption:   string(STR_RAIL_SBDA);
+        autoreplace_text:       string(STR_RAIL_SBDA);
+        new_engine_text:        string(STR_RAIL_SBDA);
+        compatible_railtype_list: ["SADN", "SBDN", "SCDN", "SBDA", "SCDA", "ELRL"];
+        powered_railtype_list:    ["SBDA", "SCDA", "ELRL"];
+        railtype_flags:         bitmask(RAILTYPE_FLAG_CATENARY);
+        curve_speed_multiplier: 1;
+        station_graphics:       RAILTYPE_STATION_NORMAL;
+        construction_cost:      8;
+        maintenance_cost:       4;
+        speed_limit:            120 km/h;
+        acceleration_model:     ACC_MODEL_RAIL;
+        map_colour:             0x5A;
+        sort_order:             SORT_ELECTRIC;
+    }
+}
+
+// SCDA —— 电气化准高速铁路（1991，C 档 160km/h，轴重 D，25kV AC）
+item(FEAT_RAILTYPES, rail_SCDA, 8) {
+    property {
+        label:                  "SCDA";
+        introduction_date:      date(1991, 1, 1);
+        name:                   string(STR_RAIL_SCDA);
+        toolbar_caption:        string(STR_RAIL_SCDA);
+        menu_text:              string(STR_RAIL_SCDA);
+        build_window_caption:   string(STR_RAIL_SCDA);
+        autoreplace_text:       string(STR_RAIL_SCDA);
+        new_engine_text:        string(STR_RAIL_SCDA);
+        compatible_railtype_list: ["SADN", "SBDN", "SCDN", "SBDA", "SCDA", "ELRL"];
+        powered_railtype_list:    ["SBDA", "SCDA", "ELRL"];
+        railtype_flags:         bitmask(RAILTYPE_FLAG_CATENARY);
+        curve_speed_multiplier: 1;
+        station_graphics:       RAILTYPE_STATION_NORMAL;
+        construction_cost:      16;
+        maintenance_cost:       8;
+        speed_limit:            160 km/h;
+        acceleration_model:     ACC_MODEL_RAIL;
+        map_colour:             0x5B;
+        sort_order:             SORT_ELECTRIC;
+    }
+}
+
+// SBEd —— 电气化厂矿铁路（1920，B 档，轴重 25t，1500V DC）
+item(FEAT_RAILTYPES, rail_SBEd, 9) {
+    property {
+        label:                  "SBEd";
+        introduction_date:      date(1920, 1, 1);
+        name:                   string(STR_RAIL_SBEd);
+        toolbar_caption:        string(STR_RAIL_SBEd);
+        menu_text:              string(STR_RAIL_SBEd);
+        build_window_caption:   string(STR_RAIL_SBEd);
+        autoreplace_text:       string(STR_RAIL_SBEd);
+        new_engine_text:        string(STR_RAIL_SBEd);
+        compatible_railtype_list: ["SADN", "SBDN", "SBEd", "ELRL"];
+        powered_railtype_list:    ["SBEd", "ELRL"];
+        railtype_flags:         bitmask(RAILTYPE_FLAG_CATENARY);
+        curve_speed_multiplier: 1;
+        station_graphics:       RAILTYPE_STATION_NORMAL;
+        construction_cost:      8;
+        maintenance_cost:       4;
+        speed_limit:            120 km/h;
+        acceleration_model:     ACC_MODEL_RAIL;
+        map_colour:             0x5C;
+        sort_order:             SORT_ELECTRIC;
+    }
+}
+
+// SBDD —— 朝鲜电气化铁路（1950，B 档，轴重 D，3000V DC）
+item(FEAT_RAILTYPES, rail_SBDD, 10) {
+    property {
+        label:                  "SBDD";
+        introduction_date:      date(1950, 1, 1);
+        name:                   string(STR_RAIL_SBDD);
+        toolbar_caption:        string(STR_RAIL_SBDD);
+        menu_text:              string(STR_RAIL_SBDD);
+        build_window_caption:   string(STR_RAIL_SBDD);
+        autoreplace_text:       string(STR_RAIL_SBDD);
+        new_engine_text:        string(STR_RAIL_SBDD);
+        compatible_railtype_list: ["SADN", "SBDN", "SBEd", "SBDD", "ELRL"];
+        powered_railtype_list:    ["SBEd", "SBDD", "ELRL"];
+        railtype_flags:         bitmask(RAILTYPE_FLAG_CATENARY);
+        curve_speed_multiplier: 1;
+        station_graphics:       RAILTYPE_STATION_NORMAL;
+        construction_cost:      10;
+        maintenance_cost:       5;
+        speed_limit:            120 km/h;
+        acceleration_model:     ACC_MODEL_RAIL;
+        map_colour:             0x5D;
+        sort_order:             SORT_ELECTRIC;
+    }
+}

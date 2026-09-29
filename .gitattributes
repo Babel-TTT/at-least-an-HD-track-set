@@ -1,0 +1,16 @@
+# =============================================================================
+# .gitattributes —— 固定行尾
+#
+# 本工程要同时能被 Windows（PowerShell + mingw32-make）和类 Unix 环境构建，
+# 而 Makefile 的 recipe 对 CRLF 很敏感、nmlc / gcc / node 又都能吃 LF，
+# 所以**统一 LF**，不做 autocrlf 的来回转换。
+# =============================================================================
+
+* text=auto eol=lf
+
+# 二进制：不做任何转换
+*.png  binary
+*.grf  binary
+*.nfo  binary
+*.vox  binary
+*.zip  binary
