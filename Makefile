@@ -14,6 +14,7 @@
 #   make render     只调 flatiso 渲染
 #   make template   只从 openttd.json 生成 templates.pnml
 #   make diag       重出两张定标图（out/calibrate/）
+#   make offsets    列出可手调的「模型#朝向」名字 + 出索引图
 #   make check      一致性自检
 #   make clean      删除生成物（保留源码）—— **会连 out/calibrate/ 一起删**
 # =============================================================================
@@ -22,7 +23,7 @@ NODE ?= node
 
 -include Makefile.config
 
-.PHONY: all grf sprite render template diag calibrate compare check clean help
+.PHONY: all grf sprite render template diag calibrate compare offsets check clean help
 
 all: grf
 
@@ -45,6 +46,10 @@ calibrate:
 
 compare:
 	$(NODE) tools/compare.mjs
+
+# 手调偏移：查名字 / 写值 / 出索引图（详见 tools/offsets.mjs 顶部注释）
+offsets:
+	$(NODE) tools/offsets.mjs --sheet
 
 check:
 	$(NODE) tools/check.mjs
