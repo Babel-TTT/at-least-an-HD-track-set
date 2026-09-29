@@ -19,7 +19,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 
-import { config, log, fail, rel, isMain } from './util.mjs';
+import { config, log, fail, rel, isMain, ROOT } from './util.mjs';
 
 /** 跑 nmlc 产出 nfo，然后按块解析 railtype 的 Action 0（feature 0x10） */
 function dumpRailtypes(cfg) {
@@ -65,8 +65,78 @@ function dumpRailtypes(cfg) {
   return blocks;
 }
 
+/**
+ * 文本编码自检。专治 docs/踩坑.md C5.1：
+ * PowerShell 的 `Get-Content -Raw` 会按 ANSI 解码 UTF-8，`Set-Content -Encoding UTF8`
+ * 再写回，中文就成乱码、JSON 还会语法坏掉、而且**静默失效**（本工程已经踩了两次）。
+ *
+ * 三条：
+ *   1. 所有 .json 必须能解析（乱码后 JSON.parse 会抛错）
+ *   2. 任何文本文件都不许带 UTF-8 BOM（PS 5.1 的 `-Encoding UTF8` 会加 BOM，是最好的指纹）
+ *   3. "源头"文件里不许出现乱码指纹字符（不查 docs/ 与根目录 .md，因为踩坑.md 会引用乱码样例）
+ */
+const MOJIBAKE = '锛銆鈥鐨鍜鏄鍦鎵閲鏂寰鎴缁鍒鍑鍔闇';
+
+function walkFiles(dir, depth, out) {
+  if (depth > 3) return;
+  let entries;
+  try { entries = fs.readdirSync(dir, { withFileTypes: true }); } catch { return; }
+  for (const e of entries) {
+    if (['.git', 'gfx', 'out', 'node_modules', '.nmlcache'].includes(e.name)) continue;
+    const p = path.join(dir, e.name);
+    if (e.isDirectory()) walkFiles(p, depth + 1, out);
+    else out.push(p);
+  }
+}
+
+function checkEncoding() {
+  const problems = [];
+  const warns = [];
+  const all = [];
+  walkFiles(ROOT, 0, all);
+
+  const isText = (p) => /\.(json|mjs|pnml|model|lng|md|txt|csv|config|gitattributes|gitignore)$/i.test(p)
+                        || /(^|[\\/])Makefile$/.test(p);
+  /** 我们自己维护的源头文件：这些文件里出现 BOM 或乱码一定是事故 */
+  const isSource = (p) => /[\\/](tools|src|models|lang)[\\/]/.test(p)
+                        || /(^|[\\/])(Makefile|Makefile\.config|sprite-offsets\.json)$/.test(p);
+  /** 本文件自己就带指纹字符表，跳过 */
+  const SELF = path.join(ROOT, 'tools', 'check.mjs');
+
+  for (const p of all) {
+    if (!isText(p)) continue;
+    const buf = fs.readFileSync(p);
+    const r = rel(p);
+    const src = isSource(p);
+
+    // 2) BOM（PS 5.1 的 `Set-Content -Encoding UTF8` 会加，是最好用的指纹）
+    if (buf[0] === 0xEF && buf[1] === 0xBB && buf[2] === 0xBF) {
+      (src ? problems : warns).push(
+        `${r} 带 UTF-8 BOM${src ? ' —— 多半是 PowerShell 写的（见 C5.1）' : '（外部文件，不影响构建，仅提示）'}`);
+    }
+
+    const txt = buf.toString('utf8').replace(/^\uFEFF/, '');
+
+    // 1) JSON 必须能解析（乱码后 JSON.parse 会抛错）
+    if (p.endsWith('.json')) {
+      try { JSON.parse(txt); } catch (err) { problems.push(`${r} JSON 解析失败：${err.message}（见 C5.1）`); }
+    }
+
+    // 3) 源头文件里的乱码指纹
+    if (src && p !== SELF) {
+      const hit = [...txt].filter((c) => MOJIBAKE.includes(c));
+      if (hit.length) {
+        problems.push(`${r} 出现乱码指纹字符「${[...new Set(hit)].join('')}」×${hit.length}（见 C5.1）`);
+      }
+    }
+  }
+  return { problems, warns };
+}
+
 export function check() {
   const cfg = config();
+  const enc = checkEncoding();
+  const encProblems = enc.problems;
   const blocks = dumpRailtypes(cfg);
   if (!blocks.length) fail('nfo 里找不到任何 railtype Action 0 块');
 
@@ -116,18 +186,26 @@ export function check() {
   }
 
   // --- 输出 ----------------------------------------------------------------
+  log('文本编码自检：');
+  if (encProblems.length) {
+    for (const p of encProblems) log(`  ❌ ${p}`);
+  } else {
+    log('  ✔ 源头文件无 BOM、无乱码，JSON 均可解析');
+  }
+  for (const w of enc.warns) log(`  ⚠ ${w}`);
+  log('');
   log(`railtype Action 0 块 ${blocks.length} 个：`);
   for (const b of blocks.sort((a, x) => a.localId - x.localId)) {
     log(`  局部 id ${String(b.localId).padStart(2)}  ${String(b.label).padEnd(5)} 属性 ${String(b.numProps).padStart(2)}  powered=[${(b.powered ?? []).join(' ')}]`);
   }
   for (const w of warns) log(`  ⚠ ${w}`);
-  if (problems.length) {
+  if (encProblems.length || problems.length) {
     log('');
     for (const p of problems) log(`  ❌ ${p}`);
-    fail(`${problems.length} 个问题`);
+    fail(`${encProblems.length + problems.length} 个问题`);
   }
   log('');
-  log(`✔ railtype 结构检查通过（${ours.length} 个自定义轨道 + 2 个 base 重定义）`);
+  log(`✔ 全部通过：文本编码 + railtype 结构（${ours.length} 个自定义轨道 + 2 个 base 重定义）`);
 }
 
 if (isMain(import.meta.url)) {
