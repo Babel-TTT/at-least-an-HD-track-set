@@ -116,21 +116,49 @@ const pad = (s) => String(s).padEnd(9);
 const CN = 32, RN = 32;               // 道砟网格
 const SLEEPER_MAT = ['wood_dark', 'wood_seam', 'wood_dark', 'wood_seam'];
 
-/** 道砟并集网格 */
+/**
+ * 道砟并集网格
+ *
+ * ★ 人工裁定（2026-09）：并集里**封闭的空洞要填掉**。
+ *   单纯求并集时，几条板带的夹角处会留下小空洞 —— 实机里就是"道床中间缺一块"。
+ *   做法：先在 32x32 网格上求并集掩码，再从**边界**做一次 flood fill 找出
+ *   「真正的外面」，剩下既不在并集、又不与外面连通的格子就是空洞 ⇒ 补上。
+ *   外缘的毛边抖动照旧保留（那是刻意的）。
+ */
 function ballastQuads(keys, seed) {
   const u = makeUnion(keys, seed);
+  // 1) 求并集掩码
+  const inU = [];
+  for (let k = 0; k < RN; k++) {
+    inU.push([]);
+    for (let i = 0; i < CN; i++) inU[k].push(u.test((i + 0.5) / CN, (k + 0.5) / RN, i, k));
+  }
+  // 2) 从边界 flood fill，标出「外面」
+  const out = Array.from({ length: RN }, () => new Array(CN).fill(false));
+  const stack = [];
+  for (let i = 0; i < CN; i++) stack.push([i, 0], [i, RN - 1]);
+  for (let k = 0; k < RN; k++) stack.push([0, k], [CN - 1, k]);
+  while (stack.length) {
+    const [i, k] = stack.pop();
+    if (i < 0 || k < 0 || i >= CN || k >= RN) continue;
+    if (out[k][i] || inU[k][i]) continue;
+    out[k][i] = true;
+    stack.push([i + 1, k], [i - 1, k], [i, k + 1], [i, k - 1]);
+  }
+  // 3) 出图：并集 ∪ 空洞
   const L = [];
-  let n = 0;
+  let n = 0, filled = 0;
   for (let k = 0; k < RN; k++) for (let i = 0; i < CN; i++) {
+    if (!inU[k][i] && out[k][i]) continue;         // 真正的外面，跳过
+    if (!inU[k][i]) filled++;                      // 补上的空洞
     const x0 = i / CN, x1 = (i + 1) / CN, y0 = k / RN, y1 = (k + 1) / RN;
-    if (!u.test((x0 + x1) / 2, (y0 + y1) / 2, i, k)) continue;
     L.push('quad ' + N(x1) + ' ' + N(y0) + ' ' + N(u.hz(i + 1, k)) +
            '  ' + N(x1) + ' ' + N(y1) + ' ' + N(u.hz(i + 1, k + 1)) +
            '  ' + N(x0) + ' ' + N(y1) + ' ' + N(u.hz(i, k + 1)) +
            '  ' + N(x0) + ' ' + N(y0) + ' ' + N(u.hz(i, k)) + '   gravel');
     n++;
   }
-  return { lines: L, n };
+  return { lines: L, n, filled };
 }
 
 /**
