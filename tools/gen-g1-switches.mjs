@@ -50,13 +50,20 @@ import { ROOT, log, rel, isMain } from './util.mjs';
 // ★ 唯一的手调口径：每方向的屏幕像素偏移
 // ---------------------------------------------------------------------------
 export const DIR_DELTA = {
-  X:     [+2, -3],   // TRACK_X  （整格对角，沿世界 x）
+  X:     [+5, -2],   // TRACK_X  （整格对角，沿世界 x）  ← 人工在实机里测出的新值
   Y:     [ 0,  0],   // TRACK_Y  （整格对角，沿世界 y）
   UPPER: [+3, -2],   // 屏幕上水平带（上）
   LOWER: [+2, -2],   // 屏幕上水平带（下）
   LEFT:  [ 0,  0],   // 屏幕上竖直带（左）
   RIGHT: [ 0,  0],   // 屏幕上竖直带（右）
 };
+
+// 调试开关：G1_SWITCHES_ZERO=1 时把所有方向偏移当 0，用来生成「未补偿的基线」，
+// 便于和正式结果做前后对照（**诊断用，别拿它生成正式模型**）。
+const ZERO_DELTA = process.env.G1_SWITCHES_ZERO === '1';
+const EFF_DELTA = ZERO_DELTA
+  ? Object.fromEntries(Object.keys(DIR_DELTA).map((k) => [k, [0, 0]]))
+  : DIR_DELTA;
 
 /** 屏幕像素偏移 → 世界位移 */
 function worldShift([dx, dy]) {
@@ -65,7 +72,7 @@ function worldShift([dx, dy]) {
 }
 
 const SHIFT = Object.fromEntries(
-  Object.entries(DIR_DELTA).map(([k, d]) => [k, worldShift(d)]),
+  Object.entries(EFF_DELTA).map(([k, d]) => [k, worldShift(d)]),
 );
 
 // ---------------------------------------------------------------------------
@@ -126,34 +133,70 @@ function ballastQuads(keys, seed) {
 
 /**
  * 裁剪到瓦片内（flatiso 铁律：坐标必须在 [0,w]x[0,d]）。
- * 挪位后必然有几何探出瓦片 → 剪掉；退化成一条线的直接丢掉。
- * 剪掉的这点缺口在实机里会被**邻格精灵的溢出部分盖住**（OpenTTD 的轨道精灵
- * 本来就互相重叠，所以 263px 的格位才装得下 256px 的瓦片）。
+ * 正常路径下**不该有任何东西被剪掉** —— 空白已经在下面用「纵向回扩」补好了。
+ * 这里只是最后一道保险，被剪到会报出来。
  */
 const CLIP0 = 0.0005, CLIP1 = 0.9995;
+let clipped = 0;
 function clipBox([x0, y0, x1, y1]) {
   const b = [Math.max(CLIP0, x0), Math.max(CLIP0, y0), Math.min(CLIP1, x1), Math.min(CLIP1, y1)];
-  if (b[2] - b[0] < 0.0015 || b[3] - b[1] < 0.0015) return null;
+  if (b[2] - b[0] < 0.0015 || b[3] - b[1] < 0.0015) { clipped++; return null; }
+  // 只把「真被剪掉一截」算数；贴安全边距的零点几不算
+  const cut = Math.abs(b[0] - x0) + Math.abs(b[1] - y0) + Math.abs(b[2] - x1) + Math.abs(b[3] - y1);
+  if (cut > 0.002) clipped++;
   return b;
 }
 
-/** 某个方向的轨枕（沿 direction 轴等距），按该方向的屏幕偏移整体挪位 */
-function sleeperBoxes(axis, count, hw, shiftKey, skipCenter) {
+/**
+ * ★ 纵向范围：**位移 + 补空白**
+ *
+ * 把某个方向整体位移 (wx,wy) 之后，它在一端会探出瓦片、另一端会留下空白。
+ * 补法：把**预位移**的纵向范围反向回扩同样的量 —— 位移完正好还是铺满 [0,1]。
+ *   fill=false 时不做回扩（= 只挪不补），用来出「会留空白」的对照图。
+ */
+const NOFILL = process.env.G1_SWITCHES_NOFILL === '1';
+function alongRange(key, axis) {
+  const [wx, wy] = SHIFT[key];
+  const w = axis === 'x' ? wx : wy;          // 该方向的纵向位移分量
+  return NOFILL ? [0, 1] : [0 - w, 1 - w];   // 预位移范围
+}
+
+/**
+ * 某个方向的轨枕。
+ *
+ * ★ 位移 + 补空白：位置 = 0.012 + k·间距 + 纵向位移，只保留落在 [0.012, 0.988]
+ *   的那些 —— 也就是**相位跟着位移走**，末端不够就多铺一根补上。
+ *   （不是「整体回扩」，那样会把位移抵消掉，等于没挪。）
+ *   NOFILL=1 时退化成「只挪不补」，用来出会留空白的对照图。
+ */
+const SLEEPER_PITCH = 0.976 / 24;    // 与原来 25 根、0.012..0.988 一致
+function sleeperBoxes(axis, hw, shiftKey, skipCenter) {
   const [wx, wy] = SHIFT[shiftKey];
+  const w = axis === 'x' ? wx : wy;          // 该方向的纵向位移分量
+  const T0 = 0.012, T1 = 0.988;
+  let kmin, kmax;
+  if (NOFILL) { kmin = 0; kmax = 24; }       // 只挪不补：固定 25 根，位置整体平移
+  else {
+    kmin = Math.ceil((T0 - T0 - w) / SLEEPER_PITCH - 1e-9);
+    kmax = Math.floor((T1 - T0 - w) / SLEEPER_PITCH + 1e-9);
+  }
   const L = [];
-  for (let i = 0; i < count; i++) {
-    const t = 0.012 + 0.976 * i / (count - 1);   // 端点内缩，避免自己就探出瓦片
+  for (let k = kmin; k <= kmax; k++) {
+    const tNom = T0 + k * SLEEPER_PITCH;    // 预位移位置
+    const t = tNom + w;                     // 位移后的最终位置
+    if (!NOFILL && (t < T0 - 1e-9 || t > T1 + 1e-9)) continue;
     if (skipCenter && Math.abs(t - 0.5) <= 0.105) continue;
     for (let s = 0; s < 3; s++) {          // 沿枕木长度切 3 段（材质几乎同色）
       const a = 0.41 + 0.06 * s, b = a + 0.06;
+      // raw 用**预位移**坐标，后面统一加 (wx,wy) —— 别在这里就把 w 加进去
       const raw = axis === 'x'
-        ? [t - hw, a, t + hw, b]             // 枕木沿 y 伸长，沿 x 等距
-        : [a, t - hw, b, t + hw];            // 枕木沿 x 伸长，沿 y 等距
+        ? [tNom - hw, a, tNom + hw, b]       // 枕木沿 y 伸长，沿 x 等距
+        : [a, tNom - hw, b, tNom + hw];      // 枕木沿 x 伸长，沿 y 等距
       const box = clipBox([raw[0] + wx, raw[1] + wy, raw[2] + wx, raw[3] + wy]);
       if (!box) continue;
       L.push('box ' + N(box[0]) + ' ' + N(box[1]) + ' 0.0040  ' +
              N(box[2]) + ' ' + N(box[3]) + ' 0.0140  ' +
-             pad(SLEEPER_MAT[(i + s) % 4]) + ' top=wood_seam');
+             pad(SLEEPER_MAT[((k + s) % 4 + 4) % 4]) + ' top=wood_seam');
     }
   }
   return L;
@@ -162,11 +205,12 @@ function sleeperBoxes(axis, count, hw, shiftKey, skipCenter) {
 /** 某个方向的两根钢轨（轴线在 [0.4444,0.4524] / [0.5476,0.5556]），按偏移挪位 */
 function railBoxes(axis, zTop, shiftKey) {
   const [wx, wy] = SHIFT[shiftKey];
+  const [a0, a1] = alongRange(shiftKey, axis);
   const L = [];
   for (const [a, b] of [[0.5476, 0.5556], [0.4444, 0.4524]]) {
     const raw = axis === 'x'
-      ? [0.0, a, 1.0, b]
-      : [a, 0.0, b, 1.0];
+      ? [a0, a, a1, b]
+      : [a, a0, b, a1];
     const box = clipBox([raw[0] + wx, raw[1] + wy, raw[2] + wx, raw[3] + wy]);
     if (!box) continue;
     L.push('box ' + N(box[0]) + ' ' + N(box[1]) + ' ' + N(zTop - 0.013) + '  ' +
@@ -207,9 +251,9 @@ export function generate() {
     s += '# --- 道砟：X 带 ∪ Y 带 的并集（各自按自己的屏幕偏移挪位），' + CN + 'x' + RN + ' 网格 ---\n';
     s += lines.join('\n') + '\n';
     s += '\n# --- 轨枕：X 轨 25 根画满（偏移 ' + DIR_DELTA.X.join(',') + '）---\n';
-    s += sleeperBoxes('x', 25, 0.008, 'X', false).join('\n') + '\n';
+    s += sleeperBoxes('x', 0.008, 'X', false).join('\n') + '\n';
     s += '\n# --- 轨枕：Y 轨 25 根，跳过中心 5 根（偏移 ' + DIR_DELTA.Y.join(',') + '）---\n';
-    s += sleeperBoxes('y', 25, 0.008, 'Y', true).join('\n') + '\n';
+    s += sleeperBoxes('y', 0.008, 'Y', true).join('\n') + '\n';
     s += '\n# --- 钢轨：X 组 2 根（z 0.0140->0.0270，偏移 ' + DIR_DELTA.X.join(',') + '）---\n';
     s += railBoxes('x', 0.0270, 'X').join('\n') + '\n';
     s += '\n# --- 钢轨：Y 组 2 根（z 0.0150->0.0280，偏移 ' + DIR_DELTA.Y.join(',') + '）---\n';
@@ -255,15 +299,23 @@ export function generate() {
   }
   log('');
   log('  每方向屏幕偏移（px，正=右/下）—— 改这张表后重跑本工具：');
+  log('  ' + pad('方向', 8) + pad('屏幕偏移', 12) + pad('世界位移', 24) + pad('纵向', 10) + '横向');
   for (const [k, v] of Object.entries(DIR_DELTA)) {
     const [wx, wy] = SHIFT[k];
     // 自检：把世界位移反算回屏幕像素，必须与表里填的一致
     const bx = (wy - wx) * 128, by = (wx + wy) * 64;
     const ok = Math.abs(bx - v[0]) < 1e-6 && Math.abs(by - v[1]) < 1e-6;
-    log(`    ${pad(k, 8)} ${(v[0] >= 0 ? '+' : '') + v[0]}, ${(v[1] >= 0 ? '+' : '') + v[1]}` +
-        `   → 世界位移 ${wx.toFixed(5)}, ${wy.toFixed(5)}` +
-        `   → 反算屏幕 ${bx.toFixed(2)}, ${by.toFixed(2)}  ${ok ? '√' : '× 表写错了'}`);
+    // 沿哪个轴跑：X/Y 是整格对角（一条长轨），半格带也一样按自己的轴算
+    const axis = (k === 'X' || k === 'UPPER' || k === 'LOWER') ? 'x' : 'y';
+    const along = Math.hypot(...(axis === 'x' ? [wx * 128, wx * 64] : [wy * 128, wy * 64]));
+    const cross = Math.hypot(...(axis === 'x' ? [wy * 128, wy * 64] : [wx * 128, wx * 64]));
+    log(`    ${pad(k, 8)} ${pad((v[0] >= 0 ? '+' : '') + v[0] + ', ' + (v[1] >= 0 ? '+' : '') + v[1], 12)}` +
+        `${pad(wx.toFixed(5) + ', ' + wy.toFixed(5), 24)}${pad(along.toFixed(2) + 'px', 10)}${cross.toFixed(2)}px` +
+        (ok ? '' : '   × 表写错了'));
   }
+  log('    ↑ 纵向分量：钢轨/道砟是连续的，补空白会把纵向那截抵消；');
+  log('      但**枕木相位会跟着位移走**（末端不够会多铺一根补上），这一项在实机里看得见。');
+  if (clipped) log(`  ⚠ 有 ${clipped} 处几何被 clipBox 剪到 —— 正常情况下应该是 0`);
   log('');
   log('  下一步：make render → make sprites（核对锚点）→ make check');
   return out;
