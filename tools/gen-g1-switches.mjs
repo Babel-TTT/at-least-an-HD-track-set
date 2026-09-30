@@ -51,7 +51,7 @@ import { ROOT, log, rel, isMain } from './util.mjs';
 // ---------------------------------------------------------------------------
 export const DIR_DELTA = {
   X:     [+4, -1],   // TRACK_X  （整格对角，沿世界 x）  ← 游戏里 Sprite Aligner 读数；只表示偏差程度
-  Y:     [ 0,  0],   // TRACK_Y  （整格对角，沿世界 y）
+  Y:     [+1, -1],   // TRACK_Y  （整格对角，沿世界 y）  ← Sprite Aligner 读数；只表示偏差程度
   UPPER: [+3, -2],   // 屏幕上水平带（上）
   LOWER: [+2, -2],   // 屏幕上水平带（下）
   LEFT:  [ 0,  0],   // 屏幕上竖直带（左）
