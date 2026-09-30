@@ -10,7 +10,7 @@
 /out/
 
 # 自动生成的模板与清单
-/src/rails/templates.pnml
+
 /src/rails/sprite_map.json
 
 # nmlc 缓存

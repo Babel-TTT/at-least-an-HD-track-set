@@ -204,13 +204,16 @@ export async function sprites() {
 
   // 对账
   const drift = [];
+  const tuned = [];
   for (const r of rows) {
     const d = derived.get(r.key);
     if (!d) { drift.push({ key: r.key, why: 'openttd.json 里没有这个「模型#朝向」' }); continue; }
     const diffs = [];
     if (d.rect.join(',') !== r.rect.join(',')) diffs.push(`rect ${r.rect.join(',')} → ${d.rect.join(',')}`);
     if (d.xrel !== r.xrel || d.yrel !== r.yrel) diffs.push(`xrel/yrel ${r.xrel},${r.yrel} → ${d.xrel},${d.yrel}`);
-    if (diffs.length) drift.push({ key: r.key, line: r.line, why: diffs.join('; ') });
+    if (!diffs.length) continue;
+    if (r.handTuned) tuned.push({ key: r.key, line: r.line, why: diffs.join('; ') });
+    else drift.push({ key: r.key, line: r.line, why: diffs.join('; ') });
   }
   const missing = [...derived.keys()].filter((k) => !tpl.has(k));
 
@@ -255,10 +258,16 @@ export async function sprites() {
     }
     log('    ' + pad(r.key, 24) + pad(ROLES[name]?.views?.[view] ?? '?', 13) +
         pad(r2.templateName, 26) + pad(r2.line, 6) +
-        pad(`${r.xrel}, ${r.yrel}`, 17) + `[${r.rect.join(', ')}]`);
+        pad(`${r.xrel}, ${r.yrel}`, 17) + `[${r.rect.join(', ')}]` + (r.handTuned ? '  ✎手调' : ''));
   }
   log('  ' + '─'.repeat(104));
   log('');
+
+  if (tuned.length) {
+    log(`  ✎ 已标【手调】的 ${tuned.length} 行（有意偏离算法值，正常）：`);
+    for (const t of tuned) log(`      第 ${t.line} 行  ${t.key}：${t.why}`);
+    log('');
+  }
 
   if (drift.length) {
     log(`  ⚠ 与 flatiso 当前输出不一致（${drift.length} 处）：`);
@@ -266,9 +275,10 @@ export async function sprites() {
       log(`    ${d.line ? `第 ${d.line} 行  ` : '（无对应行）'}${d.key}：${d.why}`);
     }
     log('    想按当前输出整段重写：node tools/sprites.mjs --emit');
+    log('    有意的微调：在该行注释里写【手调】，本条就不再报');
     log('');
   } else {
-    log('  ✔ 与 flatiso 当前输出一致（rect 与 xrel/yrel 都能对上）');
+    log('  ✔ 与 flatiso 当前输出一致（或已标【手调】）');
   }
   if (missing.length) {
     log(`  ⚠ openttd.json 里有、但 templates.pnml 里没有：${missing.join(', ')}`);

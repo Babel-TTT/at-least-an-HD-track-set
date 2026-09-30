@@ -205,26 +205,36 @@ export function check() {
       const man = JSON.parse(fs.readFileSync(manPath, 'utf8'));
       const derived = derivedTemplates(man);
       const drift = [];
+      const tuned = [];
       for (const [key, t] of tpl) {
         const d = derived.get(key);
         if (!d) { drift.push(`${rel(templatesFile())}:${t.line}  ${key} —— openttd.json 里没这个「模型#朝向」`); continue; }
+        const diffs = [];
         if (d.rect.join(',') !== t.rect.join(',')) {
-          drift.push(`${rel(templatesFile())}:${t.line}  ${key} —— rect [${t.rect.join(', ')}] ≠ 图集实际 [${d.rect.join(', ')}]`);
+          diffs.push(`rect [${t.rect.join(', ')}] ≠ 图集实际 [${d.rect.join(', ')}]`);
         }
         if (d.xrel !== t.xrel || d.yrel !== t.yrel) {
-          drift.push(`${rel(templatesFile())}:${t.line}  ${key} —— xrel,yrel ${t.xrel},${t.yrel} ≠ 按 centerAnchor 算的 ${d.xrel},${d.yrel}`);
+          diffs.push(`xrel,yrel ${t.xrel},${t.yrel} ≠ 按 centerAnchor 算的 ${d.xrel},${d.yrel}`);
         }
+        if (!diffs.length) continue;
+        // 行尾标了【手调】的：是有意为之，单独列出，不算漂移
+        if (t.handTuned) tuned.push(`第 ${t.line} 行  ${key}：${diffs.join('；')}`);
+        else drift.push(`${rel(templatesFile())}:${t.line}  ${key} —— ${diffs.join('；')}`);
       }
       for (const key of derived.keys()) {
         if (!tpl.has(key)) drift.push(`openttd.json 里有 ${key}，但 templates.pnml 里没有对应 template`);
+      }
+      if (tuned.length) {
+        tplLines.push(`  ✎ 已标【手调】的 ${tuned.length} 行（有意偏离算法值，正常）：`);
+        for (const t of tuned) tplLines.push(`      ${t}`);
       }
       if (drift.length) {
         tplLines.push(`  ⚠ templates.pnml 与 flatiso 当前输出有 ${drift.length} 处不一致（**只提示，不覆盖**）：`);
         for (const d of drift) tplLines.push(`      ${d}`);
         tplLines.push('      ⇒ 若确实是模型改了：`make sprites --emit` 打出正确值，手抄回去');
-        tplLines.push('      ⇒ 若是有意手调摆位：忽略本条，这份文件本来就是你说了算');
+        tplLines.push('      ⇒ 若是有意手调摆位：在该行注释里写【手调】，本条就不再报');
       } else {
-        tplLines.push('  ✔ 与 flatiso 当前输出一致（rect 与 xrel/yrel 都对得上）');
+        tplLines.push('  ✔ 与 flatiso 当前输出一致（rect 与 xrel/yrel 都对得上，或已标【手调】）');
       }
 
       // spriteset 里引用的 template 必须真的存在

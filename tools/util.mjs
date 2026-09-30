@@ -163,6 +163,8 @@ export function readTemplates(file = templatesFile()) {
     const at = i + 1;
     // 去掉行尾 `//` 注释（本文件里不会出现字符串字面量含 `//` 的情况）
     const code = lines[i].replace(/\/\/.*$/, '');
+    const cm = /\/\/(.*)$/.exec(lines[i]);
+    const comment = cm ? cm[1].trim() : '';
     if (!code.trim()) continue;
 
     const head = /^\s*template\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(\s*\)\s*\{/.exec(code);
@@ -187,6 +189,10 @@ export function readTemplates(file = templatesFile()) {
         xrel: Number(body[5]),
         yrel: Number(body[6]),
         file: body[7],
+        comment,
+        // 行尾注释里写了【手调】(= HAND-TUNED) 的行，对账时不当成"漂移"，
+        // 免得每次 make check 都对人有意的微调喊狼来了。见 docs/定标.md §4.5。
+        handTuned: /【手调】|HAND-TUNED/.test(comment),
       });
       cur = null;
       continue;
