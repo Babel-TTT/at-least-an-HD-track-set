@@ -14,6 +14,7 @@
 #   make sprite     只渲染（= make render）
 #   make sprites    打印手写模板表 + 出索引图（out/calibrate/index.png）
 #   make switches   重生成 G1 交叉/道叉模型（改方向偏移后跑）
+#   make slope      重生成 G1 坡道模型（改抬升量/坡面几何后跑）
 #   make diag       重出定标图（out/calibrate/）
 #   make check      一致性自检（含 templates.pnml 对账）
 #   make clean      删除生成物（保留源码）—— **会连 out/calibrate/ 一起删**
@@ -26,7 +27,7 @@ NODE ?= node
 
 -include Makefile.config
 
-.PHONY: all grf sprite render sprites switches diag calibrate compare check clean help
+.PHONY: all grf sprite render sprites switches slope diag calibrate compare check clean help
 
 all: grf
 
@@ -48,6 +49,15 @@ sprites:
 # ⚠ 会**整份重写** models/G1_crossing|junction3|junction4.model
 switches:
 	$(NODE) tools/gen-g1-switches.mjs
+
+# 重生成 G1 坡道两个模型（抬升量 RISE 与坡面几何在那个工具里）
+# ⚠ 会**整份重写** models/G1_track_slope.model / models/G1_rail_slope.model
+# 改完接着 render 重出图集（不 render 的话 openttd.json 还是旧的）。
+# 只改几何不会重排图集格位；**新增/删除精灵才会**，那时才需要按 docs/建模经验.md
+# §7.3 同步 src/rails/templates.pnml 的 rect。
+slope:
+	$(NODE) tools/gen-g1-slope.mjs
+	$(NODE) tools/build.mjs --step render
 
 # 定标图：会被 make clean 删掉，需要时用这个重建
 diag: calibrate compare
