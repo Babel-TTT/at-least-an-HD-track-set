@@ -2,7 +2,8 @@
 // tools/sprites.mjs —— 手写模板表（src/rails/templates.pnml）的**查阅工具**
 //
 //   node tools/sprites.mjs            列出 模型#朝向 ↔ 引擎槽位 ↔ 文件行号 ↔ 当前值
-//   node tools/sprites.mjs --sheet    外加 out/calibrate/index.png（哪个格子是哪个朝向）
+//   node tools/sprites.mjs --sheet    外加 out/calibrate/index.png（**带标注的偏移索引图**）
+//   node tools/sprites.mjs --sheet --zoom 3   索引图放大 3 倍（默认 2；改 ±1px 时用 3 更好看）
 //   node tools/sprites.mjs --emit     打印「可整段粘贴」的 template 块（同步用）
 //
 // ⚠ 本工具**只读不写**。templates.pnml 是手写源文件（人工裁定 O2），
@@ -38,6 +39,7 @@ import {
   config, log, fail, rel, isMain,
   readManifest, readTemplates, derivedTemplates, templatesFile,
 } from './util.mjs';
+import { drawText } from './font5x7.mjs';
 
 // ---------------------------------------------------------------------------
 // 语义表：这个模型的第 N 个朝向，喂给引擎的哪一槽
@@ -71,71 +73,114 @@ function pad(s, n) {
 }
 
 // ---------------------------------------------------------------------------
-// 索引图：每个「模型#朝向」一个格子，全部画在**同一个瓦片锚点**上。
-// 用的是 templates.pnml 里的 xrel/yrel —— 也就是**真会被引擎用的**那个值。
+// 偏移索引图
+//
+// 每个「模型#朝向」一格，全部画在**同一个瓦片锚点**上，并且**把标注直接写进图里**
+// （靠 tools/font5x7.mjs 那套点阵字体）—— 这样一张图就能自查自调，不用来回对终端。
+//
+// 每格里画什么：
+//   * 深色棋格      = 背景
+//   * 蓝色细格      = 每 16 px 一条；每 64 px 加亮并标数字（4x 档像素）
+//   * 洋红菱形      = 瓦片轮廓（瓦片四条边）
+//   * 黄十字 + 刻度 = **瓦片原点**（菱形上顶点）—— xrel/yrel 就是相对它的偏移
+//   * 青色小角标    = 朝向号（view+1 个点）
+//   * 下方三行      = 模型#朝向 / 当前 xrel,yrel + 行号 / rect
+//
+// 用的是 templates.pnml 里的 xrel/yrel —— 也就是**真会被引擎用的**那个值，
+// 所以手调之后这张图立刻反映实际摆放。
 // ---------------------------------------------------------------------------
-const CELL_W = 280;
-const CELL_H = 200;
-const ANCHOR_X = 140;
-const ANCHOR_Y = 60;
-const GAP = 8;
+const K_DEFAULT = 2;             // 放大倍数（要看 ±1~2 px 的偏移，1x 太小）；--zoom N 可改
+const CELL_W_BASE = 263;         // flatiso 给 1×1 占地的固定格位
+const CELL_H_BASE = 151;
+const LBL_H = 62;                // 下方三行标注
+const GAP = 10;
 const COLS = 4;
+const HEAD_H = 74;               // 顶部说明
 
-function blankCell() {
-  const px = new Uint8Array(CELL_W * CELL_H * 4);
-  for (let y = 0; y < CELL_H; y++) {
-    for (let x = 0; x < CELL_W; x++) {
+function blankCell(w, h) {
+  const px = new Uint8Array(w * h * 4);
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
       const v = ((x >> 3) + (y >> 3)) & 1 ? 30 : 40;
-      const i = (y * CELL_W + x) * 4;
+      const i = (y * w + x) * 4;
       px[i] = v; px[i + 1] = v; px[i + 2] = v; px[i + 3] = 255;
     }
   }
   return px;
 }
 
-function setpx(d, x, y, rgb, a = 1) {
+function setpx(d, w, h, x, y, rgb, a = 1) {
   const xi = Math.round(x), yi = Math.round(y);
-  if (xi < 0 || yi < 0 || xi >= CELL_W || yi >= CELL_H) return;
-  const i = (yi * CELL_W + xi) * 4;
+  if (xi < 0 || yi < 0 || xi >= w || yi >= h) return;
+  const i = (yi * w + xi) * 4;
   d[i]     = Math.round(rgb[0] * a + d[i]     * (1 - a));
   d[i + 1] = Math.round(rgb[1] * a + d[i + 1] * (1 - a));
   d[i + 2] = Math.round(rgb[2] * a + d[i + 2] * (1 - a));
   d[i + 3] = 255;
 }
 
-function guideLine(d, x0, y0, x1, y1, rgb, a = 1) {
+function solid(d, w, h, x, y, bw, bh, rgb) {
+  for (let j = 0; j < bh; j++) for (let i = 0; i < bw; i++) setpx(d, w, h, x + i, y + j, rgb);
+}
+
+function guideLine(d, w, h, x0, y0, x1, y1, rgb, a = 1) {
   const n = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0));
   for (let i = 0; i <= n; i++) {
     const t = n ? i / n : 0;
-    setpx(d, x0 + (x1 - x0) * t, y0 + (y1 - y0) * t, rgb, a);
+    setpx(d, w, h, x0 + (x1 - x0) * t, y0 + (y1 - y0) * t, rgb, a);
   }
 }
 
-function drawGuides(d, ox, oy) {
-  const M = [255, 80, 255];
-  guideLine(d, ox, oy, ox - 128, oy + 64, M, 0.85);
-  guideLine(d, ox, oy, ox + 128, oy + 64, M, 0.85);
-  guideLine(d, ox, oy + 128, ox - 128, oy + 64, M, 0.85);
-  guideLine(d, ox, oy + 128, ox + 128, oy + 64, M, 0.45);
-  guideLine(d, 0, oy + 64, CELL_W - 1, oy + 64, [225, 225, 90], 0.9);
-  for (let x = 0; x < CELL_W; x++) { setpx(d, x, 0, [90, 90, 100]); setpx(d, x, CELL_H - 1, [90, 90, 100]); }
-  for (let y = 0; y < CELL_H; y++) { setpx(d, 0, y, [90, 90, 100]); setpx(d, CELL_W - 1, y, [90, 90, 100]); }
-  // 左上角一小块黄 —— 图里没字体，靠终端打印的行列号对照
-  for (let y = 4; y < 10; y++) for (let x = 4; x < 10; x++) setpx(d, x, y, [255, 210, 60]);
+/** 蓝网格（每 16 px，每 64 px 加亮）+ 顶部/左侧数字标尺 */
+function drawPixelGrid(d, w, h, k) {
+  const DIM = [44, 52, 70], MID = [66, 80, 108];
+  for (let v = 0; v <= CELL_W_BASE; v += 16) {
+    const bright = v % 64 === 0;
+    guideLine(d, w, h, v * k, 0, v * k, h - LBL_H - 1, bright ? MID : DIM, 0.9);
+    if (bright) drawText(d, w, h, v * k + 2, 2, String(v), 1, [110, 140, 200]);
+  }
+  for (let v = 0; v <= CELL_H_BASE; v += 16) {
+    const bright = v % 64 === 0;
+    guideLine(d, w, h, 0, v * k, w - 1, v * k, bright ? MID : DIM, 0.9);
+    if (bright && v > 0) drawText(d, w, h, 2, v * k + 2, String(v), 1, [110, 140, 200]);
+  }
 }
 
-function blit(dst, src, srcW, sx0, sy0, w, h, dx, dy) {
-  for (let y = 0; y < h; y++) {
-    for (let x = 0; x < w; x++) {
-      const si = ((sy0 + y) * srcW + (sx0 + x)) * 4;
+/** 瓦片参照系：菱形轮廓 + 锚点黄十字（带每 8px 刻度，方便数偏移）。坐标一律按 1x 给，内部乘 K。 */
+function drawTileGuides(d, w, h, ox, oy, k) {
+  const P = (v) => v * k;
+  const M = [255, 80, 255];
+  guideLine(d, w, h, ox, oy, ox - P(128), oy + P(64), M, 0.9);
+  guideLine(d, w, h, ox, oy, ox + P(128), oy + P(64), M, 0.9);
+  guideLine(d, w, h, ox, oy + P(128), ox - P(128), oy + P(64), M, 0.9);
+  guideLine(d, w, h, ox, oy + P(128), ox + P(128), oy + P(64), M, 0.55);
+  // 瓦片横竖中线（暗黄）
+  guideLine(d, w, h, ox - P(128), oy + P(64), ox + P(128), oy + P(64), [150, 150, 60], 0.7);
+  guideLine(d, w, h, ox, oy, ox, oy + P(128), [150, 150, 60], 0.7);
+  // 锚点黄十字 + 每 8px 一个小刻度
+  const Y = [255, 220, 60];
+  guideLine(d, w, h, ox - P(28), oy, ox + P(28), oy, Y, 1);
+  guideLine(d, w, h, ox, oy - P(18), ox, oy + P(18), Y, 1);
+  for (let t = -32; t <= 32; t += 8) {
+    if (t === 0) continue;
+    const len = (t % 16 === 0) ? 3 : 2;
+    guideLine(d, w, h, ox + P(t), oy - P(len), ox + P(t), oy + P(len), Y, 0.85);
+    guideLine(d, w, h, ox - P(len), oy + P(t), ox + P(len), oy + P(t), Y, 0.85);
+  }
+}
+
+function blit(dst, dw, dh, src, srcW, sx0, sy0, w, h, dx, dy, k) {
+  for (let y = 0; y < h * k; y++) {
+    for (let x = 0; x < w * k; x++) {
+      const si = ((sy0 + Math.floor(y / k)) * srcW + (sx0 + Math.floor(x / k))) * 4;
       const a = src[si + 3] / 255;
       if (a <= 0.03) continue;
-      setpx(dst, dx + x, dy + y, [src[si], src[si + 1], src[si + 2]], a);
+      setpx(dst, dw, dh, dx + x, dy + y, [src[si], src[si + 1], src[si + 2]], a);
     }
   }
 }
 
-async function indexSheet(rows, cfg) {
+async function indexSheet(rows, cfg, K = K_DEFAULT) {
   const { decodePNG, encodePNG } = await import(
     pathToFileURL(path.join(cfg.flatiso, 'core', 'png.mjs')).href
   );
@@ -150,27 +195,56 @@ async function indexSheet(rows, cfg) {
   };
 
   const nRows = Math.ceil(rows.length / COLS);
-  const W = COLS * CELL_W + (COLS + 1) * GAP;
-  const H = nRows * CELL_H + (nRows + 1) * GAP;
+  const CELL_W = CELL_W_BASE * K, CELL_H = CELL_H_BASE * K;
+  const cw = CELL_W, chh = CELL_H + LBL_H;
+  const W = COLS * cw + (COLS + 1) * GAP;
+  const H = HEAD_H + nRows * chh + (nRows + 1) * GAP;
   const sheetPx = new Uint8Array(W * H * 4);
-  for (let i = 0; i < W * H; i++) { sheetPx[i * 4] = 16; sheetPx[i * 4 + 1] = 16; sheetPx[i * 4 + 2] = 18; sheetPx[i * 4 + 3] = 255; }
+  for (let i = 0; i < W * H; i++) { sheetPx[i * 4] = 14; sheetPx[i * 4 + 1] = 14; sheetPx[i * 4 + 2] = 17; sheetPx[i * 4 + 3] = 255; }
+
+  // ---- 顶部说明 -----------------------------------------------------------
+  const TX = GAP + 4;
+  drawText(sheetPx, W, H, TX, 8, 'OFFSET INDEX -- ONE CELL PER MODEL#VIEW, ALL DRAWN ON THE SAME TILE ANCHOR', 2, [255, 235, 140]);
+  drawText(sheetPx, W, H, TX, 26, 'MAGENTA DIAMOND = TILE OUTLINE', 1, [255, 110, 255]);
+  drawText(sheetPx, W, H, TX + 230, 26, 'YELLOW CROSS + TICKS = TILE ORIGIN (REFERENCE FOR XREL/YREL)', 1, [255, 220, 60]);
+  drawText(sheetPx, W, H, TX, 38, 'BLUE GRID = EVERY 16 PX (4X), LABELS EVERY 64 PX', 1, [110, 140, 200]);
+  drawText(sheetPx, W, H, TX + 340, 38, 'CYAN CORNER DOTS = VIEW NUMBER (VIEW+1 DOTS)', 1, [80, 220, 255]);
+  drawText(sheetPx, W, H, TX, 50, 'EDIT SRC/RAILS/TEMPLATES.PNML ON THE SHOWN LINE:  XREL+ = SPRITE RIGHT,  YREL+ = SPRITE DOWN', 1, [180, 230, 180]);
+  drawText(sheetPx, W, H, TX + 700, 50, '*TUNED* = LINE MARKED [HAND-TUNED] IN THAT FILE', 1, [255, 160, 160]);
+  guideLine(sheetPx, W, H, GAP, HEAD_H - 4, W - GAP, HEAD_H - 4, [90, 90, 110], 1);
 
   for (let i = 0; i < rows.length; i++) {
     const r = rows[i];
-    const cell = blankCell();
-    drawGuides(cell, ANCHOR_X, ANCHOR_Y);
-    // 朝向号编码：左上角青色竖条长度 = view + 1 段
-    for (let y = 14; y < 14 + (r.view + 1) * 8; y++) for (let x = 4; x < 10; x++) setpx(cell, x, y, [80, 220, 255]);
+    const cell = blankCell(cw, chh);
+    drawPixelGrid(cell, cw, chh, K);
+    // 瓦片原点在精灵格内的位置 = (−xrel, −yrel)，也就是文件里真正生效的值
+    const ax = (-r.xrel) * K, ay = (-r.yrel) * K;
+    drawTileGuides(cell, cw, chh, ax, ay, K);
     const atlas = get(r.sheet);
     const [rx, ry, rw, rh] = r.rect;
-    blit(cell, atlas.rgba, atlas.width, rx, ry, rw, rh, ANCHOR_X + r.xrel, ANCHOR_Y + r.yrel);
+    blit(cell, cw, chh, atlas.rgba, atlas.width, rx, ry, rw, rh, 0, 0, K);
+    // 精灵格边框
+    for (let x = 0; x < cw; x++) { setpx(cell, cw, chh, x, 0, [90, 90, 110]); setpx(cell, cw, chh, x, CELL_H - 1, [90, 90, 110]); }
+    for (let y = 0; y < CELL_H; y++) { setpx(cell, cw, chh, 0, y, [90, 90, 110]); setpx(cell, cw, chh, cw - 1, y, [90, 90, 110]); }
+
+    // 朝向角标：左上角青色小方块，个数 = view+1
+    for (let v = 0; v <= r.view; v++) solid(cell, cw, chh, 6 + v * 12, 6, 9, 9, [80, 220, 255]);
+
+    // ---- 标注 -------------------------------------------------------------
+    const name = r.key.split('#')[0], view = Number(r.key.split('#')[1]);
+    const ly = CELL_H + 2;
+    drawText(cell, cw, chh, 2, ly, r.key + '   ' + (ROLES[name]?.views?.[view] ?? '-'), 2, [255, 255, 255]);
+    drawText(cell, cw, chh, 2, ly + 18,
+      'XREL,YREL = ' + r.xrel + ',' + r.yrel + '    LINE ' + r.line + (r.handTuned ? '  *TUNED*' : ''), 2,
+      r.handTuned ? [255, 170, 120] : [150, 235, 150]);
+    drawText(cell, cw, chh, 2, ly + 36, 'RECT ' + r.rect.join(',') + '   SPRITE ' + rw + 'X' + rh, 1, [170, 180, 200]);
 
     const col = i % COLS, row = Math.floor(i / COLS);
-    const ox = GAP + col * (CELL_W + GAP);
-    const oy = GAP + row * (CELL_H + GAP);
-    for (let y = 0; y < CELL_H; y++) {
-      for (let x = 0; x < CELL_W; x++) {
-        const si = (y * CELL_W + x) * 4, di = ((oy + y) * W + ox + x) * 4;
+    const ox = GAP + col * (cw + GAP);
+    const oy = HEAD_H + GAP + row * (chh + GAP);
+    for (let y = 0; y < chh; y++) {
+      for (let x = 0; x < cw; x++) {
+        const si = (y * cw + x) * 4, di = ((oy + y) * W + ox + x) * 4;
         sheetPx[di] = cell[si]; sheetPx[di + 1] = cell[si + 1];
         sheetPx[di + 2] = cell[si + 2]; sheetPx[di + 3] = 255;
       }
@@ -183,9 +257,10 @@ async function indexSheet(rows, cfg) {
   const outFile = path.join(outDir, 'index.png');
   fs.rmSync(outFile, { force: true });   // 见 docs/踩坑.md C5
   fs.writeFileSync(outFile, encodePNG(W, H, sheetPx));
-  log(`✔ 索引图 ${rel(outFile)}   共 ${nRows} 行 × ${COLS} 列（左上角起，0 开始数）`);
-  log('   每格：洋红 = 瓦片轮廓，黄线 = 地面中心线；左上角黄块下方');
-  log('   青色竖条长度 = 朝向号 +1 段（0→1 段，1→2 段，2→3 段，3→4 段）');
+  log(`✔ 偏移索引图 ${rel(outFile)}   ${W}×${H}   共 ${nRows} 行 × ${COLS} 列`);
+  log('   每格：洋红=瓦片轮廓，黄十字=瓦片原点（xrel/yrel 的参照），蓝格=每 16px，');
+  log('         左上角青点数=朝向号+1；下方三行写着 模型#朝向 / xrel,yrel 与行号 / rect。');
+  log('   XREL+ 右移，YREL+ 下移；改完 src/rails/templates.pnml 那一行再跑 make。');
 }
 
 // ---------------------------------------------------------------------------
@@ -291,7 +366,9 @@ export async function sprites() {
   log('');
 
   if (argv.includes('--sheet')) {
-    await indexSheet(rows, cfg);
+    const zi = argv.indexOf('--zoom');
+    const zoom = zi >= 0 ? Math.max(1, Math.min(6, Number(argv[zi + 1]) || K_DEFAULT)) : K_DEFAULT;
+    await indexSheet(rows, cfg, zoom);
     log('');
     log('  索引图 位置对照（行/列 从 0 开始，左上角为 0/0）：');
     for (const r of rows) log('    ' + pad(r.key, 28) + ` 第 ${r.row} 行 第 ${r.col} 列`);
