@@ -109,33 +109,51 @@ function archZ(y) {
 }
 
 // ---------------------------------------------------------------------------
-// 图元。顶点绕序**照抄 tools/gen-g1-slope.mjs 的 slab()**（那套渲染出来是对的，
-// 不要自己另推一套绕序）。
+// 图元朝向：**显式给目标法线，绕序自动纠正**
+//
+// ⚠⚠ 踩过的坑（2026-10，实机"四个朝向都像凹进去"）：
+//   flatiso 的 `quad` 不传法线时，法线是**按顶点绕序用 Newell 法算的**
+//   （core/mesh.mjs:56 `const n = o.normal ? norm(o.normal) : newell(pts)`）。
+//   而 flatiso 自己的 `box` 原语（mesh.mjs:213-218）**每一步都显式传了 normal**，
+//   所以它不在乎绕序 —— 从它那儿"抄绕序"是抄不到的，抄来也是错的。
+//   从 gen-g1-slope.mjs 的 slab() 抄来的那套侧面绕序**四个面全是反的**：
+//     x=x1 → 算出 −x 、x=x0 → 算出 +x 、y=y0 → 算出 +y 、y=y1 → 算出 −y
+//   坡道那边没暴露是因为枕木/钢轨侧面只有 0.01 格高，是细条；
+//   隧道端墙是一整面大平板，一上去就穿帮。
+//
+//   ⇒ 本文件一律用 q4o(pts, want, mat)：把**应该朝哪**写出来，绕序机器纠正。
 // ---------------------------------------------------------------------------
 
-/** 轴对齐长方体（顶面 + 4 侧面，不做底面） */
-function box(x0, y0, x1, y1, zb, zt, side, top = null) {
-  const L = [];
-  L.push('quad ' + N(x1) + ' ' + N(y0) + ' ' + N(zt) +
-         '  ' + N(x1) + ' ' + N(y1) + ' ' + N(zt) +
-         '  ' + N(x0) + ' ' + N(y1) + ' ' + N(zt) +
-         '  ' + N(x0) + ' ' + N(y0) + ' ' + N(zt) +
-         '   ' + (top ?? side));
-  const side4 = [
-    [[x1, y0, zt], [x1, y1, zt], [x1, y1, zb], [x1, y0, zb]],   // x = x1
-    [[x0, y0, zt], [x0, y0, zb], [x0, y1, zb], [x0, y1, zt]],   // x = x0
-    [[x0, y0, zt], [x1, y0, zt], [x1, y0, zb], [x0, y0, zb]],   // y = y0
-    [[x0, y1, zt], [x0, y1, zb], [x1, y1, zb], [x1, y1, zt]],   // y = y1
+/** 交叉积（用前三个顶点） */
+function faceNormal(pts) {
+  const [a, b, c] = pts;
+  const e1 = [b[0] - a[0], b[1] - a[1], b[2] - a[2]];
+  const e2 = [c[0] - a[0], c[1] - a[1], c[2] - a[2]];
+  return [
+    e1[1] * e2[2] - e1[2] * e2[1],
+    e1[2] * e2[0] - e1[0] * e2[2],
+    e1[0] * e2[1] - e1[1] * e2[0],
   ];
-  for (const f of side4) {
-    L.push('quad ' + f.map(([x, y, z]) => N(x) + ' ' + N(y) + ' ' + N(z)).join('  ') + '   ' + side);
-  }
-  return L;
 }
 
-/** 单个 quad（4 个 [x,y,z]） */
-function q4(pts, mat) {
-  return 'quad ' + pts.map(([x, y, z]) => N(x) + ' ' + N(y) + ' ' + N(z)).join('  ') + '   ' + mat;
+/** 输出一个 quad，保证其法线朝向 want（反向就翻转顶点序） */
+function q4o(pts, want, mat) {
+  const n = faceNormal(pts);
+  const d = n[0] * want[0] + n[1] * want[1] + n[2] * want[2];
+  const p = d >= 0 ? pts : [...pts].reverse();
+  return 'quad ' + p.map(([x, y, z]) => N(x) + ' ' + N(y) + ' ' + N(z)).join('  ') + '   ' + mat;
+}
+
+/** 轴对齐长方体（顶面 + 4 侧面，不做底面）。法线全部显式朝外。 */
+function box(x0, y0, x1, y1, zb, zt, side, top = null) {
+  const P = (x, y, z) => [x, y, z];
+  return [
+    q4o([P(x0, y0, zt), P(x1, y0, zt), P(x1, y1, zt), P(x0, y1, zt)], [0, 0, 1], top ?? side),   // 顶
+    q4o([P(x1, y0, zb), P(x1, y0, zt), P(x1, y1, zt), P(x1, y1, zb)], [1, 0, 0], side),         // x=x1
+    q4o([P(x0, y0, zb), P(x0, y1, zb), P(x0, y1, zt), P(x0, y0, zt)], [-1, 0, 0], side),        // x=x0
+    q4o([P(x0, y0, zb), P(x0, y0, zt), P(x1, y0, zt), P(x1, y0, zb)], [0, -1, 0], side),        // y=y0
+    q4o([P(x0, y1, zb), P(x1, y1, zb), P(x1, y1, zt), P(x0, y1, zt)], [0, 1, 0], side),         // y=y1
+  ];
 }
 
 // ---- 道砟（平铺，与坡道那版同风格）----------------------------------------
@@ -198,26 +216,31 @@ function portal() {
     const z0 = archZ(Math.min(y0 + 1e-6, ARCH_CY)) ?? ARCH_SPRING;
     const z1 = archZ(Math.max(y1 - 1e-6, ARCH_CY)) ?? ARCH_SPRING;
     // 正面（朝 +x）
-    L.push(q4([[FRONT, y0, WALL_TOP], [FRONT, y1, WALL_TOP], [FRONT, y1, z1], [FRONT, y0, z0]], 'stone'));
-    // 拱腹（内拱面）
-    L.push(q4([[FRONT, y0, z0], [WALL_X0, y0, z0], [WALL_X0, y1, z1], [FRONT, y1, z1]], 'stone_seam'));
+    L.push(q4o([[FRONT, y0, WALL_TOP], [FRONT, y1, WALL_TOP], [FRONT, y1, z1], [FRONT, y0, z0]],
+      [1, 0, 0], 'stone'));
+    // 拱腹：朝**拱轴心**（洞内），法线 = 由拱心指向该条带中点的反方向
+    const ym = (y0 + y1) / 2;
+    const zm = archZ(ym) ?? ARCH_SPRING;
+    const ry = (ym - ARCH_CY) / ARCH_R, rz = (zm - ARCH_SPRING) / ARCH_R;
+    L.push(q4o([[FRONT, y0, z0], [WALL_X0, y0, z0], [WALL_X0, y1, z1], [FRONT, y1, z1]],
+      [0, -ry, -rz], 'stone_seam'));
   }
 
-  // 拱洞两侧的内壁（竖直段，从地面到起拱线）
-  L.push(q4([[WALL_X0, ARCH_Y0, ARCH_SPRING], [FRONT, ARCH_Y0, ARCH_SPRING],
-             [FRONT, ARCH_Y0, 0], [WALL_X0, ARCH_Y0, 0]], 'stone_seam'));
-  L.push(q4([[WALL_X0, ARCH_Y1, ARCH_SPRING], [WALL_X0, ARCH_Y1, 0],
-             [FRONT, ARCH_Y1, 0], [FRONT, ARCH_Y1, ARCH_SPRING]], 'stone_seam'));
+  // 拱洞两侧的内壁（竖直段，从地面到起拱线）—— 朝洞内
+  L.push(q4o([[WALL_X0, ARCH_Y0, ARCH_SPRING], [FRONT, ARCH_Y0, ARCH_SPRING],
+              [FRONT, ARCH_Y0, 0], [WALL_X0, ARCH_Y0, 0]], [0, 1, 0], 'stone_seam'));
+  L.push(q4o([[WALL_X0, ARCH_Y1, ARCH_SPRING], [WALL_X0, ARCH_Y1, 0],
+              [FRONT, ARCH_Y1, 0], [FRONT, ARCH_Y1, ARCH_SPRING]], [0, -1, 0], 'stone_seam'));
 
-  // 端墙两端面（y = WALL_Y0 / WALL_Y1）
-  L.push(q4([[WALL_X0, WALL_Y0, WALL_TOP], [FRONT, WALL_Y0, WALL_TOP],
-             [FRONT, WALL_Y0, 0], [WALL_X0, WALL_Y0, 0]], 'stone_dark'));
-  L.push(q4([[WALL_X0, WALL_Y1, WALL_TOP], [WALL_X0, WALL_Y1, 0],
-             [FRONT, WALL_Y1, 0], [FRONT, WALL_Y1, WALL_TOP]], 'stone_dark'));
+  // 端墙两端面（y = WALL_Y0 / WALL_Y1）—— 朝墙外
+  L.push(q4o([[WALL_X0, WALL_Y0, WALL_TOP], [FRONT, WALL_Y0, WALL_TOP],
+              [FRONT, WALL_Y0, 0], [WALL_X0, WALL_Y0, 0]], [0, -1, 0], 'stone_dark'));
+  L.push(q4o([[WALL_X0, WALL_Y1, WALL_TOP], [WALL_X0, WALL_Y1, 0],
+              [FRONT, WALL_Y1, 0], [FRONT, WALL_Y1, WALL_TOP]], [0, 1, 0], 'stone_dark'));
 
   // 墙顶（被压顶盖住，但补上以防露缝）
-  L.push(q4([[WALL_X0, WALL_Y0, WALL_TOP], [WALL_X0, WALL_Y1, WALL_TOP],
-             [FRONT, WALL_Y1, WALL_TOP], [FRONT, WALL_Y0, WALL_TOP]], 'stone_dark'));
+  L.push(q4o([[WALL_X0, WALL_Y0, WALL_TOP], [WALL_X0, WALL_Y1, WALL_TOP],
+              [FRONT, WALL_Y1, WALL_TOP], [FRONT, WALL_Y0, WALL_TOP]], [0, 0, 1], 'stone_dark'));
 
   // 压顶（出挑的一圈）
   L.push(...box(COPING_X0, COPING_Y0, COPING_X1, COPING_Y1, WALL_TOP, COPING_TOP, 'stone_dark', 'stone'));

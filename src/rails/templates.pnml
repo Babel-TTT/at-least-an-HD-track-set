@@ -270,16 +270,30 @@ template t_G1_tunnel_stone_v3(sheet) {
 //   基准朝向 = DiagDir NE（洞口在 x=0 边 / 右上）；取图顺序 v0=NE v1=NW v2=SW v3=SE
 //   ⚠ 引擎槽位顺序是 NE / SE / SW / NW ⇒ 喂图是 v0, v3, v2, v1
 //   参数 sheet：调用处传 "gfx/tunnel.png"（按类分表，见 tools/sheets.mjs）
+//
+//   ★ 本层比 tunnels: 层**高 120 px**（yrel = 地面层 − 120）—— 人工要求参考
+//     China-Set-Tracks-Neo，2026-10 实机发现"洞口石墙脱离瓦片"后修正。
+//
+//     依据：Neo 的 src/template.pnml 里
+//         t_tunnel      underlay  [.., XOFFSET, YOFFSET      ]   YOFFSET   = -184
+//         t_tunnel_over overlay   [.., XOFFSET, YOFFSET-120  ]   YOFFSET-120 = -304
+//     而 Neo 的四张隧道 PNG 尺寸**完全相同**（test-tun_01/02 与 test-tun_over_01/02
+//     都是 1056×310，同一个 renderobject manifest 出的取景）。
+//     ⇒ 两层取景一样却差 120 px，**只可能是引擎强加的偏移**，不是他们的构图差异。
+//       `tunnels:` 走 DrawGroundSprite（无偏移），`tunnel_overlay:` 走
+//       AddSortableSpriteToDraw(..., roof_bounds[dir])（带偏移）—— 这是同一个引擎
+//       给基础包"隧道顶"图用的那套 bounds，我们的图必须按同样口径配锚点。
+//     ⇒ 取 Neo 的差值 120 px（同为 4x，可直接搬）。
 // ---------------------------------------------------------------------------
 template t_G1_tunnel_stone_over_v0(sheet) {
-  [1052, 0, 263, 218, -131, -86, sheet]
+  [1052, 0, 263, 218, -131, -206, sheet]   // 【手调】比地面层高 120px（引擎 roof_bounds 偏移）
 }
 template t_G1_tunnel_stone_over_v1(sheet) {
-  [1315, 0, 263, 218, -131, -86, sheet]
+  [1315, 0, 263, 218, -131, -206, sheet]   // 【手调】比地面层高 120px（引擎 roof_bounds 偏移）
 }
 template t_G1_tunnel_stone_over_v2(sheet) {
-  [1578, 0, 263, 218, -131, -86, sheet]
+  [1578, 0, 263, 218, -131, -206, sheet]   // 【手调】比地面层高 120px（引擎 roof_bounds 偏移）
 }
 template t_G1_tunnel_stone_over_v3(sheet) {
-  [1841, 0, 263, 218, -131, -86, sheet]
+  [1841, 0, 263, 218, -131, -206, sheet]   // 【手调】比地面层高 120px（引擎 roof_bounds 偏移）
 }
