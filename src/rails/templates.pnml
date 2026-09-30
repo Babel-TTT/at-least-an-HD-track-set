@@ -63,16 +63,16 @@
 //   v0 = TRACK_UPPER   v1 = TRACK_LEFT   v2 = TRACK_LOWER   v3 = TRACK_RIGHT
 // ---------------------------------------------------------------------------
 template t_probe_half_upper_v0() {
-  [0, 0, 263, 151, -128, -21, "gfx/1x1.png"]      // az   0  TRACK_UPPER  【手调】
+  [1052, 151, 263, 151, -128, -21, "gfx/1x1.png"]  // az   0  TRACK_UPPER  【手调】
 }
 template t_probe_half_upper_v1() {
-  [263, 0, 263, 151, -131, -19, "gfx/1x1.png"]    // az  90  TRACK_LEFT
+  [1315, 151, 263, 151, -131, -19, "gfx/1x1.png"]  // az  90  TRACK_LEFT
 }
 template t_probe_half_upper_v2() {
-  [526, 0, 263, 151, -129, -21, "gfx/1x1.png"]    // az 180  TRACK_LOWER  【手调】
+  [1578, 151, 263, 151, -129, -21, "gfx/1x1.png"]  // az 180  TRACK_LOWER  【手调】
 }
 template t_probe_half_upper_v3() {
-  [789, 0, 263, 151, -131, -19, "gfx/1x1.png"]    // az 270  TRACK_RIGHT
+  [1841, 151, 263, 151, -131, -19, "gfx/1x1.png"]  // az 270  TRACK_RIGHT
 }
 
 // ---------------------------------------------------------------------------
@@ -80,16 +80,16 @@ template t_probe_half_upper_v3() {
 // 只被 tunnels spriteset 占位用，P4 会换成真正的隧道口。
 // ---------------------------------------------------------------------------
 template t_probe_tile_v0() {
-  [1052, 0, 263, 151, -129, -21, "gfx/1x1.png"]   // az   0  【手调】
+  [0, 302, 263, 151, -129, -21, "gfx/1x1.png"]  // az   0  【手调】
 }
 template t_probe_tile_v1() {
-  [1315, 0, 263, 151, -131, -19, "gfx/1x1.png"]   // az  90
+  [263, 302, 263, 151, -131, -19, "gfx/1x1.png"]  // az  90
 }
 template t_probe_tile_v2() {
-  [1578, 0, 263, 151, -131, -19, "gfx/1x1.png"]   // az 180
+  [526, 302, 263, 151, -131, -19, "gfx/1x1.png"]  // az 180
 }
 template t_probe_tile_v3() {
-  [1841, 0, 263, 151, -131, -19, "gfx/1x1.png"]   // az 270
+  [789, 302, 263, 151, -131, -19, "gfx/1x1.png"]  // az 270
 }
 
 // ---------------------------------------------------------------------------
@@ -100,14 +100,68 @@ template t_probe_tile_v3() {
 //   引擎的两个槽位按约定取 v0（RTO_X）与 v3（RTO_Y），见 railsprite.pnml。
 // ---------------------------------------------------------------------------
 template t_probe_track_x_v0() {
-  [0, 151, 263, 151, -129, -22, "gfx/1x1.png"]    // az   0  TRACK_X  ← RTO_X 用这张  【手调】
+  [1052, 302, 263, 151, -129, -22, "gfx/1x1.png"]  // az   0  TRACK_X  ← RTO_X 用这张  【手调】
 }
 template t_probe_track_x_v1() {
-  [263, 151, 263, 151, -130, -20, "gfx/1x1.png"]  // az  90  TRACK_Y
+  [1315, 302, 263, 151, -130, -20, "gfx/1x1.png"]  // az  90  TRACK_Y
 }
 template t_probe_track_x_v2() {
-  [526, 151, 263, 151, -131, -19, "gfx/1x1.png"]  // az 180  TRACK_X（与 v0 同形）
+  [1578, 302, 263, 151, -131, -19, "gfx/1x1.png"]  // az 180  TRACK_X（与 v0 同形）
 }
 template t_probe_track_x_v3() {
-  [789, 151, 263, 151, -131, -19, "gfx/1x1.png"]  // az 270  TRACK_Y  ← RTO_Y 用这张
+  [1841, 302, 263, 151, -131, -19, "gfx/1x1.png"]  // az 270  TRACK_Y  ← RTO_Y 用这张
+}
+
+// ---------------------------------------------------------------------------
+// G1_crossing —— 平交道口轨（TRACK_BIT_CROSS = X|Y）。**自带交叉钢轨** —— 引擎对交叉只画
+//   underlay，不叠加 overlay（rail_cmd.cpp:3790），所以钢轨必须烘进来。
+//   4 个朝向对称，引擎只取 v0 喂 RTO_CROSSING_XY。
+// ---------------------------------------------------------------------------
+template t_G1_crossing_v0() {
+  [0, 0, 263, 151, -131, -19, "gfx/1x1.png"]   // → RTO_CROSSING_XY
+}
+template t_G1_crossing_v1() {
+  [263, 0, 263, 151, -131, -19, "gfx/1x1.png"]
+}
+template t_G1_crossing_v2() {
+  [526, 0, 263, 151, -131, -19, "gfx/1x1.png"]
+}
+template t_G1_crossing_v3() {
+  [789, 0, 263, 151, -131, -19, "gfx/1x1.png"]
+}
+
+// ---------------------------------------------------------------------------
+// G1_junction3 —— 三向道岔道砟。**只有道砟，不含钢轨** —— 引擎在道岔瓦片上叠 overlay
+//   的 X/Y/N/S/E/W（rail_cmd.cpp:3796-3816）。
+//   喂槽顺序：v0→JUNCTION_SW  v1→JUNCTION_SE  v2→JUNCTION_NE  v3→JUNCTION_NW
+//   （由四重旋转 R 推出：R³(SW)=SE，R²(SW)=NE，R¹(SW)=NW）
+// ---------------------------------------------------------------------------
+template t_G1_junction3_v0() {
+  [1052, 0, 263, 151, -131, -19, "gfx/1x1.png"]   // → RTO_JUNCTION_SW
+}
+template t_G1_junction3_v1() {
+  [1315, 0, 263, 151, -131, -19, "gfx/1x1.png"]   // → RTO_JUNCTION_SE
+}
+template t_G1_junction3_v2() {
+  [1578, 0, 263, 151, -131, -19, "gfx/1x1.png"]   // → RTO_JUNCTION_NE
+}
+template t_G1_junction3_v3() {
+  [1841, 0, 263, 151, -131, -19, "gfx/1x1.png"]   // → RTO_JUNCTION_NW
+}
+
+// ---------------------------------------------------------------------------
+// G1_junction4 —— 四向道岔道砟（RTO_JUNCTION_NSEW）。同样只有道砟。
+//   引擎在 4 种「箭头」三向组合上也复用这一张，所以范围会比实际轨道大。
+// ---------------------------------------------------------------------------
+template t_G1_junction4_v0() {
+  [0, 151, 263, 151, -131, -19, "gfx/1x1.png"]   // → RTO_JUNCTION_NSEW
+}
+template t_G1_junction4_v1() {
+  [263, 151, 263, 151, -131, -19, "gfx/1x1.png"]
+}
+template t_G1_junction4_v2() {
+  [526, 151, 263, 151, -131, -19, "gfx/1x1.png"]
+}
+template t_G1_junction4_v3() {
+  [789, 151, 263, 151, -131, -19, "gfx/1x1.png"]
 }

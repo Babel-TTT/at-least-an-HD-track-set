@@ -53,12 +53,12 @@ spriteset(probe_underlay, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
     t_probe_track_x_v3()        //  7  RTO_SLOPE_SE  ← 探针占位
     t_probe_track_x_v0()        //  8  RTO_SLOPE_SW  ← 探针占位
     t_probe_track_x_v3()        //  9  RTO_SLOPE_NW  ← 探针占位
-    t_probe_track_x_v0()        // 10  RTO_CROSSING_XY  ← 探针占位
-    t_probe_half_upper_v0()     // 11  RTO_JUNCTION_SW  ← 探针占位
-    t_probe_half_upper_v1()     // 12  RTO_JUNCTION_NE  ← 探针占位
-    t_probe_half_upper_v2()     // 13  RTO_JUNCTION_SE  ← 探针占位
-    t_probe_half_upper_v3()     // 14  RTO_JUNCTION_NW  ← 探针占位
-    t_probe_half_upper_v0()     // 15  RTO_JUNCTION_NSEW ← 探针占位
+    t_G1_crossing_v0()          // 10  RTO_CROSSING_XY   ★ G1 正式：自带交叉钢轨
+    t_G1_junction3_v0()         // 11  RTO_JUNCTION_SW   ★ G1 正式：只有道砟
+    t_G1_junction3_v2()         // 12  RTO_JUNCTION_NE   （v2）只有道砟
+    t_G1_junction3_v1()         // 13  RTO_JUNCTION_SE   （v1）只有道砟
+    t_G1_junction3_v3()         // 14  RTO_JUNCTION_NW   （v3）只有道砟
+    t_G1_junction4_v0()         // 15  RTO_JUNCTION_NSEW ★ G1 正式：只有道砟
 }
 
 // RTO_X  RTO_Y  RTO_N  RTO_S  RTO_E  RTO_W
