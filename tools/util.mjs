@@ -81,46 +81,6 @@ export function rel(p) {
   return r.startsWith('..') ? p : r;
 }
 
-/**
- * 手调偏移表：`<仓库根>/sprite-offsets.json`
- *
- * 为什么要有这个：`centerAnchor` 反推出来的 xrel/yrel 在**几何**上是对的，
- * 但如果实机里发现某个朝向的精灵有系统性偏移（引擎侧的额外处理、
- * 或者 flatiso 取景与我们的理解有半像素差），就需要一个不改模型、
- * 不改算法就能微调的地方。
- *
- * 格式（像素，整数；叠加在反推结果上）：
- *   {
- *     "_note": "key = 模型名 或 模型名#朝向",
- *     "probe_half_upper#0": [0, -3],
- *     "*": [1, 0]
- *   }
- *
- * ⚠ 这是**定标微调**，不是常规手段。能用几何解释的偏移要回去改几何；
- *   只有解释不了的系统性偏移才动这里，并在提交信息里写清原因。
- */
-let _offsets = null;
-export function spriteOffsets() {
-  if (_offsets) return _offsets;
-  _offsets = {};
-  const f = path.join(ROOT, 'sprite-offsets.json');
-  if (!fs.existsSync(f)) return _offsets;
-  try {
-    // 去掉可能存在的 BOM —— PowerShell 的 Set-Content -Encoding UTF8 会加，
-    // 而带 BOM 的字符串 JSON.parse 会直接抛错（踩过，见 docs/踩坑.md C5.1）
-    let txt = fs.readFileSync(f, 'utf8');
-    if (txt.charCodeAt(0) === 0xFEFF) txt = txt.slice(1);
-    const raw = JSON.parse(txt);
-    for (const [k, v] of Object.entries(raw)) {
-      if (k.startsWith('_')) continue;
-      if (Array.isArray(v) && v.length === 2) _offsets[k] = v.map(Number);
-    }
-  } catch (err) {
-    process.stderr.write(`⚠ sprite-offsets.json 解析失败，忽略：${err.message}\n`);
-  }
-  return _offsets;
-}
-
 // ---------------------------------------------------------------------------
 // 摆放锚点：**不要直接用 flatiso 的 xrel/yrel**
 //
@@ -137,8 +97,6 @@ export function spriteOffsets() {
 //   瓦片原点像素 = centerAnchor − 占地中心投影偏移
 //   占地中心 (cx, cy) 的投影偏移 = ( (cy−cx)·HW , (cx+cy)·HH )
 //   ⇒ NML 的 xrel = −原点像素x , yrel = −原点像素y
-//
-// 最后叠加 sprite-offsets.json 里的手调量（见上）。
 // ---------------------------------------------------------------------------
 export function anchorToXrelYrel(entry, view) {
   const HW = view?.HW ?? 128;
@@ -150,28 +108,117 @@ export function anchorToXrelYrel(entry, view) {
   const offY = (cx + cy) * HH;
   const ca = entry.centerAnchor;
 
-  let xrel, yrel, fromCenterAnchor;
-  if (!ca) {
-    xrel = entry.xrel;
-    yrel = entry.yrel;
-    fromCenterAnchor = false;
-  } else {
-    const originX = ca[0] - offX;
-    const originY = ca[1] - offY;
-    xrel = -Math.round(originX);
-    yrel = -Math.round(originY);
-    fromCenterAnchor = true;
-  }
+  if (!ca) return { xrel: entry.xrel, yrel: entry.yrel, fromCenterAnchor: false };
+  return {
+    xrel: -Math.round(ca[0] - offX),
+    yrel: -Math.round(ca[1] - offY),
+    fromCenterAnchor: true,
+  };
+}
 
-  // 手调叠加
-  const name = String(entry.id ?? '').split('#')[0];
-  const vw = entry.view ?? 0;
-  const t = spriteOffsets();
-  const adj = t[`${name}#${vw}`] ?? t[name] ?? t['*'];
-  if (adj) {
-    xrel += adj[0];
-    yrel += adj[1];
-  }
+/** gfx/openttd.json 的路径 */
+export function manifestFile() {
+  return path.join(config().gfxDir, 'openttd.json');
+}
 
-  return { xrel, yrel, fromCenterAnchor, adjusted: !!adj };
+/** 读 gfx/openttd.json（没渲染过就报错） */
+export function readManifest() {
+  const p = manifestFile();
+  if (!fs.existsSync(p)) fail(`找不到 ${rel(p)} —— 先跑 make render`);
+  const man = JSON.parse(fs.readFileSync(p, 'utf8'));
+  const entries = man.entries ?? [];
+  if (!entries.length) fail('openttd.json 里没有 entries');
+  return man;
+}
+
+// ---------------------------------------------------------------------------
+// 手写模板表：`src/rails/templates.pnml`  ←  **本工程的摆放事实来源**
+//
+// 2026-09 起改为手写（人工裁定 O2）：这份文件不再由脚本生成，因为人要能直接
+// 改里面的 xrel/yrel 来手调。**所有工具只读它，绝不写它。**
+//
+// 语法（nmlc 认的 template，加我们自己的一行注释约定了朝向）：
+//
+//     template t_<模型>_v<朝向>() {
+//       [x, y, w, h, xrel, yrel, "gfx/1x1.png"]
+//     }
+//
+// 返回 Map<"模型#朝向", { templateName, rect, xrel, yrel, file, line }>
+// 解析失败（括号不闭合、数组字段不是 7 个等）会**抛错**，不会静默跳过。
+// ---------------------------------------------------------------------------
+
+export function templatesFile() {
+  return path.join(config().srcDir, 'rails', 'templates.pnml');
+}
+
+export function readTemplates(file = templatesFile()) {
+  const map = new Map();
+  if (!fs.existsSync(file)) return map;
+
+  const text = fs.readFileSync(file, 'utf8').replace(/^\uFEFF/, '');
+  const lines = text.split(/\r?\n/);
+  let cur = null;
+
+  for (let i = 0; i < lines.length; i++) {
+    const at = i + 1;
+    // 去掉行尾 `//` 注释（本文件里不会出现字符串字面量含 `//` 的情况）
+    const code = lines[i].replace(/\/\/.*$/, '');
+    if (!code.trim()) continue;
+
+    const head = /^\s*template\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(\s*\)\s*\{/.exec(code);
+    if (head) {
+      const m = /^t_(.+)_v(\d+)$/.exec(head[1]);
+      if (!m) {
+        throw new Error(`${rel(file)}:${at} template 名不符合 t_<模型>_v<朝向>：${head[1]}`);
+      }
+      cur = { templateName: head[1], key: `${m[1]}#${Number(m[2])}`, line: at };
+      continue;
+    }
+
+    if (!cur) continue;
+
+    const body = /^\s*\[\s*(-?\d+)\s*,\s*(-?\d+)\s*,\s*(-?\d+)\s*,\s*(-?\d+)\s*,\s*(-?\d+)\s*,\s*(-?\d+)\s*,\s*"([^"]+)"\s*\]\s*$/.exec(code);
+    if (body) {
+      map.set(cur.key, {
+        templateName: cur.templateName,
+        key: cur.key,
+        line: cur.line,
+        rect: [body[1], body[2], body[3], body[4]].map(Number),
+        xrel: Number(body[5]),
+        yrel: Number(body[6]),
+        file: body[7],
+      });
+      cur = null;
+      continue;
+    }
+    if (code.trim() === '}') { cur = null; continue; }
+  }
+  return map;
+}
+
+/**
+ * 「按算法应该是什么」—— 只用于**对账**（check.mjs / sprites.mjs / compare.mjs），
+ * 绝不写回 templates.pnml。
+ *
+ * 返回 Map<"模型#朝向", { rect, xrel, yrel }>
+ */
+export function derivedTemplates(man) {
+  const map = new Map();
+  for (const e of man.entries ?? []) {
+    const r = anchorToXrelYrel(e, man.view);
+    map.set(String(e.id), { rect: e.rect.map(Number), xrel: r.xrel, yrel: r.yrel, entry: e });
+  }
+  return map;
+}
+
+/** 按模型名分组、朝向升序 —— 各工具打印时统一用这个顺序 */
+export function groupByModel(entries) {
+  const by = new Map();
+  for (const e of entries) {
+    const name = String(e.id).split('#')[0];
+    if (!by.has(name)) by.set(name, []);
+    by.get(name).push(e);
+  }
+  for (const list of by.values()) list.sort((a, b) => (a.view ?? 0) - (b.view ?? 0));
+  return by;
 }

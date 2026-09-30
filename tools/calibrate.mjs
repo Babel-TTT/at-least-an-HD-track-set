@@ -16,7 +16,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
-import { config, log, fail, rel, isMain, anchorToXrelYrel } from './util.mjs';
+import { config, log, fail, rel, isMain, anchorToXrelYrel, readTemplates } from './util.mjs';
 
 const SCALE = 2;
 const PAD = 6;
@@ -92,6 +92,8 @@ export async function calibrate() {
 
   const atlas = decodePNG(fs.readFileSync(atlasPath));
   const man = JSON.parse(fs.readFileSync(manPath, 'utf8'));
+  // 摆放事实来源：手写的 templates.pnml（工具只读）
+  const templates = readTemplates();
   const byModel = new Map();
   for (const e of man.entries) {
     const n = String(e.id).split('#')[0];
@@ -116,7 +118,13 @@ export async function calibrate() {
 
   models.forEach((name, row) => {
     byModel.get(name).forEach((e, col) => {
-      const [sx, sy, sw, sh] = e.rect;
+      // 摆放事实来自**手写**的 src/rails/templates.pnml（不是 here 算出来的）
+      const tpl = templates.get(String(e.id));
+      if (!tpl) {
+        log(`⚠ templates.pnml 里没有 ${e.id}，跳过`);
+        return;
+      }
+      const [sx, sy, sw, sh] = tpl.rect;
       // 从图集里抠出这一格
       const cell = new Uint8Array(sw * sh * 4);
       for (let y = 0; y < sh; y++) {
@@ -124,7 +132,7 @@ export async function calibrate() {
         cell.set(atlas.rgba.subarray(srow, srow + sw * 4), y * sw * 4);
       }
       // 画瓦片菱形轮廓：NW 角（瓦片原点）落在精灵内的 (rx, ry)
-      const { xrel, yrel } = anchorToXrelYrel(e, man.view);
+      const { xrel, yrel } = tpl;
       const rx = -xrel;
       const ry = -yrel;
       const nw = [rx, ry], wv = [rx - 128, ry + 64], ev = [rx + 128, ry + 64], sv = [rx, ry + 128];
@@ -141,7 +149,7 @@ export async function calibrate() {
       const big = upscale(drawn, sw, sh, SCALE);
       blend(sheet, W, H, big, sw * SCALE, sh * SCALE, col * cw * SCALE + PAD * SCALE, row * ch * SCALE + PAD * SCALE);
 
-      report.push({ model: name, view: e.view, azimuth: e.azimuth, rect: e.rect, flatisoXrel: e.xrel, flatisoYrel: e.yrel, xrel, yrel, anchorInSprite: [rx, ry], size: e.size });
+      report.push({ model: name, view: e.view, azimuth: e.azimuth, rect: tpl.rect, flatisoXrel: e.xrel, flatisoYrel: e.yrel, xrel, yrel, anchorInSprite: [rx, ry], size: e.size, templateLine: tpl.line });
     });
   });
 

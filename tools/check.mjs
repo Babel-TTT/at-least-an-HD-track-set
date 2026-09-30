@@ -19,7 +19,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 
-import { config, log, fail, rel, isMain, ROOT } from './util.mjs';
+import { config, log, fail, rel, isMain, ROOT, readTemplates, derivedTemplates, templatesFile } from './util.mjs';
 
 /** 跑 nmlc 产出 nfo，然后按块解析 railtype 的 Action 0（feature 0x10） */
 function dumpRailtypes(cfg) {
@@ -99,7 +99,7 @@ function checkEncoding() {
                         || /(^|[\\/])Makefile$/.test(p);
   /** 我们自己维护的源头文件：这些文件里出现 BOM 或乱码一定是事故 */
   const isSource = (p) => /[\\/](tools|src|models|lang)[\\/]/.test(p)
-                        || /(^|[\\/])(Makefile|Makefile\.config|sprite-offsets\.json)$/.test(p);
+                        || /(^|[\\/])(Makefile|Makefile\.config)$/.test(p);
   /** 本文件自己就带指纹字符表，跳过 */
   const SELF = path.join(ROOT, 'tools', 'check.mjs');
 
@@ -185,6 +185,63 @@ export function check() {
     }
   }
 
+  // --- 5. 手写模板表对账（templates.pnml）-----------------------------------
+  //      templates.pnml 自 2026-09 起是手写源文件（人工裁定 O2），没有生成器。
+  //      这里**只对账、只警告，绝不改写** —— 免得手写的值被静默盖掉。
+  const tplLines = [];
+  let tplProblems = 0;
+  let tpl = new Map();
+  try {
+    tpl = readTemplates();
+  } catch (err) {
+    problems.push(`templates.pnml 解析失败：${err.message}`);
+    tplProblems++;
+  }
+  if (!tplProblems) {
+    const manPath = path.join(cfg.gfxDir, 'openttd.json');
+    if (!fs.existsSync(manPath)) {
+      warns.push('没渲染过（缺 gfx/openttd.json）—— 跳过 templates.pnml 对账');
+    } else {
+      const man = JSON.parse(fs.readFileSync(manPath, 'utf8'));
+      const derived = derivedTemplates(man);
+      const drift = [];
+      for (const [key, t] of tpl) {
+        const d = derived.get(key);
+        if (!d) { drift.push(`${rel(templatesFile())}:${t.line}  ${key} —— openttd.json 里没这个「模型#朝向」`); continue; }
+        if (d.rect.join(',') !== t.rect.join(',')) {
+          drift.push(`${rel(templatesFile())}:${t.line}  ${key} —— rect [${t.rect.join(', ')}] ≠ 图集实际 [${d.rect.join(', ')}]`);
+        }
+        if (d.xrel !== t.xrel || d.yrel !== t.yrel) {
+          drift.push(`${rel(templatesFile())}:${t.line}  ${key} —— xrel,yrel ${t.xrel},${t.yrel} ≠ 按 centerAnchor 算的 ${d.xrel},${d.yrel}`);
+        }
+      }
+      for (const key of derived.keys()) {
+        if (!tpl.has(key)) drift.push(`openttd.json 里有 ${key}，但 templates.pnml 里没有对应 template`);
+      }
+      if (drift.length) {
+        tplLines.push(`  ⚠ templates.pnml 与 flatiso 当前输出有 ${drift.length} 处不一致（**只提示，不覆盖**）：`);
+        for (const d of drift) tplLines.push(`      ${d}`);
+        tplLines.push('      ⇒ 若确实是模型改了：`make sprites --emit` 打出正确值，手抄回去');
+        tplLines.push('      ⇒ 若是有意手调摆位：忽略本条，这份文件本来就是你说了算');
+      } else {
+        tplLines.push('  ✔ 与 flatiso 当前输出一致（rect 与 xrel/yrel 都对得上）');
+      }
+
+      // spriteset 里引用的 template 必须真的存在
+      const spritePnml = path.join(cfg.srcDir, 'rails', 'railsprite.pnml');
+      if (fs.existsSync(spritePnml)) {
+        const used = new Set();
+        const txt = fs.readFileSync(spritePnml, 'utf8');
+        for (const m of txt.matchAll(/\bt_[A-Za-z0-9_]+_v\d+\s*\(/g)) used.add(m[0].replace(/\s*\($/, ''));
+        const defined = new Set([...tpl.values()].map((t) => t.templateName));
+        const undef = [...used].filter((u) => !defined.has(u));
+        if (undef.length) {
+          problems.push(`railsprite.pnml 引用了 templates.pnml 里没有的 template：${undef.join(', ')}`);
+        }
+      }
+    }
+  }
+
   // --- 输出 ----------------------------------------------------------------
   log('文本编码自检：');
   if (encProblems.length) {
@@ -193,6 +250,9 @@ export function check() {
     log('  ✔ 源头文件无 BOM、无乱码，JSON 均可解析');
   }
   for (const w of enc.warns) log(`  ⚠ ${w}`);
+  log('');
+  log(`手写模板表 ${rel(templatesFile())}：${tpl.size} 条 template`);
+  for (const l of tplLines) log(l);
   log('');
   log(`railtype Action 0 块 ${blocks.length} 个：`);
   for (const b of blocks.sort((a, x) => a.localId - x.localId)) {

@@ -10,33 +10,38 @@
 # 于是 `mingw32-make` / `make` 在纯 PowerShell 下即可工作。
 #
 #   make            等同 make grf
-#   make sprite     只重出精灵与模板，不编 GRF
 #   make render     只调 flatiso 渲染
-#   make template   只从 openttd.json 生成 templates.pnml
-#   make diag       重出两张定标图（out/calibrate/）
-#   make offsets    列出可手调的「模型#朝向」名字 + 出索引图
-#   make check      一致性自检
+#   make sprite     只渲染（= make render）
+#   make sprites    打印手写模板表 + 出索引图（out/calibrate/index.png）
+#   make diag       重出定标图（out/calibrate/）
+#   make check      一致性自检（含 templates.pnml 对账）
 #   make clean      删除生成物（保留源码）—— **会连 out/calibrate/ 一起删**
+#
+# ⚠ src/rails/templates.pnml 是**手写源文件**，没有生成器，make 不会碰它。
+#   模型改了尺寸/占地后，跑 `make sprites` 拿当前正确值，手抄回去。
 # =============================================================================
 
 NODE ?= node
 
 -include Makefile.config
 
-.PHONY: all grf sprite render template diag calibrate compare offsets check clean help
+.PHONY: all grf sprite render sprites diag calibrate compare check clean help
 
 all: grf
 
 grf:
 	$(NODE) tools/build.mjs
 
-sprite: render template
+# 渲染 + 图集。templates.pnml 不参与 —— 它是手写的。
+sprite: render
 
 render:
 	$(NODE) tools/build.mjs --step render
 
-template:
-	$(NODE) tools/build.mjs --step template
+# 手写模板表：打印每个「模型#朝向」在 templates.pnml 里的行号与当前值，
+# 以及按算法算出来的值（不一致会标出来）。--sheet 顺带出索引图。
+sprites:
+	$(NODE) tools/sprites.mjs --sheet
 
 # 定标图：会被 make clean 删掉，需要时用这个重建
 diag: calibrate compare
@@ -46,10 +51,6 @@ calibrate:
 
 compare:
 	$(NODE) tools/compare.mjs
-
-# 手调偏移：查名字 / 写值 / 出索引图（详见 tools/offsets.mjs 顶部注释）
-offsets:
-	$(NODE) tools/offsets.mjs --sheet
 
 check:
 	$(NODE) tools/check.mjs

@@ -20,7 +20,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
-import { config, log, fail, rel, isMain, anchorToXrelYrel } from './util.mjs';
+import { config, log, fail, rel, isMain, anchorToXrelYrel, readTemplates } from './util.mjs';
 import { decodePalettePNG, applyKeyColor } from './png8.mjs';
 
 const PANEL_W = 320;
@@ -174,6 +174,7 @@ export async function compare() {
 
   const atlas = decodePNG(fs.readFileSync(atlasPath));
   const man = JSON.parse(fs.readFileSync(manPath, 'utf8'));
+  const templates = readTemplates();
   const find = (m, v) => man.entries.find((e) => e.id === `${m}#${v}`);
 
   const cols = 4;
@@ -189,7 +190,16 @@ export async function compare() {
     const pr = PAIRS[row];
     const e = find(pr.model, 0);
     if (!e) { log(`⚠ 找不到模型 ${pr.model}，跳过`); continue; }
-    const { xrel, yrel } = anchorToXrelYrel(e, man.view);
+    // ⚠ 摆放事实取自**手写的** src/rails/templates.pnml —— 图上画的就是实机用的那个，
+    //   免得「手调过 templates.pnml 但定标图还是按算法算」这种自欺欺人。
+    const tpl = templates.get(`${pr.model}#0`);
+    if (!tpl) { log(`⚠ templates.pnml 里没有 ${pr.model}#0，跳过`); continue; }
+    const { xrel, yrel } = tpl;
+    const d = anchorToXrelYrel(e, man.view);
+    if (d.xrel !== xrel || d.yrel !== yrel) {
+      log(`  ↳ 注意：${pr.model}#0 在 templates.pnml 里是 ${xrel},${yrel}，` +
+          `按 centerAnchor 算是 ${d.xrel},${d.yrel}（下面画的是文件里的值）`);
+    }
 
     const refPath = path.join(REF_DIR, pr.ref);
     if (!fs.existsSync(refPath)) { log(`⚠ 找不到参照 ${refPath}，跳过`); continue; }
@@ -211,7 +221,7 @@ export async function compare() {
     const pRef = blankPanel(), pXu = blankPanel(), pOur = blankPanel(), pOvl = blankPanel();
     drawGuides(pRef); drawGuides(pXu); drawGuides(pOur); drawGuides(pOvl);
 
-    const [rx, ry, rw, rh] = e.rect;
+    const [rx, ry, rw, rh] = tpl.rect;
 
     blit(pRef, ref.rgba, ref.width, pr.cell * REF_PITCH, 0, 256, ref.height,
          ANCHOR_X + REF_XREL, ANCHOR_Y + REF_YREL, null);

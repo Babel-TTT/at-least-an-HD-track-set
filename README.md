@@ -27,19 +27,22 @@ GRF 用 NML 编译，轨道编码遵循**标准化轨道编码方案**（与中�
 ```powershell
 cd D:\CNS\CNST\local\china-style-track
 
-make                # 全流程：flatiso 渲染 → 生成模板 → gcc -E → nmlc
-make sprite         # 只渲染 + 生成模板
+make                # 全流程：flatiso 渲染 → gcc -E → nmlc
+make sprite         # 只渲染（= make render）
 make render         # 只调 flatiso
-make template       # 只生成 src/rails/templates.pnml
+make sprites        # 打印手写模板表 + 出索引图（改摆位前先看这个）
 make diag           # 重出定标图（out/calibrate/）
-make check          # ★ railtype 结构自检（局部 id 唯一 / base RAIL 已重定义）
-make clean          # 删生成物（连定标图一起删）
+make check          # ★ 自检：railtype 结构 + templates.pnml 对账 + 文本编码
+make clean          # 删生成物（连定标图一起删；不碰手写源文件）
 make help
 ```
 
 > **改过任何 railtype 之后，务必跑 `make check`。**
 > railtype 错了**编译零报错**，装上游戏才发现"车库里一辆车都没有"——
 > 见 `docs/踩坑.md` A6 / A6.1。`make check` 就是拦这个的。
+>
+> ⚠ **`src/rails/templates.pnml` 是手写源文件，没有生成器。** 以前它由
+> `tools/gen-template.mjs` 自动生成、手改会被覆盖；现在归人管。改摆位就改它。
 
 产物：`out/china-style-track.grf`
 
@@ -73,7 +76,7 @@ node tools/calibrate.mjs
 | `docs/踩坑.md` | **踩坑记录** —— 现象 / 原因 / 修法，开工前先扫一遍 |
 | `models/*.model` | **资产本体**：手写等距构件清单（必须平铺，不能建子目录） |
 | `src/rails/*.pnml` | NML 源码 |
-| `src/rails/templates.pnml` | 【自动生成】由 `gfx/openttd.json` 翻出，勿手改 |
+| `src/rails/templates.pnml` | **手写源文件**：每个「模型×朝向」在图集里的矩形与摆放锚点。改摆位就改它 |
 | `tools/*.mjs` | 构建与定标工具（Node，零第三方依赖） |
 | `gfx/` `out/` | 生成物，不入库 |
 

@@ -1,22 +1,24 @@
 // =============================================================================
-// tools/build.mjs —— 构建编排：渲染 → 生成模板 → 编 GRF
+// tools/build.mjs —— 构建编排：渲染 → 预处理 → 编 GRF
 //
 //   node tools/build.mjs                 全流程
 //   node tools/build.mjs --step render   只调 flatiso
-//   node tools/build.mjs --step template 只生成 templates.pnml
 //   node tools/build.mjs --step grf      只编 GRF（不重渲染）
 //   node tools/build.mjs --no-render     跳过渲染
 //
 // 由 Makefile 调用；也可以直接 node 跑。
+//
+// ⚠ 这里**没有**「生成 templates.pnml」这一步了。
+//   src/rails/templates.pnml 自 2026-09 起是**手写源文件**（人工裁定 O2），
+//   工具只读不写。要核对它跟 flatiso 的实际输出是否一致，跑 `make check`。
 // =============================================================================
 
 import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 
-import { config, log, fail, rel } from './util.mjs';
+import { config, log, fail, rel, readTemplates, templatesFile } from './util.mjs';
 import { render } from './render.mjs';
-import { genTemplate } from './gen-template.mjs';
 
 function parseArgs(argv) {
   const a = {};
@@ -34,6 +36,10 @@ function compile() {
   const cfg = config();
   const src = path.join(process.cwd(), `${cfg.baseName}.pnml`);
   if (!fs.existsSync(src)) fail(`找不到 NML 源入口：${cfg.baseName}.pnml`);
+
+  // 手写模板表先解析一遍 —— 语法写错的话在这里就报，别等 nmlc 报天书
+  const tpl = readTemplates();
+  if (!tpl.size) fail(`读不到任何 template：${rel(templatesFile())}`);
 
   fs.mkdirSync(cfg.outDir, { recursive: true });
   const pre = path.join(cfg.outDir, `${cfg.baseName}.nml`);
@@ -63,7 +69,7 @@ function compile() {
   if (r.status !== 0) fail(`nmlc 编译失败（exit ${r.status}）`);
   if (!fs.existsSync(grf)) fail('nmlc 退出码为 0 但没有产出 grf');
   const size = fs.statSync(grf).size;
-  log(`✔ ${rel(grf)}   ${size} 字节`);
+  log(`✔ ${rel(grf)}   ${size} 字节   （手写模板 ${tpl.size} 条）`);
   return grf;
 }
 
@@ -77,7 +83,6 @@ if (args.help) {
 
 选项
   --step render      只调 flatiso 渲染 models/ → gfx/
-  --step template    只由 gfx/openttd.json 生成 src/rails/templates.pnml
   --step grf         只预处理 + 编 GRF（不重渲染）
   --no-render        全流程但跳过渲染
   --help             显示这段帮助
@@ -87,28 +92,28 @@ if (args.help) {
   CPP  NMLC  FLATISO  TILE_PX  PRESET  SS
 
 make 目标
-  make / make grf   全流程        make sprite   渲染 + 生成模板
-  make render       只渲染        make template 只生成模板
-  make diag         重出定标图（out/calibrate/ 下的 anchors.png 与 compare.png）
-  make check        自检          make clean    删生成物（**连定标图一起删**）
+  make / make grf   全流程        make sprite   只渲染（精灵 + 图集）
+  make render       只渲染        make sprites  打印手写模板表 / 出索引图
+  make diag         重出定标图（out/calibrate/）
+  make check        自检（含 templates.pnml 对账）
+  make clean        删生成物（**连定标图一起删**；不动手写源文件）
 
+⚠ src/rails/templates.pnml 是**手写源文件**，没有生成器。
+   模型改了尺寸/占地之后，跑 make sprites 拿当前正确值，手抄回去。
 ⚠ make clean 会删掉整个 out/，定标图也在里面 —— 用 make diag 重建。`);
   process.exit(0);
 }
 
 const step = args.step ?? null;
-const noRender = !!args['no-render'] || step === 'template' || step === 'grf';
+const noRender = !!args['no-render'] || step === 'grf';
 
 const t0 = Date.now();
 if (step === 'render') {
   render();
-} else if (step === 'template') {
-  genTemplate();
 } else if (step === 'grf') {
   compile();
 } else {
   if (!noRender) render();
-  genTemplate();
   compile();
 }
 log(`完成，用时 ${((Date.now() - t0) / 1000).toFixed(1)} s`);
