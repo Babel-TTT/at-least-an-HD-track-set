@@ -224,6 +224,41 @@ export function check() {
       for (const key of derived.keys()) {
         if (!tpl.has(key)) drift.push(`openttd.json 里有 ${key}，但 templates.pnml 里没有对应 template`);
       }
+
+      // --- 模板参数化核对（2026-10 起 templates.pnml 的「表名」是形参）---------
+      //   ① 每个 template 的第一形参必须是 sheet（否则调用处传了也没用）
+      //   ② railsprite.pnml 调用处传的表名，必须 == 该模型实际所在的表
+      //      —— 传错不会报错，只会**静默从错的 PNG 上截图**，所以必须查
+      const notParam = [...tpl.values()].filter((t) => !t.sheetParam);
+      if (notParam.length) {
+        problems.push(`这些 template 没参数化（第 7 个字段应为形参 sheet）：`
+          + `\n      ` + notParam.map((t) => `${t.templateName}（第 ${t.line} 行）`).join('\n      '));
+      } else {
+        const rsp = path.join(cfg.srcDir, 'rails', 'railsprite.pnml');
+        if (!fs.existsSync(rsp)) {
+          warns.push('缺 src/rails/railsprite.pnml，跳过表名参数核对');
+        } else {
+          const code = fs.readFileSync(rsp, 'utf8').replace(/\/\/.*$/gm, '');
+          const byName = new Map([...tpl.values()].map((t) => [t.templateName, t]));
+          const bad = [];
+          const re = /\b(t_[A-Za-z0-9_]+)\s*\(\s*"([^"]*)"\s*\)/g;
+          let m;
+          while ((m = re.exec(code))) {
+            const t = byName.get(m[1]);
+            if (!t) continue;                       // 不是 templates.pnml 里的模板，跳过
+            const d = derived.get(t.key);
+            if (!d?.entry?.sheet) continue;
+            const want = 'gfx/' + d.entry.sheet;
+            if (m[2] !== want) {
+              bad.push(`${m[1]}  传了 "${m[2]}"，但 ${t.key} 实际在 "${want}"`);
+            }
+          }
+          if (bad.length) {
+            problems.push(`railsprite.pnml 的表名参数传错（会静默从错的 PNG 截图）：`
+              + `\n      ` + bad.join('\n      '));
+          }
+        }
+      }
       if (tuned.length) {
         tplLines.push(`  ✎ 已标【手调】的 ${tuned.length} 行（有意偏离算法值，正常）：`);
         for (const t of tuned) tplLines.push(`      ${t}`);

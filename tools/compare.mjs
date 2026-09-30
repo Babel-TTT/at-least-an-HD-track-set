@@ -168,9 +168,13 @@ export async function compare() {
     pathToFileURL(path.join(cfg.flatiso, 'core', 'png.mjs')).href
   );
 
-  const atlasPath = path.join(cfg.gfxDir, '1x1.png');
   const manPath = path.join(cfg.gfxDir, 'openttd.json');
-  if (!fs.existsSync(atlasPath)) fail('先跑 make render');
+  if (!fs.existsSync(manPath)) fail('先跑 make render');
+  // 图集自 2026-10 起按类分表，不再有单一的 1x1.png。比对的是轨道 ⇒ 优先取 rail 表。
+  const man0 = JSON.parse(fs.readFileSync(manPath, 'utf8'));
+  const railEntry = man0.entries?.find((e) => e.sheet === 'rail.png') ?? man0.entries?.[0];
+  const atlasPath = path.join(cfg.gfxDir, railEntry?.sheet ?? 'rail.png');
+  if (!fs.existsSync(atlasPath)) fail(`找不到图集 ${railEntry?.sheet}（先跑 make render）`);
 
   const atlas = decodePNG(fs.readFileSync(atlasPath));
   const man = JSON.parse(fs.readFileSync(manPath, 'utf8'));

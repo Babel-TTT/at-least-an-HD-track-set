@@ -195,7 +195,14 @@ async function indexSheet(rows, cfg, K = K_DEFAULT) {
   };
 
   const nRows = Math.ceil(rows.length / COLS);
-  const CELL_W = CELL_W_BASE * K, CELL_H = CELL_H_BASE * K;
+  // ⚠ 自 2026-10 图集按类分表，各表格位尺寸**不一样**（轨道 263×151、隧道 263×218）。
+  //   索引图用统一的格位，所以取所有行的最大值，免得高个子精灵被裁掉。
+  let maxW = CELL_W_BASE, maxH = CELL_H_BASE;
+  for (const r of rows) {
+    maxW = Math.max(maxW, r.rect[2]);
+    maxH = Math.max(maxH, r.rect[3]);
+  }
+  const CELL_W = maxW * K, CELL_H = maxH * K;
   const cw = CELL_W, chh = CELL_H + LBL_H;
   const W = COLS * cw + (COLS + 1) * GAP;
   const H = HEAD_H + nRows * chh + (nRows + 1) * GAP;

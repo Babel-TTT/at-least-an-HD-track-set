@@ -94,11 +94,18 @@ item(FEAT_RAILTYPES, rail_SADN, 4) {
         sort_order:             SORT_EARLY;
     }
     /* ⚠ P0/P1 探针：只为验证 4x 32bpp spriteset 语法、槽位顺序与摆放锚点。
-       P2 会换成正式的几何组精灵。其余 6 种轨道暂不带 graphics 块（走原版精灵）。 */
+       P2 会换成正式的几何组精灵。其余 6 种轨道暂不带 graphics 块（走原版精灵）。
+
+       隧道口自 2026-10 起用「双组」接法（核自官方 wiki，见 docs/建模经验.md §7.8）：
+         tunnels:         地面层（道砟+轨枕+钢轨+洞口暗腔）
+         tunnel_overlay:  立体层（端墙+拱+压顶），引擎画在车之上
+       定义了 tunnel_overlay 后，引擎改画 16 张「纯草地空白底」，
+       **轨道和洞口全部由我们提供**。 */
     graphics {
         underlay:        probe_underlay;
         track_overlay:   probe_overlay;
         tunnels:         probe_tunnels;
+        tunnel_overlay:  probe_tunnel_over;
     }
 }
 

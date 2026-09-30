@@ -139,9 +139,16 @@ export function readManifest() {
 //
 // 语法（nmlc 认的 template，加我们自己的一行注释约定了朝向）：
 //
-//     template t_<模型>_v<朝向>() {
-//       [x, y, w, h, xrel, yrel, "gfx/1x1.png"]
+//     template t_<模型>_v<朝向>(sheet) {
+//       [x, y, w, h, xrel, yrel, sheet]
 //     }
+//
+// ⚠ 第 7 个字段自 2026-10 起是**参数**，不再是写死的 "gfx/1x1.png"。
+//   因为图集按类分表了（tools/sheets.mjs）：轨道在 rail.png、隧道口在 tunnel.png……
+//   一个模板要能对不同的 PNG 取图，所以把文件名做成 **NML 自带的模板参数**
+//   （人工裁定：用 nmlc 自己的机制，不要用 #define 绕）。
+//   调用处传字面量：t_G1_tunnel_stone_v0("gfx/tunnel.png")
+//   为了兼容，这里**两种写法都认**：带引号的字面量、或不带引号的标识符。
 //
 // 返回 Map<"模型#朝向", { templateName, rect, xrel, yrel, file, line }>
 // 解析失败（括号不闭合、数组字段不是 7 个等）会**抛错**，不会静默跳过。
@@ -167,28 +174,41 @@ export function readTemplates(file = templatesFile()) {
     const comment = cm ? cm[1].trim() : '';
     if (!code.trim()) continue;
 
-    const head = /^\s*template\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(\s*\)\s*\{/.exec(code);
+    const head = /^\s*template\s+([A-Za-z_][A-Za-z0-9_]*)\s*\(([^)]*)\)\s*\{/.exec(code);
     if (head) {
       const m = /^t_(.+)_v(\d+)$/.exec(head[1]);
       if (!m) {
         throw new Error(`${rel(file)}:${at} template 名不符合 t_<模型>_v<朝向>：${head[1]}`);
       }
-      cur = { templateName: head[1], key: `${m[1]}#${Number(m[2])}`, line: at };
+      // 形参名（本工程约定只有一个：表名参数）。留空也允许。
+      const params = head[2].split(',').map((s) => s.trim()).filter(Boolean);
+      cur = {
+        templateName: head[1],
+        key: `${m[1]}#${Number(m[2])}`,
+        line: at,
+        params,
+        sheetParam: params[0] ?? null,
+      };
       continue;
     }
 
     if (!cur) continue;
 
-    const body = /^\s*\[\s*(-?\d+)\s*,\s*(-?\d+)\s*,\s*(-?\d+)\s*,\s*(-?\d+)\s*,\s*(-?\d+)\s*,\s*(-?\d+)\s*,\s*"([^"]+)"\s*\]\s*$/.exec(code);
+    // 第 7 个字段：带引号的字面量，或不带引号的形参名（NML 模板参数）
+    const body = /^\s*\[\s*(-?\d+)\s*,\s*(-?\d+)\s*,\s*(-?\d+)\s*,\s*(-?\d+)\s*,\s*(-?\d+)\s*,\s*(-?\d+)\s*,\s*(?:"([^"]+)"|([A-Za-z_][A-Za-z0-9_]*))\s*\]\s*$/.exec(code);
     if (body) {
       map.set(cur.key, {
         templateName: cur.templateName,
         key: cur.key,
         line: cur.line,
+        params: cur.params,
+        sheetParam: cur.sheetParam,
+        // body[7] = 字面量文件名；body[8] = 形参名（两者只有一个有值）
+        file: body[7] ?? null,
+        fileParam: body[8] ?? null,
         rect: [body[1], body[2], body[3], body[4]].map(Number),
         xrel: Number(body[5]),
         yrel: Number(body[6]),
-        file: body[7],
         comment,
         // 行尾注释里写了【手调】(= HAND-TUNED) 的行，对账时不当成"漂移"，
         // 免得每次 make check 都对人有意的微调喊狼来了。见 docs/定标.md §4.5。

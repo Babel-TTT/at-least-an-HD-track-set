@@ -2,11 +2,25 @@
 // src/rails/railsprite.pnml —— sprite template 调用 + spriteset 声明
 //
 // 分工：
-//   * src/rails/templates.pnml  【自动生成】每个「模型 × 朝向」一张单条目 template，
-//     里面是由 gfx/openttd.json 翻出来的坐标与锚点。
-//     要改坐标 → 改 models/*.model 后重跑 `make sprite`。
-//   * 本文件【手写】—— 因为「哪张精灵喂给引擎的哪一个槽位」是有语义的，
-//     必须能被人一眼审阅。
+//   * src/rails/templates.pnml  【手写】每个「模型 × 朝向」一张 template。
+//     自 2026-10 起**参数化**：第 7 个字段是形参 `sheet`，不再写死文件名。
+//   * 本文件【手写】—— 「哪张精灵喂给引擎的哪一个槽位」是有语义的，必须能
+//     一眼审阅；同时**在这里传表名**（哪张 PNG）。
+//
+// ----------------------------------------------------------------------------
+// 【分表：不同种类的组件各自一张 PNG】（人工裁定 2026-10）
+//
+//   gfx/rail.png      轨道（道砟/轨枕/钢轨/道岔/交叉/坡道）
+//   gfx/tunnel.png    隧道口（TUN-1 料石端墙拱）
+//   以后：gfx/catenary.png 接触网、gfx/fence.png 栏杆……
+//
+//   取图用 **NML 自带的模板参数**：
+//       template t_G1_tunnel_stone_v0(sheet) { [..., sheet] }
+//       t_G1_tunnel_stone_v0("gfx/tunnel.png")     ← 调用处传字面量
+//   分表白名单在 tools/sheets.mjs；render.mjs 按类分别跑 flatiso。
+//
+//   ⚠ 传错表名会**静默截错图**，所以 tools/check.mjs 会核对
+//     「调用处传的表名 == 该模型所在的表」。
 //
 // ----------------------------------------------------------------------------
 // 朝向映射（P1 定标实测，见 docs/定标.md）
@@ -28,14 +42,14 @@
 // 槽位对照（逐条核自 OpenTTD 源码 rail.h:74-89 / rail_cmd.cpp:3784-3808）
 //   underlay       16  RTO_X Y N S E W | SLOPE_NE SE SW NW | CROSSING | JUNCTION_SW NE SE NW NSEW
 //   track_overlay  10  RTO_X Y N S E W | SLOPE_NE SE SW NW
+//   tunnels         4  DiagDirection NE SE SW NW
+//   tunnel_overlay  4  DiagDirection NE SE SW NW
 // ============================================================================
 
 #include "templates.pnml"
 
 /* ===========================================================================
-   P0/P1 探针 spriteset —— 只为验证「4x 32bpp 语法 + 槽位顺序 + 摆放锚点」
-   能编出可加载的 GRF。**几何是探针级的**：坡道 / 交叉 / 道岔槽位暂时复用
-   直线与半格轨的图，P2 会按几何组换成正式模型。
+   轨道 —— underlay / track_overlay
    =========================================================================== */
 
 // RTO_X  RTO_Y  RTO_N  RTO_S  RTO_E  RTO_W
@@ -43,12 +57,12 @@
 // CROSSING_XY
 // JUNCTION_SW  JUNCTION_NE  JUNCTION_SE  JUNCTION_NW  JUNCTION_NSEW
 spriteset(probe_underlay, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
-    t_probe_track_x_v0()        //  0  RTO_X        X
-    t_probe_track_x_v3()        //  1  RTO_Y        Y
-    t_probe_half_upper_v0()     //  2  RTO_N        UPPER
-    t_probe_half_upper_v2()     //  3  RTO_S        LOWER
-    t_probe_half_upper_v3()     //  4  RTO_E        RIGHT
-    t_probe_half_upper_v1()     //  5  RTO_W        LEFT
+    t_probe_track_x_v0("gfx/rail.png")        //  0  RTO_X        X
+    t_probe_track_x_v3("gfx/rail.png")        //  1  RTO_Y        Y
+    t_probe_half_upper_v0("gfx/rail.png")     //  2  RTO_N        UPPER
+    t_probe_half_upper_v2("gfx/rail.png")     //  3  RTO_S        LOWER
+    t_probe_half_upper_v3("gfx/rail.png")     //  4  RTO_E        RIGHT
+    t_probe_half_upper_v1("gfx/rail.png")     //  5  RTO_W        LEFT
     // 坡道（6-9）。引擎槽位顺序是 NE / SE / SW / NW（rail.h:80-83）。
     // 模型的朝向顺序由「绕占地中心转模型」这个事实推出（raster.mjs:31-33）：
     //   90° 时 (x,y)→(1−y, x)  ⇒  view k 把 view0 的角 N 搬到 R^(-k)(N)（R: 北→东）
@@ -56,38 +70,65 @@ spriteset(probe_underlay, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
     //     v0 → N–E(右上)=NE   v1 → N–W(左上)=NW   v2 → S–W(左下)=SW   v3 → S–E(右下)=SE
     // 已用实渲像素逐点核对（预测 (41,−11.6)/(−41,−11.6)/(41,20)/(−41,20) 对得上）
     // ⇒ 对应关系：NE←v0、SE←v3、SW←v2、NW←v1
-    t_G1_track_slope_v0()       //  6  RTO_SLOPE_NE   v0（右上抬）
-    t_G1_track_slope_v3()       //  7  RTO_SLOPE_SE   v3（右下抬）
-    t_G1_track_slope_v2()       //  8  RTO_SLOPE_SW   v2（左下抬）
-    t_G1_track_slope_v1()       //  9  RTO_SLOPE_NW   v1（左上抬）
-    t_G1_crossing_v0()          // 10  RTO_CROSSING_XY   ★ G1 正式：自带交叉钢轨
-    t_G1_junction3_v0()         // 11  RTO_JUNCTION_SW   ★ G1 正式：只有道砟
-    t_G1_junction3_v2()         // 12  RTO_JUNCTION_NE   （v2）只有道砟
-    t_G1_junction3_v1()         // 13  RTO_JUNCTION_SE   （v1）只有道砟
-    t_G1_junction3_v3()         // 14  RTO_JUNCTION_NW   （v3）只有道砟
-    t_G1_junction4_v0()         // 15  RTO_JUNCTION_NSEW ★ G1 正式：只有道砟
+    t_G1_track_slope_v0("gfx/rail.png")       //  6  RTO_SLOPE_NE   v0（右上抬）
+    t_G1_track_slope_v3("gfx/rail.png")       //  7  RTO_SLOPE_SE   v3（右下抬）
+    t_G1_track_slope_v2("gfx/rail.png")       //  8  RTO_SLOPE_SW   v2（左下抬）
+    t_G1_track_slope_v1("gfx/rail.png")       //  9  RTO_SLOPE_NW   v1（左上抬）
+    t_G1_crossing_v0("gfx/rail.png")          // 10  RTO_CROSSING_XY   ★ G1 正式：自带交叉钢轨
+    t_G1_junction3_v0("gfx/rail.png")         // 11  RTO_JUNCTION_SW   ★ G1 正式：只有道砟
+    t_G1_junction3_v2("gfx/rail.png")         // 12  RTO_JUNCTION_NE   （v2）只有道砟
+    t_G1_junction3_v1("gfx/rail.png")         // 13  RTO_JUNCTION_SE   （v1）只有道砟
+    t_G1_junction3_v3("gfx/rail.png")         // 14  RTO_JUNCTION_NW   （v3）只有道砟
+    t_G1_junction4_v0("gfx/rail.png")         // 15  RTO_JUNCTION_NSEW ★ G1 正式：只有道砟
 }
 
 // track_overlay —— 「钢轨层」。引擎在道岔瓦片上会**逐段**把这里的图叠到道砟之上
 // （rail_cmd.cpp:3796-3816），所以本层必须**透明底、只画钢轨和轨枕**。
 spriteset(probe_overlay, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
-    t_G1_rail_straight_v0()     // 0  RTO_X        ★ 纯钢轨层
-    t_G1_rail_straight_v3()     // 1  RTO_Y        ★
-    t_G1_rail_halftrack_v0()    // 2  RTO_N        ★
-    t_G1_rail_halftrack_v2()    // 3  RTO_S        ★
-    t_G1_rail_halftrack_v3()    // 4  RTO_E        ★
-    t_G1_rail_halftrack_v1()    // 5  RTO_W        ★
+    t_G1_rail_straight_v0("gfx/rail.png")     // 0  RTO_X        ★ 纯钢轨层
+    t_G1_rail_straight_v3("gfx/rail.png")     // 1  RTO_Y        ★
+    t_G1_rail_halftrack_v0("gfx/rail.png")    // 2  RTO_N        ★
+    t_G1_rail_halftrack_v2("gfx/rail.png")    // 3  RTO_S        ★
+    t_G1_rail_halftrack_v3("gfx/rail.png")    // 4  RTO_E        ★
+    t_G1_rail_halftrack_v1("gfx/rail.png")    // 5  RTO_W        ★
     // 坡道（6-9），同 underlay 的对应：NE←v0、SE←v3、SW←v2、NW←v1
-    t_G1_rail_slope_v0()        // 6  RTO_SLOPE_NE   v0（右上抬）
-    t_G1_rail_slope_v3()        // 7  RTO_SLOPE_SE   v3（右下抬）
-    t_G1_rail_slope_v2()        // 8  RTO_SLOPE_SW   v2（左下抬）
-    t_G1_rail_slope_v1()        // 9  RTO_SLOPE_NW   v1（左上抬）
+    t_G1_rail_slope_v0("gfx/rail.png")        // 6  RTO_SLOPE_NE   v0（右上抬）
+    t_G1_rail_slope_v3("gfx/rail.png")        // 7  RTO_SLOPE_SE   v3（右下抬）
+    t_G1_rail_slope_v2("gfx/rail.png")        // 8  RTO_SLOPE_SW   v2（左下抬）
+    t_G1_rail_slope_v1("gfx/rail.png")        // 9  RTO_SLOPE_NW   v1（左上抬）
 }
 
-// 隧道口（4 格：4 个 DiagDirection）
+/* ===========================================================================
+   隧道口 —— TUN-1「料石端墙拱」（分表：gfx/tunnel.png）
+
+   两个组，对应 NML 的 `tunnels:` 与 `tunnel_overlay:`（核自官方 wiki
+   https://newgrf-specs.tt-wiki.net/index.php?title=NML:Railtypes ，
+   见 docs/建模经验.md §7.8）：
+
+     tunnels:         4 张，地面层。画在基础包的草地底图之上、车之下。
+     tunnel_overlay:  4 张，立体层。**画在车之上**（引擎当 sortable sprite 处理）。
+                      一旦定义，基础包改用 16 张「纯草地空白底」，
+                      **轨道和洞口都得由我们画全**。
+
+   槽位 = DiagDirection，顺序 **NE, SE, SW, NW**
+     （OpenTTD `_tileoffs_by_diagdir`：NE=(−1,0) 投影到屏幕是右上 ⇒ NE=0）。
+
+   模型基准朝向 = DiagDir NE（洞口在 x=0 那条边），取图 v0=NE v1=NW v2=SW v3=SE
+   ⇒ 喂图顺序 **v0, v3, v2, v1**（和坡道一样）。
+
+   ⚠ 官方 wiki 那一页写的是「SW, NW, NE, SE」，与引擎源码和 JP+ 实际产物都对不上；
+     详见 docs/建模经验.md 的隧道一节。**实机一看便知**，若不对只改这四行。
+   =========================================================================== */
 spriteset(probe_tunnels, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
-    t_probe_tile_v0()
-    t_probe_tile_v1()
-    t_probe_tile_v2()
-    t_probe_tile_v3()
+    t_G1_tunnel_stone_v0("gfx/tunnel.png")       // 0  DiagDir NE ← v0
+    t_G1_tunnel_stone_v3("gfx/tunnel.png")       // 1  DiagDir SE ← v3
+    t_G1_tunnel_stone_v2("gfx/tunnel.png")       // 2  DiagDir SW ← v2
+    t_G1_tunnel_stone_v1("gfx/tunnel.png")       // 3  DiagDir NW ← v1
+}
+
+spriteset(probe_tunnel_over, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G1_tunnel_stone_over_v0("gfx/tunnel.png")  // 0  DiagDir NE ← v0
+    t_G1_tunnel_stone_over_v3("gfx/tunnel.png")  // 1  DiagDir SE ← v3
+    t_G1_tunnel_stone_over_v2("gfx/tunnel.png")  // 2  DiagDir SW ← v2
+    t_G1_tunnel_stone_over_v1("gfx/tunnel.png")  // 3  DiagDir NW ← v1
 }

@@ -82,9 +82,14 @@ function upscale(src, sw, sh, k) {
 
 export async function calibrate() {
   const cfg = config();
-  const atlasPath = path.join(cfg.gfxDir, '1x1.png');
   const manPath = path.join(cfg.gfxDir, 'openttd.json');
-  if (!fs.existsSync(atlasPath) || !fs.existsSync(manPath)) fail('先跑 make render');
+  if (!fs.existsSync(manPath)) fail('先跑 make render');
+  // 图集自 2026-10 起按类分表（gfx/rail.png / gfx/tunnel.png…），
+  // 不再有单一的 1x1.png。这里取**第一张表**当底图（标定图只关心轨道）。
+  const man0 = JSON.parse(fs.readFileSync(manPath, 'utf8'));
+  const atlasName = man0.entries?.[0]?.sheet ?? 'rail.png';
+  const atlasPath = path.join(cfg.gfxDir, atlasName);
+  if (!fs.existsSync(atlasPath)) fail(`找不到图集 ${atlasName}（先跑 make render）`);
 
   const { decodePNG, encodePNG } = await import(
     pathToFileURL(path.join(cfg.flatiso, 'core', 'png.mjs')).href

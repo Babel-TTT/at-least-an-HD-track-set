@@ -68,34 +68,34 @@
 // probe_half_upper —— 半格轨（对角半边）。4 个朝向正好是引擎要的 4 个方向：
 //   v0 = TRACK_UPPER   v1 = TRACK_LEFT   v2 = TRACK_LOWER   v3 = TRACK_RIGHT
 // ---------------------------------------------------------------------------
-template t_probe_half_upper_v0() {
-  [1052, 453, 263, 151, -128, -21, "gfx/1x1.png"]  // az   0  TRACK_UPPER  【手调】
+template t_probe_half_upper_v0(sheet) {
+  [1052, 453, 263, 151, -128, -21, sheet]  // az   0  TRACK_UPPER  【手调】
 }
-template t_probe_half_upper_v1() {
-  [1315, 453, 263, 151, -128, -22, "gfx/1x1.png"]  // az  90  TRACK_LEFT
+template t_probe_half_upper_v1(sheet) {
+  [1315, 453, 263, 151, -128, -22, sheet]  // az  90  TRACK_LEFT
 }
-template t_probe_half_upper_v2() {
-  [1578, 453, 263, 151, -129, -21, "gfx/1x1.png"]  // az 180  TRACK_LOWER  【手调】
+template t_probe_half_upper_v2(sheet) {
+  [1578, 453, 263, 151, -129, -21, sheet]  // az 180  TRACK_LOWER  【手调】
 }
-template t_probe_half_upper_v3() {
-  [1841, 453, 263, 151, -128, -22, "gfx/1x1.png"]  // az 270  TRACK_RIGHT
+template t_probe_half_upper_v3(sheet) {
+  [1841, 453, 263, 151, -128, -22, sheet]  // az 270  TRACK_RIGHT
 }
 
 // ---------------------------------------------------------------------------
 // probe_tile —— 朝向探针（4 个角柱 + 4 个边中点柱）。不参与定标，
 // 只被 tunnels spriteset 占位用，P4 会换成真正的隧道口。
 // ---------------------------------------------------------------------------
-template t_probe_tile_v0() {
-  [0, 604, 263, 151, -129, -21, "gfx/1x1.png"]  // az   0  【手调】
+template t_probe_tile_v0(sheet) {
+  [0, 604, 263, 151, -129, -21, sheet]  // az   0  【手调】
 }
-template t_probe_tile_v1() {
-  [263, 604, 263, 151, -131, -19, "gfx/1x1.png"]  // az  90
+template t_probe_tile_v1(sheet) {
+  [263, 604, 263, 151, -131, -19, sheet]  // az  90
 }
-template t_probe_tile_v2() {
-  [526, 604, 263, 151, -131, -19, "gfx/1x1.png"]  // az 180
+template t_probe_tile_v2(sheet) {
+  [526, 604, 263, 151, -131, -19, sheet]  // az 180
 }
-template t_probe_tile_v3() {
-  [789, 604, 263, 151, -131, -19, "gfx/1x1.png"]  // az 270
+template t_probe_tile_v3(sheet) {
+  [789, 604, 263, 151, -131, -19, sheet]  // az 270
 }
 
 // ---------------------------------------------------------------------------
@@ -105,17 +105,17 @@ template t_probe_tile_v3() {
 //     v2 (az 180) = TRACK_X     v3 (az 270) = TRACK_Y
 //   引擎的两个槽位按约定取 v0（RTO_X）与 v3（RTO_Y），见 railsprite.pnml。
 // ---------------------------------------------------------------------------
-template t_probe_track_x_v0() {
-  [1052, 604, 263, 151, -126, -20, "gfx/1x1.png"]  // az   0  TRACK_X  ← RTO_X 用这张  【手调】
+template t_probe_track_x_v0(sheet) {
+  [1052, 604, 263, 151, -126, -20, sheet]  // az   0  TRACK_X  ← RTO_X 用这张  【手调】
 }
-template t_probe_track_x_v1() {
-  [1315, 604, 263, 151, -130, -20, "gfx/1x1.png"]  // az  90  TRACK_Y
+template t_probe_track_x_v1(sheet) {
+  [1315, 604, 263, 151, -130, -20, sheet]  // az  90  TRACK_Y
 }
-template t_probe_track_x_v2() {
-  [1578, 604, 263, 151, -131, -19, "gfx/1x1.png"]  // az 180  TRACK_X（与 v0 同形）
+template t_probe_track_x_v2(sheet) {
+  [1578, 604, 263, 151, -131, -19, sheet]  // az 180  TRACK_X（与 v0 同形）
 }
-template t_probe_track_x_v3() {
-  [1841, 604, 263, 151, -130, -20, "gfx/1x1.png"]  // az 270  TRACK_Y  ← RTO_Y 用这张
+template t_probe_track_x_v3(sheet) {
+  [1841, 604, 263, 151, -130, -20, sheet]  // az 270  TRACK_Y  ← RTO_Y 用这张
 }
 
 // ---------------------------------------------------------------------------
@@ -123,17 +123,17 @@ template t_probe_track_x_v3() {
 //   underlay，不叠加 overlay（rail_cmd.cpp:3790），所以钢轨必须烘进来。
 //   4 个朝向对称，引擎只取 v0 喂 RTO_CROSSING_XY。
 // ---------------------------------------------------------------------------
-template t_G1_crossing_v0() {
-  [0, 0, 263, 151, -127, -21, "gfx/1x1.png"]  // → RTO_CROSSING_XY
+template t_G1_crossing_v0(sheet) {
+  [0, 0, 263, 151, -127, -21, sheet]  // → RTO_CROSSING_XY
 }
-template t_G1_crossing_v1() {
-  [263, 0, 263, 151, -131, -19, "gfx/1x1.png"]  
+template t_G1_crossing_v1(sheet) {
+  [263, 0, 263, 151, -131, -19, sheet]
 }
-template t_G1_crossing_v2() {
-  [526, 0, 263, 151, -131, -19, "gfx/1x1.png"]  
+template t_G1_crossing_v2(sheet) {
+  [526, 0, 263, 151, -131, -19, sheet]
 }
-template t_G1_crossing_v3() {
-  [789, 0, 263, 151, -131, -19, "gfx/1x1.png"]  
+template t_G1_crossing_v3(sheet) {
+  [789, 0, 263, 151, -131, -19, sheet]
 }
 
 // ---------------------------------------------------------------------------
@@ -142,36 +142,36 @@ template t_G1_crossing_v3() {
 //   喂槽顺序：v0→JUNCTION_SW  v1→JUNCTION_SE  v2→JUNCTION_NE  v3→JUNCTION_NW
 //   （由四重旋转 R 推出：R³(SW)=SE，R²(SW)=NE，R¹(SW)=NW）
 // ---------------------------------------------------------------------------
-template t_G1_junction3_v0() {
-  [1052, 0, 263, 151, -129, -21, "gfx/1x1.png"]  // → RTO_JUNCTION_SW
+template t_G1_junction3_v0(sheet) {
+  [1052, 0, 263, 151, -129, -21, sheet]  // → RTO_JUNCTION_SW
 }
-template t_G1_junction3_v1() {
-  [1315, 0, 263, 151, -129, -21, "gfx/1x1.png"]  // → RTO_JUNCTION_SE
+template t_G1_junction3_v1(sheet) {
+  [1315, 0, 263, 151, -129, -21, sheet]  // → RTO_JUNCTION_SE
 }
-template t_G1_junction3_v2() {
-  [1578, 0, 263, 151, -128, -21, "gfx/1x1.png"]  // → RTO_JUNCTION_NE
+template t_G1_junction3_v2(sheet) {
+  [1578, 0, 263, 151, -128, -21, sheet]  // → RTO_JUNCTION_NE
 }
-template t_G1_junction3_v3() {
-  [1841, 0, 263, 151, -129, -21, "gfx/1x1.png"]  // → RTO_JUNCTION_NW
+template t_G1_junction3_v3(sheet) {
+  [1841, 0, 263, 151, -129, -21, sheet]  // → RTO_JUNCTION_NW
 }
 
 // ---------------------------------------------------------------------------
 // G1_junction4 —— 四向道岔道砟（RTO_JUNCTION_NSEW）。同样只有道砟。
 //   引擎在 4 种「箭头」三向组合上也复用这一张，所以范围会比实际轨道大。
 // ---------------------------------------------------------------------------
-template t_G1_junction4_v0() {
-  [0, 151, 263, 151, -131, -19, "gfx/1x1.png"]  // → RTO_JUNCTION_NSEW
+template t_G1_junction4_v0(sheet) {
+  [0, 151, 263, 151, -131, -19, sheet]  // → RTO_JUNCTION_NSEW
   // ⚠ 这张精灵一张管 6 个方向，偏移只能烘进模型几何（tools/gen-g1-switches.mjs 的
   //    DIR_DELTA 表），**不要在这里手调** —— 两边都加会变成「越改越偏」。
 }
-template t_G1_junction4_v1() {
-  [263, 151, 263, 151, -131, -19, "gfx/1x1.png"]  
+template t_G1_junction4_v1(sheet) {
+  [263, 151, 263, 151, -131, -19, sheet]
 }
-template t_G1_junction4_v2() {
-  [526, 151, 263, 151, -131, -19, "gfx/1x1.png"]  
+template t_G1_junction4_v2(sheet) {
+  [526, 151, 263, 151, -131, -19, sheet]
 }
-template t_G1_junction4_v3() {
-  [789, 151, 263, 151, -131, -19, "gfx/1x1.png"]  
+template t_G1_junction4_v3(sheet) {
+  [789, 151, 263, 151, -131, -19, sheet]
 }
 
 // ---------------------------------------------------------------------------
@@ -179,17 +179,17 @@ template t_G1_junction4_v3() {
 //   **只有钢轨 + 轨枕，透明底、没有道砟**。道砟在 underlay 那一层。
 //   v0 = TRACK_X（RTO_X）   v3 = TRACK_Y（RTO_Y）
 // ---------------------------------------------------------------------------
-template t_G1_rail_straight_v0() {
-  [1052, 302, 263, 151, -126, -20, "gfx/1x1.png"]  // 与 probe_track_x_v0 一致  // → RTO_X
+template t_G1_rail_straight_v0(sheet) {
+  [1052, 302, 263, 151, -126, -20, sheet]  // 与 probe_track_x_v0 一致  // → RTO_X
 }
-template t_G1_rail_straight_v1() {
-  [1315, 302, 263, 151, -130, -20, "gfx/1x1.png"]  // 与 probe_track_x_v1 一致
+template t_G1_rail_straight_v1(sheet) {
+  [1315, 302, 263, 151, -130, -20, sheet]  // 与 probe_track_x_v1 一致
 }
-template t_G1_rail_straight_v2() {
-  [1578, 302, 263, 151, -131, -19, "gfx/1x1.png"]  
+template t_G1_rail_straight_v2(sheet) {
+  [1578, 302, 263, 151, -131, -19, sheet]
 }
-template t_G1_rail_straight_v3() {
-  [1841, 302, 263, 151, -130, -20, "gfx/1x1.png"]  // 与 probe_track_x_v3 一致  // → RTO_Y
+template t_G1_rail_straight_v3(sheet) {
+  [1841, 302, 263, 151, -130, -20, sheet]  // 与 probe_track_x_v3 一致  // → RTO_Y
 }
 
 
@@ -197,17 +197,17 @@ template t_G1_rail_straight_v3() {
 // G1_rail_halftrack —— 半格轨的 overlay（喂 track_overlay 的 RTO_N / RTO_S / RTO_E / RTO_W）
 //   同样只有钢轨 + 轨枕。v0=UPPER  v1=LEFT  v2=LOWER  v3=RIGHT
 // ---------------------------------------------------------------------------
-template t_G1_rail_halftrack_v0() {
-  [1052, 151, 263, 151, -128, -21, "gfx/1x1.png"]  // 与 probe_half_upper_v0 一致  // → RTO_N
+template t_G1_rail_halftrack_v0(sheet) {
+  [1052, 151, 263, 151, -128, -21, sheet]  // 与 probe_half_upper_v0 一致  // → RTO_N
 }
-template t_G1_rail_halftrack_v1() {
-  [1315, 151, 263, 151, -128, -22, "gfx/1x1.png"]  // 与 probe_half_upper_v1 一致  // → RTO_W
+template t_G1_rail_halftrack_v1(sheet) {
+  [1315, 151, 263, 151, -128, -22, sheet]  // 与 probe_half_upper_v1 一致  // → RTO_W
 }
-template t_G1_rail_halftrack_v2() {
-  [1578, 151, 263, 151, -129, -21, "gfx/1x1.png"]  // 与 probe_half_upper_v2 一致  // → RTO_S
+template t_G1_rail_halftrack_v2(sheet) {
+  [1578, 151, 263, 151, -129, -21, sheet]  // 与 probe_half_upper_v2 一致  // → RTO_S
 }
-template t_G1_rail_halftrack_v3() {
-  [1841, 151, 263, 151, -128, -22, "gfx/1x1.png"]  // 与 probe_half_upper_v3 一致  // → RTO_E
+template t_G1_rail_halftrack_v3(sheet) {
+  [1841, 151, 263, 151, -128, -22, sheet]  // 与 probe_half_upper_v3 一致  // → RTO_E
 }
 
 // ---------------------------------------------------------------------------
@@ -216,32 +216,70 @@ template t_G1_rail_halftrack_v3() {
 //   基准朝向 = SLOPE_NE（地面 z(x)=0.2041·(1−x)，x=0 边最高）
 //   取图顺序 v0=NE  v1=NW  v2=SW  v3=SE（绕占地中心转模型推出，见 railsprite.pnml）
 // ---------------------------------------------------------------------------
-template t_G1_track_slope_v0() {
-  [0, 453, 263, 151, -128, -20, "gfx/1x1.png"]   // → RTO_SLOPE_NE（x=0 边 / 右上抬）
+template t_G1_track_slope_v0(sheet) {
+  [0, 453, 263, 151, -128, -20, sheet]  // → RTO_SLOPE_NE（x=0 边 / 右上抬）
 }
-template t_G1_track_slope_v1() {
-  [263, 453, 263, 151, -131, -19, "gfx/1x1.png"]   // → RTO_SLOPE_NW（y=0 边 / 左上抬）
+template t_G1_track_slope_v1(sheet) {
+  [263, 453, 263, 151, -131, -19, sheet]  // → RTO_SLOPE_NW（y=0 边 / 左上抬）
 }
-template t_G1_track_slope_v2() {
-  [526, 453, 263, 151, -126, -20, "gfx/1x1.png"]   // → RTO_SLOPE_SW（x=1 边 / 左下抬）
+template t_G1_track_slope_v2(sheet) {
+  [526, 453, 263, 151, -126, -20, sheet]  // → RTO_SLOPE_SW（x=1 边 / 左下抬）
 }
-template t_G1_track_slope_v3() {
-  [789, 453, 263, 151, -131, -19, "gfx/1x1.png"]   // → RTO_SLOPE_SE（y=1 边 / 右下抬）
+template t_G1_track_slope_v3(sheet) {
+  [789, 453, 263, 151, -131, -19, sheet]  // → RTO_SLOPE_SE（y=1 边 / 右下抬）
 }
 
 // ---------------------------------------------------------------------------
 // G1_rail_slope —— 坡道的 overlay（槽 6-9，只要枕木+钢轨，透明底）
 //   同 G1_track_slope 的 4 个朝向
 // ---------------------------------------------------------------------------
-template t_G1_rail_slope_v0() {
-  [0, 302, 263, 151, -128, -20, "gfx/1x1.png"]   // → RTO_SLOPE_NE（x=0 边 / 右上抬）
+template t_G1_rail_slope_v0(sheet) {
+  [0, 302, 263, 151, -128, -20, sheet]  // → RTO_SLOPE_NE（x=0 边 / 右上抬）
 }
-template t_G1_rail_slope_v1() {
-  [263, 302, 263, 151, -131, -19, "gfx/1x1.png"]   // → RTO_SLOPE_NW（y=0 边 / 左上抬）
+template t_G1_rail_slope_v1(sheet) {
+  [263, 302, 263, 151, -131, -19, sheet]  // → RTO_SLOPE_NW（y=0 边 / 左上抬）
 }
-template t_G1_rail_slope_v2() {
-  [526, 302, 263, 151, -126, -20, "gfx/1x1.png"]   // → RTO_SLOPE_SW（x=1 边 / 左下抬）
+template t_G1_rail_slope_v2(sheet) {
+  [526, 302, 263, 151, -126, -20, sheet]  // → RTO_SLOPE_SW（x=1 边 / 左下抬）
 }
-template t_G1_rail_slope_v3() {
-  [789, 302, 263, 151, -131, -19, "gfx/1x1.png"]   // → RTO_SLOPE_SE（y=1 边 / 右下抬）
+template t_G1_rail_slope_v3(sheet) {
+  [789, 302, 263, 151, -131, -19, sheet]  // → RTO_SLOPE_SE（y=1 边 / 右下抬）
+}
+
+// ---------------------------------------------------------------------------
+// G1_tunnel_stone —— TUN-1 料石端墙拱的 tunnels: 组（地面层，槽 0-3，道砟+轨枕+钢轨+洞口暗腔）
+//   基准朝向 = DiagDir NE（洞口在 x=0 边 / 右上）；取图顺序 v0=NE v1=NW v2=SW v3=SE
+//   ⚠ 引擎槽位顺序是 NE / SE / SW / NW ⇒ 喂图是 v0, v3, v2, v1
+//   参数 sheet：调用处传 "gfx/tunnel.png"（按类分表，见 tools/sheets.mjs）
+// ---------------------------------------------------------------------------
+template t_G1_tunnel_stone_v0(sheet) {
+  [0, 0, 263, 218, -131, -86, sheet]
+}
+template t_G1_tunnel_stone_v1(sheet) {
+  [263, 0, 263, 218, -131, -86, sheet]
+}
+template t_G1_tunnel_stone_v2(sheet) {
+  [526, 0, 263, 218, -131, -86, sheet]
+}
+template t_G1_tunnel_stone_v3(sheet) {
+  [789, 0, 263, 218, -131, -86, sheet]
+}
+
+// ---------------------------------------------------------------------------
+// G1_tunnel_stone_over —— TUN-1 料石端墙拱的 tunnel_overlay: 组（立体层，槽 0-3，画在车之上）
+//   基准朝向 = DiagDir NE（洞口在 x=0 边 / 右上）；取图顺序 v0=NE v1=NW v2=SW v3=SE
+//   ⚠ 引擎槽位顺序是 NE / SE / SW / NW ⇒ 喂图是 v0, v3, v2, v1
+//   参数 sheet：调用处传 "gfx/tunnel.png"（按类分表，见 tools/sheets.mjs）
+// ---------------------------------------------------------------------------
+template t_G1_tunnel_stone_over_v0(sheet) {
+  [1052, 0, 263, 218, -131, -86, sheet]
+}
+template t_G1_tunnel_stone_over_v1(sheet) {
+  [1315, 0, 263, 218, -131, -86, sheet]
+}
+template t_G1_tunnel_stone_over_v2(sheet) {
+  [1578, 0, 263, 218, -131, -86, sheet]
+}
+template t_G1_tunnel_stone_over_v3(sheet) {
+  [1841, 0, 263, 218, -131, -86, sheet]
 }
