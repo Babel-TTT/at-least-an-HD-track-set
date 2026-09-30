@@ -198,8 +198,8 @@ function sleeperBoxes(axis, hw, shiftKey, skipCenter) {
       if (!box) continue;
       // 枕木 z：顶 0.0140 不动（钢轨坐在这上面），底抬到 0.0100 ⇒ 枕木做薄
       // （人工裁定：大幅降低所有枕木高度）
-      L.push('box ' + N(box[0]) + ' ' + N(box[1]) + ' 0.0100  ' +
-             N(box[2]) + ' ' + N(box[3]) + ' 0.0140  ' +
+      L.push('box ' + N(box[0]) + ' ' + N(box[1]) + ' 0.0000  ' +
+             N(box[2]) + ' ' + N(box[3]) + ' 0.0100  ' +
              pad(SLEEPER_MAT[((k + s) % 4 + 4) % 4]) + ' top=wood_seam');
     }
   }
@@ -259,9 +259,9 @@ export function generate() {
     s += '\n# --- 轨枕：Y 轨 25 根，跳过中心 5 根（偏移 ' + DIR_DELTA.Y.join(',') + '）---\n';
     s += sleeperBoxes('y', 0.008, 'Y', true).join('\n') + '\n';
     s += '\n# --- 钢轨：X 组 2 根（z 0.0140->0.0270，偏移 ' + DIR_DELTA.X.join(',') + '）---\n';
-    s += railBoxes('x', 0.0270, 'X').join('\n') + '\n';
+    s += railBoxes('x', 0.0230, 'X').join('\n') + '\n';
     s += '\n# --- 钢轨：Y 组 2 根（z 0.0150->0.0280，偏移 ' + DIR_DELTA.Y.join(',') + '）---\n';
-    s += railBoxes('y', 0.0280, 'Y').join('\n') + '\n';
+    s += railBoxes('y', 0.0240, 'Y').join('\n') + '\n';
     out.push(['G1_crossing', s, n]);
   }
 
