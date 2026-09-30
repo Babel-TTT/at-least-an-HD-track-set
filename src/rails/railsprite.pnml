@@ -61,19 +61,19 @@ spriteset(probe_underlay, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
     t_G1_junction4_v0()         // 15  RTO_JUNCTION_NSEW ★ G1 正式：只有道砟
 }
 
-// RTO_X  RTO_Y  RTO_N  RTO_S  RTO_E  RTO_W
-// SLOPE_NE  SLOPE_SE  SLOPE_SW  SLOPE_NW
+// track_overlay —— 「钢轨层」。引擎在道岔瓦片上会**逐段**把这里的图叠到道砟之上
+// （rail_cmd.cpp:3796-3816），所以本层必须**透明底、只画钢轨和轨枕**。
 spriteset(probe_overlay, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
-    t_probe_track_x_v0()        // 0  RTO_X
-    t_probe_track_x_v3()        // 1  RTO_Y
-    t_probe_half_upper_v0()     // 2  RTO_N
-    t_probe_half_upper_v2()     // 3  RTO_S
-    t_probe_half_upper_v3()     // 4  RTO_E
-    t_probe_half_upper_v1()     // 5  RTO_W
-    t_probe_track_x_v0()        // 6  RTO_SLOPE_NE  ← 探针占位
-    t_probe_track_x_v3()        // 7  RTO_SLOPE_SE  ← 探针占位
-    t_probe_track_x_v0()        // 8  RTO_SLOPE_SW  ← 探针占位
-    t_probe_track_x_v3()        // 9  RTO_SLOPE_NW  ← 探针占位
+    t_G1_rail_straight_v0()     // 0  RTO_X        ★ 纯钢轨层
+    t_G1_rail_straight_v3()     // 1  RTO_Y        ★
+    t_G1_rail_halftrack_v0()    // 2  RTO_N        ★
+    t_G1_rail_halftrack_v2()    // 3  RTO_S        ★
+    t_G1_rail_halftrack_v3()    // 4  RTO_E        ★
+    t_G1_rail_halftrack_v1()    // 5  RTO_W        ★
+    t_G1_rail_straight_v0()     // 6  RTO_SLOPE_NE  ← 坡道还没做，占位
+    t_G1_rail_straight_v3()     // 7  RTO_SLOPE_SE  ← 占位
+    t_G1_rail_straight_v0()     // 8  RTO_SLOPE_SW  ← 占位
+    t_G1_rail_straight_v3()     // 9  RTO_SLOPE_NW  ← 占位
 }
 
 // 隧道口（4 格：4 个 DiagDirection）
