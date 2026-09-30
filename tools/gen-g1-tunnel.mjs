@@ -76,30 +76,78 @@ const RAIL_BASE = 0.0100;
 const RAIL_TOP = 0.0230;
 const RAIL_Y = [[0.5476, 0.5556], [0.4444, 0.4524]];   // 两条钢轨的 y 区间
 
-// ---- 洞口（端墙 + 拱）-------------------------------------------------------
-const WALL_X0 = 0.0000;              // 端墙背面（朝洞里）
-const WALL_X1 = 0.0900;              // 端墙正面（朝来车方向）—— 可见面
-const WALL_Y0 = 0.1400;              // 端墙左边界
-const WALL_Y1 = 0.8600;              // 端墙右边界
-const WALL_TOP = 0.5200;             // 墙顶
+// ---- v4 布局（人工裁定 2026-10）：**洞门立在瓦片后半部，后面留出仰面** ------
+//
+//   核心修正：v1~v3 都把洞口贴在瓦片后沿（x=0），结果**后面一点空间都没有**，
+//   仰面只能挤进墙厚里 0.016 格（= 等于没做）。现在把洞门往里挪到瓦片后半部，
+//   后面 0.30 格腾出来给仰面。
+//
+//   x = 0 瓦片后沿（山那一侧）      x = 1 前沿（来车方向）
+//   y 横向，中线 0.5 = 轨道中心     z 向上，地面 = 0
+//
+//     x:  0 ─────────── 0.28 ─── 0.42 ──────────────────── 1
+//         │  仰面/山体  │  拱形板  │    道砟 + 轨道 + 护坡      │
+//         │  升到 0.2041 │  红+蓝   │                          │
+//
+//   ★ 总高度 = **一层地形**（LEV）。人工实测确认：一格坡抬 32 px @4x，
+//     而我们的 G1_track_slope 在实机里是对的 ⇒ 一层地形 = 32/156.7673 = 0.2041 格。
+const LEV = 0.2041;                  // 一层地形的高度（flatiso z）
 
-const ARCH_CY = 0.5000;              // 拱心（y）
-const ARCH_R = 0.1700;               // 拱半径：半宽 = 起拱线到拱顶的高
-const ARCH_SPRING = 0.1900;          // 起拱线 z
-const ARCH_CROWN = ARCH_SPRING + ARCH_R;   // 拱顶 z = 0.36
-const ARCH_Y0 = ARCH_CY - ARCH_R;    // 0.33
-const ARCH_Y1 = ARCH_CY + ARCH_R;    // 0.67
+// ---- 拱形板（洞门本体）：一块**有厚度的板**，中间开半圆拱洞 -----------------
+//   人工裁定：位置**从朝外那面量 0.2** ⇒ 板正面在 x = 0.80。
+//   为什么必须这么靠外：定义了 tunnel_overlay 后引擎换用 SPR_RAILTYPE_TUNNEL_BASE
+//   （注释 "tunnel sprites with **grass only**"）—— **只换材质、形状还在**，
+//   原版那个草山包永远在那儿，只能靠我们的图去盖住它。
+const SLAB_X0 = 0.6800;              // 板背面（朝山）
+const SLAB_X1 = 0.8000;              // 板正面（朝来车）—— 从外量 0.2
+const SLAB_Y0 = 0.1600;              // 板宽 0.68 格 = 9.5 m
+const SLAB_Y1 = 0.8400;
+const SLAB_TOP = LEV * 0.9800;       // 板顶 0.2000 —— 抬高，几乎顶到仰面
+
+const ARCH_CY = 0.5000;              // 拱心（y）—— **也是左右切分线**
+const ARCH_R = 0.1550;               // 拱半径 = 洞宽的一半（0.31 格 = 4.3 m）
+const ARCH_SPRING = SLAB_TOP - ARCH_R;   // 起拱线 = 0.0200
+const ARCH_CROWN = SLAB_TOP;         // 拱顶（半圆拱）
+const ARCH_Y0 = ARCH_CY - ARCH_R;    // 0.365
+const ARCH_Y1 = ARCH_CY + ARCH_R;    // 0.635
 const NA = 48;                       // 拱线细分
 
-const COPING_X0 = -0.0140;           // 压顶：比墙身四周各出挑一点
-const COPING_X1 = WALL_X1 + 0.0140;
-const COPING_Y0 = WALL_Y0 - 0.0220;
-const COPING_Y1 = WALL_Y1 + 0.0220;
-const COPING_TOP = WALL_TOP + 0.0460;
+// ---- 仰面（绿）：**水平**的山顶面（人工裁定：不做斜升，斜升会把洞口压矮）---
+//   高度 = 一层地形；**末端完全填满瓦片边缘**（y 0→1）。
+//   ⚠ 必须归 tunnel_overlay: 层 —— 原版那个草山包画在这一层，
+//     放进 tunnels:（更早画）会被它盖住。
+const HILL_X0 = SLAB_X0;             // 0.68（前沿）
+const HILL_X1 = 0.0000;              // 0（瓦片后沿，填满整条边）
+const HILL_Z1 = LEV;                 // 0.2041（水平顶面）
+const HILL_Y0 = 0.0000;              // ★ 填满瓦片边缘
+const HILL_Y1 = 1.0000;
 
-const BORE_X0 = 0.0300;              // 洞口暗腔（一块黑板，堵住拱洞）
-const BORE_X1 = 0.0400;
-const BORE_TOP = ARCH_CROWN + 0.0150;
+// ---- 压顶：板顶出挑的一圈 ---------------------------------------------------
+const COPING_X0 = SLAB_X0 - 0.0120;
+const COPING_X1 = SLAB_X1 + 0.0120;
+const COPING_Y0 = SLAB_Y0 - 0.0180;
+const COPING_Y1 = SLAB_Y1 + 0.0180;
+const COPING_TOP = SLAB_TOP + 0.0140;
+
+// ---- 洞口暗幕：贴在板背面之后的一块黑板，堵住拱洞 --------------------------
+const BORE_X = SLAB_X0 - 0.0100;     // 0.67（板后 0.01）
+
+// ---- 八字锥坡护坡（人工裁定 B）：只剩 0.2 格，做**急坡** --------------------
+const WING_X0 = SLAB_X1;             // 0.80（起于板正面）
+const WING_X1 = 0.9800;              // 0.98（0.18 格内降完 —— 急坡）
+const WING_Z0 = SLAB_TOP * 0.8500;   // 0.1318（低于板顶，让板露出来）
+const WING_Z1 = 0.0200;              // 收到地面
+const WING_YI = 0.3150;              // 内侧边（贴道砟肩 0.32）
+const WING_YO0 = SLAB_Y0;            // 靠板端的外侧边
+const WING_YO1 = 0.0300;             // 远端外张到 0.03（八字张开）
+
+// ---- 轨道：**保持原有枕木间距与纹理尺度**，只把板前面那部分留下 -------------
+//   ⚠ 不是把整格等比例压缩！上一版犯过这个错（25 根枕木被压进 0.58 格）。
+//   人工裁定：**铺满整格**（原来只在板前面 0.2 格，太短）——
+//   板后面那截被仰面（overlay 层）盖住看不见，但保证与邻格接轨连续。
+const ZMAX_PIN = '0.2140';           // 钉死取景框（= 当前最高点：压顶顶 0.2140）
+const TRACK_X0 = 0.0000;
+const TRACK_X1 = 1.0000;
 
 /** 拱线：给定 y 返回拱腹的 z；超出拱跨返回 null（= 落到地面） */
 function archZ(y) {
@@ -164,9 +212,10 @@ function ballast(seed) {
   const yb = (r, i) => (r === 0 ? B0 + wav[i][0] : r === RN ? B1 + wav[i][1] : B0 + (B1 - B0) * r / RN);
   const hz = (r, i) => 0.0005 + 0.005 * (0.5 + 0.5 * Math.sin(i * 1.7 + r * 2.3)) + 0.0006 * ((i * 7 + r * 13) % 5) / 4;
   const L = [];
-  const X = (i) => i / CN;
+  const X = (i) => i / CN;         // ★ 原尺度 —— 绝不压缩
   for (let r = 0; r < RN; r++) for (let i = 0; i < CN; i++) {
-    const x0 = X(i), x1 = X(i + 1), y0 = yb(r, i), y1 = yb(r + 1, i);
+    const x0 = X(i);
+    const x1 = X(i + 1), y0 = yb(r, i), y1 = yb(r + 1, i);
     L.push('quad ' + N(x1) + ' ' + N(y0) + ' ' + N(hz(r, i + 1)) +
            '  ' + N(x1) + ' ' + N(y1) + ' ' + N(hz(r + 1, i + 1)) +
            '  ' + N(x0) + ' ' + N(y1) + ' ' + N(hz(r + 1, i)) +
@@ -181,6 +230,7 @@ function sleepers() {
   const NT = 25, HW = 0.008;
   for (let i = 0; i < NT; i++) {
     const t = 0.012 + 0.976 * i / (NT - 1);
+    // 铺满整格：不再按洞口裁掉枕木
     for (let s = 0; s < 3; s++) {
       const a = 0.41 + 0.06 * s, b = a + 0.06;
       L.push(...box(t - HW, a, t + HW, b, SLEEPER_BASE, SLEEPER_TOP, SLEEPER_MAT[(i + s) % 4], 'wood_seam'));
@@ -195,57 +245,160 @@ function rails() {
   return L;
 }
 
-// ---- 洞口暗腔（地面层的黑）------------------------------------------------
-function bore() {
-  return box(BORE_X0, ARCH_Y0 + 0.006, BORE_X1, ARCH_Y1 - 0.006, 0, BORE_TOP, 'trim_black', 'trim_black');
+// ---- 八字锥坡护坡（人工裁定 B）--------------------------------------------
+/**
+ * 一片护坡：靠墙端窄、远端八字外张，顶面沿 +x 斜降到地面。
+ * 四角在平面上的关系（左翼）：
+ *   靠墙 x=WING_X0：外侧 y=WING_YO0 … 内侧 y=WING_YI
+ *   远端 x=WING_X1：外侧 y=WING_YO1（更外）… 内侧 y=WING_YI
+ * @param {1|-1} sgn  +1 = 右翼（y 大的一侧，镜像到 0.86~0.98），−1 = 左翼
+ */
+function wing(sgn) {
+  const Y = (v) => (sgn > 0 ? 1 - v : v);         // 右翼镜像
+  const yi = Y(WING_YI), yo0 = Y(WING_YO0), yo1 = Y(WING_YO1);
+  const ny = sgn > 0 ? 1 : -1;                     // 外侧朝外的方向
+  const P = (x, y, z) => [x, y, z];
+  const dx = WING_X1 - WING_X0, dz = WING_Z0 - WING_Z1;
+  const dy = yo1 - yo0;
+  // 外侧斜面的法线：垂直于平面走向 (dx, dy)，指向外侧
+  const oLen = Math.hypot(dx, dy) || 1;
+  const nOut = [-dy / oLen * ny, dx / oLen * ny, 0];
+  return [
+    // 顶面（斜面）——法线朝上偏 −x
+    q4o([P(WING_X0, yo0, WING_Z0), P(WING_X1, yo1, WING_Z1),
+         P(WING_X1, yi, WING_Z1), P(WING_X0, yi, WING_Z0)],
+      [-dz, 0, dx], 'stone'),
+    // 远端面 x=WING_X1
+    q4o([P(WING_X1, yo1, 0), P(WING_X1, yo1, WING_Z1),
+         P(WING_X1, yi, WING_Z1), P(WING_X1, yi, 0)], [1, 0, 0], 'stone_dark'),
+    // 外侧斜面（八字张开的那一面）
+    q4o([P(WING_X0, yo0, 0), P(WING_X1, yo1, 0),
+         P(WING_X1, yo1, WING_Z1), P(WING_X0, yo0, WING_Z0)], nOut, 'stone_dark'),
+    // 内侧面（贴轨道一侧）
+    q4o([P(WING_X0, yi, 0), P(WING_X0, yi, WING_Z0),
+         P(WING_X1, yi, WING_Z1), P(WING_X1, yi, 0)], [0, -ny, 0], 'stone_seam'),
+  ];
 }
 
-// ---- 端墙（含拱洞）+ 压顶 --------------------------------------------------
-function portal() {
+// ---- 洞口暗幕（红）：贴在端墙后面的一张黑板 --------------------------------
+//   人工裁定：**不画筒体**。列车进入洞口后应当被「洞门正面 + 仰面」完全挡住，
+//   所以这里只需要一块从拱洞里透出来的暗面，让人看出"那是个洞"。
+//   放在端墙厚度之内（x 略 > 0），因此**不越出 1×1 占地**。
+function bore() {
+  const x = BORE_X;                     // 黑板所在的 x
+  return [
+    q4o([[x, ARCH_Y0, 0], [x, ARCH_Y0, ARCH_CROWN + 0.006],
+         [x, ARCH_Y1, ARCH_CROWN + 0.006], [x, ARCH_Y1, 0]],
+      [1, 0, 0], 'trim_black'),
+  ];
+}
+
+// ===========================================================================
+// 洞门按 **z 切两半**（人工裁定：不是按"墙/地"切，是按"被车遮 / 遮车"切）
+//
+//   引擎绘制顺序：草地底 → tunnels: → 车 → 草地覆盖 → tunnel_overlay:
+//   ⇒ 起拱线(0.19)**以下**连同护坡、拱腹、洞内，全部归 tunnels:（会被车压过）
+//   ⇒ 起拱线**以上**的墙身 + 拱圈 + 压顶，归 tunnel_overlay:（专门遮车）
+//   —— 这就是别的轨道包里"只有半边图像来遮盖车辆"的那半边。
+// ===========================================================================
+
+/** 地面层（红）：护坡 + 洞门下半。起拱线只有 0.018，所以"下半"几乎只剩护坡。 */
+function portalLower() {
   const L = [];
-  const FRONT = WALL_X1;
+  const FRONT = SLAB_X1;
 
-  // 左右两个墙墩（整高，不含拱洞）
-  L.push(...box(WALL_X0, WALL_Y0, FRONT, ARCH_Y0, 0, WALL_TOP, 'stone', 'stone_dark'));
-  L.push(...box(WALL_X0, ARCH_Y1, FRONT, WALL_Y1, 0, WALL_TOP, 'stone', 'stone_dark'));
+  // 墙墩下半（起拱线以下，很薄的一条）
+  if (ARCH_SPRING > 0.002) {
+    L.push(...box(SLAB_X0, SLAB_Y0, FRONT, ARCH_Y0, 0, ARCH_SPRING, 'stone', 'stone_dark'));
+    L.push(...box(SLAB_X0, ARCH_Y1, FRONT, SLAB_Y1, 0, ARCH_SPRING, 'stone', 'stone_dark'));
+  }
+  // 拱洞两侧的内壁（起拱线以下）
+  if (ARCH_SPRING > 0.002) {
+    L.push(q4o([[SLAB_X0, ARCH_Y0, ARCH_SPRING], [FRONT, ARCH_Y0, ARCH_SPRING],
+                [FRONT, ARCH_Y0, 0], [SLAB_X0, ARCH_Y0, 0]], [0, 1, 0], 'stone_seam'));
+    L.push(q4o([[SLAB_X0, ARCH_Y1, ARCH_SPRING], [SLAB_X0, ARCH_Y1, 0],
+                [FRONT, ARCH_Y1, 0], [FRONT, ARCH_Y1, ARCH_SPRING]], [0, -1, 0], 'stone_seam'));
+  }
 
-  // 拱上腹墙：每个 y 条带的底边沿拱线 —— 这自然切出半圆拱洞
+  // 八字锥坡护坡 ×2
+  L.push(...wing(-1));
+  L.push(...wing(+1));
+
+  return L;
+}
+
+/** 遮车层（蓝 + 绿）：端墙正面（含拱洞）+ 拱圈 + 压顶 + 仰面 */
+function portalUpper() {
+  const L = [];
+  const FRONT = SLAB_X1;
+  const P = (x, y, z) => [x, y, z];
+
+  // 墙墩正面（拱洞两侧），0 → 墙顶
+  L.push(q4o([[FRONT, SLAB_Y0, SLAB_TOP], [FRONT, SLAB_Y0, 0],
+              [FRONT, ARCH_Y0, 0], [FRONT, ARCH_Y0, SLAB_TOP]], [1, 0, 0], 'stone'));
+  L.push(q4o([[FRONT, ARCH_Y1, SLAB_TOP], [FRONT, ARCH_Y1, 0],
+              [FRONT, SLAB_Y1, 0], [FRONT, SLAB_Y1, SLAB_TOP]], [1, 0, 0], 'stone'));
+
+  // 拱上腹墙：每个 y 条带的底边沿拱线 —— 这自然切出半圆拱洞，也是"遮车的半边"
   const yOf = (i) => ARCH_Y0 + (ARCH_Y1 - ARCH_Y0) * i / NA;
   for (let i = 0; i < NA; i++) {
     const y0 = yOf(i), y1 = yOf(i + 1);
     const z0 = archZ(Math.min(y0 + 1e-6, ARCH_CY)) ?? ARCH_SPRING;
     const z1 = archZ(Math.max(y1 - 1e-6, ARCH_CY)) ?? ARCH_SPRING;
-    // 正面（朝 +x）
-    L.push(q4o([[FRONT, y0, WALL_TOP], [FRONT, y1, WALL_TOP], [FRONT, y1, z1], [FRONT, y0, z0]],
+    L.push(q4o([[FRONT, y0, SLAB_TOP], [FRONT, y1, SLAB_TOP], [FRONT, y1, z1], [FRONT, y0, z0]],
       [1, 0, 0], 'stone'));
-    // 拱腹：朝**拱轴心**（洞内），法线 = 由拱心指向该条带中点的反方向
-    const ym = (y0 + y1) / 2;
-    const zm = archZ(ym) ?? ARCH_SPRING;
-    const ry = (ym - ARCH_CY) / ARCH_R, rz = (zm - ARCH_SPRING) / ARCH_R;
-    L.push(q4o([[FRONT, y0, z0], [WALL_X0, y0, z0], [WALL_X0, y1, z1], [FRONT, y1, z1]],
-      [0, -ry, -rz], 'stone_seam'));
   }
 
-  // 拱洞两侧的内壁（竖直段，从地面到起拱线）—— 朝洞内
-  L.push(q4o([[WALL_X0, ARCH_Y0, ARCH_SPRING], [FRONT, ARCH_Y0, ARCH_SPRING],
-              [FRONT, ARCH_Y0, 0], [WALL_X0, ARCH_Y0, 0]], [0, 1, 0], 'stone_seam'));
-  L.push(q4o([[WALL_X0, ARCH_Y1, ARCH_SPRING], [WALL_X0, ARCH_Y1, 0],
-              [FRONT, ARCH_Y1, 0], [FRONT, ARCH_Y1, ARCH_SPRING]], [0, -1, 0], 'stone_seam'));
+  // 端墙两端面 —— 朝墙外
+  L.push(q4o([[SLAB_X0, SLAB_Y0, SLAB_TOP], [FRONT, SLAB_Y0, SLAB_TOP],
+              [FRONT, SLAB_Y0, 0], [SLAB_X0, SLAB_Y0, 0]], [0, -1, 0], 'stone_dark'));
+  L.push(q4o([[SLAB_X0, SLAB_Y1, SLAB_TOP], [SLAB_X0, SLAB_Y1, 0],
+              [FRONT, SLAB_Y1, 0], [FRONT, SLAB_Y1, SLAB_TOP]], [0, 1, 0], 'stone_dark'));
 
-  // 端墙两端面（y = WALL_Y0 / WALL_Y1）—— 朝墙外
-  L.push(q4o([[WALL_X0, WALL_Y0, WALL_TOP], [FRONT, WALL_Y0, WALL_TOP],
-              [FRONT, WALL_Y0, 0], [WALL_X0, WALL_Y0, 0]], [0, -1, 0], 'stone_dark'));
-  L.push(q4o([[WALL_X0, WALL_Y1, WALL_TOP], [WALL_X0, WALL_Y1, 0],
-              [FRONT, WALL_Y1, 0], [FRONT, WALL_Y1, WALL_TOP]], [0, 1, 0], 'stone_dark'));
-
-  // 墙顶（被压顶盖住，但补上以防露缝）
-  L.push(q4o([[WALL_X0, WALL_Y0, WALL_TOP], [WALL_X0, WALL_Y1, WALL_TOP],
-              [FRONT, WALL_Y1, WALL_TOP], [FRONT, WALL_Y0, WALL_TOP]], [0, 0, 1], 'stone_dark'));
+  // 墙顶（被压顶盖住，补上防露缝）
+  L.push(q4o([[SLAB_X0, SLAB_Y0, SLAB_TOP], [SLAB_X0, SLAB_Y1, SLAB_TOP],
+              [FRONT, SLAB_Y1, SLAB_TOP], [FRONT, SLAB_Y0, SLAB_TOP]], [0, 0, 1], 'stone_dark'));
 
   // 压顶（出挑的一圈）
-  L.push(...box(COPING_X0, COPING_Y0, COPING_X1, COPING_Y1, WALL_TOP, COPING_TOP, 'stone_dark', 'stone'));
+  L.push(...box(COPING_X0, COPING_Y0, COPING_X1, COPING_Y1, SLAB_TOP, COPING_TOP, 'stone_dark', 'stone'));
+
+  // ★ 仰面（绿）：**水平山顶面**（人工裁定：不做斜升 —— 斜升会把洞口压矮）
+  const HZ = HILL_Z1;
+  // 顶面（水平）
+  L.push(q4o([P(HILL_X1, HILL_Y0, HZ), P(HILL_X0, HILL_Y0, HZ),
+              P(HILL_X0, HILL_Y1, HZ), P(HILL_X1, HILL_Y1, HZ)], [0, 0, 1], 'dirt'));
+  // ⚠ 人工裁定：**不画正面和两个侧面** —— 本层是画在车之上的 sortable sprite，
+  //   立起来的面会挡住邻格的精灵。只留顶面 + 后沿立面。
+  // 后沿立面（瓦片后沿，**填满整条边**）
+  L.push(q4o([P(HILL_X1, HILL_Y0, 0), P(HILL_X1, HILL_Y1, 0),
+              P(HILL_X1, HILL_Y1, HZ), P(HILL_X1, HILL_Y0, HZ)], [-1, 0, 0], 'dirt'));
 
   return L;
+}
+
+// ---------------------------------------------------------------------------
+// ★ 左右切分（人工裁定）：按**相机深度**把整块洞门（含护坡）劈成两半
+//
+//   flatiso 的深度 = x + y，越大越靠近镜头。
+//   洞门是绕轨道中线 y=0.5 的一个"拱环"，所以：
+//     y ≥ 0.5 的那半（离镜头近）—— 挡在车前面 ⇒ tunnel_overlay:（遮车）
+//     y <  0.5 的那半（离镜头远）—— 车进来后在它前面 ⇒ tunnels:（被车遮）
+//
+//   ⇒ 不再按"板正面/板背面"切，而是**按 y 切**。这样拱环和两片护坡
+//     会自然分成左右两半，各自进对的那一层。
+// ---------------------------------------------------------------------------
+
+/** 把一串 quad 行按顶点平均 y 分成「远半 / 近半」 */
+function splitByY(lines) {
+  const lo = [], hi = [];
+  for (const l of lines) {
+    if (!l.startsWith('quad')) { lo.push(l); continue; }
+    const n = l.slice(4).trim().split(/\s+/);
+    const ys = [1, 4, 7, 10].map((i) => Number(n[i]));
+    const yAvg = ys.reduce((a, b) => a + b, 0) / ys.length;
+    (yAvg >= ARCH_CY ? hi : lo).push(l);
+  }
+  return { lo, hi };
 }
 
 // ---------------------------------------------------------------------------
@@ -257,42 +410,54 @@ function header(name, title, extra) {
     + '# =============================================================================\n\n';
 }
 
-const WHY = '# TUN-1 料石端墙拱（人工裁定：v1 只做端墙 + 拱，护坡下一轮）\n'
+const WHY = '# TUN-1 料石端墙拱（人工裁定 B：八字锥坡护坡）\n'
   + '# 基准朝向 = DiagDir NE：洞口在 x=0 那条边（N–E），轨道沿 x\n'
   + '# 取图顺序 v0=NE  v1=NW  v2=SW  v3=SE\n'
   + '#   ⚠ 引擎槽位顺序是 NE/SE/SW/NW ⇒ 喂图是 v0, v3, v2, v1\n'
   + '# 尺寸：端墙 y∈[0.14,0.86] 高 0.52；拱半宽 0.17、起拱 0.19、拱顶 0.36\n'
-  + '# 偏移不烘进几何：由人在 Sprite Aligner 里调（docs/建模经验.md §7.3）\n'
+  + '# 护坡：八字锥坡，靠墙 y∈[0.14,0.31] → 远端 y∈[0.02,0.31]，顶 0.40 斜降到 0.04\n'
+  + '#\n'
+  + '# 【按 z 切两半】不是按"墙/地"切，是按"被车遮 / 遮车"切：\n'
+  + '#   起拱线(0.19)以下 + 护坡 + 拱腹 + 洞内 ⇒ tunnels: 组\n'
+  + '#   起拱线以上墙身 + 拱圈 + 压顶       ⇒ tunnel_overlay: 组（遮车的那半边）\n'
+  + '# 引擎绘制顺序：草地底 → tunnels: → 车 → 草地覆盖 → tunnel_overlay:\n'
   + '#\n';
 
 export function generateTunnel() {
   const ball = ballast(20261001);
   const sleep = sleepers();
   const rail = rails();
-  const br = bore();
-  const wall = portal();
+  const br = bore();                       // 暗幕：强制归"被车遮"层
+  const { lo: wallFar, hi: wallNear } = splitByY([...portalLower(), ...portalUpper()]);
 
   const out = [];
 
-  // underlay：tunnels: 组 —— 道砟 + 轨枕 + 钢轨 + 洞口暗腔
+  // tunnels: 组（红 = 被车遮）—— 道砟 + 轨枕 + 钢轨 + 暗幕 + 洞门/护坡的**远半**
   {
-    let s = header('G1_tunnel_stone', 'G1 几何组：TUN-1 料石端墙拱 —— tunnels: 组（地面层）', WHY);
-    s += 'name      G1_tunnel_stone\ngroup     misc\nfootprint 1 1\n\n';
-    s += '# --- 洞口暗腔 ' + br.length + ' 面 ---\n' + br.join('\n') + '\n';
-    s += '\n# --- 道砟 ' + CN + 'x' + RN + ' = ' + ball.length + ' 面 ---\n' + ball.join('\n') + '\n';
-    s += '\n# --- 轨枕 25 根 x 3 段（每根 6 面）---\n' + sleep.join('\n') + '\n';
-    s += '\n# --- 钢轨 2 根（每根 6 面）---\n' + rail.join('\n') + '\n';
-    out.push(['G1_tunnel_stone', s, br.length + ball.length + sleep.length + rail.length]);
+    let s = header('G1_tunnel_stone', 'G1 几何组：TUN-1 料石端墙拱 —— tunnels: 组（地面层，被车遮的那半）', WHY);
+    s += 'name      G1_tunnel_stone\ngroup     misc\nfootprint 1 1\n';
+    // ★ 钉死 zmax：flatiso 拿它定取景框（core/bake.mjs:52-54 会加一个虚拟最高点），
+    //   钉住之后**改几何不会改格位**，src/rails/templates.pnml 的 rect 再也不用同步。
+    s += 'zmax      ' + ZMAX_PIN + '\n\n';
+    s += '# --- 道砟 ---\n' + ball.join('\n') + '\n';
+    s += '\n# --- 轨枕（保持原间距，只是板后面那几根不画）---\n' + sleep.join('\n') + '\n';
+    s += '\n# --- 钢轨 2 根 ---\n' + rail.join('\n') + '\n';
+    s += '\n# --- 洞口暗幕 ---\n' + br.join('\n') + '\n';
+    s += '\n# --- 洞门 + 护坡：远半（y < ' + N(ARCH_CY) + '）---\n' + wallFar.join('\n') + '\n';
+    out.push(['G1_tunnel_stone', s,
+      ball.length + sleep.length + rail.length + br.length + wallFar.length]);
   }
 
-  // overlay：tunnel_overlay: 组 —— 端墙 + 半圆拱 + 压顶
+  // tunnel_overlay: 组（蓝 = 遮车）—— 洞门 + 护坡的**近半** + 仰面
   {
-    let s = header('G1_tunnel_stone_over', 'G1 几何组：TUN-1 料石端墙拱 —— tunnel_overlay: 组（立体层）', WHY
-      + '# ⚠ 本层是**立体层**，由引擎当 sortable sprite 画在最上面；\n'
-      + '#   底下的草地由基础包提供，**不含任何洞口部分** —— 洞口必须全在这里。\n#\n');
-    s += 'name      G1_tunnel_stone_over\ngroup     misc\nfootprint 1 1\n\n';
-    s += '# --- 端墙 ' + wall.length + ' 面 ---\n' + wall.join('\n') + '\n';
-    out.push(['G1_tunnel_stone_over', s, wall.length]);
+    let s = header('G1_tunnel_stone_over', 'G1 几何组：TUN-1 料石端墙拱 —— tunnel_overlay: 组（遮车的那半 + 仰面）', WHY
+      + '# ⚠ 本层由引擎当 sortable sprite 画在**车之上**，所以只放"需要遮车"的部分：\n'
+      + '#   拱环与护坡中**离镜头近**的那半（y ≥ ' + N(ARCH_CY) + '），外加**仰面**。\n'
+      + '#   仰面必须在本层 —— 原版那个草山包也画在这一层，放低层会被它盖住。\n#\n');
+    s += 'name      G1_tunnel_stone_over\ngroup     misc\nfootprint 1 1\n';
+    s += 'zmax      ' + ZMAX_PIN + '\n\n';
+    s += '# --- 洞门 + 护坡：近半 + 仰面（y ≥ ' + N(ARCH_CY) + '）---\n' + wallNear.join('\n') + '\n';
+    out.push(['G1_tunnel_stone_over', s, wallNear.length]);
   }
 
   for (const [name, text, nf] of out) {
@@ -301,9 +466,10 @@ export function generateTunnel() {
     log(`  ✔ ${rel(f).padEnd(40)} ${String(text.split('\n').length).padStart(4)} 行   ${nf} 面`);
   }
   log('');
-  log('  洞口   端墙 x∈[' + N(WALL_X0) + ',' + N(WALL_X1) + ']  y∈[' + N(WALL_Y0) + ',' + N(WALL_Y1) + ']  高 ' + N(WALL_TOP));
+  log('  洞口   端墙 x∈[' + N(SLAB_X0) + ',' + N(SLAB_X1) + ']  y∈[' + N(SLAB_Y0) + ',' + N(SLAB_Y1) + ']  高 ' + N(SLAB_TOP));
   log('  拱     半宽 ' + N(ARCH_R) + '  起拱 z=' + N(ARCH_SPRING) + '  拱顶 z=' + N(ARCH_CROWN));
-  log('  压顶   顶 z=' + N(COPING_TOP));
+  log('  护坡   八字锥坡 x∈[' + N(WING_X0) + ',' + N(WING_X1) + ']  外侧 ' + N(WING_YO0) + '→' + N(WING_YO1) + '  顶 ' + N(WING_Z0) + '→' + N(WING_Z1));
+  log('  切分   起拱线 z=' + N(ARCH_SPRING) + ' 以下入 tunnels: 组，以上入 tunnel_overlay: 组');
   log('');
   log('  下一步：make render → make sprites（核对锚点）→ make check');
   return out;
