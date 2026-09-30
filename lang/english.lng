@@ -3,8 +3,8 @@
 
 # STRING                                    :ENGLISH
 
-STR_GRF_NAME                                :China Style Tracks
-STR_GRF_DESC                                :{GOLD}China Style Tracks{}{BLACK}Chinese-style railway tracks in 32bpp with extra zoom. Standardized railtype labels, compatible with the China Set.{}Track art is rendered offline from hand-written isometric models.{}Catenary pylons and wires are not included yet — the default ones are used.
+STR_GRF_NAME                                :At Least an HD Track Set
+STR_GRF_DESC                                :{GOLD}At Least an HD Track Set{}{BLACK}Chinese-style railway tracks in 32bpp with extra zoom. Standardized railtype labels, compatible with the China Set.{}Track art is rendered offline from hand-written isometric models.{}Catenary pylons and wires are not included yet — the default ones are used.
 
 STR_GRF_URL                                 :https://github.com/
 

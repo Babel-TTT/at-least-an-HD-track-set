@@ -217,13 +217,13 @@ template t_G1_rail_halftrack_v3() {
 //   取图顺序 v0=NE  v1=NW  v2=SW  v3=SE（绕占地中心转模型推出，见 railsprite.pnml）
 // ---------------------------------------------------------------------------
 template t_G1_track_slope_v0() {
-  [0, 453, 263, 151, -131, -19, "gfx/1x1.png"]   // → RTO_SLOPE_NE（x=0 边 / 右上抬）
+  [0, 453, 263, 151, -128, -20, "gfx/1x1.png"]   // → RTO_SLOPE_NE（x=0 边 / 右上抬）
 }
 template t_G1_track_slope_v1() {
   [263, 453, 263, 151, -131, -19, "gfx/1x1.png"]   // → RTO_SLOPE_NW（y=0 边 / 左上抬）
 }
 template t_G1_track_slope_v2() {
-  [526, 453, 263, 151, -131, -19, "gfx/1x1.png"]   // → RTO_SLOPE_SW（x=1 边 / 左下抬）
+  [526, 453, 263, 151, -126, -20, "gfx/1x1.png"]   // → RTO_SLOPE_SW（x=1 边 / 左下抬）
 }
 template t_G1_track_slope_v3() {
   [789, 453, 263, 151, -131, -19, "gfx/1x1.png"]   // → RTO_SLOPE_SE（y=1 边 / 右下抬）
@@ -234,13 +234,13 @@ template t_G1_track_slope_v3() {
 //   同 G1_track_slope 的 4 个朝向
 // ---------------------------------------------------------------------------
 template t_G1_rail_slope_v0() {
-  [0, 302, 263, 151, -131, -19, "gfx/1x1.png"]   // → RTO_SLOPE_NE（x=0 边 / 右上抬）
+  [0, 302, 263, 151, -128, -20, "gfx/1x1.png"]   // → RTO_SLOPE_NE（x=0 边 / 右上抬）
 }
 template t_G1_rail_slope_v1() {
   [263, 302, 263, 151, -131, -19, "gfx/1x1.png"]   // → RTO_SLOPE_NW（y=0 边 / 左上抬）
 }
 template t_G1_rail_slope_v2() {
-  [526, 302, 263, 151, -131, -19, "gfx/1x1.png"]   // → RTO_SLOPE_SW（x=1 边 / 左下抬）
+  [526, 302, 263, 151, -126, -20, "gfx/1x1.png"]   // → RTO_SLOPE_SW（x=1 边 / 左下抬）
 }
 template t_G1_rail_slope_v3() {
   [789, 302, 263, 151, -131, -19, "gfx/1x1.png"]   // → RTO_SLOPE_SE（y=1 边 / 右下抬）
