@@ -13,6 +13,7 @@
 #   make render     只调 flatiso 渲染
 #   make sprite     只渲染（= make render）
 #   make sprites    打印手写模板表 + 出索引图（out/calibrate/index.png）
+#   make switches   重生成 G1 交叉/道叉模型（改方向偏移后跑）
 #   make diag       重出定标图（out/calibrate/）
 #   make check      一致性自检（含 templates.pnml 对账）
 #   make clean      删除生成物（保留源码）—— **会连 out/calibrate/ 一起删**
@@ -25,7 +26,7 @@ NODE ?= node
 
 -include Makefile.config
 
-.PHONY: all grf sprite render sprites diag calibrate compare check clean help
+.PHONY: all grf sprite render sprites switches diag calibrate compare check clean help
 
 all: grf
 
@@ -42,6 +43,11 @@ render:
 # 以及按算法算出来的值（不一致会标出来）。--sheet 顺带出索引图。
 sprites:
 	$(NODE) tools/sprites.mjs --sheet
+
+# 重生成 G1 交叉/道叉三个模型（方向偏移表在那个工具里）
+# ⚠ 会**整份重写** models/G1_crossing|junction3|junction4.model
+switches:
+	$(NODE) tools/gen-g1-switches.mjs
 
 # 定标图：会被 make clean 删掉，需要时用这个重建
 diag: calibrate compare
