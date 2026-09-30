@@ -63,7 +63,7 @@
 //   v0 = TRACK_UPPER   v1 = TRACK_LEFT   v2 = TRACK_LOWER   v3 = TRACK_RIGHT
 // ---------------------------------------------------------------------------
 template t_probe_half_upper_v0() {
-  [0, 0, 263, 151, -129, -21, "gfx/1x1.png"]      // az   0  TRACK_UPPER  【手调】
+  [0, 0, 263, 151, -128, -21, "gfx/1x1.png"]      // az   0  TRACK_UPPER  【手调】
 }
 template t_probe_half_upper_v1() {
   [263, 0, 263, 151, -131, -19, "gfx/1x1.png"]    // az  90  TRACK_LEFT
@@ -100,10 +100,10 @@ template t_probe_tile_v3() {
 //   引擎的两个槽位按约定取 v0（RTO_X）与 v3（RTO_Y），见 railsprite.pnml。
 // ---------------------------------------------------------------------------
 template t_probe_track_x_v0() {
-  [0, 151, 263, 151, -129, -21, "gfx/1x1.png"]    // az   0  TRACK_X  ← RTO_X 用这张  【手调】
+  [0, 151, 263, 151, -129, -22, "gfx/1x1.png"]    // az   0  TRACK_X  ← RTO_X 用这张  【手调】
 }
 template t_probe_track_x_v1() {
-  [263, 151, 263, 151, -131, -19, "gfx/1x1.png"]  // az  90  TRACK_Y
+  [263, 151, 263, 151, -130, -20, "gfx/1x1.png"]  // az  90  TRACK_Y
 }
 template t_probe_track_x_v2() {
   [526, 151, 263, 151, -131, -19, "gfx/1x1.png"]  // az 180  TRACK_X（与 v0 同形）
