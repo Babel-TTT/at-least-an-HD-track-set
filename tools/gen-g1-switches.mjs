@@ -53,7 +53,7 @@ import { ROOT, log, rel, isMain } from './util.mjs';
 // ---------------------------------------------------------------------------
 export const DIR_DELTA = {
   X:     [  5,  -1],   // TRACK_X  （整格对角，沿世界 x）  ← 游戏里 Sprite Aligner 读数；只表示偏差程度
-  Y:     [  1,  -1],   // TRACK_Y  （整格对角，沿世界 y）  ← 人工裁定：往 X 的 [+4,-1] 反方向拉回
+  Y:     [-4,  2],   // TRACK_Y  （整格对角，沿世界 y）  ← 人工裁定：往 X 的 [+4,-1] 反方向拉回
   UPPER: [  3,  -2],   // 屏幕上水平带（上）
   LOWER: [  2,  -2],   // 屏幕上水平带（下）
   LEFT:  [  3,  -3],   // 屏幕上竖直带（左）
@@ -196,7 +196,9 @@ function sleeperBoxes(axis, hw, shiftKey, skipCenter) {
         : [a, tNom - hw, b, tNom + hw];      // 枕木沿 x 伸长，沿 y 等距
       const box = clipBox([raw[0] + wx, raw[1] + wy, raw[2] + wx, raw[3] + wy]);
       if (!box) continue;
-      L.push('box ' + N(box[0]) + ' ' + N(box[1]) + ' 0.0040  ' +
+      // 枕木 z：顶 0.0140 不动（钢轨坐在这上面），底抬到 0.0100 ⇒ 枕木做薄
+      // （人工裁定：大幅降低所有枕木高度）
+      L.push('box ' + N(box[0]) + ' ' + N(box[1]) + ' 0.0100  ' +
              N(box[2]) + ' ' + N(box[3]) + ' 0.0140  ' +
              pad(SLEEPER_MAT[((k + s) % 4 + 4) % 4]) + ' top=wood_seam');
     }

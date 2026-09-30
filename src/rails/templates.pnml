@@ -183,13 +183,13 @@ template t_G1_rail_straight_v0() {
   [0, 302, 263, 151, -126, -20, "gfx/1x1.png"]  // 与 probe_track_x_v0 一致  // → RTO_X
 }
 template t_G1_rail_straight_v1() {
-  [263, 302, 263, 151, -130, -20, "gfx/1x1.png"]  // 与 probe_track_x_v1 一致
+  [263, 302, 263, 151, -126, -21, "gfx/1x1.png"]  // 与 probe_track_x_v1 一致
 }
 template t_G1_rail_straight_v2() {
-  [526, 302, 263, 151, -131, -19, "gfx/1x1.png"]
+  [526, 302, 263, 151, -129, -21, "gfx/1x1.png"]
 }
 template t_G1_rail_straight_v3() {
-  [789, 302, 263, 151, -130, -20, "gfx/1x1.png"]  // 与 probe_track_x_v3 一致  // → RTO_Y
+  [789, 302, 263, 151, -128, -22, "gfx/1x1.png"]  // 与 probe_track_x_v3 一致  // → RTO_Y
 }
 
 // ---------------------------------------------------------------------------
