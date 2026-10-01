@@ -132,3 +132,36 @@ spriteset(probe_tunnel_over, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
     t_G1_tunnel_stone_over_b_v2("gfx/tunnel.png")   // 2  DiagDir SW ← v2   B 组（左右翻转）
     t_G1_tunnel_stone_over_b_v1("gfx/tunnel.png")   // 3  DiagDir NW ← v1   B 组（左右翻转）
 }
+
+/* ===========================================================================
+   平交道口 —— 公路 × 铁路（分表：gfx/levelcrossing.png）
+
+   核自官方 wiki（https://newgrf-specs.tt-wiki.net/index.php?title=NML:Railtypes ）：
+     level_crossings = 10 张 = **2 个方向 × (1 张轨道图 + 4 张道口灯/栏杆)**
+     原文："For each direction: one track sprite and 4 sprites for road lights etc"
+
+   为什么轨道包必须提供道床图案：同一份 wiki 的 NML:Roadtypes §5.1 里
+   **没有** level_crossings 这个精灵组 ⇒ 公路包在道口上画的就是它自己那张普通路面，
+   道口上的「轨道 / 道床 / 护轨板」完全由**这一组**决定，而且画在公路路面**之上**。
+
+   槽位顺序：方向为主 —— [X 的 5 张][Y 的 5 张]
+     方向 X：轨道沿 x（取图 v0）
+     方向 Y：轨道沿 y（取图 v3）
+     与 probe_track_x 的约定一致。
+
+   ⚠ 道口灯与栏杆（每方向 4 张，共 8 张）**本期不做** —— 人工裁定先用
+     **空精灵占位**（G1_levelcrossing_blank，那个模型没有任何几何）。
+     以后做的时候：给那个模型加几何 → 换模板 → 改下面这 8 行的槽位。
+   =========================================================================== */
+spriteset(probe_level_crossing, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G1_levelcrossing_v0("gfx/levelcrossing.png")      // 0  X 方向：轨道图
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png") // 1  X 方向：道口灯 1（占位）
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png") // 2  X 方向：道口灯 2（占位）
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png") // 3  X 方向：栏杆 1（占位）
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png") // 4  X 方向：栏杆 2（占位）
+    t_G1_levelcrossing_v3("gfx/levelcrossing.png")      // 5  Y 方向：轨道图
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png") // 6  Y 方向：道口灯 1（占位）
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png") // 7  Y 方向：道口灯 2（占位）
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png") // 8  Y 方向：栏杆 1（占位）
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png") // 9  Y 方向：栏杆 2（占位）
+}

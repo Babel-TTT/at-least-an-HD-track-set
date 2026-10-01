@@ -106,6 +106,10 @@ item(FEAT_RAILTYPES, rail_SADN, 4) {
         track_overlay:   probe_overlay;
         tunnels:         probe_tunnels;
         tunnel_overlay:  probe_tunnel_over;
+        /* 平交道口（公路 × 铁路）。10 格 = 2 方向 × (1 张轨道图 + 4 张道口灯/栏杆)。
+           ⚠ 道口灯与栏杆经人工裁定「以后再做」，现在那 8 格是**空精灵占位** ——
+             道口上的轨道是我们的，但没有栏杆。见 railsprite.pnml 的 probe_level_crossing。 */
+        level_crossings: probe_level_crossing;
     }
 }
 
