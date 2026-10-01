@@ -293,6 +293,108 @@ export function generate() {
     out.push(['G1_crossing', s, n]);
   }
 
+  // ---- G1_levelcrossing --------------------------------------------------
+  //   公路 × 铁路的**平交道口** —— 引擎 level_crossings 里那张「道口上的轨道图」。
+  //
+  //   依据（wiki NML:Railtypes 文末精灵组数量表）：
+  //     level_crossings = 10 张 = 2 个方向 × (1 张轨道图 + 4 张道口灯/栏杆)
+  //   而 wiki NML:Roadtypes §5.1 的精灵组里**没有 level_crossings** ⇒ 公路包没有
+  //   道口专用的图案，道口上的轨道/道床完全由**这一张**决定，画在公路路面之上。
+  //
+  //   ★ 人工裁定 2026-10：道床**只在两侧各留约 0.1 格**；中间约 0.8 格是公路区域 ——
+  //     **不画道床、不画枕木**，只有两根钢轨穿过去，让公路的路面透出来。
+  //     实际切在 32 格网格上 = 0.09375 格。
+  //
+  //   基准朝向：轨道沿 x、公路沿 y。
+  //   取图 v0（轨道沿 x → 喂引擎的 X 槽）× v3（沿 y → 喂 Y 槽），与 probe_track_x 的约定一致。
+  {
+    const LC = 0.10;                        // 两侧道床各占多少格（人工给的值）
+    const GN = 32;                          // 道砟网格（与其它模型一致）
+    const LC_N = Math.floor(LC * GN) / GN;  // 切到网格上 = 0.09375
+    const LC_CELLS = Math.round(LC_N * GN);
+    const u = makeUnion(['X'], 20261001);   // 用 X 带（y∈0.32~0.68）的宽度与毛边
+    const lines = [];
+    for (let k = 0; k < GN; k++) for (let i = 0; i < GN; i++) {
+      if (i >= LC_CELLS && i < GN - LC_CELLS) continue;      // 中间公路区域：不画道床
+      const x0 = i / GN, x1 = (i + 1) / GN, y0 = k / GN, y1 = (k + 1) / GN;
+      if (!u.test((x0 + x1) / 2, (y0 + y1) / 2, i, k)) continue;   // X 带以外
+      lines.push('quad ' + N(x1) + ' ' + N(y0) + ' ' + N(u.hz(i + 1, k)) +
+                 '  ' + N(x1) + ' ' + N(y1) + ' ' + N(u.hz(i + 1, k + 1)) +
+                 '  ' + N(x0) + ' ' + N(y1) + ' ' + N(u.hz(i, k + 1)) +
+                 '  ' + N(x0) + ' ' + N(y0) + ' ' + N(u.hz(i, k)) + '   gravel');
+    }
+
+    // 轨枕：只留在两侧道床里，并且**按道床边界裁掉外伸的半根**
+    const sleep = [];
+    const T0 = 0.012, PITCH = 0.976 / 24, HW = 0.008;
+    for (let k = 0; k <= 24; k++) {
+      const t = T0 + k * PITCH;
+      for (const [a0, a1] of [[0, LC_N], [1 - LC_N, 1]]) {
+        const xa = Math.max(t - HW, a0), xb = Math.min(t + HW, a1);
+        if (xb - xa < 0.002) continue;
+        for (let seg = 0; seg < 3; seg++) {
+          const a = 0.41 + 0.06 * seg, b = a + 0.06;
+          sleep.push('box ' + N(xa) + ' ' + N(a) + ' 0.0000  ' + N(xb) + ' ' + N(b) + ' 0.0100  ' +
+                     pad(SLEEPER_MAT[((k + seg) % 4 + 4) % 4]) + ' top=wood_seam');
+        }
+      }
+    }
+
+    // 钢轨：两根**通长 0→1 不断**（这一张的重点就是钢轨要连过公路）
+    const rails = [];
+    for (const [a, b] of [[0.5476, 0.5556], [0.4444, 0.4524]]) {
+      rails.push('box ' + N(0) + ' ' + N(a) + ' ' + N(0.0230 - 0.013) + '  ' +
+                 N(1) + ' ' + N(b) + ' ' + N(0.0230) + '   rust top=metal');
+    }
+
+    // 护轨板（人工 2026-10：可以做）
+    //   三条**纵向**板：两轨之间一条、两轨外侧各一条，只铺在公路区域那一段。
+    //   顶面 0.0140 = 与枕木顶同高、略低于钢轨顶（0.0230），车过的时候不硌。
+    //   纵向范围用道床内缘 → 道床内缘（x∈[LC_N, 1−LC_N]），与两侧道床正好接上。
+    //   外侧两块的宽度取到轨枕两端（0.41 / 0.59），与轨枕等宽。
+    const planks = [];
+    const PLANK_TOP = 0.0140;
+    for (const [pa, pb] of [[0.4524, 0.5476], [0.4100, 0.4444], [0.5556, 0.5900]]) {
+      planks.push('box ' + N(LC_N) + ' ' + N(pa) + ' 0.0000  ' +
+                  N(1 - LC_N) + ' ' + N(pb) + ' ' + N(PLANK_TOP) + '  stone_dark top=stone_seam');
+    }
+
+    let s = header('G1_levelcrossing —— G1 几何组：公路 × 铁路平交道口（level_crossings 的轨道图）',
+      '# 【这张是给公路走的】引擎 level_crossings 每组 = 2 方向 × (1 张轨道图 + 4 张道口灯)，共 10 张。\n'
+      + '#   wiki NML:Roadtypes §5.1 的精灵组里**没有** level_crossings ⇒ 公路包没有道口\n'
+      + '#   专用的图案，道口上的轨道/道床完全由这一张决定，且画在公路路面**之上**。\n#\n'
+      + '# ★ 人工裁定 2026-10：道床只在**两侧各留约 ' + LC + ' 格**（切在网格上 = ' + LC_N + '）；\n'
+      + '#   中间约 ' + N(1 - 2 * LC_N) + ' 格是公路区域 —— 不画道床、不画枕木，\n'
+      + '#   只有两根钢轨通长穿过去，让公路路面透出来。\n#\n'
+      + '# 基准朝向：轨道沿 x、公路沿 y。取图 v0（沿 x → 引擎 X 槽）× v3（沿 y → Y 槽），\n'
+      + '#   与 probe_track_x 的约定一致（见 src/rails/templates.pnml）。\n#\n');
+    s += 'name      G1_levelcrossing\ngroup     misc\nfootprint 1 1\nzmax      0.028\n\n';
+    s += '# --- 道床：两侧各 ' + LC_N + ' 格（x∈[0,' + LC_N + '] ∪ [' + N(1 - LC_N) + ',1]），y 用 X 带 ---\n';
+    s += lines.join('\n') + '\n';
+    s += '\n# --- 轨枕：只在两侧道床内，按道床边界裁齐 ---\n';
+    s += sleep.join('\n') + '\n';
+    s += '\n# --- 钢轨：2 根，通长 0→1 不断 ---\n';
+    s += rails.join('\n') + '\n';
+    s += '\n# --- 护轨板：3 条纵向板（两轨之间 + 两轨外侧），只铺公路区域那一段 ---\n';
+    s += planks.join('\n') + '\n';
+    out.push(['G1_levelcrossing', s, lines.length + sleep.length + rails.length + planks.length]);
+  }
+
+  // ---- G1_levelcrossing_blank --------------------------------------------
+  //   引擎的 level_crossings 每组要 **10 格**（2 方向 × (1 张轨道图 + 4 张道口灯)）。
+  //   本工程只做轨道图，**道口灯与栏杆是额外部件，人工裁定：先用空精灵占位，以后再做**
+  //   ⇒ 出一个**无几何**的模型，它的 4 张精灵全是透明的，正好拿去填那 8 格。
+  //   （flatiso 会打一条 `! 空网格` 警告，和 G1_tunnel_frame 一样，无害。）
+  {
+    const s = header('G1_levelcrossing_blank —— 空精灵占位（道口灯 / 栏杆，尚未做）',
+      '# **故意没有任何几何。** 它的 4 张精灵全是透明的，用来填 level_crossings\n'
+      + '# 里那 8 格「道口灯 + 栏杆」（2 方向 × 4 张）。\n'
+      + '# 人工裁定 2026-10：道口灯与栏杆是额外部件，以后再做，先占位。\n'
+      + '# 做的时候把这里换成真的几何，再改 spriteset 的槽位即可。\n#\n')
+      + 'name      G1_levelcrossing_blank\ngroup     misc\nfootprint 1 1\nzmax      0.0280\n\n';
+    out.push(['G1_levelcrossing_blank', s, 0]);
+  }
+
   // ---- G1_junction3 ------------------------------------------------------
   {
     const { lines, n } = ballastQuads(['Y', 'LOWER', 'LEFT'], 771);

@@ -45,6 +45,14 @@ export const SHEETS = [
     match: /^G1_tunnel/,
   },
   {
+    key: 'levelcrossing',
+    title: '平交道口（公路 × 铁路）',
+    // 2026-10 新增。**必须单独一张表**：并进 rail 表的话，模型按名字排序会插在
+    // G1_crossing 后面 —— 表内每个模型占 4 个连续格位，插一个就把后面 40 张轨道图
+    // 整体顶移位，templates.pnml 的 rect 全要重写。单独一张表就只多 4 条新模板。
+    match: /^G1_levelcrossing/,
+  },
+  {
     key: 'catenary',
     title: '接触网（杆塔 / 导线）',
     match: /^G1_(catenary|pylon|wire)/,
