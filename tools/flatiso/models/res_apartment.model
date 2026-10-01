@@ -1,0 +1,95 @@
+# =============================================================================
+# res_apartment — 板式公寓（2x2 整瓦片）
+# 四层，四面都开窗；南面（+y）中部两户带挑阳台，底层中间是门厅。
+# 平屋顶：水箱 + 两组机组。
+# 线脚：每层楼板腰线 + 台基与顶檐压顶 + 屋面板缝。
+# =============================================================================
+name res_apartment
+group residential
+footprint 2 2
+zmax 1.42
+
+# --- 地块与入口铺装 ---------------------------------------------------------
+plate 0.040 0.040 1.960 1.960 0.006    grass
+plate 0.800 1.500 1.200 1.960 0.016    concrete_pad
+
+# --- 体块 -------------------------------------------------------------------
+box   0.220 0.200 0.000  1.780 1.500 0.045   stone_dark        # 台基
+box   0.235 0.215 0.045  1.765 1.485 1.000   plaster_cream     # 主体
+box   0.220 0.200 1.000  1.780 1.500 1.055   concrete          # 顶檐
+
+# --- 线脚 -------------------------------------------------------------------
+strip 0.220 1.500 0.038  1.780 1.500 0.038  +y  0.014  stone_seam        # 台基压顶
+strip 1.780 0.200 0.038  1.780 1.500 0.038  +x  0.014  stone_seam
+strip 0.220 1.500 1.046  1.780 1.500 1.046  +y  0.014  stone_seam        # 顶檐压顶
+strip 1.780 0.200 1.046  1.780 1.500 1.046  +x  0.014  stone_seam
+courses +z 1.055  0.220 1.780 0.200 1.500  3 5  concrete_seam  w=0.009   # 屋面板缝
+
+# 每层楼板腰线（层高 0.23875）
+strip 0.235 1.485 0.284  1.765 1.485 0.284  +y  0.013  concrete_seam
+strip 1.765 0.215 0.284  1.765 1.485 0.284  +x  0.013  concrete_seam
+strip 0.235 1.485 0.523  1.765 1.485 0.523  +y  0.013  concrete_seam
+strip 1.765 0.215 0.523  1.765 1.485 0.523  +x  0.013  concrete_seam
+strip 0.235 1.485 0.761  1.765 1.485 0.761  +y  0.013  concrete_seam
+strip 1.765 0.215 0.761  1.765 1.485 0.761  +x  0.013  concrete_seam
+
+# --- 南面（+y = 1.485）------------------------------------------------------
+win   +y 1.485  0.340 0.640 0.100 0.240   glass  frame=trim_white  mull=2
+win   +y 1.485  1.360 1.660 0.100 0.240   glass  frame=trim_white  mull=2
+win   +y 1.485  0.340 0.640 0.339 0.479   glass  frame=trim_white  mull=2
+win   +y 1.485  0.850 1.150 0.339 0.479   glass  frame=trim_white  mull=2
+win   +y 1.485  1.360 1.660 0.339 0.479   glass  frame=trim_white  mull=2
+win   +y 1.485  0.340 0.640 0.577 0.717   glass  frame=trim_white  mull=2
+win   +y 1.485  0.850 1.150 0.577 0.717   glass  frame=trim_white  mull=2
+win   +y 1.485  1.360 1.660 0.577 0.717   glass  frame=trim_white  mull=2
+win   +y 1.485  0.340 0.640 0.816 0.956   glass  frame=trim_white  mull=2
+win   +y 1.485  0.850 1.150 0.816 0.956   glass  frame=trim_white  mull=2
+win   +y 1.485  1.360 1.660 0.816 0.956   glass  frame=trim_white  mull=2
+
+# --- 东面（+x = 1.765）------------------------------------------------------
+win   +x 1.765  0.277 0.577 0.100 0.240   glass  frame=trim_white  mull=2
+win   +x 1.765  0.700 1.000 0.100 0.240   glass  frame=trim_white  mull=2
+win   +x 1.765  1.123 1.423 0.100 0.240   glass  frame=trim_white  mull=2
+win   +x 1.765  0.277 0.577 0.339 0.479   glass  frame=trim_white  mull=2
+win   +x 1.765  0.700 1.000 0.339 0.479   glass  frame=trim_white  mull=2
+win   +x 1.765  1.123 1.423 0.339 0.479   glass  frame=trim_white  mull=2
+win   +x 1.765  0.277 0.577 0.577 0.717   glass  frame=trim_white  mull=2
+win   +x 1.765  0.700 1.000 0.577 0.717   glass  frame=trim_white  mull=2
+win   +x 1.765  1.123 1.423 0.577 0.717   glass  frame=trim_white  mull=2
+win   +x 1.765  0.277 0.577 0.816 0.956   glass  frame=trim_white  mull=2
+win   +x 1.765  0.700 1.000 0.816 0.956   glass  frame=trim_white  mull=2
+win   +x 1.765  1.123 1.423 0.816 0.956   glass  frame=trim_white  mull=2
+
+# --- 北面 / 西面（背面，每层两樘）------------------------------------------
+win   -y 0.215  0.400 0.700 0.100 0.240   glass  frame=trim_white  mull=2
+win   -y 0.215  1.100 1.400 0.100 0.240   glass  frame=trim_white  mull=2
+win   -y 0.215  0.400 0.700 0.339 0.479   glass  frame=trim_white  mull=2
+win   -y 0.215  1.100 1.400 0.339 0.479   glass  frame=trim_white  mull=2
+win   -y 0.215  0.400 0.700 0.577 0.717   glass  frame=trim_white  mull=2
+win   -y 0.215  1.100 1.400 0.577 0.717   glass  frame=trim_white  mull=2
+win   -y 0.215  0.400 0.700 0.816 0.956   glass  frame=trim_white  mull=2
+win   -y 0.215  1.100 1.400 0.816 0.956   glass  frame=trim_white  mull=2
+
+win   -x 0.235  0.350 0.650 0.100 0.240   glass  frame=trim_white  mull=2
+win   -x 0.235  1.050 1.350 0.100 0.240   glass  frame=trim_white  mull=2
+win   -x 0.235  0.350 0.650 0.339 0.479   glass  frame=trim_white  mull=2
+win   -x 0.235  1.050 1.350 0.339 0.479   glass  frame=trim_white  mull=2
+win   -x 0.235  0.350 0.650 0.577 0.717   glass  frame=trim_white  mull=2
+win   -x 0.235  1.050 1.350 0.577 0.717   glass  frame=trim_white  mull=2
+win   -x 0.235  0.350 0.650 0.816 0.956   glass  frame=trim_white  mull=2
+win   -x 0.235  1.050 1.350 0.816 0.956   glass  frame=trim_white  mull=2
+
+# --- 南面挑阳台（二、三层中间户）--------------------------------------------
+box   0.820 1.485 0.315  1.180 1.665 0.339   concrete
+rail  +y 1.665  0.820 1.180 0.339 0.500   metal_dark
+box   0.820 1.485 0.553  1.180 1.665 0.577   concrete
+rail  +y 1.665  0.820 1.180 0.577 0.738   metal_dark
+
+# --- 入口 -------------------------------------------------------------------
+awning +y 1.485 0.860 1.140 0.320   depth=0.200  mat=metal_pale  band=metal_dark
+door  +y 1.485 0.900 1.100 0.045 0.300   glass_dark  frame=metal_dark  step=2
+
+# --- 屋顶设备 ---------------------------------------------------------------
+roofunit 0.400 0.420 0.800 0.860 1.055   metal_pale  h=0.130
+roofunit 0.350 1.060 0.700 1.360 1.055   metal_pale  h=0.100
+tank  1.500 0.500 1.055 0.300 0.170   metal_pale

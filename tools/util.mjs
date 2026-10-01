@@ -17,6 +17,28 @@ export function isMain(metaUrl) {
   return metaUrl === pathToFileURL(path.resolve(entry)).href;
 }
 
+/**
+ * 在 PATH 上找一个外部可执行文件，返回**绝对路径**；找不到就原样返回（交给调用方报错）。
+ *
+ * ★ 2026-10：`nmlc` 改成从系统 PATH 取之后必须有这一步 ——
+ *   `fs.existsSync('nmlc')` 是按**当前工作目录**找的，光给个名字永远找不到，
+ *   于是报「找不到 nmlc」。带路径分隔符的值（绝对/相对路径）原样返回，
+ *   所以 `NMLC=G:/NMLC/nmlc.exe` 这种老写法照样能用。
+ */
+export function which(cmd) {
+  if (!cmd) return cmd;
+  if (cmd.includes('/') || cmd.includes('\\')) return cmd;   // 已经带路径了
+  const exts = [''].concat((process.env.PATHEXT || '.COM;.EXE;.BAT;.CMD').split(';'));
+  for (const dir of (process.env.PATH || '').split(path.delimiter)) {
+    if (!dir) continue;
+    for (const ext of exts) {
+      const p = path.join(dir, cmd + ext);
+      if (fs.existsSync(p)) return p;
+    }
+  }
+  return cmd;
+}
+
 /** 极简 Makefile 变量解析器：只认 `KEY ?= value` / `KEY = value`。 */
 export function readMakefileConfig(file = path.join(ROOT, 'Makefile.config')) {
   const out = {};
@@ -55,9 +77,11 @@ export function config() {
     srcDir: path.resolve(ROOT, g('SRC_DIR', 'SRC_DIR', 'src')),
     langDir: path.resolve(ROOT, g('LANG_DIR', 'LANG_DIR', 'lang')),
     node: g('NODE', 'NODE', process.execPath),
-    cpp: g('CPP', 'CPP', 'gcc'),
-    nmlc: g('NMLC', 'NMLC', 'G:/NMLC/nmlc.exe'),
-    flatiso: path.resolve(g('FLATISO', 'FLATISO', 'D:/CNS/ottd/建筑测试/flatiso')),
+    cpp: which(g('CPP', 'CPP', 'gcc')),
+    // ★ 2026-10：nmlc 从**系统 PATH** 取（原来是硬编码 G:/NMLC/nmlc.exe，别人拿到就是坏的）
+    nmlc: which(g('NMLC', 'NMLC', 'nmlc')),
+    // ★ 2026-10：flatiso **已内置**到本仓库 tools/flatiso/（原来是绝对路径指向另一个仓库）
+    flatiso: path.resolve(ROOT, g('FLATISO', 'FLATISO', 'tools/flatiso')),
     tilePx: Number(g('TILE_PX', 'TILE_PX', '256')),
     preset: g('PRESET', 'PRESET', 'stylized'),
     ss: Number(g('SS', 'SS', '3')),

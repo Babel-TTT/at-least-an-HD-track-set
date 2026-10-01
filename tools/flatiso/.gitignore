@@ -1,0 +1,14 @@
+﻿# 生成物：由 models/ + core/ 确定性重放得到
+# tools/verify.mjs --rebuild 会验证"同源重跑逐字节相同"，所以不入库
+out/
+
+# 依赖（本工程其实零依赖，防御性忽略）
+node_modules/
+
+# 编辑器 / 系统
+.vscode/
+.idea/
+*.log
+Thumbs.db
+desktop.ini
+.DS_Store

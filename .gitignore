@@ -9,6 +9,10 @@
 # 构建产物
 /out/
 
+# 内置 flatiso 快照（见 tools/flatiso/VENDORED.md）——它自己的产物不入库
+/tools/flatiso/out/
+/tools/flatiso/.git/
+
 # 自动生成的模板与清单
 
 /src/rails/sprite_map.json

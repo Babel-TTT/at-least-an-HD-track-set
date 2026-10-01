@@ -1,0 +1,65 @@
+# =============================================================================
+# res_terrace — 联排住宅，两户（2x1 整瓦片）
+# 两户各有独立双坡顶、烟囱、门窗与门前台阶，中间一道高出屋面的防火隔墙。
+# 线脚：两片屋面各自铺瓦垄（一户红瓦、一户青瓦）+ 烟囱砖缝 + 各处压顶。
+# =============================================================================
+name res_terrace
+group residential
+footprint 2 1
+zmax 0.78
+
+# --- 地块 -------------------------------------------------------------------
+plate 0.030 0.030 1.970 0.970 0.006    grass
+plate 0.380 0.620 0.620 0.970 0.014    concrete_pad
+plate 1.380 0.620 1.620 0.970 0.014    concrete_pad
+
+# --- 勒脚与两户主体 ---------------------------------------------------------
+box   0.100 0.080 0.000  1.900 0.600 0.035   stone_dark
+box   0.115 0.095 0.035  0.975 0.585 0.430   plaster_pink
+box   1.025 0.095 0.035  1.885 0.585 0.430   plaster_cream
+box   0.975 0.095 0.020  1.025 0.585 0.470   stone_dark        # 防火隔墙
+
+# --- 两坡屋面 ---------------------------------------------------------------
+gable 0.115 0.095 0.975 0.585 0.430 0.580  x  0.040  roof_tile   side=plaster_pink   bottom=trim_dark  tileRows=7  tileCols=5  tileW=0.011  tileMat=roof_tile_seam
+gable 1.025 0.095 1.885 0.585 0.430 0.580  x  0.040  roof_slate  side=plaster_cream  bottom=trim_dark  tileRows=7  tileCols=5  tileW=0.011  tileMat=roof_slate_seam
+
+# --- 烟囱 -------------------------------------------------------------------
+chimney 0.240 0.200 0.360 0.300 0.470 0.720  brick_red  cap=trim_dark
+chimney 1.640 0.200 1.760 0.300 0.470 0.720  brick_red  cap=trim_dark
+courses +y 0.300  0.240 0.360 0.470 0.720  6 2  brick_seam  w=0.009
+courses +x 0.360  0.200 0.300 0.470 0.720  6 2  brick_seam  w=0.009
+courses +y 0.300  1.640 1.760 0.470 0.720  6 2  brick_seam  w=0.009
+courses +x 1.760  0.200 0.300 0.470 0.720  6 2  brick_seam  w=0.009
+
+# --- 线脚 -------------------------------------------------------------------
+strip 0.100 0.600 0.026  1.900 0.600 0.026  +y  0.012  kerb           # 勒脚压顶
+strip 1.900 0.080 0.026  1.900 0.600 0.026  +x  0.012  kerb
+strip 0.975 0.095 0.462  0.975 0.585 0.462  -x  0.012  stone_seam      # 防火隔墙压顶
+strip 1.025 0.095 0.462  1.025 0.585 0.462  +x  0.012  stone_seam
+
+# --- 第一户：南面 -----------------------------------------------------------
+win   +y 0.585  0.190 0.370 0.100 0.240   glass  frame=trim_white  mull=2
+win   +y 0.585  0.630 0.810 0.100 0.240   glass  frame=trim_white  mull=2
+win   +y 0.585  0.190 0.370 0.300 0.410   glass  frame=trim_white  mull=2
+win   +y 0.585  0.630 0.810 0.300 0.410   glass  frame=trim_white  mull=2
+door  +y 0.585  0.430 0.550 0.035 0.245   wood_dark  frame=trim_white  step=2
+
+# --- 第二户：南面 -----------------------------------------------------------
+win   +y 0.585  1.190 1.370 0.100 0.240   glass  frame=trim_white  mull=2
+win   +y 0.585  1.630 1.810 0.100 0.240   glass  frame=trim_white  mull=2
+win   +y 0.585  1.190 1.370 0.300 0.410   glass  frame=trim_white  mull=2
+win   +y 0.585  1.630 1.810 0.300 0.410   glass  frame=trim_white  mull=2
+door  +y 0.585  1.430 1.550 0.035 0.245   wood_pale  frame=trim_white  step=2
+
+# --- 山墙与背面 -------------------------------------------------------------
+win   +x 1.885  0.200 0.400 0.100 0.240   glass  frame=trim_white  mull=2
+win   +x 1.885  0.200 0.400 0.300 0.410   glass  frame=trim_white  mull=2
+win   -x 0.115  0.200 0.400 0.100 0.240   glass  frame=trim_white  mull=2
+win   -x 0.115  0.200 0.400 0.300 0.410   glass  frame=trim_white  mull=2
+win   -y 0.095  0.300 0.480 0.100 0.240   glass  frame=trim_white  mull=2
+win   -y 0.095  1.300 1.480 0.100 0.240   glass  frame=trim_white  mull=2
+
+# --- 院子 -------------------------------------------------------------------
+hedge 0.050 0.030 1.950 0.072 0.075   foliage_dark
+tree  0.820 0.800 0.100 0.300        trunk  foliage
+tree  1.180 0.800 0.100 0.300        trunk  foliage

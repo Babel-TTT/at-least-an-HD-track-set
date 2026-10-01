@@ -83,6 +83,17 @@ function walkFiles(dir, depth, out) {
   try { entries = fs.readdirSync(dir, { withFileTypes: true }); } catch { return; }
   for (const e of entries) {
     if (['.git', 'gfx', 'out', 'node_modules', '.nmlcache'].includes(e.name)) continue;
+    // ★ 2026-10：内置的 flatiso 快照（tools/flatiso/）是**上游第三方文件**，
+    //   它自带几个带 BOM 的文件，不该由本工程的自检去管。整棵跳过。
+    if (dir === ROOT && e.name === 'tools') {
+      const p = path.join(dir, e.name);
+      for (const t of fs.readdirSync(p, { withFileTypes: true })) {
+        if (t.name === 'flatiso') continue;
+        if (t.isDirectory()) walkFiles(path.join(p, t.name), depth + 1, out);
+        else out.push(path.join(p, t.name));
+      }
+      continue;
+    }
     const p = path.join(dir, e.name);
     if (e.isDirectory()) walkFiles(p, depth + 1, out);
     else out.push(p);

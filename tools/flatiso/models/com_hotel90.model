@@ -1,0 +1,264 @@
+# =============================================================================
+# com_hotel90 — 90 年代招待所 / 宾馆（2x2 整瓦片，**一栋**）
+#
+# 尺度参照（1 瓦片 = 13.9 米）
+#   地块        2 x 2 瓦片      = 27.8 x 27.8 米
+#   主楼        1.64 x 1.21     = **22.8 x 16.8 米**
+#   侧后退线    0.18            = 2.5 米
+#   南面前庭    0.61            = 8.5 米（车道 + 落客 + 停车）
+#   大堂层高    0.280           = 3.9 米
+#   标准层高    0.223           = 3.1 米（5 层）
+#   女儿墙顶    1.495           = 20.8 米
+#   水箱顶      1.740           = 24.2 米
+#
+# 造型：米黄面砖 + 蓝玻平窗 + 白色铝合金窗套；凸出玻璃门厅、车道雨棚（列柱）、
+#       屋顶水箱与电梯机房、楼顶招牌架。南北各 4 樘窗、东西各 2 樘（山墙少开窗）。
+# 正面朝 +y。
+# =============================================================================
+name com_hotel90
+group commercial
+footprint 2 2
+zmax 1.88
+
+# --- 场地：前庭车道 + 停车 + 绿化 -------------------------------------------
+plate 0.030 0.030 1.970 1.970 0.006    concrete_pad
+plate 0.620 0.030 1.380 1.970 0.012    asphalt                   # 车道
+plate 0.080 1.440 1.920 1.960 0.016    granite_grey              # 门前硬地
+courses +z 0.016  0.080 1.920 1.440 1.960  3 15  granite_grey_seam  w=0.006
+strip 0.620 0.030 0.014  0.620 1.970 0.014  -x  0.008  kerb
+strip 1.380 0.030 0.014  1.380 1.970 0.014  +x  0.008  kerb
+strip 0.330 1.720 0.018  0.540 1.720 0.018  +z  0.007  trim_white   # 停车位划线
+strip 0.330 1.870 0.018  0.540 1.870 0.018  +z  0.007  trim_white
+strip 1.460 1.720 0.018  1.670 1.720 0.018  +z  0.007  trim_white
+strip 1.460 1.870 0.018  1.670 1.870 0.018  +z  0.007  trim_white
+hedge 0.060 1.480 0.290 1.940 0.070    foliage_dark              # 绿化带
+hedge 1.710 1.480 1.940 1.940 0.070    foliage_dark
+tree  0.150 1.560 0.048 0.190          trunk  foliage  seg=9
+tree  1.850 1.560 0.048 0.190          trunk  foliage  seg=9
+
+# --- 台基 -------------------------------------------------------------------
+box   0.140 0.110 0.000  1.860 1.400 0.030   granite_rose
+strip 0.140 1.400 0.024  1.860 1.400 0.024  +y  0.010  granite_rose_seam
+strip 1.860 0.110 0.024  1.860 1.400 0.024  +x  0.010  granite_rose_seam
+strip 0.140 0.110 0.024  0.140 1.400 0.024  -x  0.010  granite_rose_seam
+strip 0.140 0.110 0.024  1.860 0.110 0.024  -y  0.010  granite_rose_seam
+
+# =============================================================================
+# 主楼：x 0.180..1.820  y 0.150..1.360  z 0.030..1.425   墙厚 0.026
+# 窗带 z：0.355-0.490 / 0.578-0.713 / 0.801-0.936 / 1.024-1.159 / 1.247-1.382
+# =============================================================================
+wall  +y 1.360  0.180 1.820 0.030 1.425  0.255,0.355,0.515,0.490  0.665,0.355,0.925,0.490  1.075,0.355,1.335,0.490  1.485,0.355,1.745,0.490  0.255,0.578,0.515,0.713  0.665,0.578,0.925,0.713  1.075,0.578,1.335,0.713  1.485,0.578,1.745,0.713  0.255,0.801,0.515,0.936  0.665,0.801,0.925,0.936  1.075,0.801,1.335,0.936  1.485,0.801,1.745,0.936  0.255,1.024,0.515,1.159  0.665,1.024,0.925,1.159  1.075,1.024,1.335,1.159  1.485,1.024,1.745,1.159  0.255,1.247,0.515,1.382  0.665,1.247,0.925,1.382  1.075,1.247,1.335,1.382  1.485,1.247,1.745,1.382  0.800,0.030,1.200,0.290   tile_cream  thick=0.026
+wall  -y 0.150  0.180 1.820 0.030 1.425  0.255,0.355,0.515,0.490  0.665,0.355,0.925,0.490  1.075,0.355,1.335,0.490  1.485,0.355,1.745,0.490  0.255,0.578,0.515,0.713  0.665,0.578,0.925,0.713  1.075,0.578,1.335,0.713  1.485,0.578,1.745,0.713  0.255,0.801,0.515,0.936  0.665,0.801,0.925,0.936  1.075,0.801,1.335,0.936  1.485,0.801,1.745,0.936  0.255,1.024,0.515,1.159  0.665,1.024,0.925,1.159  1.075,1.024,1.335,1.159  1.485,1.024,1.745,1.159  0.255,1.247,0.515,1.382  0.665,1.247,0.925,1.382  1.075,1.247,1.335,1.382  1.485,1.247,1.745,1.382   tile_cream  thick=0.026
+wall  +x 1.820  0.176 1.334 0.030 1.425  0.303,0.355,0.603,0.490  0.908,0.355,1.208,0.490  0.303,0.578,0.603,0.713  0.908,0.578,1.208,0.713  0.303,0.801,0.603,0.936  0.908,0.801,1.208,0.936  0.303,1.024,0.603,1.159  0.908,1.024,1.208,1.159  0.303,1.247,0.603,1.382  0.908,1.247,1.208,1.382   tile_cream  thick=0.026
+wall  -x 0.180  0.176 1.334 0.030 1.425  0.303,0.355,0.603,0.490  0.908,0.355,1.208,0.490  0.303,0.578,0.603,0.713  0.908,0.578,1.208,0.713  0.303,0.801,0.603,0.936  0.908,0.801,1.208,0.936  0.303,1.024,0.603,1.159  0.908,1.024,1.208,1.159  0.303,1.247,0.603,1.382  0.908,1.247,1.208,1.382   tile_cream  thick=0.026
+
+# 南面四樘 × 五层
+win   +y 1.360  0.255 0.515 0.355 0.490   glass_blue  frame=metal_alu  frameW=0.018  mull=3  inset=0.026  sill=metal_alu
+win   +y 1.360  0.665 0.925 0.355 0.490   glass_blue  frame=metal_alu  frameW=0.018  mull=3  inset=0.026  sill=metal_alu
+win   +y 1.360  1.075 1.335 0.355 0.490   glass_blue  frame=metal_alu  frameW=0.018  mull=3  inset=0.026  sill=metal_alu
+win   +y 1.360  1.485 1.745 0.355 0.490   glass_blue  frame=metal_alu  frameW=0.018  mull=3  inset=0.026  sill=metal_alu
+win   +y 1.360  0.255 0.515 0.578 0.713   glass_blue  frame=metal_alu  frameW=0.018  mull=3  inset=0.026  sill=metal_alu
+win   +y 1.360  0.665 0.925 0.578 0.713   glass_blue  frame=metal_alu  frameW=0.018  mull=3  inset=0.026  sill=metal_alu
+win   +y 1.360  1.075 1.335 0.578 0.713   glass_blue  frame=metal_alu  frameW=0.018  mull=3  inset=0.026  sill=metal_alu
+win   +y 1.360  1.485 1.745 0.578 0.713   glass_blue  frame=metal_alu  frameW=0.018  mull=3  inset=0.026  sill=metal_alu
+win   +y 1.360  0.255 0.515 0.801 0.936   glass_blue  frame=metal_alu  frameW=0.018  mull=3  inset=0.026  sill=metal_alu
+win   +y 1.360  0.665 0.925 0.801 0.936   glass_blue  frame=metal_alu  frameW=0.018  mull=3  inset=0.026  sill=metal_alu
+win   +y 1.360  1.075 1.335 0.801 0.936   glass_blue  frame=metal_alu  frameW=0.018  mull=3  inset=0.026  sill=metal_alu
+win   +y 1.360  1.485 1.745 0.801 0.936   glass_blue  frame=metal_alu  frameW=0.018  mull=3  inset=0.026  sill=metal_alu
+win   +y 1.360  0.255 0.515 1.024 1.159   glass_blue  frame=metal_alu  frameW=0.018  mull=3  inset=0.026  sill=metal_alu
+win   +y 1.360  0.665 0.925 1.024 1.159   glass_blue  frame=metal_alu  frameW=0.018  mull=3  inset=0.026  sill=metal_alu
+win   +y 1.360  1.075 1.335 1.024 1.159   glass_blue  frame=metal_alu  frameW=0.018  mull=3  inset=0.026  sill=metal_alu
+win   +y 1.360  1.485 1.745 1.024 1.159   glass_blue  frame=metal_alu  frameW=0.018  mull=3  inset=0.026  sill=metal_alu
+win   +y 1.360  0.255 0.515 1.247 1.382   glass_blue  frame=metal_alu  frameW=0.018  mull=3  inset=0.026  sill=metal_alu
+win   +y 1.360  0.665 0.925 1.247 1.382   glass_blue  frame=metal_alu  frameW=0.018  mull=3  inset=0.026  sill=metal_alu
+win   +y 1.360  1.075 1.335 1.247 1.382   glass_blue  frame=metal_alu  frameW=0.018  mull=3  inset=0.026  sill=metal_alu
+win   +y 1.360  1.485 1.745 1.247 1.382   glass_blue  frame=metal_alu  frameW=0.018  mull=3  inset=0.026  sill=metal_alu
+
+# 北面四樘 × 五层
+win   -y 0.150  0.255 0.515 0.355 0.490   glass_blue  frame=metal_alu  frameW=0.018  mull=3  inset=0.026  sill=metal_alu
+win   -y 0.150  0.665 0.925 0.355 0.490   glass_blue  frame=metal_alu  frameW=0.018  mull=3  inset=0.026  sill=metal_alu
+win   -y 0.150  1.075 1.335 0.355 0.490   glass_blue  frame=metal_alu  frameW=0.018  mull=3  inset=0.026  sill=metal_alu
+win   -y 0.150  1.485 1.745 0.355 0.490   glass_blue  frame=metal_alu  frameW=0.018  mull=3  inset=0.026  sill=metal_alu
+win   -y 0.150  0.255 0.515 0.578 0.713   glass_blue  frame=metal_alu  frameW=0.018  mull=3  inset=0.026  sill=metal_alu
+win   -y 0.150  0.665 0.925 0.578 0.713   glass_blue  frame=metal_alu  frameW=0.018  mull=3  inset=0.026  sill=metal_alu
+win   -y 0.150  1.075 1.335 0.578 0.713   glass_blue  frame=metal_alu  frameW=0.018  mull=3  inset=0.026  sill=metal_alu
+win   -y 0.150  1.485 1.745 0.578 0.713   glass_blue  frame=metal_alu  frameW=0.018  mull=3  inset=0.026  sill=metal_alu
+win   -y 0.150  0.255 0.515 0.801 0.936   glass_blue  frame=metal_alu  frameW=0.018  mull=3  inset=0.026  sill=metal_alu
+win   -y 0.150  0.665 0.925 0.801 0.936   glass_blue  frame=metal_alu  frameW=0.018  mull=3  inset=0.026  sill=metal_alu
+win   -y 0.150  1.075 1.335 0.801 0.936   glass_blue  frame=metal_alu  frameW=0.018  mull=3  inset=0.026  sill=metal_alu
+win   -y 0.150  1.485 1.745 0.801 0.936   glass_blue  frame=metal_alu  frameW=0.018  mull=3  inset=0.026  sill=metal_alu
+win   -y 0.150  0.255 0.515 1.024 1.159   glass_blue  frame=metal_alu  frameW=0.018  mull=3  inset=0.026  sill=metal_alu
+win   -y 0.150  0.665 0.925 1.024 1.159   glass_blue  frame=metal_alu  frameW=0.018  mull=3  inset=0.026  sill=metal_alu
+win   -y 0.150  1.075 1.335 1.024 1.159   glass_blue  frame=metal_alu  frameW=0.018  mull=3  inset=0.026  sill=metal_alu
+win   -y 0.150  1.485 1.745 1.024 1.159   glass_blue  frame=metal_alu  frameW=0.018  mull=3  inset=0.026  sill=metal_alu
+win   -y 0.150  0.255 0.515 1.247 1.382   glass_blue  frame=metal_alu  frameW=0.018  mull=3  inset=0.026  sill=metal_alu
+win   -y 0.150  0.665 0.925 1.247 1.382   glass_blue  frame=metal_alu  frameW=0.018  mull=3  inset=0.026  sill=metal_alu
+win   -y 0.150  1.075 1.335 1.247 1.382   glass_blue  frame=metal_alu  frameW=0.018  mull=3  inset=0.026  sill=metal_alu
+win   -y 0.150  1.485 1.745 1.247 1.382   glass_blue  frame=metal_alu  frameW=0.018  mull=3  inset=0.026  sill=metal_alu
+
+# 东西各两樘 × 五层（山墙，开窗少）
+win   +x 1.820  0.303 0.603 0.355 0.490   glass_blue  frame=metal_alu  frameW=0.018  mull=3  inset=0.026  sill=metal_alu
+win   +x 1.820  0.908 1.208 0.355 0.490   glass_blue  frame=metal_alu  frameW=0.018  mull=3  inset=0.026  sill=metal_alu
+win   +x 1.820  0.303 0.603 0.578 0.713   glass_blue  frame=metal_alu  frameW=0.018  mull=3  inset=0.026  sill=metal_alu
+win   +x 1.820  0.908 1.208 0.578 0.713   glass_blue  frame=metal_alu  frameW=0.018  mull=3  inset=0.026  sill=metal_alu
+win   +x 1.820  0.303 0.603 0.801 0.936   glass_blue  frame=metal_alu  frameW=0.018  mull=3  inset=0.026  sill=metal_alu
+win   +x 1.820  0.908 1.208 0.801 0.936   glass_blue  frame=metal_alu  frameW=0.018  mull=3  inset=0.026  sill=metal_alu
+win   +x 1.820  0.303 0.603 1.024 1.159   glass_blue  frame=metal_alu  frameW=0.018  mull=3  inset=0.026  sill=metal_alu
+win   +x 1.820  0.908 1.208 1.024 1.159   glass_blue  frame=metal_alu  frameW=0.018  mull=3  inset=0.026  sill=metal_alu
+win   +x 1.820  0.303 0.603 1.247 1.382   glass_blue  frame=metal_alu  frameW=0.018  mull=3  inset=0.026  sill=metal_alu
+win   +x 1.820  0.908 1.208 1.247 1.382   glass_blue  frame=metal_alu  frameW=0.018  mull=3  inset=0.026  sill=metal_alu
+win   -x 0.180  0.303 0.603 0.355 0.490   glass_blue  frame=metal_alu  frameW=0.018  mull=3  inset=0.026  sill=metal_alu
+win   -x 0.180  0.908 1.208 0.355 0.490   glass_blue  frame=metal_alu  frameW=0.018  mull=3  inset=0.026  sill=metal_alu
+win   -x 0.180  0.303 0.603 0.578 0.713   glass_blue  frame=metal_alu  frameW=0.018  mull=3  inset=0.026  sill=metal_alu
+win   -x 0.180  0.908 1.208 0.578 0.713   glass_blue  frame=metal_alu  frameW=0.018  mull=3  inset=0.026  sill=metal_alu
+win   -x 0.180  0.303 0.603 0.801 0.936   glass_blue  frame=metal_alu  frameW=0.018  mull=3  inset=0.026  sill=metal_alu
+win   -x 0.180  0.908 1.208 0.801 0.936   glass_blue  frame=metal_alu  frameW=0.018  mull=3  inset=0.026  sill=metal_alu
+win   -x 0.180  0.303 0.603 1.024 1.159   glass_blue  frame=metal_alu  frameW=0.018  mull=3  inset=0.026  sill=metal_alu
+win   -x 0.180  0.908 1.208 1.024 1.159   glass_blue  frame=metal_alu  frameW=0.018  mull=3  inset=0.026  sill=metal_alu
+win   -x 0.180  0.303 0.603 1.247 1.382   glass_blue  frame=metal_alu  frameW=0.018  mull=3  inset=0.026  sill=metal_alu
+win   -x 0.180  0.908 1.208 1.247 1.382   glass_blue  frame=metal_alu  frameW=0.018  mull=3  inset=0.026  sill=metal_alu
+
+# --- 腰线：每层一道，整圈一体（略大于主楼的整块薄板）------------------------
+box   0.174 0.144 0.490  1.826 1.366 0.514   tile_cream
+box   0.174 0.144 0.713  1.826 1.366 0.737   tile_cream
+box   0.174 0.144 0.936  1.826 1.366 0.960   tile_cream
+box   0.174 0.144 1.159  1.826 1.366 1.183   tile_cream
+box   0.174 0.144 1.382  1.826 1.366 1.406   tile_cream
+
+# --- 女儿墙 ----------------------------------------------------------------
+box   0.160 0.130 1.425  1.840 1.380 1.495   tile_cream
+box   0.150 0.120 1.495  1.850 0.150 1.516   granite_grey
+box   0.150 1.360 1.495  1.850 1.390 1.516   granite_grey
+box   0.150 0.120 1.495  0.190 1.390 1.516   granite_grey
+box   1.810 0.120 1.495  1.850 1.390 1.516   granite_grey
+
+# --- 屋顶：水箱 + 电梯机房 + 排气管 + 招牌架 ---------------------------------
+box   0.420 0.360 1.516  0.900 0.840 1.700   tile_cream
+box   0.410 0.350 1.700  0.910 0.850 1.722   concrete
+courses +y 0.840  0.420 0.900 1.516 1.700  1 4  tile_cream_seam  w=0.006
+tank  1.560 0.440 1.516 0.230 0.130   metal_pale  seg=12
+cyl   1.220 1.060 1.516 1.660 0.030 0.030 8   metal_pale
+cyl   1.220 1.060 1.660 1.680 0.042 0.042 8   metal_dark
+cyl   0.300 1.060 1.516 1.640 0.026 0.026 8   metal_pale
+box   0.640 1.330 1.516  1.360 1.356 1.640   sign_cn_red               # 楼顶招牌
+box   0.630 1.324 1.506  1.370 1.362 1.518   trim_dark
+box   0.640 1.330 1.640  1.360 1.356 1.662   trim_dark
+box   1.500 1.180 0.000  1.540 1.240 1.560   metal_pale                # 天线
+cyl   1.520 1.210 1.560 1.880 0.010 0.008 8   metal_dark
+
+# =============================================================================
+# 入口：凸出玻璃门厅 + 台阶 + 车道雨棚（列柱）
+# =============================================================================
+box   0.760 1.360 0.030  1.240 1.580 0.330   glass_blue                # 门厅玻璃体
+box   0.748 1.354 0.000  1.252 1.586 0.036   granite_rose              # 门厅基座
+box   0.748 1.354 0.330  1.252 1.586 0.372   metal_alu                 # 门厅檐口
+strip 0.760 1.360 0.180  1.240 1.360 0.180  +y  0.006  metal_alu
+box   0.960 1.576 0.036  1.000 1.582 0.300   metal_alu                 # 门厅竖梃
+box   0.860 1.576 0.036  0.900 1.582 0.300   metal_alu
+box   1.100 1.576 0.036  1.140 1.582 0.300   metal_alu
+step  +y 1.580  0.800 1.200 0.030   steps=3  mat=granite_grey  depth=0.075
+box   0.760 1.580 0.000  0.800 1.805 0.026   granite_grey              # 台阶侧墙
+box   1.200 1.580 0.000  1.240 1.805 0.026   granite_grey
+box   0.620 1.360 0.560  1.380 1.820 0.600   tile_cream                # 车道雨棚
+box   0.608 1.348 0.600  1.392 1.832 0.622   granite_grey
+box   0.620 1.360 0.500  1.380 1.376 0.560   metal_alu                 # 雨棚边梁
+box   0.620 1.804 0.500  1.380 1.820 0.560   metal_alu
+cyl   0.660 1.776 0.000 0.560 0.038 0.034 10  granite_grey             # 雨棚立柱
+cyl   1.340 1.776 0.000 0.560 0.038 0.034 10  granite_grey
+box   0.700 1.820 0.430  1.300 1.838 0.500   sign_cn_red               # 门头招牌
+box   0.690 1.814 0.420  1.310 1.844 0.432   trim_dark
+
+# =============================================================================
+# 场地：传达室 + 旗杆
+# =============================================================================
+box   0.040 1.180 0.000  0.280 1.380 0.230   tile_cream                # 传达室
+box   0.030 1.170 0.230  0.290 1.390 0.252   concrete
+win   +y 1.380  0.080 0.240 0.090 0.200   glass  frame=metal_alu  frameW=0.014  mull=2  inset=0.022
+win   +x 0.280  1.230 1.330 0.090 0.200   glass  frame=metal_alu  frameW=0.014  mull=2  inset=0.022
+box   1.720 1.180 0.000  1.960 1.380 0.230   tile_cream
+box   1.710 1.170 0.230  1.970 1.390 0.252   concrete
+win   +y 1.380  1.760 1.920 0.090 0.200   glass  frame=metal_alu  frameW=0.014  mull=2  inset=0.022
+win   -x 1.720  1.230 1.330 0.090 0.200   glass  frame=metal_alu  frameW=0.014  mull=2  inset=0.022
+cyl   0.180 1.560 0.000 0.560 0.009 0.009 8   metal_pale               # 旗杆
+box   0.228 1.548 0.500  0.270 1.572 0.540   sign_cn_red              # 旗
+
+# =============================================================================
+# 面砖竖缝（窗间墙）—— 只在实墙上，不跨窗洞
+# =============================================================================
+courses +y 1.360  0.182 0.253 0.300 1.420  1 3  tile_cream_seam  w=0.006
+courses +y 1.360  0.517 0.663 0.300 1.420  1 4  tile_cream_seam  w=0.006
+courses +y 1.360  0.927 1.073 0.300 1.420  1 4  tile_cream_seam  w=0.006
+courses +y 1.360  1.337 1.483 0.300 1.420  1 4  tile_cream_seam  w=0.006
+courses +y 1.360  1.747 1.818 0.300 1.420  1 3  tile_cream_seam  w=0.006
+courses -y 0.150  0.182 0.253 0.300 1.420  1 3  tile_cream_seam  w=0.006
+courses -y 0.150  0.517 0.663 0.300 1.420  1 4  tile_cream_seam  w=0.006
+courses -y 0.150  0.927 1.073 0.300 1.420  1 4  tile_cream_seam  w=0.006
+courses -y 0.150  1.337 1.483 0.300 1.420  1 4  tile_cream_seam  w=0.006
+courses -y 0.150  1.747 1.818 0.300 1.420  1 3  tile_cream_seam  w=0.006
+courses +x 1.820  0.152 0.301 0.300 1.420  1 3  tile_cream_seam  w=0.006
+courses +x 1.820  0.605 0.906 0.300 1.420  1 3  tile_cream_seam  w=0.006
+courses +x 1.820  1.210 1.358 0.300 1.420  1 3  tile_cream_seam  w=0.006
+courses -x 0.180  0.152 0.301 0.300 1.420  1 3  tile_cream_seam  w=0.006
+courses -x 0.180  0.605 0.906 0.300 1.420  1 3  tile_cream_seam  w=0.006
+courses -x 0.180  1.210 1.358 0.300 1.420  1 3  tile_cream_seam  w=0.006
+
+# =============================================================================
+# 空调外机 —— 那个年代招待所立面上最抢眼的东西（南/北各 8 台，东西各 4 台）
+# =============================================================================
+box   0.545 1.360 0.504  0.635 1.412 0.564   metal_pale
+box   1.365 1.360 0.504  1.455 1.412 0.564   metal_pale
+box   0.545 1.360 0.727  0.635 1.412 0.787   metal_pale
+box   1.365 1.360 0.727  1.455 1.412 0.787   metal_pale
+box   0.545 1.360 0.950  0.635 1.412 1.010   metal_pale
+box   1.365 1.360 0.950  1.455 1.412 1.010   metal_pale
+box   0.545 1.360 1.173  0.635 1.412 1.233   metal_pale
+box   1.365 1.360 1.173  1.455 1.412 1.233   metal_pale
+box   0.545 0.098 0.504  0.635 0.150 0.564   metal_pale
+box   1.365 0.098 0.504  1.455 0.150 0.564   metal_pale
+box   0.545 0.098 0.727  0.635 0.150 0.787   metal_pale
+box   1.365 0.098 0.727  1.455 0.150 0.787   metal_pale
+box   0.545 0.098 0.950  0.635 0.150 1.010   metal_pale
+box   1.365 0.098 0.950  1.455 0.150 1.010   metal_pale
+box   0.545 0.098 1.173  0.635 0.150 1.233   metal_pale
+box   1.365 0.098 1.173  1.455 0.150 1.233   metal_pale
+box   1.768 0.710 0.504  1.820 0.800 0.564   metal_pale
+box   1.768 0.710 0.727  1.820 0.800 0.787   metal_pale
+box   1.768 0.710 0.950  1.820 0.800 1.010   metal_pale
+box   1.768 0.710 1.173  1.820 0.800 1.233   metal_pale
+box   0.180 0.710 0.504  0.232 0.800 0.564   metal_pale
+box   0.180 0.710 0.727  0.232 0.800 0.787   metal_pale
+box   0.180 0.710 0.950  0.232 0.800 1.010   metal_pale
+box   0.180 0.710 1.173  0.232 0.800 1.233   metal_pale
+
+# --- 冷却水管（贴着墙面、走在空调外机旁边）----------------------------------
+cyl   0.660 1.366 0.300 0.510 0.008 0.008 6   metal_dark
+cyl   1.480 1.366 0.300 0.510 0.008 0.008 6   metal_dark
+cyl   0.660 1.366 0.523 0.733 0.008 0.008 6   metal_dark
+cyl   1.480 1.366 0.523 0.733 0.008 0.008 6   metal_dark
+cyl   0.660 1.366 0.746 0.956 0.008 0.008 6   metal_dark
+cyl   1.480 1.366 0.746 0.956 0.008 0.008 6   metal_dark
+cyl   0.660 1.366 0.969 1.179 0.008 0.008 6   metal_dark
+cyl   1.480 1.366 0.969 1.179 0.008 0.008 6   metal_dark
+cyl   0.660 0.144 0.300 0.510 0.008 0.008 6   metal_dark
+cyl   1.480 0.144 0.300 0.510 0.008 0.008 6   metal_dark
+cyl   0.660 0.144 0.523 0.733 0.008 0.008 6   metal_dark
+cyl   1.480 0.144 0.523 0.733 0.008 0.008 6   metal_dark
+cyl   0.660 0.144 0.746 0.956 0.008 0.008 6   metal_dark
+cyl   1.480 0.144 0.746 0.956 0.008 0.008 6   metal_dark
+cyl   0.660 0.144 0.969 1.179 0.008 0.008 6   metal_dark
+cyl   1.480 0.144 0.969 1.179 0.008 0.008 6   metal_dark
+
+# --- 屋面分格 + 女儿墙内侧 ---------------------------------------------------
+strip 0.200 0.170 1.497  1.800 0.170 1.497  +z  0.006  concrete_seam
+strip 0.200 1.340 1.497  1.800 1.340 1.497  +z  0.006  concrete_seam
+strip 0.200 0.170 1.497  0.200 1.340 1.497  +z  0.006  concrete_seam
+strip 1.800 0.170 1.497  1.800 1.340 1.497  +z  0.006  concrete_seam
+strip 0.640 0.170 1.497  0.640 1.340 1.497  +z  0.006  concrete_seam
+strip 1.360 0.170 1.497  1.360 1.340 1.497  +z  0.006  concrete_seam
+strip 0.200 0.700 1.497  1.800 0.700 1.497  +z  0.006  concrete_seam
+box   1.030 0.900 1.516  1.100 0.970 1.610   metal_pale               # 屋顶通风机组
+cyl   0.260 0.560 1.516 1.640 0.022 0.022 8   metal_pale
+cyl   1.700 1.180 1.516 1.660 0.024 0.024 8   metal_pale
+cyl   1.700 1.180 1.660 1.680 0.034 0.034 8   metal_dark
+cyl   1.140 0.300 1.516 1.600 0.016 0.016 8   metal_dark             # 微波天线
+cyl   1.140 0.300 1.600 1.640 0.070 0.070 14  metal_pale

@@ -12,17 +12,37 @@ GRF 用 NML 编译，轨道编码遵循**标准化轨道编码方案**（与中�
 |---|---|
 | P0 构建管线 | ✅ 完成 —— `make` 一条命令出 GRF |
 | P1 几何定标 | ✅ 完成 —— 口径全部实测锁定，见 `docs/定标.md` |
-| P2 建模 | ⏳ 待 D11 确认门（每个几何组开写前先确认美术要素） |
+| P2 建模 | 🔄 **进行中** —— 轨道 / 道岔 / 交叉 / 坡道已出图并接入；**隧道口 TUN-1 正在迭代** |
 
-当前 GRF 里 `SADN` 挂的是 **P1 定标探针**（直线 + 半格轨），
-其余 6 种轨道走引擎原版精灵。这是**可加载、可 eyeball** 的中间产物，不是成品。
+当前 GRF 里 `SADN` 已挂上轨道几何 + 隧道口，其余 6 种轨道走引擎原版精灵。
+这是**可加载、可 eyeball** 的中间产物，不是成品。
+
+---
+
+## 环境准备
+
+只需要三样：**Node ≥ 18**、**GNU Make**、**gcc**，外加一个 **nmlc**。
+
+| 依赖 | 怎么来 | 说明 |
+|---|---|---|
+| Node ≥ 18 | 装就行 | 管线纯 Node ESM、零第三方依赖，不需要 `npm install` |
+| GNU Make | 装就行 | 不装也能用：直接跑下面「不用 Make」那一节 |
+| gcc | MinGW / scoop 等 | **nmlc 不带预处理器**，`.pnml` 必须先过 `gcc -E` |
+| nmlc | 自备，**放进系统 PATH** | 版本 0.9.0 验证过。放进 PATH 后 `nmlc` 能直接跑就行 |
+| flatiso | **已内置在本仓库** `tools/flatiso/` | 不需要另外 clone。详见 `tools/flatiso/VENDORED.md` |
+
+**所有外部工具的路径都能覆盖**，优先级：环境变量 > `Makefile.config` > 默认值。
+
+```powershell
+$env:NMLC    = 'D:/tools/nmlc.exe'      # nmlc 不在 PATH 上时
+$env:FLATISO = 'D:/somewhere/flatiso'   # 想用外面的 flatiso 调试时
+```
+
+内置的 flatiso 只用来**渲染**，不要在里面做开发（改动不会回流上游）。
 
 ---
 
 ## 构建
-
-需要：Node ≥ 18、GNU Make、`gcc`、`nmlc`、（外部）flatiso。
-路径在 `Makefile.config` 里改。
 
 ```powershell
 cd D:\CNS\CNST\local\china-style-track
@@ -37,12 +57,28 @@ make clean          # 删生成物（连定标图一起删；不碰手写源文�
 make help
 ```
 
+**不用 Make** 也行，等价的一条链（顺序不能换）：
+
+```powershell
+node tools/gen-g1-tunnel.mjs        # ① 生成模型（改了生成器就必须跑）
+node tools/build.mjs --step render  # ② flatiso 渲染 → gfx/
+node tools/build.mjs                # ③ gcc -E → nmlc → out/china-style-track.grf
+node tools/check.mjs                # ④ 自检，必须全过
+```
+
+> ⚠ **第 ① 步最容易漏。** `--step render` **不会**重新生成模型；
+> 改了生成器却不跑 ①，等于什么都没改。
+
+> ⚠ **改完 GRF 要重启 OpenTTD。** 游戏在启动时读 GRF 并缓存精灵，
+> 只覆盖文件不重启，看到的还是上一次的精灵。
+
 > **改过任何 railtype 之后，务必跑 `make check`。**
 > railtype 错了**编译零报错**，装上游戏才发现"车库里一辆车都没有"——
 > 见 `docs/踩坑.md` A6 / A6.1。`make check` 就是拦这个的。
 >
 > ⚠ **`src/rails/templates.pnml` 是手写源文件，没有生成器。** 以前它由
 > `tools/gen-template.mjs` 自动生成、手改会被覆盖；现在归人管。改摆位就改它。
+> **脚本一律不得写入这个文件。**
 
 产物：`out/china-style-track.grf`
 
@@ -73,12 +109,16 @@ node tools/calibrate.mjs
 | `实现计划.md` | **计划主文件** |
 | `美术要素方案.md` | 道床/轨枕/钢轨/隧道口的逐类型方案与裁定 |
 | `docs/定标.md` | **口径权威** —— flatiso ↔ OpenTTD 的坐标、锚点、朝向映射、道砟几何 |
+| `docs/术语表.md` | **用词权威** —— 人工用词 ↔ 代码标识符，接手第一份看它 |
+| `docs/建模标准.md` | **规矩权威** —— 铁律、完成定义、验收判据、**决策台账** |
 | `docs/建模经验.md` | **手艺** —— 长度换算速查、横断面比例、材质颗粒、建模工作法、验收流程 |
 | `docs/踩坑.md` | **踩坑记录** —— 现象 / 原因 / 修法，开工前先扫一遍 |
 | `models/*.model` | **资产本体**：手写等距构件清单（必须平铺，不能建子目录） |
 | `src/rails/*.pnml` | NML 源码 |
 | `src/rails/templates.pnml` | **手写源文件**：每个「模型×朝向」在图集里的矩形与摆放锚点。改摆位就改它 |
 | `tools/*.mjs` | 构建与定标工具（Node，零第三方依赖） |
+| `tools/flatiso/` | **内置的 flatiso 快照**（渲染器），见 `tools/flatiso/VENDORED.md` |
+| `.dsh/skills/` | 给 AI 的技能说明（本仓库的施工入口） |
 | `gfx/` `out/` | 生成物，不入库 |
 
 ---
