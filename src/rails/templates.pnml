@@ -325,6 +325,47 @@ template t_G1_tunnel_stone_over_b_v2(sheet) {
 }
 
 // ---------------------------------------------------------------------------
+// G1_tunnel2_* —— **TUN-2 素混凝土端墙拱**（`SBDN` `SBEd` `SBDD` 用；`SADN` 用 TUN-1）
+//
+//   参数 sheet：调用处传 "gfx/tunnel2.png"（单独一张表，见 tools/sheets.mjs）
+//
+//   ★ 与 TUN-1 的关系：**几何完全一致，只换材质**（料石 → 素混凝土：
+//     stone / stone_dark / stone_seam → concrete / concrete_dark / concrete_seam）。
+//     生成的 .model 由 tools/gen-g1-tunnel.mjs 从 TUN-1 的文本替换而来。
+//
+//   ⇒ 两张表的**格位布局逐格相同**（都是 263×181、5 个模型 20 张、排布一致），
+//     几何也相同 ⇒ **锚点直接沿用 TUN-1 那套手调值**，两套摆位天然一致。
+//     标【手调】的理由同 TUN-1：这些是实机调出来的，不是 centerAnchor 的算法值。
+//
+//   取图顺序与 TUN-1 完全相同：槽 0（NE）← v0、槽 1（SE）← v3、
+//   槽 2（SW）← _b 的 v2、槽 3（NW）← _b 的 v1（左右切分翻转那套）。
+// ---------------------------------------------------------------------------
+template t_G1_tunnel2_stone_v0(sheet) {
+  [1052, 0, 263, 181, -126, -50, sheet]  // 【手调】照 t_G1_tunnel_stone_v0
+}
+template t_G1_tunnel2_stone_v3(sheet) {
+  [1841, 0, 263, 181, -126, -50, sheet]  // 【手调】
+}
+template t_G1_tunnel2_stone_b_v2(sheet) {
+  [526, 181, 263, 181, -119, -49, sheet]  // 【手调】
+}
+template t_G1_tunnel2_stone_b_v1(sheet) {
+  [263, 181, 263, 181, -130, -50, sheet]  // 【手调】
+}
+template t_G1_tunnel2_stone_over_v0(sheet) {
+  [1052, 181, 263, 181, -126, -170, sheet]  // 【手调】
+}
+template t_G1_tunnel2_stone_over_v3(sheet) {
+  [1841, 181, 263, 181, -131, -170, sheet]  // 【手调】
+}
+template t_G1_tunnel2_stone_over_b_v2(sheet) {
+  [526, 362, 263, 181, -131, -170, sheet]  // 【手调】
+}
+template t_G1_tunnel2_stone_over_b_v1(sheet) {
+  [263, 362, 263, 181, -129, -169, sheet]  // 【手调】
+}
+
+// ---------------------------------------------------------------------------
 // G1_levelcrossing —— 平交道口（公路 × 铁路）的 `level_crossings:` 轨道图
 //   参数 sheet：调用处传 "gfx/levelcrossing.png"（**单独一张表**，见 tools/sheets.mjs）
 //

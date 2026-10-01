@@ -645,6 +645,48 @@ export function generateTunnel() {
     fs.writeFileSync(f, text, 'utf8');
     log(`  ✔ ${rel(f).padEnd(44)} ${String(text.split('\n').length).padStart(4)} 行   ${nf} 面`);
   }
+
+  // -------------------------------------------------------------------------
+  // ★ TUN-2 —— 素混凝土端墙拱
+  //
+  //   人工裁定（美术要素方案.md §3.2）：P2-G1 覆盖 `SADN` `SBDN` `SBEd` `SBDD`，
+  //   四种**共用道床/轨枕/钢轨**（BAL-C / SLE-1 / RAI-1），**只换隧道口**：
+  //     `SADN` → `TUN-1`（料石端墙拱）    其余三种 → `TUN-2`（素混凝土端墙拱）
+  //   美术定位（§1.4）："灰色素混凝土端墙 + 拱圈"，民国～新中国早期。
+  //
+  //   ⇒ 与 TUN-1 的差别**只是材质**（料石 → 素混凝土：去缝、换灰），几何一字不改。
+  //     所以这里**不重写一套几何**，而是把上面刚生成的文本做一次「材质替换 + 改名」。
+  //     好处：两边永远同步，不会各改各的漂移；改几何只改一处。
+  //
+  //   配色（人工 2026-10：「SBDN 隧道深点、灰点」）：
+  //     stone      → concrete_dark      144,140,132   主色（原 concrete 186,182,173 偏亮偏暖）
+  //     stone_dark → panel_seam          96,  96,  96   暗面（原 concrete_dark 144,140,132）
+  //     stone_seam → metal_seam         122,127,132   内壁（原 concrete_seam 152,149,141）
+  //   整体比原来深一档，而且 R≈G≈B（去掉了暖调，所以"更灰"）。要再调就改这三行。
+  //
+  //   模型名 `G1_tunnel2_*`，**单独一张表**（tools/sheets.mjs 的 `tunnel2`，
+  //   登记在 `tunnel` **之前** —— 后者的正则是 /^G1_tunnel/，会先把 tunnel2 吃掉；
+  //   而单独一张表才不会把 TUN-1 那 20 张精灵的格位顶移位）。
+  // -------------------------------------------------------------------------
+  {
+    for (const [name, text, nf] of out) {
+      // 四个名字都以 G1_tunnel_stone 开头 ⇒ 一次替换就够
+      const t = text.split('G1_tunnel_stone').join('G1_tunnel2_stone')
+        .replace(/\bstone_seam\b/g, 'metal_seam')
+        .replace(/\bstone_dark\b/g, 'panel_seam')
+        .replace(/\bstone\b/g, 'concrete_dark')
+        .replace(/TUN-1 料石端墙拱/g, 'TUN-2 素混凝土端墙拱')
+        .replace(/TUN-2 素混凝土端墙拱\n/,
+                 'TUN-2 素混凝土端墙拱\n'
+               + '# 【与 TUN-1 的关系】**几何完全一致，只换材质**（料石 → 素混凝土）。\n'
+               + '#   本文件由 tools/gen-g1-tunnel.mjs 从 TUN-1 的文本替换而来。\n'
+               + '#   要改几何 → 改 TUN-1 那一套（本文件跟着变）；要改配色 → 改下面的材质名。\n');
+      const nn = name.replace('G1_tunnel_stone', 'G1_tunnel2_stone');
+      const f = path.join(ROOT, 'models', nn + '.model');
+      fs.writeFileSync(f, t, 'utf8');
+      log(`  ✔ ${rel(f).padEnd(44)} ${String(t.split('\n').length).padStart(4)} 行   ${nf} 面   （TUN-2 素混凝土）`);
+    }
+  }
   log('');
   log('  洞口   端墙 x∈[' + N(SLAB_X0) + ',' + N(SLAB_X1) + ']  y∈[' + N(SLAB_Y0) + ',' + N(SLAB_Y1) + ']  高 ' + N(SLAB_TOP));
   log('  拱     半宽 ' + N(ARCH_R) + '  起拱 z=' + N(ARCH_SPRING) + '  拱顶 z=' + N(ARCH_CROWN) + '  内壁 ' + NA + ' 段');

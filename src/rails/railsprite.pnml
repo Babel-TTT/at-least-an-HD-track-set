@@ -134,6 +134,36 @@ spriteset(probe_tunnel_over, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
 }
 
 /* ===========================================================================
+   TUN-2 —— 素混凝土端墙拱（分表：gfx/tunnel2.png）
+
+   谁用：P2-G1 覆盖 `SADN` `SBDN` `SBEd` `SBDD`，四种**共用道床/轨枕/钢轨**
+   （BAL-C / SLE-1 / RAI-1），**只换隧道口** ——
+     `SADN` → TUN-1（料石端墙拱，gfx/tunnel.png）
+     其余三种 → **TUN-2（素混凝土端墙拱，gfx/tunnel2.png）**
+   美术定位（美术要素方案.md §1.4）："灰色素混凝土端墙 + 拱圈"，民国～新中国早期。
+
+   与 TUN-1 的关系：**几何完全一致，只换材质**（stone/stone_dark/stone_seam
+   → concrete/concrete_dark/concrete_seam）。模型由 tools/gen-g1-tunnel.mjs
+   从 TUN-1 的文本替换而来，所以槽位顺序、朝向映射、取图顺序**全部照 TUN-1**：
+
+     槽位顺序 = DiagDirection NE / SE / SW / NW ⇒ 喂图 v0, v3, v2(_b), v1(_b)
+     v0/v3 用 A 组、v1/v2 用 B 组（左右切分翻转，理由见上面 TUN-1 那一节）
+   =========================================================================== */
+spriteset(probe_tunnels_2, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G1_tunnel2_stone_v0("gfx/tunnel2.png")       // 0  DiagDir NE ← v0   A 组
+    t_G1_tunnel2_stone_v3("gfx/tunnel2.png")       // 1  DiagDir SE ← v3   A 组
+    t_G1_tunnel2_stone_b_v2("gfx/tunnel2.png")     // 2  DiagDir SW ← v2   B 组（左右翻转）
+    t_G1_tunnel2_stone_b_v1("gfx/tunnel2.png")     // 3  DiagDir NW ← v1   B 组（左右翻转）
+}
+
+spriteset(probe_tunnel_over_2, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G1_tunnel2_stone_over_v0("gfx/tunnel2.png")     // 0  DiagDir NE ← v0   A 组
+    t_G1_tunnel2_stone_over_v3("gfx/tunnel2.png")     // 1  DiagDir SE ← v3   A 组
+    t_G1_tunnel2_stone_over_b_v2("gfx/tunnel2.png")   // 2  DiagDir SW ← v2   B 组（左右翻转）
+    t_G1_tunnel2_stone_over_b_v1("gfx/tunnel2.png")   // 3  DiagDir NW ← v1   B 组（左右翻转）
+}
+
+/* ===========================================================================
    平交道口 —— 公路 × 铁路（分表：gfx/levelcrossing.png）
 
    核自官方 wiki（https://newgrf-specs.tt-wiki.net/index.php?title=NML:Railtypes ）：

@@ -140,6 +140,25 @@ item(FEAT_RAILTYPES, rail_SBDN, 5) {
         map_colour:             0x58;
         sort_order:             SORT_EARLY;
     }
+    /* ★ 2026-10 接入：P2-G1 的几何组。
+       `SBDN` 与同组的 `SADN`/`SBEd`/`SBDD` **共用道床/轨枕/钢轨**
+       （BAL-C / SLE-1 / RAI-1）⇒ 前四项与 `rail_SADN` 完全一样，直接复用同一批
+       spriteset（名字里的 probe_ 是 P1 定标探针的历史遗留，内容就是 G1 的正式几何）。
+
+       **唯一的差别是隧道口**（美术要素方案.md §3.2 的人工裁定）：
+         `SADN`     → TUN-1 料石端墙拱     probe_tunnels / probe_tunnel_over
+         其余三种   → TUN-2 素混凝土端墙拱  probe_tunnels_2 / probe_tunnel_over_2
+
+       ⚠ `SBEd` / `SBDD` 目前**还没有** graphics 块（走引擎原版兜底），
+         下次接它们时照抄这一段、把隧道口换成 TUN-2 即可。 */
+    graphics {
+        underlay:        probe_underlay;
+        track_overlay:   probe_overlay;
+        tunnels:         probe_tunnels_2;
+        tunnel_overlay:  probe_tunnel_over_2;
+        level_crossings: probe_level_crossing;
+        bridge_surfaces: probe_bridge_surfaces;
+    }
 }
 
 // SCDN —— 准高速铁路（1967，C 档 160km/h，轴重 D，非电）

@@ -40,6 +40,14 @@ export const SHEETS = [
     match: /^(probe_|G1_(crossing|junction|rail|track))/,
   },
   {
+    // ⚠ 必须登记在 tunnel **之前**：下面那个表的正则是 /^G1_tunnel/，
+    //   会先把 G1_tunnel2_* 吃掉（first-match-wins，见文件头）。
+    //   单独一张表也才能不把 TUN-1 那 20 张精灵的格位顶移位。
+    key: 'tunnel2',
+    title: '隧道口 TUN-2（素混凝土端墙拱）',
+    match: /^G1_tunnel2/,
+  },
+  {
     key: 'tunnel',
     title: '隧道口',
     match: /^G1_tunnel/,
