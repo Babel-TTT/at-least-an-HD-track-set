@@ -110,6 +110,10 @@ item(FEAT_RAILTYPES, rail_SADN, 4) {
            ⚠ 道口灯与栏杆经人工裁定「以后再做」，现在那 8 格是**空精灵占位** ——
              道口上的轨道是我们的，但没有栏杆。见 railsprite.pnml 的 probe_level_crossing。 */
         level_crossings: probe_level_crossing;
+        /* 桥面。6 格 = 3 种形状（平 / 斜 / 矮）× 2 个方向。
+           人工裁定：**直接按普通铁轨来** —— 全部指向 underlay 那两张现成的普通轨道，
+           没有新模型/新模板/新图集。哪个是 X 哪个是 Y 是推出来的，实机看一眼再定。 */
+        bridge_surfaces: probe_bridge_surfaces;
     }
 }
 

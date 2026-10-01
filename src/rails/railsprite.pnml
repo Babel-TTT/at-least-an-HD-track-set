@@ -165,3 +165,47 @@ spriteset(probe_level_crossing, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
     t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png") // 8  Y 方向：栏杆 1（占位）
     t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png") // 9  Y 方向：栏杆 2（占位）
 }
+
+/* ===========================================================================
+   桥面 —— bridge_surfaces（6 张）
+
+   wiki 原文只说 "defines the overlay drawn over bridges"，没给说明，也没给每张是什么。
+   按规矩下一站查本地参考包，xUSSR 的模板给出了这 6 张的真面目
+   （xUSSR-Rails-Europa-Redux-main/src/rails/railsprite.pnml:190
+     `template rail_bridge_surfaces_template(x, y)`）：
+
+       [    x, y, 64, 32, -31,  0]   # 1  平  — A
+       [ x+80, y, 64, 32, -31,  0]   # 2  平  — B
+       [x+416, y, 64, 39, -31, -8]   # 3  斜（高 39、往上出 8px）— A
+       [x+496, y, 64, 23, -31,  0]   # 4  矮  — A
+       [x+576, y, 64, 23, -31,  0]   # 5  矮  — B
+       [x+656, y, 64, 39, -31, -8]   # 6  斜  — B
+
+   ⇒ 按尺寸把 6 张读出来 —— **槽 2~5 就是引擎那套固定朝向顺序 NE / SE / SW / NW**：
+
+       槽 0   平 — X 方向（32）
+       槽 1   平 — Y 方向（32）
+       槽 2   NE —— x=0 边抬，高的一头在画面**右上（远）** ⇒ 精灵要往上出 8px（高 39）
+       槽 3   SE —— y=1 边抬，高的一头在画面**右下（近）** ⇒ 矮（23）
+       槽 4   SW —— x=1 边抬，高的一头在画面**左下（近）** ⇒ 矮（23）
+       槽 5   NW —— y=0 边抬，高的一头在画面**左上（远）** ⇒ 高（39）
+
+     为什么这么定：xUSSR 量出来的 6 个高度是 32 / 32 / **39 / 23 / 23 / 39**。
+     「远端高的坡」精灵得往上出空间 ⇒ 39；「近端高的坡」矮 ⇒ 23。
+     四个坡按 NE / SE / SW / NW 排下来正好是 **远 / 近 / 近 / 远 = 39 / 23 / 23 / 39** ✓
+     与 underlay 里那 4 个坡的槽位顺序**完全一致**（喂图顺序 v0, v3, v2, v1）。
+
+     （走过的弯路：先读成「3 种形状 × 2 个方向、按轴分组」（39/23 与 23/39 镜像），
+       于是把 X 的两个坡配成 v0/v2；实机被人工否了两次。真正的规律是朝向顺序。）
+
+   ★ 人工裁定 2026-10：桥梁上的**平段直接按普通铁轨**，上/下桥那两段用**坡道轨** ——
+     没有新模型、没有新模板、没有新图集，全部指向现成的模板。
+   =========================================================================== */
+spriteset(probe_bridge_surfaces, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_probe_track_x_v0("gfx/rail.png")        // 0  平 — X
+    t_probe_track_x_v3("gfx/rail.png")        // 1  平 — Y
+    t_G1_track_slope_v0("gfx/rail.png")       // 2  坡 NE（x=0 边抬 / 远端高）
+    t_G1_track_slope_v3("gfx/rail.png")       // 3  坡 SE（y=1 边抬 / 近端高）
+    t_G1_track_slope_v2("gfx/rail.png")       // 4  坡 SW（x=1 边抬 / 近端高）
+    t_G1_track_slope_v1("gfx/rail.png")       // 5  坡 NW（y=0 边抬 / 远端高）
+}
