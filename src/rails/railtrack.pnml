@@ -77,9 +77,13 @@ item(FEAT_RAILTYPES, rail_SADN, 4) {
         build_window_caption:   string(STR_RAIL_SADN);
         autoreplace_text:       string(STR_RAIL_SADN);
         new_engine_text:        string(STR_RAIL_SADN);
-        compatible_railtype_list: ["RAIL", "ELRL",  "SADN", "SBDN", "SCDN",
-                                    "SACN", "SBCN", "SCCN",
-                                    "SABN", "SBBN", "SCBN"];
+        compatible_railtype_list: ["RAIL", "ELRL", 
+                                    "SADN", "SBDN", "SCDN", "SDDN", "SEDN",  "SFDN", "SGDN",
+                                    "SACN", "SBCN", "SCCN", "SDCN", "SECN",  "SFCN", "SGCN",
+                                    "SABN", "SBBN", "SCBN", 
+                                    "SADA", "SBDA", "SCDA",
+                                    "SACA", "SBCA", "SCCA",
+                                    "SABA", "SBBN", "SCBN"];
         powered_railtype_list:    ["RAIL", "SADN", "SBDN", "SCDN",
                                     "SACN", "SBCN", "SCCN",
                                     "SABN", "SBBN", "SCBN"];
@@ -100,20 +104,28 @@ item(FEAT_RAILTYPES, rail_SADN, 4) {
          tunnels:         地面层（道砟+轨枕+钢轨+洞口暗腔）
          tunnel_overlay:  立体层（端墙+拱+压顶），引擎画在车之上
        定义了 tunnel_overlay 后，引擎改画 16 张「纯草地空白底」，
-       **轨道和洞口全部由我们提供**。 */
+       **轨道和洞口全部由我们提供**。
+
+       ★ 褐色道床（人工裁定 2026-10）：
+         `SADN` 是 P2-G1 里唯一用**褐色**道床的 —— 道砟 `roof_shingle` 122,106,86，
+         而不是同组其余三种的 `gravel` 156,149,138。
+         所以只把**带道砟的三处**换成 gfx/brown.png 那套（_brown 后缀的 spriteset，
+         槽位顺序与本体逐条一致），两层 overlay **不换**：
+           underlay / tunnels / level_crossings / bridge_surfaces  → _brown
+           track_overlay / tunnel_overlay                          → 不变（不含道砟） */
     graphics {
-        underlay:        probe_underlay;
+        underlay:        probe_underlay_brown;
         track_overlay:   probe_overlay;
-        tunnels:         probe_tunnels;
+        tunnels:         probe_tunnels_brown;
         tunnel_overlay:  probe_tunnel_over;
         /* 平交道口（公路 × 铁路）。10 格 = 2 方向 × (1 张轨道图 + 4 张道口灯/栏杆)。
            ⚠ 道口灯与栏杆经人工裁定「以后再做」，现在那 8 格是**空精灵占位** ——
              道口上的轨道是我们的，但没有栏杆。见 railsprite.pnml 的 probe_level_crossing。 */
-        level_crossings: probe_level_crossing;
+        level_crossings: probe_level_crossing_brown;
         /* 桥面。6 格 = 3 种形状（平 / 斜 / 矮）× 2 个方向。
-           人工裁定：**直接按普通铁轨来** —— 全部指向 underlay 那两张现成的普通轨道，
+           人工裁定：**直接按普通铁轨来** —— 全部指向 underlay 那几张现成的轨道，
            没有新模型/新模板/新图集。哪个是 X 哪个是 Y 是推出来的，实机看一眼再定。 */
-        bridge_surfaces: probe_bridge_surfaces;
+        bridge_surfaces: probe_bridge_surfaces_brown;
     }
 }
 

@@ -366,6 +366,95 @@ template t_G1_tunnel2_stone_over_b_v1(sheet) {
 }
 
 // ---------------------------------------------------------------------------
+// G1_brown_* —— **褐色道床**那套（`SADN` 专用）
+//
+//   参数 sheet：调用处传 "gfx/brown.png"（单独一张表，见 tools/sheets.mjs）
+//
+//   人工裁定 2026-10：「SADN 换一种更褐色的道床」——
+//     `SADN`     → 褐色道床（道砟 `roof_shingle` 122,106,86）
+//     其余同组   → 灰色道床（道砟 `gravel` 156,149,138），继续用 rail/tunnel/… 那几张表
+//
+//   模型来源：9 个带道砟的模型（跨 rail / tunnel / levelcrossing 三张表）
+//   由 tools/gen-g1-switches.mjs 末尾那段**机械改写**而成（只换道砟材质 + 改名，
+//   几何一字未改）。overlay 那几个「只有钢轨+轨枕」的模型没有道砟，不需要变体。
+//
+//   ★ 锚点怎么来的：褐色表把三种原本不同高的源统一进 263×181 一格，
+//     所以**不能照抄源模板的 yrel**（源表格位是 151 / 135，锚点在格内的位置不同）。
+//     本表的值 = **褐色表的算法值（centerAnchor）+ 源模板的手调增量**，
+//     即"把源表实机调出来的位移原样搬过来"，不需要重新手调。
+//     标【手调】就是为此 —— 位移是从源模板继承的，不是 centerAnchor 原值。
+//
+//   ⚠ 改了几何以后重跑生成器 + 渲染，本表 rect 由哨兵 models/G1_brown_frame.model
+//     钉死不动；但若 centerAnchor 变了，下面取图顺序仍对、锚点需重算。
+// ---------------------------------------------------------------------------
+template t_G1_brown_track_x_v0(sheet) {
+  [1052, 543, 263, 181, -126, -50, sheet]  // 【手调】源 t_probe_track_x_v0 位移 5,-1
+}
+template t_G1_brown_track_x_v3(sheet) {
+  [1841, 543, 263, 181, -130, -50, sheet]  // 【手调】源 t_probe_track_x_v3 位移 1,-1
+}
+template t_G1_brown_half_upper_v0(sheet) {
+  [0, 181, 263, 181, -128, -51, sheet]  // 【手调】源 t_probe_half_upper_v0 位移 3,-2
+}
+template t_G1_brown_half_upper_v2(sheet) {
+  [526, 181, 263, 181, -129, -51, sheet]  // 【手调】源 t_probe_half_upper_v2 位移 2,-2
+}
+template t_G1_brown_half_upper_v3(sheet) {
+  [789, 181, 263, 181, -128, -52, sheet]  // 【手调】源 t_probe_half_upper_v3 位移 3,-3
+}
+template t_G1_brown_half_upper_v1(sheet) {
+  [263, 181, 263, 181, -128, -52, sheet]  // 【手调】源 t_probe_half_upper_v1 位移 3,-3
+}
+template t_G1_brown_track_slope_v0(sheet) {
+  [0, 543, 263, 181, -128, -50, sheet]  // 【手调】源 t_G1_track_slope_v0 位移 3,-1
+}
+template t_G1_brown_track_slope_v3(sheet) {
+  [789, 543, 263, 181, -131, -49, sheet]  // 【手调】源 t_G1_track_slope_v3 位移 0,0
+}
+template t_G1_brown_track_slope_v2(sheet) {
+  [526, 543, 263, 181, -126, -50, sheet]  // 【手调】源 t_G1_track_slope_v2 位移 5,-1
+}
+template t_G1_brown_track_slope_v1(sheet) {
+  [263, 543, 263, 181, -131, -49, sheet]  // 【手调】源 t_G1_track_slope_v1 位移 0,0
+}
+template t_G1_brown_crossing_v0(sheet) {
+  [0, 0, 263, 181, -127, -51, sheet]  // 【手调】源 t_G1_crossing_v0 位移 4,-2
+}
+template t_G1_brown_junction3_v0(sheet) {
+  [1052, 181, 263, 181, -129, -51, sheet]  // 【手调】源 t_G1_junction3_v0 位移 2,-2
+}
+template t_G1_brown_junction3_v2(sheet) {
+  [1578, 181, 263, 181, -128, -51, sheet]  // 【手调】源 t_G1_junction3_v2 位移 3,-2
+}
+template t_G1_brown_junction3_v1(sheet) {
+  [1315, 181, 263, 181, -130, -51, sheet]  // 【手调】源 t_G1_junction3_v1 位移 1,-2
+}
+template t_G1_brown_junction3_v3(sheet) {
+  [1841, 181, 263, 181, -129, -51, sheet]  // 【手调】源 t_G1_junction3_v3 位移 2,-2
+}
+template t_G1_brown_junction4_v0(sheet) {
+  [0, 362, 263, 181, -129, -52, sheet]  // 【手调】源 t_G1_junction4_v0 位移 2,-3
+}
+template t_G1_brown_tunnel_stone_v0(sheet) {
+  [0, 724, 263, 181, -126, -50, sheet]  // 【手调】源 t_G1_tunnel_stone_v0 位移 5,-1
+}
+template t_G1_brown_tunnel_stone_v3(sheet) {
+  [789, 724, 263, 181, -126, -50, sheet]  // 【手调】源 t_G1_tunnel_stone_v3 位移 5,-1
+}
+template t_G1_brown_tunnel_stone_b_v2(sheet) {
+  [1578, 724, 263, 181, -119, -49, sheet]  // 【手调】源 t_G1_tunnel_stone_b_v2 位移 12,0
+}
+template t_G1_brown_tunnel_stone_b_v1(sheet) {
+  [1315, 724, 263, 181, -130, -50, sheet]  // 【手调】源 t_G1_tunnel_stone_b_v1 位移 1,-1
+}
+template t_G1_brown_levelcrossing_v0(sheet) {
+  [1052, 362, 263, 181, -126, -50, sheet]  // 【手调】源 t_G1_levelcrossing_v0 位移 5,-1
+}
+template t_G1_brown_levelcrossing_v3(sheet) {
+  [1841, 362, 263, 181, -234, -102, sheet]  // 【手调】源 t_G1_levelcrossing_v3 位移 -103,-53
+}
+
+// ---------------------------------------------------------------------------
 // G1_levelcrossing —— 平交道口（公路 × 铁路）的 `level_crossings:` 轨道图
 //   参数 sheet：调用处传 "gfx/levelcrossing.png"（**单独一张表**，见 tools/sheets.mjs）
 //

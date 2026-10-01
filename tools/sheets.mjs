@@ -35,6 +35,19 @@
  */
 export const SHEETS = [
   {
+    // 「褐色道床」那套（人工 2026-10：SADN 的道床比同组另三种更褐）。
+    // 内容是 9 个带道砟的模型的机械副本（道砟 gravel → roof_shingle），
+    // 由 tools/gen-g1-switches.mjs 末尾那一段吐出来。
+    //
+    // ⚠ 必须登记在 rail / tunnel / levelcrossing **之前**？不需要 ——
+    //   `G1_brown_*` 不匹配那三张表任何一个正则。但登记在前面读起来最清楚。
+    //   单独一张表也才**不会把已有那几张表的格位顶移位**。
+    //   格位由哨兵 models/G1_brown_frame.model 钉死在 263×181。
+    key: 'brown',
+    title: '褐色道床（SADN 专用；平轨/半轨/坡道/道岔/隧道地面/道口）',
+    match: /^G1_brown_/,
+  },
+  {
     key: 'rail',
     title: '轨道（道砟/轨枕/钢轨/道岔/交叉/坡道）',
     match: /^(probe_|G1_(crossing|junction|rail|track))/,

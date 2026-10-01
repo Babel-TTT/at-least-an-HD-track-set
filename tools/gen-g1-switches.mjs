@@ -431,6 +431,65 @@ export function generate() {
     fs.writeFileSync(f, text, 'utf8');
     log(`  ✔ ${rel(f).padEnd(34)} ${String(text.split('\n').length).padStart(4)} 行   道砟 ${nq} 面`);
   }
+
+  // =========================================================================
+  // ★ 褐色道床变体（人工 2026-10：「SADN 换一种更褐色的道床」）
+  //
+  //   背景：P2-G1 的四种轨道（`SADN` `SBDN` `SBEd` `SBDD`）原本共用一套几何。
+  //   人工裁定把 `SADN` 单独拿出来、道床换成**褐色**（`roof_shingle` 122,106,86，
+  //   比原来的 `gravel` 156,149,138 明显偏褐），其余三种继续用灰的。
+  //
+  //   做法：**读现有模型 → 只把道砟材质 gravel 换成 roof_shingle → 改名吐新模型**。
+  //     · 几何一字不改 ⇒ 与源模型永远同步，改几何只需改源、重跑本工具
+  //     · **不动任何已有模型** —— 全是新增文件
+  //     · 和当年 G1_rail_straight / G1_rail_halftrack「读 probe_*.model 去道床」
+  //       是同一个套路（那个一次性脚本已不在仓库里，所以这次挂在生成器里）
+  //
+  //   覆盖 9 个**带道砟**的模型（跨 3 张表）—— 少一个就会在实机里露出灰道床：
+  //     rail 表          probe_track_x / probe_half_upper / G1_crossing /
+  //                      G1_junction3 / G1_junction4 / G1_track_slope
+  //     tunnel 表        G1_tunnel_stone / G1_tunnel_stone_b   （隧道地面层有轨有道砟）
+  //     levelcrossing 表 G1_levelcrossing
+  //   （overlay 那几个「只有钢轨+轨枕」的模型没有道砟，不需要变体。）
+  //
+  //   输出到**一张单独的表** gfx/brown.png（tools/sheets.mjs），
+  //   格位由哨兵 models/G1_brown_frame.model 钉死 ⇒ 以后改几何不动 rect。
+  // =========================================================================
+  {
+    const BROWN = [
+      ['probe_track_x',     'G1_brown_track_x'],
+      ['probe_half_upper',  'G1_brown_half_upper'],
+      ['G1_crossing',       'G1_brown_crossing'],
+      ['G1_junction3',      'G1_brown_junction3'],
+      ['G1_junction4',      'G1_brown_junction4'],
+      ['G1_track_slope',    'G1_brown_track_slope'],
+      ['G1_tunnel_stone',   'G1_brown_tunnel_stone'],
+      ['G1_tunnel_stone_b', 'G1_brown_tunnel_stone_b'],
+      ['G1_levelcrossing',  'G1_brown_levelcrossing'],
+    ];
+    log('');
+    log(`  褐色道床变体（道砟 gravel → roof_shingle）：${BROWN.length} 个`);
+    for (const [src, dst] of BROWN) {
+      const f = path.join(ROOT, 'models', src + '.model');
+      if (!fs.existsSync(f)) {
+        log(`  × 跳过 ${src}：源模型不存在（先跑对应的生成器）`);
+        continue;
+      }
+      const raw = fs.readFileSync(f, 'utf8');
+      const nGravel = (raw.match(/\bgravel\b/g) || []).length;
+      const note =
+        '# ⚠【褐色道床变体 —— 不要手改本文件】\n'
+        + `#   由 tools/gen-g1-switches.mjs 从 models/${src}.model **机械改写**而来：\n`
+        + `#     模型名 ${src} → ${dst}；道砟材质 gravel → roof_shingle（${nGravel} 处）。\n`
+        + '#   **几何一字未改。** 要改几何请改源模型，然后重跑 `node tools/gen-g1-switches.mjs`。\n'
+        + '#   用途：SADN（人工裁定：SADN 的道床比同组另三种更褐）。\n'
+        + '# =============================================================================\n';
+      const t = note + raw.split(src).join(dst).replace(/\bgravel\b/g, 'roof_shingle');
+      const g = path.join(ROOT, 'models', dst + '.model');
+      fs.writeFileSync(g, t, 'utf8');
+      log(`  ✔ ${rel(g).padEnd(34)} ${String(t.split('\n').length).padStart(4)} 行   褐色道砟 ${nGravel} 面`);
+    }
+  }
   log('');
   log('  每方向屏幕偏移（px，正=右/下）—— 改这张表后重跑本工具：');
   log('  ' + pad('方向', 8) + pad('屏幕偏移', 12) + pad('世界位移', 24) + pad('纵向', 10) + '横向');

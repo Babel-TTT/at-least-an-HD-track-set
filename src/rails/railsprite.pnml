@@ -239,3 +239,78 @@ spriteset(probe_bridge_surfaces, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
     t_G1_track_slope_v2("gfx/rail.png")       // 4  坡 SW（x=1 边抬 / 近端高）
     t_G1_track_slope_v1("gfx/rail.png")       // 5  坡 NW（y=0 边抬 / 远端高）
 }
+
+/* ===========================================================================
+   褐色道床 —— `SADN` 专用（分表：gfx/brown.png）
+
+   人工裁定 2026-10：「SADN 换一种更褐色的道床」。
+     `SADN`   → 褐色（道砟 `roof_shingle` 122,106,86）
+     其余同组 → 灰色（道砟 `gravel` 156,149,138），继续用上面那几张表
+
+   ⇒ **下面这四组是上面四组的褐色平替，槽位顺序、取图顺序逐条一一对应**，
+     所以接线时只要把 `rail_SADN` 的 graphics 块换成 _brown 版本即可：
+
+       underlay         probe_underlay        → probe_underlay_brown
+       tunnels          probe_tunnels         → probe_tunnels_brown
+       level_crossings  probe_level_crossing  → probe_level_crossing_brown
+       bridge_surfaces  probe_bridge_surfaces → probe_bridge_surfaces_brown
+       track_overlay    probe_overlay         → **不变**（纯钢轨层，没有道砟）
+       tunnel_overlay   probe_tunnel_over     → **不变**（洞门结构，没有道砟）
+
+   ⚠ 为什么 overlay 两层不用换：它们只有钢轨 + 轨枕 + 洞门，本来就不含道砟，
+     换不换图都一样 —— 换来只是白白多一份精灵。这一点是查模型里的 `gravel`
+     面数确认的（overlay 那几个是 0）。
+   =========================================================================== */
+
+// underlay 褐色版 —— 槽位顺序与 probe_underlay **逐条一致**（16 格）
+spriteset(probe_underlay_brown, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G1_brown_track_x_v0("gfx/brown.png")        //  0  RTO_X        X
+    t_G1_brown_track_x_v3("gfx/brown.png")        //  1  RTO_Y        Y
+    t_G1_brown_half_upper_v0("gfx/brown.png")     //  2  RTO_N        UPPER
+    t_G1_brown_half_upper_v2("gfx/brown.png")     //  3  RTO_S        LOWER
+    t_G1_brown_half_upper_v3("gfx/brown.png")     //  4  RTO_E        RIGHT
+    t_G1_brown_half_upper_v1("gfx/brown.png")     //  5  RTO_W        LEFT
+    t_G1_brown_track_slope_v0("gfx/brown.png")    //  6  RTO_SLOPE_NE   v0（右上抬）
+    t_G1_brown_track_slope_v3("gfx/brown.png")    //  7  RTO_SLOPE_SE   v3（右下抬）
+    t_G1_brown_track_slope_v2("gfx/brown.png")    //  8  RTO_SLOPE_SW   v2（左下抬）
+    t_G1_brown_track_slope_v1("gfx/brown.png")    //  9  RTO_SLOPE_NW   v1（左上抬）
+    t_G1_brown_crossing_v0("gfx/brown.png")       // 10  RTO_CROSSING_XY
+    t_G1_brown_junction3_v0("gfx/brown.png")      // 11  RTO_JUNCTION_SW
+    t_G1_brown_junction3_v2("gfx/brown.png")      // 12  RTO_JUNCTION_NE（v2）
+    t_G1_brown_junction3_v1("gfx/brown.png")      // 13  RTO_JUNCTION_SE（v1）
+    t_G1_brown_junction3_v3("gfx/brown.png")      // 14  RTO_JUNCTION_NW（v3）
+    t_G1_brown_junction4_v0("gfx/brown.png")      // 15  RTO_JUNCTION_NSEW
+}
+
+// tunnels 褐色版 —— 槽位顺序同 probe_tunnels（NE/SE/SW/NW ⇒ v0, v3, v2(_b), v1(_b)）
+spriteset(probe_tunnels_brown, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G1_brown_tunnel_stone_v0("gfx/brown.png")     // 0  DiagDir NE ← v0   A 组
+    t_G1_brown_tunnel_stone_v3("gfx/brown.png")     // 1  DiagDir SE ← v3   A 组
+    t_G1_brown_tunnel_stone_b_v2("gfx/brown.png")   // 2  DiagDir SW ← v2   B 组（左右翻转）
+    t_G1_brown_tunnel_stone_b_v1("gfx/brown.png")   // 3  DiagDir NW ← v1   B 组（左右翻转）
+}
+
+// level_crossings 褐色版 —— 10 格 = 2 方向 × (1 张轨道图 + 4 张道口灯/栏杆)
+//   道口灯与栏杆本期不做，继续用空精灵占位（t_G1_levelcrossing_blank_v0，从别的表取即可）
+spriteset(probe_level_crossing_brown, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G1_brown_levelcrossing_v0("gfx/brown.png")          // 0  X 方向：轨道图（褐色道床）
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png")  // 1  X 方向：道口灯 1（占位）
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png")  // 2  X 方向：道口灯 2（占位）
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png")  // 3  X 方向：栏杆 1（占位）
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png")  // 4  X 方向：栏杆 2（占位）
+    t_G1_brown_levelcrossing_v3("gfx/brown.png")          // 5  Y 方向：轨道图（褐色道床）
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png")  // 6  Y 方向：道口灯 1（占位）
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png")  // 7  Y 方向：道口灯 2（占位）
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png")  // 8  Y 方向：栏杆 1（占位）
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png")  // 9  Y 方向：栏杆 2（占位）
+}
+
+// bridge_surfaces 褐色版 —— 槽位顺序同 probe_bridge_surfaces（平X/平Y/NE/SE/SW/NW）
+spriteset(probe_bridge_surfaces_brown, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G1_brown_track_x_v0("gfx/brown.png")        // 0  平 — X
+    t_G1_brown_track_x_v3("gfx/brown.png")        // 1  平 — Y
+    t_G1_brown_track_slope_v0("gfx/brown.png")    // 2  坡 NE（x=0 边抬 / 远端高）
+    t_G1_brown_track_slope_v3("gfx/brown.png")    // 3  坡 SE（y=1 边抬 / 近端高）
+    t_G1_brown_track_slope_v2("gfx/brown.png")    // 4  坡 SW（x=1 边抬 / 近端高）
+    t_G1_brown_track_slope_v1("gfx/brown.png")    // 5  坡 NW（y=0 边抬 / 远端高）
+}
