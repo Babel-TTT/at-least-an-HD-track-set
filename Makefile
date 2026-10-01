@@ -16,29 +16,27 @@
 #   make switches   重生成 G1 交叉/道叉模型（改方向偏移后跑）
 #   make slope      重生成 G1 坡道模型（改抬升量/坡面几何后跑）
 #   make tunnel     重生成 G1 隧道口模型（TUN-1 料石端墙拱）
-#   make sync-templates  图集重排后**重建** templates.pnml（见下）
 #
 # ⚠ 图集自 2026-10 起**按类分表**：gfx/rail.png（轨道）/ gfx/tunnel.png（隧道口）
 #   / 以后还有 catenary.png、fence.png…，登记在 tools/sheets.mjs。
 #   好处：改隧道**不会**再把 40 张轨道图连带重排（以前会，格位被迫从
 #   263×151 撑到 263×218，全部 rect 与 yrel 失效）。
 #
-# ⚠⚠ make sync-templates 是唯一会写 templates.pnml 的命令，**不是构建步骤**：
-#   只在「新增/删除模型」或「改了分表」之后人工敲一次。它按**增量**保留
-#   行尾标了【手调】的微调，不会把人工摆位抹成算法值。
 #   make diag       重出定标图（out/calibrate/）
 #   make check      一致性自检（含 templates.pnml 对账）
 #   make clean      删除生成物（保留源码）—— **会连 out/calibrate/ 一起删**
 #
-# ⚠ src/rails/templates.pnml 是**手写源文件**，没有生成器，make 不会碰它。
-#   模型改了尺寸/占地后，跑 `make sprites` 拿当前正确值，手抄回去。
+# ⚠ src/rails/templates.pnml 是**手写源文件**，没有生成器，也没有同步脚本 ——
+#   **任何脚本都不得写入它**（人工裁定，见 docs/建模标准.md L4）。
+#   图集格位变了之后，跑 `make sprites` 拿当前正确值，**人工手抄**回去。
+#   有意偏离算法值的行，在行尾写【手调】，make check 就不再报它。
 # =============================================================================
 
 NODE ?= node
 
 -include Makefile.config
 
-.PHONY: all grf sprite render sprites switches slope tunnel sync-templates diag calibrate compare check clean help
+.PHONY: all grf sprite render sprites switches slope tunnel diag calibrate compare check clean help
 
 all: grf
 
@@ -75,14 +73,6 @@ slope:
 tunnel:
 	$(NODE) tools/gen-g1-tunnel.mjs
 	$(NODE) tools/build.mjs --step render
-
-# ⚠ 唯一会写 src/rails/templates.pnml 的命令，**不是构建步骤**。
-#   只在「新增/删除模型」或「改了 tools/sheets.mjs 的分表」之后人工敲一次。
-#   它按增量保留人工手调（旧值 − 旧基准，再加到新基准上），不会抹掉摆位微调。
-#   先跑不带 --apply 的预览（node out/sync-templates.mjs）看清楚再写。
-sync-templates:
-	$(NODE) out/sync-templates.mjs --apply
-	$(NODE) tools/check.mjs
 
 # 定标图：会被 make clean 删掉，需要时用这个重建
 diag: calibrate compare
