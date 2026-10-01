@@ -72,13 +72,13 @@ template t_probe_half_upper_v0(sheet) {
   [1052, 453, 263, 151, -128, -21, sheet]  // az   0  TRACK_UPPER  【手调】
 }
 template t_probe_half_upper_v1(sheet) {
-  [1315, 453, 263, 151, -128, -22, sheet]  // az  90  TRACK_LEFT
+  [1315, 453, 263, 151, -128, -22, sheet]  // az  90  TRACK_LEFT  【手调】
 }
 template t_probe_half_upper_v2(sheet) {
   [1578, 453, 263, 151, -129, -21, sheet]  // az 180  TRACK_LOWER  【手调】
 }
 template t_probe_half_upper_v3(sheet) {
-  [1841, 453, 263, 151, -128, -22, sheet]  // az 270  TRACK_RIGHT
+  [1841, 453, 263, 151, -128, -22, sheet]  // az 270  TRACK_RIGHT  【手调】
 }
 
 // ---------------------------------------------------------------------------
@@ -109,13 +109,13 @@ template t_probe_track_x_v0(sheet) {
   [1052, 604, 263, 151, -126, -20, sheet]  // az   0  TRACK_X  ← RTO_X 用这张  【手调】
 }
 template t_probe_track_x_v1(sheet) {
-  [1315, 604, 263, 151, -130, -20, sheet]  // az  90  TRACK_Y
+  [1315, 604, 263, 151, -130, -20, sheet]  // az  90  TRACK_Y  【手调】
 }
 template t_probe_track_x_v2(sheet) {
   [1578, 604, 263, 151, -131, -19, sheet]  // az 180  TRACK_X（与 v0 同形）
 }
 template t_probe_track_x_v3(sheet) {
-  [1841, 604, 263, 151, -130, -20, sheet]  // az 270  TRACK_Y  ← RTO_Y 用这张
+  [1841, 604, 263, 151, -130, -20, sheet]  // az 270  TRACK_Y  ← RTO_Y 用这张  【手调】
 }
 
 // ---------------------------------------------------------------------------
@@ -124,7 +124,7 @@ template t_probe_track_x_v3(sheet) {
 //   4 个朝向对称，引擎只取 v0 喂 RTO_CROSSING_XY。
 // ---------------------------------------------------------------------------
 template t_G1_crossing_v0(sheet) {
-  [0, 0, 263, 151, -127, -21, sheet]  // → RTO_CROSSING_XY
+  [0, 0, 263, 151, -127, -21, sheet]  // → RTO_CROSSING_XY  【手调】
 }
 template t_G1_crossing_v1(sheet) {
   [263, 0, 263, 151, -131, -19, sheet]
@@ -143,16 +143,16 @@ template t_G1_crossing_v3(sheet) {
 //   （由四重旋转 R 推出：R³(SW)=SE，R²(SW)=NE，R¹(SW)=NW）
 // ---------------------------------------------------------------------------
 template t_G1_junction3_v0(sheet) {
-  [1052, 0, 263, 151, -129, -21, sheet]  // → RTO_JUNCTION_SW
+  [1052, 0, 263, 151, -129, -21, sheet]  // → RTO_JUNCTION_SW  【手调】
 }
 template t_G1_junction3_v1(sheet) {
-  [1315, 0, 263, 151, -130, -21, sheet]  // → RTO_JUNCTION_SE
+  [1315, 0, 263, 151, -130, -21, sheet]  // → RTO_JUNCTION_SE  【手调】
 }
 template t_G1_junction3_v2(sheet) {
-  [1578, 0, 263, 151, -128, -21, sheet]  // → RTO_JUNCTION_NE
+  [1578, 0, 263, 151, -128, -21, sheet]  // → RTO_JUNCTION_NE  【手调】
 }
 template t_G1_junction3_v3(sheet) {
-  [1841, 0, 263, 151, -129, -21, sheet]  // → RTO_JUNCTION_NW
+  [1841, 0, 263, 151, -129, -21, sheet]  // → RTO_JUNCTION_NW  【手调】
 }
 
 // ---------------------------------------------------------------------------
@@ -160,7 +160,7 @@ template t_G1_junction3_v3(sheet) {
 //   引擎在 4 种「箭头」三向组合上也复用这一张，所以范围会比实际轨道大。
 // ---------------------------------------------------------------------------
 template t_G1_junction4_v0(sheet) {
-  [0, 151, 263, 151, -129, -22, sheet]  // → RTO_JUNCTION_NSEW
+  [0, 151, 263, 151, -129, -22, sheet]  // → RTO_JUNCTION_NSEW  【手调】
   // ⚠ 这张精灵一张管 6 个方向，偏移只能烘进模型几何（tools/gen-g1-switches.mjs 的
   //    DIR_DELTA 表），**不要在这里手调** —— 两边都加会变成「越改越偏」。
 }
@@ -180,16 +180,16 @@ template t_G1_junction4_v3(sheet) {
 //   v0 = TRACK_X（RTO_X）   v3 = TRACK_Y（RTO_Y）
 // ---------------------------------------------------------------------------
 template t_G1_rail_straight_v0(sheet) {
-  [1052, 302, 263, 151, -126, -20, sheet]  // 与 probe_track_x_v0 一致  // → RTO_X
+  [1052, 302, 263, 151, -126, -20, sheet]  // 与 probe_track_x_v0 一致  // → RTO_X  【手调】
 }
 template t_G1_rail_straight_v1(sheet) {
-  [1315, 302, 263, 151, -130, -20, sheet]  // 与 probe_track_x_v1 一致
+  [1315, 302, 263, 151, -130, -20, sheet]  // 与 probe_track_x_v1 一致  【手调】
 }
 template t_G1_rail_straight_v2(sheet) {
   [1578, 302, 263, 151, -131, -19, sheet]
 }
 template t_G1_rail_straight_v3(sheet) {
-  [1841, 302, 263, 151, -130, -20, sheet]  // 与 probe_track_x_v3 一致  // → RTO_Y
+  [1841, 302, 263, 151, -130, -20, sheet]  // 与 probe_track_x_v3 一致  // → RTO_Y  【手调】
 }
 
 
@@ -198,16 +198,16 @@ template t_G1_rail_straight_v3(sheet) {
 //   同样只有钢轨 + 轨枕。v0=UPPER  v1=LEFT  v2=LOWER  v3=RIGHT
 // ---------------------------------------------------------------------------
 template t_G1_rail_halftrack_v0(sheet) {
-  [1052, 151, 263, 151, -128, -21, sheet]  // 与 probe_half_upper_v0 一致  // → RTO_N
+  [1052, 151, 263, 151, -128, -21, sheet]  // 与 probe_half_upper_v0 一致  // → RTO_N  【手调】
 }
 template t_G1_rail_halftrack_v1(sheet) {
-  [1315, 151, 263, 151, -128, -22, sheet]  // 与 probe_half_upper_v1 一致  // → RTO_W
+  [1315, 151, 263, 151, -128, -22, sheet]  // 与 probe_half_upper_v1 一致  // → RTO_W  【手调】
 }
 template t_G1_rail_halftrack_v2(sheet) {
-  [1578, 151, 263, 151, -129, -21, sheet]  // 与 probe_half_upper_v2 一致  // → RTO_S
+  [1578, 151, 263, 151, -129, -21, sheet]  // 与 probe_half_upper_v2 一致  // → RTO_S  【手调】
 }
 template t_G1_rail_halftrack_v3(sheet) {
-  [1841, 151, 263, 151, -128, -22, sheet]  // 与 probe_half_upper_v3 一致  // → RTO_E
+  [1841, 151, 263, 151, -128, -22, sheet]  // 与 probe_half_upper_v3 一致  // → RTO_E  【手调】
 }
 
 // ---------------------------------------------------------------------------
@@ -217,13 +217,13 @@ template t_G1_rail_halftrack_v3(sheet) {
 //   取图顺序 v0=NE  v1=NW  v2=SW  v3=SE（绕占地中心转模型推出，见 railsprite.pnml）
 // ---------------------------------------------------------------------------
 template t_G1_track_slope_v0(sheet) {
-  [0, 453, 263, 151, -128, -20, sheet]  // → RTO_SLOPE_NE（x=0 边 / 右上抬）
+  [0, 453, 263, 151, -128, -20, sheet]  // → RTO_SLOPE_NE（x=0 边 / 右上抬）  【手调】
 }
 template t_G1_track_slope_v1(sheet) {
   [263, 453, 263, 151, -131, -19, sheet]  // → RTO_SLOPE_NW（y=0 边 / 左上抬）
 }
 template t_G1_track_slope_v2(sheet) {
-  [526, 453, 263, 151, -126, -20, sheet]  // → RTO_SLOPE_SW（x=1 边 / 左下抬）
+  [526, 453, 263, 151, -126, -20, sheet]  // → RTO_SLOPE_SW（x=1 边 / 左下抬）  【手调】
 }
 template t_G1_track_slope_v3(sheet) {
   [789, 453, 263, 151, -131, -19, sheet]  // → RTO_SLOPE_SE（y=1 边 / 右下抬）
@@ -234,13 +234,13 @@ template t_G1_track_slope_v3(sheet) {
 //   同 G1_track_slope 的 4 个朝向
 // ---------------------------------------------------------------------------
 template t_G1_rail_slope_v0(sheet) {
-  [0, 302, 263, 151, -128, -20, sheet]  // → RTO_SLOPE_NE（x=0 边 / 右上抬）
+  [0, 302, 263, 151, -128, -20, sheet]  // → RTO_SLOPE_NE（x=0 边 / 右上抬）  【手调】
 }
 template t_G1_rail_slope_v1(sheet) {
   [263, 302, 263, 151, -131, -19, sheet]  // → RTO_SLOPE_NW（y=0 边 / 左上抬）
 }
 template t_G1_rail_slope_v2(sheet) {
-  [526, 302, 263, 151, -126, -20, sheet]  // → RTO_SLOPE_SW（x=1 边 / 左下抬）
+  [526, 302, 263, 151, -126, -20, sheet]  // → RTO_SLOPE_SW（x=1 边 / 左下抬）  【手调】
 }
 template t_G1_rail_slope_v3(sheet) {
   [789, 302, 263, 151, -131, -19, sheet]  // → RTO_SLOPE_SE（y=1 边 / 右下抬）
@@ -253,16 +253,16 @@ template t_G1_rail_slope_v3(sheet) {
 //   参数 sheet：调用处传 "gfx/tunnel.png"（按类分表，见 tools/sheets.mjs）
 // ---------------------------------------------------------------------------
 template t_G1_tunnel_stone_v0(sheet) {
-  [1052, 0, 263, 181, -126, -50, sheet]
+  [1052, 0, 263, 181, -126, -50, sheet]  // 【手调】
 }
 template t_G1_tunnel_stone_v1(sheet) {
-  [1315, 0, 263, 181, -126, -50, sheet]
+  [1315, 0, 263, 181, -126, -50, sheet]  // 【手调】
 }
 template t_G1_tunnel_stone_v2(sheet) {
-  [1578, 0, 263, 181, -126, -40, sheet]
+  [1578, 0, 263, 181, -126, -40, sheet]  // 【手调】
 }
 template t_G1_tunnel_stone_v3(sheet) {
-  [1841, 0, 263, 181, -126, -50, sheet]
+  [1841, 0, 263, 181, -126, -50, sheet]  // 【手调】
 }
 
 // ---------------------------------------------------------------------------
@@ -283,16 +283,16 @@ template t_G1_tunnel_stone_v3(sheet) {
 //     不同几何 ⇒ 那 120 只是他们的构图差，不是引擎偏移。**已撤回。**
 // ---------------------------------------------------------------------------
 template t_G1_tunnel_stone_over_v0(sheet) {
-  [1052, 181, 263, 181, -126, -170, sheet]
+  [1052, 181, 263, 181, -126, -170, sheet]  // 【手调】
 }
 template t_G1_tunnel_stone_over_v1(sheet) {
-  [1315, 181, 263, 181, -131, -170, sheet]
+  [1315, 181, 263, 181, -131, -170, sheet]  // 【手调】
 }
 template t_G1_tunnel_stone_over_v2(sheet) {
-  [1578, 181, 263, 181, -127, -170, sheet]
+  [1578, 181, 263, 181, -127, -170, sheet]  // 【手调】
 }
 template t_G1_tunnel_stone_over_v3(sheet) {
-  [1841, 181, 263, 181, -131, -170, sheet]
+  [1841, 181, 263, 181, -131, -170, sheet]  // 【手调】
 }
 
 // ---------------------------------------------------------------------------
@@ -312,16 +312,16 @@ template t_G1_tunnel_stone_over_v3(sheet) {
 //   锚点与对应的 A 组逐朝向一致（同一套取景，只是分组不同）。
 // ---------------------------------------------------------------------------
 template t_G1_tunnel_stone_b_v1(sheet) {
-  [263, 181, 263, 181, -130, -50, sheet]
+  [263, 181, 263, 181, -130, -50, sheet]  // 【手调】
 }
 template t_G1_tunnel_stone_b_v2(sheet) {
-  [526, 181, 263, 181, -119, -49, sheet]
+  [526, 181, 263, 181, -119, -49, sheet]  // 【手调】
 }
 template t_G1_tunnel_stone_over_b_v1(sheet) {
-  [263, 362, 263, 181, -129, -169, sheet]
+  [263, 362, 263, 181, -129, -169, sheet]  // 【手调】
 }
 template t_G1_tunnel_stone_over_b_v2(sheet) {
-  [526, 362, 263, 181, -131, -170, sheet]
+  [526, 362, 263, 181, -131, -170, sheet]  // 【手调】
 }
 
 // ---------------------------------------------------------------------------
