@@ -45,7 +45,7 @@ $env:FLATISO = 'D:/somewhere/flatiso'   # 想用外面的 flatiso 调试时
 ## 构建
 
 ```powershell
-cd D:\CNS\CNST\local\china-style-track
+cd <你 clone 的目录>\china-style-track
 
 make                # 全流程：flatiso 渲染 → gcc -E → nmlc
 make sprite         # 只渲染（= make render）

@@ -29,14 +29,34 @@ const ANCHOR_X = 160;   // 瓦片原点（菱形上顶点）在面板内的列
 const ANCHOR_Y = 170;   // 瓦片原点在面板内的行
 const GAP = 10;
 
+/**
+ * ⚠ 这是个**本机专用**的诊断工具：它要读「参考包」才能出对照图。
+ *   参考包不在本仓库里（也不该跟着仓库走 —— 那是别人的作品）。
+ *   所以路径从环境变量取，并在缺省时**直接报错说清怎么设**，
+ *   而不是留一个写死的本机路径让外人跑到一半才炸。
+ *
+ *     $env:REF_CNST = 'D:/.../China-Set-Tracks/China-Set-Tracks/vox/normal'
+ *     $env:REF_XUSSR = 'D:/.../xUSSR-Rails-Europa-Redux-main/src/rails'
+ */
+function needEnv(name, what) {
+  const v = process.env[name];
+  if (!v) {
+    fail(`compare.mjs 要读「${what}」，但没有设置环境变量 ${name}。\n`
+      + `   这个工具只在本机做参考对照时用；请先设置：\n`
+      + `     $env:${name} = '<参考包路径>'\n`
+      + `   参考包需自备：${what} 不在本仓库里。`);
+  }
+  return v;
+}
+
 /** 参照包（China-Set-Tracks）：X_SIZE 256 / Y_SIZE 310 / XOFFSET -124 / YOFFSET -182 */
-const REF_DIR = 'D:/CNS/CNST/local/China-Set-Tracks/China-Set-Tracks/vox/normal';
+const REF_DIR = needEnv('REF_CNST', 'China-Set-Tracks 参考包（画风对照）');
 const REF_PITCH = 264;
 const REF_XREL = -124;
 const REF_YREL = -182;
 
 /** xUSSR 通用轨道包：8bpp 原尺寸，锚点来自其 railsprite.pnml 的模板 */
-const XUSSR_DIR = 'D:/CNS/CNST/local/xUSSR-Rails-Europa-Redux-main/src/rails';
+const XUSSR_DIR = needEnv('REF_XUSSR', 'xUSSR Rails Europa Redux 参考包');
 
 /** 对照表：我方模型 ↔ 参照图/格 ↔ xUSSR 图/格 */
 const PAIRS = [

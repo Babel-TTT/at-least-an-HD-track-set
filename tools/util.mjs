@@ -23,7 +23,7 @@ export function isMain(metaUrl) {
  * ★ 2026-10：`nmlc` 改成从系统 PATH 取之后必须有这一步 ——
  *   `fs.existsSync('nmlc')` 是按**当前工作目录**找的，光给个名字永远找不到，
  *   于是报「找不到 nmlc」。带路径分隔符的值（绝对/相对路径）原样返回，
- *   所以 `NMLC=G:/NMLC/nmlc.exe` 这种老写法照样能用。
+ *   所以 `NMLC=<某个绝对路径>` 这种老写法照样能用。
  */
 export function which(cmd) {
   if (!cmd) return cmd;
@@ -78,7 +78,7 @@ export function config() {
     langDir: path.resolve(ROOT, g('LANG_DIR', 'LANG_DIR', 'lang')),
     node: g('NODE', 'NODE', process.execPath),
     cpp: which(g('CPP', 'CPP', 'gcc')),
-    // ★ 2026-10：nmlc 从**系统 PATH** 取（原来是硬编码 G:/NMLC/nmlc.exe，别人拿到就是坏的）
+    // ★ 2026-10：nmlc 从**系统 PATH** 取（原来是写死作者本机路径，别人拿到就是坏的）
     nmlc: which(g('NMLC', 'NMLC', 'nmlc')),
     // ★ 2026-10：flatiso **已内置**到本仓库 tools/flatiso/（原来是绝对路径指向另一个仓库）
     flatiso: path.resolve(ROOT, g('FLATISO', 'FLATISO', 'tools/flatiso')),
