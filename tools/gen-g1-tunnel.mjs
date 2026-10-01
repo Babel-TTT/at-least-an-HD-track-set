@@ -102,25 +102,46 @@ const SLAB_X0 = 0.6800;              // 板背面（朝山）
 const SLAB_X1 = 0.8000;              // 板正面（朝来车）—— 从外量 0.2
 const SLAB_Y0 = 0.1600;              // 板宽 0.68 格 = 9.5 m
 const SLAB_Y1 = 0.8400;
-const SLAB_TOP = LEV * 0.9800;       // 板顶 0.2000 —— 抬高，几乎顶到仰面
+const SLAB_TOP = 0.2720;             // 【变体 2】板顶加高（原 LEV*0.98 = 0.2000）
 
 const ARCH_CY = 0.5000;              // 拱心（y）—— **也是左右切分线**
 const ARCH_R = 0.1550;               // 拱半径 = 洞宽的一半（0.31 格 = 4.3 m）
-const ARCH_SPRING = SLAB_TOP - ARCH_R;   // 起拱线 = 0.0200
-const ARCH_CROWN = SLAB_TOP;         // 拱顶（半圆拱）
+// ★ 人工裁定：**拱顶固定**（洞的尺寸不动），板顶单独往上抬 ⇒
+//   拱顶到板顶之间出现一条 SLAB_TOP-ARCH_CROWN = 0.0720 厚的**石梁**（见 archBeam()）。
+const ARCH_CROWN = 0.2000;           // 拱顶（**不跟随 SLAB_TOP**）
+const ARCH_SPRING = ARCH_CROWN - ARCH_R;   // 起拱线 = 0.0450
 const ARCH_Y0 = ARCH_CY - ARCH_R;    // 0.365
 const ARCH_Y1 = ARCH_CY + ARCH_R;    // 0.635
-const NA = 48;                       // 拱线细分
+const NA = 128;                      // 拱线细分（原来 48 —— 太粗，拱边出现锯齿台阶）
 
 // ---- 仰面（绿）：**水平**的山顶面（人工裁定：不做斜升，斜升会把洞口压矮）---
 //   高度 = 一层地形；**末端完全填满瓦片边缘**（y 0→1）。
 //   ⚠ 必须归 tunnel_overlay: 层 —— 原版那个草山包画在这一层，
 //     放进 tunnels:（更早画）会被它盖住。
 const HILL_X0 = SLAB_X0;             // 0.68（前沿）
-const HILL_X1 = 0.0000;              // 0（瓦片后沿，填满整条边）
-const HILL_Z1 = LEV;                 // 0.2041（水平顶面）
-const HILL_Y0 = 0.0000;              // ★ 填满瓦片边缘
-const HILL_Y1 = 1.0000;
+const HILL_X1 = 0.0000;              // 0（瓦片后沿）
+const HILL_Z1 = LEV;                 // 0.2041（山体在后沿处的高度 —— 必须 = 一层地形）
+// ★ 人工裁定 2026-10（看完手绘「图二」之后）：
+//     "A 两侧收窄到石门宽度，让斜坡成为山体侧面"
+//     "然后把仰面做成从洞口到山体斜降下去的"
+//     再修："仰面收窄了但是还是矩形，我希望做成贴合侧面的梯形效果"
+//   ⇒ 仰面（顶坡）做成**梯形**：
+//       后沿（x=HILL_X1）满宽 y∈[0,1]，前沿（x=HILL_X0）只有石门宽 y∈[SLAB_Y0,SLAB_Y1]；
+//       两条斜边正好贴住斜面（竖向翼墙）的走向 —— 从洞口石柱顶一路撇到瓦片后角。
+//     高度：x=HILL_X0（洞口）处 = SLAB_TOP，向山体降到 x=HILL_X1 处的 HILL_Z1。
+const HILL_Y0 = 0.0000;              // 瓦片后沿的左端（仰面在这里满宽）
+const HILL_Y1 = 1.0000;              // 瓦片后沿的右端
+
+/** 仰面在 x 处的高度：洞口 = SLAB_TOP，向山体斜降到 HILL_Z1 */
+function hillZ(x) {
+  const t = (HILL_X0 - x) / (HILL_X0 - HILL_X1);      // x=HILL_X0 → 0，x=HILL_X1 → 1
+  return SLAB_TOP + (HILL_Z1 - SLAB_TOP) * t;
+}
+
+/** 锥坡/斜坡在 x 处的高度：洞口正面(SLAB_X1)为 0，到瓦片后沿为 HILL_Z1 */
+function rampZ(x) {
+  return HILL_Z1 * (SLAB_X1 - x) / SLAB_X1;
+}
 
 // ---- 压顶：板顶出挑的一圈 ---------------------------------------------------
 const COPING_X0 = SLAB_X0 - 0.0120;
@@ -132,14 +153,8 @@ const COPING_TOP = SLAB_TOP + 0.0140;
 // ---- 洞口暗幕：贴在板背面之后的一块黑板，堵住拱洞 --------------------------
 const BORE_X = SLAB_X0 - 0.0100;     // 0.67（板后 0.01）
 
-// ---- 八字锥坡护坡（人工裁定 B）：只剩 0.2 格，做**急坡** --------------------
-const WING_X0 = SLAB_X1;             // 0.80（起于板正面）
-const WING_X1 = 0.9800;              // 0.98（0.18 格内降完 —— 急坡）
-const WING_Z0 = SLAB_TOP * 0.8500;   // 0.1318（低于板顶，让板露出来）
-const WING_Z1 = 0.0200;              // 收到地面
-const WING_YI = 0.3150;              // 内侧边（贴道砟肩 0.32）
-const WING_YO0 = SLAB_Y0;            // 靠板端的外侧边
-const WING_YO1 = 0.0300;             // 远端外张到 0.03（八字张开）
+// ---- 八字翼墙 / 锥坡的尺寸（见下面的 wing()）--------------------------------
+//   （旧版那对 x∈[0.80,0.98] 的"八字锥坡护坡"已删除，改成整片翼墙 + 锥坡）
 
 // ---- 轨道：**保持原有枕木间距与纹理尺度**，只把板前面那部分留下 -------------
 //   ⚠ 不是把整格等比例压缩！上一版犯过这个错（25 根枕木被压进 0.58 格）。
@@ -172,16 +187,24 @@ function archZ(y) {
 //   ⇒ 本文件一律用 q4o(pts, want, mat)：把**应该朝哪**写出来，绕序机器纠正。
 // ---------------------------------------------------------------------------
 
-/** 交叉积（用前三个顶点） */
+/**
+ * 多边形法线（**Newell 法**，对全部顶点求和）
+ *
+ * ⚠⚠ 2026-10 踩的坑：原来用「前三个顶点的叉积」。拱洞腹墙的条带里，
+ *   左侧那批的**前三个顶点全在拱顶高度上**（z1 恰好 = ARCH_CROWN），三点共线
+ *   ⇒ 叉积为 0 ⇒ q4o 判不出该朝哪边 ⇒ 绕序没被纠正 ⇒ 整批被判成背面**剔掉**，
+ *   黑洞从缝里透出来，洞口边缘就是一把梳子（人工报的"破碎"）。
+ *   Newell 法对重复顶点 / 共线不退化，换成它。
+ */
 function faceNormal(pts) {
-  const [a, b, c] = pts;
-  const e1 = [b[0] - a[0], b[1] - a[1], b[2] - a[2]];
-  const e2 = [c[0] - a[0], c[1] - a[1], c[2] - a[2]];
-  return [
-    e1[1] * e2[2] - e1[2] * e2[1],
-    e1[2] * e2[0] - e1[0] * e2[2],
-    e1[0] * e2[1] - e1[1] * e2[0],
-  ];
+  let nx = 0, ny = 0, nz = 0;
+  for (let i = 0; i < pts.length; i++) {
+    const a = pts[i], b = pts[(i + 1) % pts.length];
+    nx += (a[1] - b[1]) * (a[2] + b[2]);
+    ny += (a[2] - b[2]) * (a[0] + b[0]);
+    nz += (a[0] - b[0]) * (a[1] + b[1]);
+  }
+  return [nx, ny, nz];
 }
 
 /** 输出一个 quad，保证其法线朝向 want（反向就翻转顶点序） */
@@ -245,39 +268,107 @@ function rails() {
   return L;
 }
 
-// ---- 八字锥坡护坡（人工裁定 B）--------------------------------------------
-/**
- * 一片护坡：靠墙端窄、远端八字外张，顶面沿 +x 斜降到地面。
- * 四角在平面上的关系（左翼）：
- *   靠墙 x=WING_X0：外侧 y=WING_YO0 … 内侧 y=WING_YI
- *   远端 x=WING_X1：外侧 y=WING_YO1（更外）… 内侧 y=WING_YI
- * @param {1|-1} sgn  +1 = 右翼（y 大的一侧，镜像到 0.86~0.98），−1 = 左翼
- */
-function wing(sgn) {
-  const Y = (v) => (sgn > 0 ? 1 - v : v);         // 右翼镜像
-  const yi = Y(WING_YI), yo0 = Y(WING_YO0), yo1 = Y(WING_YO1);
+// ---- 【已删除】八字锥坡护坡（原 WING_* 那一套）----------------------------
+//   人工裁定 2026-10：**护坡删掉**。
+//   理由：形状一直没调对，而洞口两侧现在已经有「斜面（竖向翼墙）+ 斜坡（锥坡）」
+//   承担边坡这件事，留着只会互相打架。原来那 4 个面 ×2 已从模型里移除。
+
+
+// ---------------------------------------------------------------------------
+// ★ 锥坡（斜坡）+ 山体侧壁 —— 按人工手绘「图二」+ 人工文字说明
+//
+//   人工原话：
+//     "给 tunnel stone over 添加斜面和斜坡。注意两边都要改，
+//      注意不要生成多余的面防止遮挡其他精灵"
+//     "斜面应该是垂直于地面。斜面的尺寸是连接**顶上那格的瓦片边缘点**，
+//      石门柱子底端和顶端的三角形。斜坡则和斜面共边"
+//     追问"第三个点落在哪条瓦片边" → 人工答：**D，靠山一侧的角**。
+//
+//   ⚠ 人工后续裁定 2026-10：**斜面（竖向翼墙那块三角形）删掉**，
+//     仰面（梯形斜顶）和山体侧壁不动。这里只留斜坡 + 侧壁。
+//
+//   三个确定的点（右翼写出来；左翼把 y → 1−y 镜像）：
+//     石柱底端 B = (SLAB_X1, 0.84, 0)
+//     山侧角点 C = (0,       1,    HILL_Z1)   ← 山体顶面在瓦片后沿的那个角
+//     落地外缘 D = (SLAB_X1, 1,    0)
+//   ⇒ 斜坡 = 四边形 B-C2-C-D（平面 z = rampZ(x)，与 y 无关）：
+//       从瓦片后沿的角点一路斜降到洞口正面处的地面。
+// ---------------------------------------------------------------------------
+function wingWall(sgn) {
+  const Y = (v) => (sgn > 0 ? 1 - v : v);
   const ny = sgn > 0 ? 1 : -1;                     // 外侧朝外的方向
+  const yP = Y(SLAB_Y0);                           // 石柱外侧面（左 0.16 / 右 0.84）
+  const yE = sgn > 0 ? 1.0000 : 0.0000;            // 瓦片外沿（左 0 / 右 1）
   const P = (x, y, z) => [x, y, z];
-  const dx = WING_X1 - WING_X0, dz = WING_Z0 - WING_Z1;
-  const dy = yo1 - yo0;
-  // 外侧斜面的法线：垂直于平面走向 (dx, dy)，指向外侧
-  const oLen = Math.hypot(dx, dy) || 1;
-  const nOut = [-dy / oLen * ny, dx / oLen * ny, 0];
+  const T = P(SLAB_X1, yP, SLAB_TOP);              // 石柱顶端（斜面删除后已不用，留着做参照）
+  const B = P(SLAB_X1, yP, 0);                     // 石柱底端
+  const C = P(HILL_X1, yE, HILL_Z1);               // 靠山一侧的瓦片角点
+  const D = P(SLAB_X1, yE, 0);                     // 斜坡落地外缘
+  // ⚠ flatiso 的 quad 只认 12 个数（4 个顶点）—— 三角形要把末点重复一次
+  const TRI = (a, b, c, want, mat) => q4o([a, b, c, c], want, mat);
+  // ★ 仰面做成梯形之后，山体侧面就只剩「梯形斜边 → 斜坡面」之间那一条竖直三角：
+  //     上边 = 仰面斜边（洞口石柱顶 → 瓦片后角）
+  //     下边 = 斜坡面（正好落在斜坡平面上，共边）
+  //     前边 = 洞口处那根竖直线
+  const C2 = P(HILL_X1, yP, HILL_Z1);              // 同一角、但贴在石门侧面那条
+  const F = P(HILL_X0, yP, 0);                     // 山体侧壁下边前端（落到地面）
   return [
-    // 顶面（斜面）——法线朝上偏 −x
-    q4o([P(WING_X0, yo0, WING_Z0), P(WING_X1, yo1, WING_Z1),
-         P(WING_X1, yi, WING_Z1), P(WING_X0, yi, WING_Z0)],
-      [-dz, 0, dx], 'stone'),
-    // 远端面 x=WING_X1
-    q4o([P(WING_X1, yo1, 0), P(WING_X1, yo1, WING_Z1),
-         P(WING_X1, yi, WING_Z1), P(WING_X1, yi, 0)], [1, 0, 0], 'stone_dark'),
-    // 外侧斜面（八字张开的那一面）
-    q4o([P(WING_X0, yo0, 0), P(WING_X1, yo1, 0),
-         P(WING_X1, yo1, WING_Z1), P(WING_X0, yo0, WING_Z0)], nOut, 'stone_dark'),
-    // 内侧面（贴轨道一侧）
-    q4o([P(WING_X0, yi, 0), P(WING_X0, yi, WING_Z0),
-         P(WING_X1, yi, WING_Z1), P(WING_X1, yi, 0)], [0, -ny, 0], 'stone_seam'),
+    // ★ 侧面（竖向三角）：石柱顶端 / 底端 + 靠山一侧的瓦片角 —— 人工要求保留
+    TRI(T, B, C, [0, ny, 0], 'stone'),
+    // 山体侧壁（仰面斜边往下封到地面）
+    TRI(C, P(HILL_X0, yP, hillZ(HILL_X0)), F, [0, ny, 0], 'dirt'),
   ];
+}
+
+// ---- 隧道内壁（拱腹曲面）---------------------------------------------------
+//
+//   ★ 人工指出："tunnel stone 内壁没有渲染出来的问题"；后又指出
+//     "隧道内拱有边缘出现透明模糊情况"。
+//
+//   第二版的错：整条半圆柱都生成，靠镜头那一半的法线朝外被**背面剔除**，
+//   而"剔除 / 保留"的交界落在分段边界上 ⇒ 一排梳齿，再叠抗锯齿就成了毛边。
+//
+//   ⇒ 现在**只生成真正看得见的那一段弧**，交界落在精确临界角上，是一条干净的直线。
+//     可见条件： n·v > 0，其中 n = (0, −sinθ, −cosθ)、v 的 (y,z) = (±0.6104, 0.4984)
+//     ⇒ tanθ0 = 0.4984/0.6104 = 2/√6 = depthK ⇒ θ0 = atan(2/√6) ≈ 39.26°
+//     ⇒ 可见弧段：θ ∈ [−90°, −θ0]（镜像到 +y 侧就是 _b 组）
+//
+//   ★ 人工裁定："拱洞分左右" —— 临界角逐朝向不同：
+//       v0 / v3 看的是 −y 侧   ⇒ A 组用 soffit(+1)
+//       v1 / v2 看的是 +y 侧   ⇒ B 组用 soffit(−1)
+//     两者都整块落在**远侧**，所以直接进 tunnels: 组，不参与左右切分。
+//   ★ 人工指出第二版仍然 "破碎"：在临界角附近，曲面**几乎是刀片边缘对着镜头**，
+//     每段的投影宽度不到 1px，叠上 3× 抗锯齿就成了一条虚线毛边。
+//     （实测 `--no-cull` 重渲染锯齿依旧 ⇒ 与背面剔除无关，是"太薄"。）
+//   ⇒ 可见弧**提前一点收口**（ARC_CUT 余量），让收口那条边落在还有正常宽度的位置，
+//     边缘就是一条干净直线；临界角到收口之间那点极薄的弧交给黑洞去接。
+const TH0 = Math.atan(2 / Math.sqrt(6));   // ≈ 0.6853 rad = 39.26°
+const ARC_CUT = 0.20;                      // 收口余量（rad，≈11.5°）
+
+/**
+ * 拱腹内表面（只出可见的那一段弧，且提前收口）
+ * @param {1|-1} vis  +1 = 弧在 −y 侧（A 组，给 v0/v3 用）；−1 = 镜像到 +y 侧
+ */
+function soffit(vis) {
+  const L = [];
+  const NS = 48;                             // 可见弧段细分
+  const a0 = -Math.PI / 2, a1 = -(TH0 + ARC_CUT);
+  const at = (th, x) => {
+    const y = ARCH_CY + Math.sin(th) * ARCH_R;
+    return [x, vis > 0 ? y : 1 - y, ARCH_SPRING + Math.cos(th) * ARCH_R];
+  };
+  for (let i = 0; i < NS; i++) {
+    const t0 = a0 + (a1 - a0) * i / NS;
+    const t1 = a0 + (a1 - a0) * (i + 1) / NS;
+    const tm = (t0 + t1) / 2;
+    const my = ARCH_CY + Math.sin(tm) * ARCH_R;
+    const mz = ARCH_SPRING + Math.cos(tm) * ARCH_R;
+    // 法线：由拱腹指向拱心（朝隧道空腔）；vis<0 时 y 被镜像，y 分量翻号
+    const n = [0, vis > 0 ? -(my - ARCH_CY) : (my - ARCH_CY), -(mz - ARCH_SPRING)];
+    L.push(q4o([at(t0, SLAB_X1), at(t1, SLAB_X1), at(t1, SLAB_X0), at(t0, SLAB_X0)],
+      n, 'stone_seam'));
+  }
+  return L;
 }
 
 // ---- 洞口暗幕（红）：贴在端墙后面的一张黑板 --------------------------------
@@ -320,9 +411,9 @@ function portalLower() {
                 [FRONT, ARCH_Y1, 0], [FRONT, ARCH_Y1, ARCH_SPRING]], [0, -1, 0], 'stone_seam'));
   }
 
-  // 八字锥坡护坡 ×2
-  L.push(...wing(-1));
-  L.push(...wing(+1));
+  // ★ 斜坡（锥坡）+ 山体侧壁 ×2 —— 按人工手绘「图二」
+  L.push(...wingWall(-1));
+  L.push(...wingWall(+1));
 
   return L;
 }
@@ -333,46 +424,100 @@ function portalUpper() {
   const FRONT = SLAB_X1;
   const P = (x, y, z) => [x, y, z];
 
-  // 墙墩正面（拱洞两侧），0 → 墙顶
-  L.push(q4o([[FRONT, SLAB_Y0, SLAB_TOP], [FRONT, SLAB_Y0, 0],
-              [FRONT, ARCH_Y0, 0], [FRONT, ARCH_Y0, SLAB_TOP]], [1, 0, 0], 'stone'));
-  L.push(q4o([[FRONT, ARCH_Y1, SLAB_TOP], [FRONT, ARCH_Y1, 0],
-              [FRONT, SLAB_Y1, 0], [FRONT, SLAB_Y1, SLAB_TOP]], [1, 0, 0], 'stone'));
+  // 墙墩正面（拱洞两侧），0 → **拱顶**（拱顶以上那截石梁另出，见 archBeam()）
+  L.push(q4o([[FRONT, SLAB_Y0, ARCH_CROWN], [FRONT, SLAB_Y0, 0],
+              [FRONT, ARCH_Y0, 0], [FRONT, ARCH_Y0, ARCH_CROWN]], [1, 0, 0], 'stone'));
+  L.push(q4o([[FRONT, ARCH_Y1, ARCH_CROWN], [FRONT, ARCH_Y1, 0],
+              [FRONT, SLAB_Y1, 0], [FRONT, SLAB_Y1, ARCH_CROWN]], [1, 0, 0], 'stone'));
 
   // 拱上腹墙：每个 y 条带的底边沿拱线 —— 这自然切出半圆拱洞，也是"遮车的半边"
+  //   只画到拱顶；拱顶以上到板顶那一段是**石梁**，归 tunnel_overlay:（见 archBeam()）
+  //
+  //   ⚠⚠ 2026-10 人工报「拱洞外立面大量小三角形没渲染出来」的根因在这里：
+  //     原来写的是
+  //       z0 = archZ(Math.min(y0 + 1e-6, ARCH_CY))
+  //       z1 = archZ(Math.max(y1 - 1e-6, ARCH_CY))
+  //     而 archZ(ARCH_CY) 恰好 = ARCH_CROWN ⇒ **右半每条带的 z0、左半每条带的 z1
+  //     都被钳到拱顶**，左边那条边整个塌成一个点。于是每条带只剩右边一根细长三角形，
+  //     带与带之间全是洞 —— 上墙看起来就是一把梳子。
+  //     archZ 在拱跨内处处有定义，**根本不用钳**；只在两端点（d 恰好 = R）取不到时
+  //     回落到起拱线，那正是拱脚。
   const yOf = (i) => ARCH_Y0 + (ARCH_Y1 - ARCH_Y0) * i / NA;
   for (let i = 0; i < NA; i++) {
     const y0 = yOf(i), y1 = yOf(i + 1);
-    const z0 = archZ(Math.min(y0 + 1e-6, ARCH_CY)) ?? ARCH_SPRING;
-    const z1 = archZ(Math.max(y1 - 1e-6, ARCH_CY)) ?? ARCH_SPRING;
-    L.push(q4o([[FRONT, y0, SLAB_TOP], [FRONT, y1, SLAB_TOP], [FRONT, y1, z1], [FRONT, y0, z0]],
+    const z0 = archZ(y0) ?? ARCH_SPRING;
+    const z1 = archZ(y1) ?? ARCH_SPRING;
+    L.push(q4o([[FRONT, y0, ARCH_CROWN], [FRONT, y1, ARCH_CROWN], [FRONT, y1, z1], [FRONT, y0, z0]],
       [1, 0, 0], 'stone'));
   }
 
-  // 端墙两端面 —— 朝墙外
-  L.push(q4o([[SLAB_X0, SLAB_Y0, SLAB_TOP], [FRONT, SLAB_Y0, SLAB_TOP],
+  // 端墙两端面（只到拱顶）—— 朝墙外
+  L.push(q4o([[SLAB_X0, SLAB_Y0, ARCH_CROWN], [FRONT, SLAB_Y0, ARCH_CROWN],
               [FRONT, SLAB_Y0, 0], [SLAB_X0, SLAB_Y0, 0]], [0, -1, 0], 'stone_dark'));
-  L.push(q4o([[SLAB_X0, SLAB_Y1, SLAB_TOP], [SLAB_X0, SLAB_Y1, 0],
-              [FRONT, SLAB_Y1, 0], [FRONT, SLAB_Y1, SLAB_TOP]], [0, 1, 0], 'stone_dark'));
+  L.push(q4o([[SLAB_X0, SLAB_Y1, ARCH_CROWN], [SLAB_X0, SLAB_Y1, 0],
+              [FRONT, SLAB_Y1, 0], [FRONT, SLAB_Y1, ARCH_CROWN]], [0, 1, 0], 'stone_dark'));
 
-  // 墙顶（被压顶盖住，补上防露缝）
-  L.push(q4o([[SLAB_X0, SLAB_Y0, SLAB_TOP], [SLAB_X0, SLAB_Y1, SLAB_TOP],
-              [FRONT, SLAB_Y1, SLAB_TOP], [FRONT, SLAB_Y0, SLAB_TOP]], [0, 0, 1], 'stone_dark'));
+  // （墙顶挪到 archBeam() —— 它在拱顶之上，属于石梁）
+
+  return L;
+}
+
+// ---------------------------------------------------------------------------
+// ★ 恒归 tunnel_overlay: 的整块几何（**不参与左右切分**）
+//
+//   压顶 + 仰面 + 两侧封边：它们要么在车之上、要么就是"山体"本身，
+//   按 y 切左右没有意义（切了反而会在另一半露出破口）。
+// ---------------------------------------------------------------------------
+function upperAlways() {
+  const L = [];
+  const P = (x, y, z) => [x, y, z];
 
   // 压顶（出挑的一圈）
   L.push(...box(COPING_X0, COPING_Y0, COPING_X1, COPING_Y1, SLAB_TOP, COPING_TOP, 'stone_dark', 'stone'));
 
-  // ★ 仰面（绿）：**水平山顶面**（人工裁定：不做斜升 —— 斜升会把洞口压矮）
-  const HZ = HILL_Z1;
-  // 顶面（水平）
-  L.push(q4o([P(HILL_X1, HILL_Y0, HZ), P(HILL_X0, HILL_Y0, HZ),
-              P(HILL_X0, HILL_Y1, HZ), P(HILL_X1, HILL_Y1, HZ)], [0, 0, 1], 'dirt'));
-  // ⚠ 人工裁定：**不画正面和两个侧面** —— 本层是画在车之上的 sortable sprite，
-  //   立起来的面会挡住邻格的精灵。只留顶面 + 后沿立面。
-  // 后沿立面（瓦片后沿，**填满整条边**）
-  L.push(q4o([P(HILL_X1, HILL_Y0, 0), P(HILL_X1, HILL_Y1, 0),
-              P(HILL_X1, HILL_Y1, HZ), P(HILL_X1, HILL_Y0, HZ)], [-1, 0, 0], 'dirt'));
+  // ★ 仰面（顶坡）：**梯形**（前沿石门宽 → 后沿满宽）+ **从洞口向山体斜降**
+  //   ⚠ 人工裁定：**不做斜升**（斜升会把洞口压矮）—— 这里是**向山体降**，不是升。
+  //   两条斜边贴住斜面（竖向翼墙）的走向，所以侧面不用再单独封。
+  L.push(q4o([P(HILL_X1, HILL_Y0, hillZ(HILL_X1)), P(HILL_X0, SLAB_Y0, hillZ(HILL_X0)),
+              P(HILL_X0, SLAB_Y1, hillZ(HILL_X0)), P(HILL_X1, HILL_Y1, hillZ(HILL_X1))],
+             [0, 0, 1], 'dirt'));
+  // ⚠ 人工裁定 2026-10：**不画正面、不画侧面、也不画后沿立面**。
+  //   本层是画在车之上的 sortable sprite，立起来的面会挡住邻格的精灵；
+  //   而且人工明确要求去掉 x=0 那条边上那块竖直立面（"顶坡的背面"）。
+  //   ⇒ 仰面只留顶面这一块梯形板。
+  return L;
+}
 
+// ---------------------------------------------------------------------------
+// ★ 石梁：拱顶(ARCH_CROWN) → 板顶(SLAB_TOP) 这一段（人工裁定 2026-10）
+//
+//   **整块归 tunnel_overlay:，不参与左右切分。**
+//   理由：它完全在车之上，不存在"被车遮"的情形，按 y 切左右没有意义。
+//   为什么单独成一个函数：splitByY() 是按 y 切的，而石梁必须整块进 overlay，
+//   所以在 generateTunnel() 里直接追加到 overlay 那一侧，不经过 splitByY。
+// ---------------------------------------------------------------------------
+function archBeam() {
+  const L = [];
+  const FRONT = SLAB_X1;
+  // 两端墙墩的正面（拱顶以上那段）
+  L.push(q4o([[FRONT, SLAB_Y0, SLAB_TOP], [FRONT, SLAB_Y0, ARCH_CROWN],
+              [FRONT, ARCH_Y0, ARCH_CROWN], [FRONT, ARCH_Y0, SLAB_TOP]], [1, 0, 0], 'stone'));
+  L.push(q4o([[FRONT, ARCH_Y1, SLAB_TOP], [FRONT, ARCH_Y1, ARCH_CROWN],
+              [FRONT, SLAB_Y1, ARCH_CROWN], [FRONT, SLAB_Y1, SLAB_TOP]], [1, 0, 0], 'stone'));
+  // 拱顶正上方那一段
+  L.push(q4o([[FRONT, ARCH_Y0, SLAB_TOP], [FRONT, ARCH_Y1, SLAB_TOP],
+              [FRONT, ARCH_Y1, ARCH_CROWN], [FRONT, ARCH_Y0, ARCH_CROWN]], [1, 0, 0], 'stone'));
+  // 两端面（拱顶以上）
+  L.push(q4o([[SLAB_X0, SLAB_Y0, SLAB_TOP], [FRONT, SLAB_Y0, SLAB_TOP],
+              [FRONT, SLAB_Y0, ARCH_CROWN], [SLAB_X0, SLAB_Y0, ARCH_CROWN]], [0, -1, 0], 'stone_dark'));
+  L.push(q4o([[SLAB_X0, SLAB_Y1, SLAB_TOP], [SLAB_X0, SLAB_Y1, ARCH_CROWN],
+              [FRONT, SLAB_Y1, ARCH_CROWN], [FRONT, SLAB_Y1, SLAB_TOP]], [0, 1, 0], 'stone_dark'));
+  // ★ 背面 x=SLAB_X0（人工指出"石梁的反面没渲染" —— 原来漏了这一面）
+  L.push(q4o([[SLAB_X0, SLAB_Y0, SLAB_TOP], [SLAB_X0, SLAB_Y0, ARCH_CROWN],
+              [SLAB_X0, SLAB_Y1, ARCH_CROWN], [SLAB_X0, SLAB_Y1, SLAB_TOP]], [-1, 0, 0], 'stone_dark'));
+  // 梁顶（被压顶盖住，补上防露缝）
+  L.push(q4o([[SLAB_X0, SLAB_Y0, SLAB_TOP], [SLAB_X0, SLAB_Y1, SLAB_TOP],
+              [FRONT, SLAB_Y1, SLAB_TOP], [FRONT, SLAB_Y0, SLAB_TOP]], [0, 0, 1], 'stone_dark'));
   return L;
 }
 
@@ -410,17 +555,23 @@ function header(name, title, extra) {
     + '# =============================================================================\n\n';
 }
 
-const WHY = '# TUN-1 料石端墙拱（人工裁定 B：八字锥坡护坡）\n'
+const WHY = '# TUN-1 料石端墙拱（八字翼墙 + 锥坡）\n'
   + '# 基准朝向 = DiagDir NE：洞口在 x=0 那条边（N–E），轨道沿 x\n'
   + '# 取图顺序 v0=NE  v1=NW  v2=SW  v3=SE\n'
   + '#   ⚠ 引擎槽位顺序是 NE/SE/SW/NW ⇒ 喂图是 v0, v3, v2, v1\n'
-  + '# 尺寸：端墙 y∈[0.14,0.86] 高 0.52；拱半宽 0.17、起拱 0.19、拱顶 0.36\n'
-  + '# 护坡：八字锥坡，靠墙 y∈[0.14,0.31] → 远端 y∈[0.02,0.31]，顶 0.40 斜降到 0.04\n'
   + '#\n'
-  + '# 【按 z 切两半】不是按"墙/地"切，是按"被车遮 / 遮车"切：\n'
-  + '#   起拱线(0.19)以下 + 护坡 + 拱腹 + 洞内 ⇒ tunnels: 组\n'
-  + '#   起拱线以上墙身 + 拱圈 + 压顶       ⇒ tunnel_overlay: 组（遮车的那半边）\n'
-  + '# 引擎绘制顺序：草地底 → tunnels: → 车 → 草地覆盖 → tunnel_overlay:\n'
+  + '# 【为什么是四个模型】（人工裁定：总共四个模型就够了）\n'
+  + '#   引擎绘制顺序：草地底 → tunnels: → 车 → 草地覆盖 → tunnel_overlay:\n'
+  + '#   tunnel_overlay: 是**整张 sortable sprite**，它要么整体在车之前、要么整体在车之后。\n'
+  + '#   所以 overlay 里**只能放"离镜头近"的那半边**，远的那半必须留给 tunnels:。\n'
+  + '#\n'
+  + '#   而"哪半边离镜头近"是**逐朝向变化**的（绕占地中心转模型 ⇒ 近半也随之转）：\n'
+  + '#     v0 近半 = y ≥ 0.5      v3 近半 = y ≥ 0.5\n'
+  + '#     v1 近半 = y <  0.5     v2 近半 = y <  0.5\n'
+  + '#   一个 .model 只能写死一种分组 ⇒ 需要**两套分组**：\n'
+  + '#     A 组（_v0/_v3 用）：tunnels:=远半  tunnel_overlay:=近半\n'
+  + '#     B 组（_v1/_v2 用）：tunnels:=近半  tunnel_overlay:=远半\n'
+  + '#   两层 × 两套分组 = **4 个模型**。\n'
   + '#\n';
 
 export function generateTunnel() {
@@ -428,48 +579,77 @@ export function generateTunnel() {
   const sleep = sleepers();
   const rail = rails();
   const br = bore();                       // 暗幕：强制归"被车遮"层
-  const { lo: wallFar, hi: wallNear } = splitByY([...portalLower(), ...portalUpper()]);
+  // ★ 拱腹内壁：只出可见弧段，A 组 −y 侧 / B 组 +y 侧（人工裁定"拱洞分左右"）
+  const innerA = soffit(+1);
+  const innerB = soffit(-1);
+  // 需要按"离镜头远近"切左右两半的全部几何（洞门 + 侧壁 + 斜坡）
+  const { lo: halfFar, hi: halfNear } = splitByY([...portalLower(), ...portalUpper()]);
+  const always = upperAlways();            // 压顶 + 仰面 + 山体侧壁（整块，不切左右）
+  const beam = archBeam();                 // ★ 石梁：整块归 overlay，不经过 splitByY
+
+  const track = [...ball, ...sleep, ...rail, ...br];
+  // A 组（给 v0/v3）：拱腹可见弧在 −y 侧；B 组（给 v1/v2）：镜像到 +y 侧
+  const groundA = [...track, ...innerA];
+  const groundB = [...track, ...innerB];
 
   const out = [];
 
-  // tunnels: 组（红 = 被车遮）—— 道砟 + 轨枕 + 钢轨 + 暗幕 + 洞门/护坡的**远半**
+  // ---- A 组：v0 / v3 用 ----------------------------------------------------
   {
-    let s = header('G1_tunnel_stone', 'G1 几何组：TUN-1 料石端墙拱 —— tunnels: 组（地面层，被车遮的那半）', WHY);
+    let s = header('G1_tunnel_stone', 'G1 几何组：TUN-1 料石端墙拱 —— tunnels: 组（A 组：远半）', WHY);
     s += 'name      G1_tunnel_stone\ngroup     misc\nfootprint 1 1\n';
-    // ★ 钉死 zmax：flatiso 拿它定取景框（core/bake.mjs:52-54 会加一个虚拟最高点），
-    //   钉住之后**改几何不会改格位**，src/rails/templates.pnml 的 rect 再也不用同步。
     s += 'zmax      ' + ZMAX_PIN + '\n\n';
-    s += '# --- 道砟 ---\n' + ball.join('\n') + '\n';
-    s += '\n# --- 轨枕（保持原间距，只是板后面那几根不画）---\n' + sleep.join('\n') + '\n';
-    s += '\n# --- 钢轨 2 根 ---\n' + rail.join('\n') + '\n';
-    s += '\n# --- 洞口暗幕 ---\n' + br.join('\n') + '\n';
-    s += '\n# --- 洞门 + 护坡：远半（y < ' + N(ARCH_CY) + '）---\n' + wallFar.join('\n') + '\n';
-    out.push(['G1_tunnel_stone', s,
-      ball.length + sleep.length + rail.length + br.length + wallFar.length]);
+    s += '# --- 道砟 / 轨枕 / 钢轨 / 洞口暗幕 / **拱腹内壁（−y 侧可见弧）** ---\n' + groundA.join('\n') + '\n';
+    s += '\n# --- 洞门 + 锥坡 + 山体侧壁：**远半**（y < ' + N(ARCH_CY) + '）---\n'
+       + halfFar.join('\n') + '\n';
+    out.push(['G1_tunnel_stone', s, groundA.length + halfFar.length]);
   }
-
-  // tunnel_overlay: 组（蓝 = 遮车）—— 洞门 + 护坡的**近半** + 仰面
   {
-    let s = header('G1_tunnel_stone_over', 'G1 几何组：TUN-1 料石端墙拱 —— tunnel_overlay: 组（遮车的那半 + 仰面）', WHY
-      + '# ⚠ 本层由引擎当 sortable sprite 画在**车之上**，所以只放"需要遮车"的部分：\n'
-      + '#   拱环与护坡中**离镜头近**的那半（y ≥ ' + N(ARCH_CY) + '），外加**仰面**。\n'
-      + '#   仰面必须在本层 —— 原版那个草山包也画在这一层，放低层会被它盖住。\n#\n');
+    let s = header('G1_tunnel_stone_over', 'G1 几何组：TUN-1 料石端墙拱 —— tunnel_overlay: 组（A 组：近半）', WHY
+      + '# ⚠ 本层由引擎当 sortable sprite 画在**车之上**，所以只放"需要遮车"的部分。\n'
+      + '#   仰面/压顶/石梁必须在本层 —— 原版那个草山包也画在这一层。\n#\n');
     s += 'name      G1_tunnel_stone_over\ngroup     misc\nfootprint 1 1\n';
     s += 'zmax      ' + ZMAX_PIN + '\n\n';
-    s += '# --- 洞门 + 护坡：近半 + 仰面（y ≥ ' + N(ARCH_CY) + '）---\n' + wallNear.join('\n') + '\n';
-    out.push(['G1_tunnel_stone_over', s, wallNear.length]);
+    s += '# --- 洞门 + 锥坡 + 山体侧壁：**近半**（y ≥ ' + N(ARCH_CY) + '）---\n'
+       + halfNear.join('\n') + '\n';
+    s += '\n# --- 压顶 + 仰面 + 山体侧壁（整块）---\n' + always.join('\n') + '\n';
+    s += '\n# --- ★ 石梁（拱顶→板顶）：整块，不切左右 ---\n' + beam.join('\n') + '\n';
+    out.push(['G1_tunnel_stone_over', s, halfNear.length + always.length + beam.length]);
+  }
+
+  // ---- B 组：v1 / v2 用（左右切分翻转）------------------------------------
+  {
+    let s = header('G1_tunnel_stone_b', 'G1 几何组：TUN-1 料石端墙拱 —— tunnels: 组（B 组：近半）', WHY);
+    s += 'name      G1_tunnel_stone_b\ngroup     misc\nfootprint 1 1\n';
+    s += 'zmax      ' + ZMAX_PIN + '\n\n';
+    s += '# --- 道砟 / 轨枕 / 钢轨 / 洞口暗幕 / **拱腹内壁（+y 侧可见弧）** ---\n' + groundB.join('\n') + '\n';
+    s += '\n# --- 洞门 + 锥坡 + 山体侧壁：**近半**（y ≥ ' + N(ARCH_CY) + '）---\n'
+       + halfNear.join('\n') + '\n';
+    out.push(['G1_tunnel_stone_b', s, groundB.length + halfNear.length]);
+  }
+  {
+    let s = header('G1_tunnel_stone_over_b', 'G1 几何组：TUN-1 料石端墙拱 —— tunnel_overlay: 组（B 组：远半）', WHY
+      + '# ⚠ 本层由引擎当 sortable sprite 画在**车之上**，所以只放"需要遮车"的部分。\n'
+      + '#   仰面/压顶/石梁必须在本层 —— 原版那个草山包也画在这一层。\n#\n');
+    s += 'name      G1_tunnel_stone_over_b\ngroup     misc\nfootprint 1 1\n';
+    s += 'zmax      ' + ZMAX_PIN + '\n\n';
+    s += '# --- 洞门 + 锥坡 + 山体侧壁：**远半**（y < ' + N(ARCH_CY) + '）---\n'
+       + halfFar.join('\n') + '\n';
+    s += '\n# --- 压顶 + 仰面 + 山体侧壁（整块）---\n' + always.join('\n') + '\n';
+    s += '\n# --- ★ 石梁（拱顶→板顶）：整块，不切左右 ---\n' + beam.join('\n') + '\n';
+    out.push(['G1_tunnel_stone_over_b', s, halfFar.length + always.length + beam.length]);
   }
 
   for (const [name, text, nf] of out) {
     const f = path.join(ROOT, 'models', name + '.model');
     fs.writeFileSync(f, text, 'utf8');
-    log(`  ✔ ${rel(f).padEnd(40)} ${String(text.split('\n').length).padStart(4)} 行   ${nf} 面`);
+    log(`  ✔ ${rel(f).padEnd(44)} ${String(text.split('\n').length).padStart(4)} 行   ${nf} 面`);
   }
   log('');
   log('  洞口   端墙 x∈[' + N(SLAB_X0) + ',' + N(SLAB_X1) + ']  y∈[' + N(SLAB_Y0) + ',' + N(SLAB_Y1) + ']  高 ' + N(SLAB_TOP));
-  log('  拱     半宽 ' + N(ARCH_R) + '  起拱 z=' + N(ARCH_SPRING) + '  拱顶 z=' + N(ARCH_CROWN));
-  log('  护坡   八字锥坡 x∈[' + N(WING_X0) + ',' + N(WING_X1) + ']  外侧 ' + N(WING_YO0) + '→' + N(WING_YO1) + '  顶 ' + N(WING_Z0) + '→' + N(WING_Z1));
-  log('  切分   起拱线 z=' + N(ARCH_SPRING) + ' 以下入 tunnels: 组，以上入 tunnel_overlay: 组');
+  log('  拱     半宽 ' + N(ARCH_R) + '  起拱 z=' + N(ARCH_SPRING) + '  拱顶 z=' + N(ARCH_CROWN) + '  内壁 ' + NA + ' 段');
+  log('  边坡   护坡已删除、斜坡已删除；只剩侧面（竖向三角）+ 山体侧壁 ×2');
+  log('  切分   overlay 只放"离镜头近"的半边；v1/v2 用 _b 组（切分翻转）');
   log('');
   log('  下一步：make render → make sprites（核对锚点）→ make check');
   return out;
@@ -477,5 +657,26 @@ export function generateTunnel() {
 
 if (isMain(import.meta.url)) {
   log('生成 G1 隧道（TUN-1 料石端墙拱）：');
-  generateTunnel();
+  const made = generateTunnel();
+
+  // ---- 【临时诊断】把两层合进一个模型，单独渲染，看引擎实际的叠加效果 ----
+  //   只在本文件被 --diag 调用时生成；**看完请删掉 models/G1_tunnel_diag*.model**
+  //   （它们匹配 /^G1_tunnel/，会影响正式的隧道分表）
+  if (process.argv.includes('--diag')) {
+    const boreColor = (process.argv.find((a) => a.startsWith('--bore-color=')) || '').split('=')[1] || 'trim_black';
+    const bodyOf = (t) => t.split('\n')
+      .filter((l) => /^(quad|plate|box|tri|poly|prism|cyl|gable|hip|shed)\s/.test(l.trim()))
+      .join('\n');
+    const pairs = [['G1_tunnel_diag', made[0][1], made[1][1]],
+                   ['G1_tunnel_diag_b', made[2][1], made[3][1]]];
+    for (const [name, under, over] of pairs) {
+      const s = header(name, 'TEMP 诊断：tunnels + tunnel_overlay 两层合一', WHY)
+        + 'name      ' + name + '\ngroup     misc\nfootprint 1 1\nzmax      ' + ZMAX_PIN + '\n\n'
+        + bodyOf(under).replace(/trim_black/g, boreColor)
+        + '\n' + bodyOf(over) + '\n';
+      const f = path.join(ROOT, 'models', name + '.model');
+      fs.writeFileSync(f, s, 'utf8');
+      log(`  ⚠ 临时诊断模型 ${rel(f)}（看完请删）`);
+    }
+  }
 }

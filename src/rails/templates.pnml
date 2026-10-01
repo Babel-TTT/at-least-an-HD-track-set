@@ -283,16 +283,45 @@ template t_G1_tunnel_stone_v3(sheet) {
 //     不同几何 ⇒ 那 120 只是他们的构图差，不是引擎偏移。**已撤回。**
 // ---------------------------------------------------------------------------
 template t_G1_tunnel_stone_over_v0(sheet) {
-  [0, 181, 263, 181, -127, -170, sheet]
+  [1052, 181, 263, 181, -126, -170, sheet]
 }
 template t_G1_tunnel_stone_over_v1(sheet) {
-  [263, 181, 263, 181, -131, -170, sheet]
+  [1315, 181, 263, 181, -131, -170, sheet]
 }
 template t_G1_tunnel_stone_over_v2(sheet) {
-  [526, 181, 263, 181, -131, -170, sheet]
+  [1578, 181, 263, 181, -127, -170, sheet]
 }
 template t_G1_tunnel_stone_over_v3(sheet) {
-  [789, 181, 263, 181, -131, -170, sheet]
+  [1841, 181, 263, 181, -131, -170, sheet]
+}
+
+// ---------------------------------------------------------------------------
+// G1_tunnel_stone_b / G1_tunnel_stone_over_b —— **B 组**（左右切分翻转）
+//
+//   引擎把 tunnel_overlay: 当**整张 sortable sprite** 画在车之上 ⇒ overlay 里只能放
+//   "离镜头近"的那半边。而"哪半边离镜头近"逐朝向变化：
+//     v0 / v3 近半 = y ≥ 0.5      v1 / v2 近半 = y < 0.5
+//   一个 .model 只能写死一种分组 ⇒ 需要第二套（把两半对调）。
+//
+//   ⇒ v1 / v2 两个朝向改用 **_b 组**：
+//        tunnels:          t_G1_tunnel_stone_b_v{1,2}
+//        tunnel_overlay:   t_G1_tunnel_stone_over_b_v{1,2}
+//   v0 / v3 仍用原组。
+//
+//   参数 sheet：调用处传 "gfx/tunnel.png"（按类分表，见 tools/sheets.mjs）
+//   锚点与对应的 A 组逐朝向一致（同一套取景，只是分组不同）。
+// ---------------------------------------------------------------------------
+template t_G1_tunnel_stone_b_v1(sheet) {
+  [263, 181, 263, 181, -134, -50, sheet]
+}
+template t_G1_tunnel_stone_b_v2(sheet) {
+  [526, 181, 263, 181, -119, -49, sheet]
+}
+template t_G1_tunnel_stone_over_b_v1(sheet) {
+  [263, 362, 263, 181, -129, -171, sheet]
+}
+template t_G1_tunnel_stone_over_b_v2(sheet) {
+  [526, 362, 263, 181, -131, -170, sheet]
 }
 
 // ---------------------------------------------------------------------------

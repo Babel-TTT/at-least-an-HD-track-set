@@ -120,15 +120,15 @@ spriteset(probe_overlay, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
      详见 docs/建模经验.md 的隧道一节。**实机一看便知**，若不对只改这四行。
    =========================================================================== */
 spriteset(probe_tunnels, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
-    t_G1_tunnel_stone_v0("gfx/tunnel.png")       // 0  DiagDir NE ← v0
-    t_G1_tunnel_stone_v3("gfx/tunnel.png")       // 1  DiagDir SE ← v3
-    t_G1_tunnel_stone_v2("gfx/tunnel.png")       // 2  DiagDir SW ← v2
-    t_G1_tunnel_stone_v1("gfx/tunnel.png")       // 3  DiagDir NW ← v1
+    t_G1_tunnel_stone_v0("gfx/tunnel.png")       // 0  DiagDir NE ← v0   A 组
+    t_G1_tunnel_stone_v3("gfx/tunnel.png")       // 1  DiagDir SE ← v3   A 组
+    t_G1_tunnel_stone_b_v2("gfx/tunnel.png")     // 2  DiagDir SW ← v2   B 组（左右翻转）
+    t_G1_tunnel_stone_b_v1("gfx/tunnel.png")     // 3  DiagDir NW ← v1   B 组（左右翻转）
 }
 
 spriteset(probe_tunnel_over, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
-    t_G1_tunnel_stone_over_v0("gfx/tunnel.png")  // 0  DiagDir NE ← v0
-    t_G1_tunnel_stone_over_v3("gfx/tunnel.png")  // 1  DiagDir SE ← v3
-    t_G1_tunnel_stone_over_v2("gfx/tunnel.png")  // 2  DiagDir SW ← v2
-    t_G1_tunnel_stone_over_v1("gfx/tunnel.png")  // 3  DiagDir NW ← v1
+    t_G1_tunnel_stone_over_v0("gfx/tunnel.png")     // 0  DiagDir NE ← v0   A 组
+    t_G1_tunnel_stone_over_v3("gfx/tunnel.png")     // 1  DiagDir SE ← v3   A 组
+    t_G1_tunnel_stone_over_b_v2("gfx/tunnel.png")   // 2  DiagDir SW ← v2   B 组（左右翻转）
+    t_G1_tunnel_stone_over_b_v1("gfx/tunnel.png")   // 3  DiagDir NW ← v1   B 组（左右翻转）
 }
