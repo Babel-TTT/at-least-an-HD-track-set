@@ -312,13 +312,13 @@ template t_G1_tunnel_stone_over_v3(sheet) {
 //   锚点与对应的 A 组逐朝向一致（同一套取景，只是分组不同）。
 // ---------------------------------------------------------------------------
 template t_G1_tunnel_stone_b_v1(sheet) {
-  [263, 181, 263, 181, -134, -50, sheet]
+  [263, 181, 263, 181, -130, -50, sheet]
 }
 template t_G1_tunnel_stone_b_v2(sheet) {
   [526, 181, 263, 181, -119, -49, sheet]
 }
 template t_G1_tunnel_stone_over_b_v1(sheet) {
-  [263, 362, 263, 181, -129, -171, sheet]
+  [263, 362, 263, 181, -129, -169, sheet]
 }
 template t_G1_tunnel_stone_over_b_v2(sheet) {
   [526, 362, 263, 181, -131, -170, sheet]
