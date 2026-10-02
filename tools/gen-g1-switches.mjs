@@ -573,6 +573,112 @@ export function generate() {
       fs.writeFileSync(g, t, 'utf8');
       log(`  ✔ ${rel(g).padEnd(34)} ${String(t.split('\n').length).padStart(4)} 行   换成混凝土枕 ${n} 根`);
     }
+
+    // -----------------------------------------------------------------------
+    // 其余 5 个：**先把枕木整体换成混凝土色**（主视觉差异），U 形承轨槽稍后再加。
+    //
+    //   为什么先只换色：这 5 个的枕木不是正交 box ——
+    //     probe_half_upper / G1_rail_halftrack  枕木是沿 `x+y=const` 的 **45° prism**
+    //     G1_track_slope  / G1_rail_slope       枕木是带 z 变化的 **quad**（坡道上）
+    //     G1_crossing                           枕木是 box，但**两个方向各一套**（24+12 根）
+    //   加 U 槽要按各自的「沿轨坐标」重排几何，逐个处理；先保证颜色一致，
+    //   这样 7 个模型放一起不会一半灰一半木色。
+    //
+    //   材质映射（与 U 形那套同一组色）：
+    //     wood_dark → concrete          wood_seam → concrete_seam
+    //   注意 `top=wood_seam` 也要换（模型里是显式写的）。
+    // -----------------------------------------------------------------------
+    const REMAP = [
+      ['probe_half_upper',   'G2_track_halftrack'],
+      ['G1_rail_halftrack',  'G2_rail_halftrack'],
+      ['G1_track_slope',     'G2_track_slope'],
+      ['G1_rail_slope',      'G2_rail_slope'],
+      ['G1_crossing',        'G2_track_crossing'],
+    ];
+    log('');
+    log('  G2 其余 5 个（先只换枕木颜色，U 槽待加）：');
+    for (const [src, dst] of REMAP) {
+      const f = path.join(ROOT, 'models', src + '.model');
+      if (!fs.existsSync(f)) { log(`  × 跳过 ${src}：源模型不存在`); continue; }
+      const raw = fs.readFileSync(f, 'utf8');
+      const nWood = (raw.match(/wood_(?:dark|seam)/g) || []).length;
+      const note =
+        '# ⚠【G2 混凝土枕变体（**只换了颜色，U 槽还没加**）—— 不要手改本文件】\n'
+        + `#   由 tools/gen-g1-switches.mjs 从 models/${src}.model 机械改写而来：\n`
+        + `#     模型名 ${src} → ${dst}；枕木材质 wood_dark→concrete / wood_seam→concrete_seam（${nWood} 处）。\n`
+        + '#   **几何一字未改。** U 形承轨槽要按本模型自己的「沿轨坐标」重排几何，尚未做。\n'
+        + '#   用途：P2-G2 的 `SBDA`（电气化铁路 25kV）。\n'
+        + '# =============================================================================\n';
+      const t = note + raw.split(src).join(dst)
+        .replace(/\bwood_dark\b/g, 'concrete')
+        .replace(/\bwood_seam\b/g, 'concrete_seam');
+      const g = path.join(ROOT, 'models', dst + '.model');
+      fs.writeFileSync(g, t, 'utf8');
+      log(`  ✔ ${rel(g).padEnd(34)} ${String(t.split('\n').length).padStart(4)} 行   枕木换色 ${nWood} 处`);
+    }
+
+    // -----------------------------------------------------------------------
+    // 半轨的 U 形承轨槽（prism 版）
+    //
+    //   半轨的轨道跑在 `x + y = 0.5` 这条线上 ⇒ 用**沿轨坐标**
+    //       s = x + y   （横跨枕木的方向）
+    //       t = x - y   （沿钢轨的方向）
+    //   表示时，半轨的几何与直线轨**完全同构**（已用模型头注释核实）：
+    //       枕木横跨  s ∈ [0.41, 0.59]
+    //       两条钢轨  s ∈ [0.4444,0.4524] 与 [0.5476,0.5556]
+    //   ⇒ 承轨槽的 5 段划分**照搬直线轨那套**，只是要换成棱柱发出来。
+    //
+    //   做法：**不动原有的枕木棱柱**，只在其顶面（z 0.0100）之上叠 3 片薄板
+    //     （2 片深色槽底 + 1 片中间调），
+    //   薄板只在**有枕木的地方**出现（t 范围取自该枕木自身的棱柱）⇒
+    //   枕木之间的道砟缝不会被盖住。
+    //
+    //   t 范围怎么来：一根枕木的所有棱柱**共享同一个 t 范围**（它们是横跨 s 的
+    //   分带），所以按 t 范围分组就能把棱柱归成一根根枕木。
+    // -----------------------------------------------------------------------
+    {
+      const s2xy = (s, tv) => [ (s + tv) / 2, (s - tv) / 2 ];
+      const PAL = [
+        [0.4300, 0.4660, 'trim_dark',     'trim_dark'],      // 槽底 A
+        [0.4660, 0.5340, 'concrete_seam', 'concrete_seam'],  // 中间体（微凹）
+        [0.5340, 0.5700, 'trim_dark',     'trim_dark'],      // 槽底 B
+      ];
+      const ZP = 0.0100, ZPAD = 0.0103;    // 薄板：叠在枕木顶上 0.0003
+
+      for (const dst of ['G2_track_halftrack', 'G2_rail_halftrack']) {
+        const g = path.join(ROOT, 'models', dst + '.model');
+        if (!fs.existsSync(g)) { log(`  × 跳过 ${dst}：还不存在`); continue; }
+        const lines = fs.readFileSync(g, 'utf8').split('\n');
+        // 1) 按 t 范围分组棱柱 → 每根枕木一个 t 区间
+        const groups = new Map();
+        for (const ln of lines) {
+          const m = /^prism\s+(\S+)\s+(\S+)\s+(\S+)\s+(.+)$/.exec(ln);
+          if (!m) continue;
+          const pts = m[4].trim().split(/\s+/).map((p) => p.split(',').map(Number));
+          if (pts.length !== 4 || pts.some((p) => p.length !== 2 || !isFinite(p[0]))) continue;
+          const ts = pts.map(([x, y]) => x - y);
+          const key = ts.map((v) => v.toFixed(4)).sort().join('|');
+          groups.set(key, [Math.min(...ts), Math.max(...ts)]);
+        }
+        // 2) 每根枕木叠 3 片薄板
+        const add = [];
+        let nS = 0;
+        for (const [, [t0, t1]] of groups) {
+          nS++;
+          for (const [s0, s1, side, top] of PAL) {
+            const q = [s2xy(s0, t0), s2xy(s1, t0), s2xy(s1, t1), s2xy(s0, t1)]
+              .map(([x, y]) => `${x.toFixed(4)},${y.toFixed(4)}`).join(' ');
+            add.push(`prism ${ZP.toFixed(4)} ${ZPAD.toFixed(4)}  ${side} ${q}`);
+          }
+        }
+        if (!add.length) { log(`  × ${dst}：没找到枕木棱柱，跳过`); continue; }
+        const out = lines.join('\n').replace(/\n?$/, '\n')
+          + '\n# --- U 形承轨槽薄板（半轨，prism；叠在枕木顶上）---\n'
+          + add.join('\n') + '\n';
+        fs.writeFileSync(g, out, 'utf8');
+        log(`  ✔ ${rel(g).padEnd(34)} 加 U 槽薄板 ${add.length} 片（${nS} 根枕木）`);
+      }
+    }
   }
   log('');
   log('  每方向屏幕偏移（px，正=右/下）—— 改这张表后重跑本工具：');
