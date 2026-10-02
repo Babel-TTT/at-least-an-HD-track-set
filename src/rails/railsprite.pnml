@@ -448,8 +448,9 @@ spriteset(probe_catenary_pylons, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
      `(8,0)` / `(0,8)`（屏幕上 ±64 px = 半格）自己挪到左/右半轨
      （elrail_data.h:387-404）。
      ⇒ 斜向模型必须画在**瓦片正中**（t = x−y = 0，见 gen-g1-catenary.mjs），
-       模板 **x 不补偿**、**y 只补偿 z 抬升** ⇒ 6 条统一 xrel −131 · yrel −101。
-       v2/v3 那 4 条已无人引用。
+       模板 **x 不补偿**、**y 只补偿 z 抬升** ⇒ 6 条的实际 xrel/yrel 见
+       templates.pnml 的行内值（v0 = 斜 NS：−129,−137；v1 = 斜 EW：−75,−164）。
+       v2/v3 那 **6 条**模板已无人引用（3 个模型 × 2 个朝向）。
 
    ★ **只用 9 个模型**：X/Y 互为 90° 旋转（v0/v1），NS/EW 同理。
        R(S–W 边 x=1) = E–S 边 y=1  ⇒ x_sw 的 v1 = Y 向 **SE** 端
