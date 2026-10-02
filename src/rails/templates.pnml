@@ -667,179 +667,40 @@ template t_G1_pylon_b_v3(sheet) {
 //     把模型里的 z 整体偏移 —— 等实机确认平地这套对了再做。
 // ---------------------------------------------------------------------------
 template t_G1_wire_x_v0(sheet) {
-  [0, 482, 263, 241, -75, -97, sheet]       // 槽 0-2   X 平（整格）
+  [0, 482, 263, 241, -75, -97, sheet]       // 【手调】引擎原点补偿，非人工：槽 0-2   X 平（整格）
 }
 template t_G1_wire_x_up_v0(sheet) {
-  [0, 482, 263, 241, -75, -61, sheet]       // 槽 3-5   X 上坡
+  [0, 482, 263, 241, -75, -61, sheet]       // 【手调】引擎原点补偿，非人工：槽 3-5   X 上坡
 }
 template t_G1_wire_x_down_v0(sheet) {
-  [0, 482, 263, 241, -75, -101, sheet]      // 槽 6-8   X 下坡
+  [0, 482, 263, 241, -75, -101, sheet]      // 【手调】引擎原点补偿，非人工：槽 6-8   X 下坡
 }
 template t_G1_wire_x_v1(sheet) {
-  [263, 482, 263, 241, -187, -97, sheet]    // 槽 9-11  Y 平（整格）
+  [263, 482, 263, 241, -187, -97, sheet]    // 【手调】引擎原点补偿，非人工：槽 9-11  Y 平（整格）
 }
 template t_G1_wire_x_up_v1(sheet) {
-  [263, 482, 263, 241, -187, -61, sheet]    // 槽 12-14 Y 上坡
+  [263, 482, 263, 241, -187, -61, sheet]    // 【手调】引擎原点补偿，非人工：槽 12-14 Y 上坡
 }
 template t_G1_wire_x_down_v1(sheet) {
-  [263, 482, 263, 241, -187, -101, sheet]   // 槽 15-17 Y 下坡
+  [263, 482, 263, 241, -187, -101, sheet]   // 【手调】引擎原点补偿，非人工：槽 15-17 Y 下坡
 }
 template t_G1_wire_ns_w_v0(sheet) {
-  [1052, 241, 263, 241, -195, -101, sheet]  // 槽 18/20/22  NS_W（贴 W 角）
+  [1052, 241, 263, 241, -195, -101, sheet]  // 【手调】引擎原点补偿，非人工：槽 18/20/22  NS_W（贴 W 角）
 }
 template t_G1_wire_ns_e_v0(sheet) {
-  [0, 241, 263, 241, -67, -101, sheet]      // 槽 19/21/23  NS_E（贴 E 角）
+  [0, 241, 263, 241, -67, -101, sheet]      // 【手调】引擎原点补偿，非人工：槽 19/21/23  NS_E（贴 E 角）
 }
 template t_G1_wire_ns_e_v1(sheet) {
-  [263, 241, 263, 241, -187, -97, sheet]    // 槽 24/26/28  EW_N（贴 N 角）
+  [263, 241, 263, 241, -187, -97, sheet]    // 【手调】引擎原点补偿，非人工：槽 24/26/28  EW_N（贴 N 角）
 }
 template t_G1_wire_ns_w_v1(sheet) {
-  [1315, 241, 263, 241, -187, -161, sheet]  // 槽 25/27/29  EW_S（贴 S 角）
+  [1315, 241, 263, 241, -187, -161, sheet]  // 【手调】引擎原点补偿，非人工：槽 25/27/29  EW_S（贴 S 角）
 }
 
-// ===========================================================================
-// ⚠⚠ 以下到文件末尾这一大段（被 /* */ 括起来的）是 **读码前的旧导线模板**，
-//     **已作废、不要引用**。旧的 9 个模型 `G1_wire_x_sw / x_ne / x_both /
-//     ns_w_both / ns_w_n / ns_w_s / ns_e_both / ns_e_n / ns_e_s` 也一并删了。
-//     保留在这里只是留个历史；确认没用可以整段删掉。
-//     （本文件的老规矩：**只有人工能改**，所以没有脚本去清它。）
-// ===========================================================================
-// 【旧说明，已被上面取代】
-// G1_wire_* —— 接触网**导线**的 9 个模型（分表仍是 gfx/catenary.png）
-//
-//   ★ 30 个槽位只用了**这 9 个模型的两个视图**：
-//       X 向 9 格 ← 3 个模型（x_sw / x_ne / x_both）的 **v0**
-//       Y 向 9 格 ← 同 3 个模型的 **v1**（R(x,y) = (1−y, x) 把 x 轴转到 y 轴）
-//       NS 斜 6 格 ← 3 个 ns_w / 3 个 ns_e 的 **v0**
-//       EW 斜 6 格 ← 同 6 个模型的 **v1**
-//     （UP / DOWN 这 12 格这一轮**先复用 FLAT 的图**，理由见
-//       models/G1_wire_x_sw.model 的文件头）
-//
-//   锚点：**36 条全部一样 = (−131, −109)，而且与朝向无关**。
-//
-//   ⚠⚠ **不要照抄 openttd.json 里的 xrel/yrel**（2026-10-02 踩过）：
-//     那是「相对**该朝向旋转后占地矩形的西北角**」，
-//     而 OpenTTD 摆放精灵用的是「相对**瓦片原点**」，瓦片原点**不随精灵内容旋转**。
-//     1×1 模型 view 0 两者恰好相等，view 1/2/3 各差半格（128/64 px）——
-//     照抄会让 Y 向 / 斜向那批导线整体飘半格到一格。
-//     正确算法（tools/util.mjs:125 `anchorToXrelYrel`，**唯一口径**）：
-//         瓦片原点像素 = centerAnchor − 占地中心投影偏移
-//         1×1 时 偏移 = (0, 64)      ⇒ xrel = −ca.x , yrel = 64 − ca.y
-//     本表 centerAnchor = [131, 173]（4 个朝向完全一致）
-//         ⇒ xrel = −131 , yrel = 64 − 173 = **−109** ✓
-//     支柱那 8 条之所以逐朝向不同，是**人工按槽位实机微调**出来的（模型原点在柱脚、
-//     要把它挪到轨道旁），不是算法值 —— 导线是居中在瓦片上的，用算法值。
 // ---------------------------------------------------------------------------
-/*
-template t_G1_wire_x_sw_v0(sheet) {
-  [0, 1205, 263, 241, -131, -109, sheet]
-}
-template t_G1_wire_x_sw_v1(sheet) {
-  [263, 1205, 263, 241, -131, -109, sheet]
-}
-template t_G1_wire_x_sw_v2(sheet) {
-  [526, 1205, 263, 241, -131, -109, sheet]
-}
-template t_G1_wire_x_sw_v3(sheet) {
-  [789, 1205, 263, 241, -131, -109, sheet]
-}
-template t_G1_wire_x_ne_v0(sheet) {
-  [1052, 964, 263, 241, -131, -109, sheet]
-}
-template t_G1_wire_x_ne_v1(sheet) {
-  [1315, 964, 263, 241, -131, -109, sheet]
-}
-template t_G1_wire_x_ne_v2(sheet) {
-  [1578, 964, 263, 241, -131, -109, sheet]
-}
-template t_G1_wire_x_ne_v3(sheet) {
-  [1841, 964, 263, 241, -131, -109, sheet]
-}
-template t_G1_wire_x_both_v0(sheet) {
-  [0, 964, 263, 241, -131, -109, sheet]
-}
-template t_G1_wire_x_both_v1(sheet) {
-  [263, 964, 263, 241, -131, -109, sheet]
-}
-template t_G1_wire_x_both_v2(sheet) {
-  [526, 964, 263, 241, -131, -109, sheet]
-}
-template t_G1_wire_x_both_v3(sheet) {
-  [789, 964, 263, 241, -131, -109, sheet]
-}
-template t_G1_wire_ns_w_both_v0(sheet) {
-  [1052, 482, 263, 241, -131, -109, sheet]
-}
-template t_G1_wire_ns_w_both_v1(sheet) {
-  [1315, 482, 263, 241, -131, -109, sheet]
-}
-template t_G1_wire_ns_w_both_v2(sheet) {
-  [1578, 482, 263, 241, -131, -109, sheet]
-}
-template t_G1_wire_ns_w_both_v3(sheet) {
-  [1841, 482, 263, 241, -131, -109, sheet]
-}
-template t_G1_wire_ns_w_n_v0(sheet) {
-  [0, 723, 263, 241, -131, -109, sheet]
-}
-template t_G1_wire_ns_w_n_v1(sheet) {
-  [263, 723, 263, 241, -131, -109, sheet]
-}
-template t_G1_wire_ns_w_n_v2(sheet) {
-  [526, 723, 263, 241, -131, -109, sheet]
-}
-template t_G1_wire_ns_w_n_v3(sheet) {
-  [789, 723, 263, 241, -131, -109, sheet]
-}
-template t_G1_wire_ns_w_s_v0(sheet) {
-  [1052, 723, 263, 241, -131, -109, sheet]
-}
-template t_G1_wire_ns_w_s_v1(sheet) {
-  [1315, 723, 263, 241, -131, -109, sheet]
-}
-template t_G1_wire_ns_w_s_v2(sheet) {
-  [1578, 723, 263, 241, -131, -109, sheet]
-}
-template t_G1_wire_ns_w_s_v3(sheet) {
-  [1841, 723, 263, 241, -131, -109, sheet]
-}
-template t_G1_wire_ns_e_both_v0(sheet) {
-  [0, 241, 263, 241, -131, -109, sheet]
-}
-template t_G1_wire_ns_e_both_v1(sheet) {
-  [263, 241, 263, 241, -131, -109, sheet]
-}
-template t_G1_wire_ns_e_both_v2(sheet) {
-  [526, 241, 263, 241, -131, -109, sheet]
-}
-template t_G1_wire_ns_e_both_v3(sheet) {
-  [789, 241, 263, 241, -131, -109, sheet]
-}
-template t_G1_wire_ns_e_n_v0(sheet) {
-  [1052, 241, 263, 241, -131, -109, sheet]
-}
-template t_G1_wire_ns_e_n_v1(sheet) {
-  [1315, 241, 263, 241, -131, -109, sheet]
-}
-template t_G1_wire_ns_e_n_v2(sheet) {
-  [1578, 241, 263, 241, -131, -109, sheet]
-}
-template t_G1_wire_ns_e_n_v3(sheet) {
-  [1841, 241, 263, 241, -131, -109, sheet]
-}
-template t_G1_wire_ns_e_s_v0(sheet) {
-  [0, 482, 263, 241, -131, -109, sheet]
-}
-template t_G1_wire_ns_e_s_v1(sheet) {
-  [263, 482, 263, 241, -131, -109, sheet]
-}
-template t_G1_wire_ns_e_s_v2(sheet) {
-  [526, 482, 263, 241, -131, -109, sheet]
-}
-template t_G1_wire_ns_e_s_v3(sheet) {
-  [789, 482, 263, 241, -131, -109, sheet]
-}
-*/   // ← 旧导线模板到此为止（关掉上面那个 /*）
+
+
+
 
 // ---------------------------------------------------------------------------
 // G1_levelcrossing —— 平交道口（公路 × 铁路）的 `level_crossings:` 轨道图
