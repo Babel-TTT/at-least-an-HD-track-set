@@ -5,12 +5,16 @@
 // （见 docs/踩坑.md A6 / A6.1 —— 错了就是"车库里一辆车都没有"，编译毫无提示）。
 //
 // 查什么：
-//   1. 每个 railtype Action 0 块的【局部 id】互不重复
-//      （撞车会让"重定义 base 轨道"打在错误的轨道上）
-//   2. 局部 id 0 的标签是 RAIL、id 1 是 ELRL，且两者都带 0x0F(powered)
-//   3. 我们自己的每个 label 都出现在 base RAIL 的 powered 列表里
-//      （否则原版/其他包的列车在我们轨道上没动力）
-//   4. powered 列表非空
+//   1. 每个 railtype Action 0 块的【局部 id】互不重复                            ★硬判
+//      （撞车会让属性打在错的轨道上 —— 这条真的抓到过，见 docs/踩坑.md A6.1）
+//   2. 兼容性锚点：局部 id 0 / 1 存在，且都带非空的 powered 列表                 ★硬判
+//      ★ 人工裁定 2026-10-02：**不再覆盖内建 RAIL / ELRL** ——
+//        改由本包自己的两个隐藏类型承担兼容性（id 0 = SACN、id 1 = SACA）。
+//        ⇒ 原先"id 0 必须是 RAIL、id 1 必须是 ELRL"的判据**已作废**
+//          （那是 A6 时代的规矩；A6 已废止，见 docs/踩坑.md）。
+//   3. 每个块（带属性的）powered 列表非空                                        ★硬判
+//   4. 每个 label 都出现在某个锚点的 powered 列表里                              ⚠提示
+//      （漏了只是"两套轨道之间跑不通"，不一定是错，所以不硬判）
 //
 //   node tools/check.mjs      （或 make check）
 // =============================================================================
@@ -168,23 +172,33 @@ export function check() {
     seen.set(b.localId, b.label);
   }
 
-  // --- 2. base RAIL / ELRL 必须存在且带 powered ----------------------------
+  // --- 2. 兼容性锚点：局部 id 0 / id 1 --------------------------------------
+  //
+  // ★ 人工裁定 2026-10-02：**不再覆盖内建 RAIL / ELRL**。
+  //   兼容性改由本包自己的两个隐藏类型承担：id 0 = SACN、id 1 = SACA，
+  //   两者的 compatible / powered 表都铺到全量。
+  //   ⇒ 原先"id 0 标签必须是 RAIL、id 1 必须是 ELRL"的判据**已作废**
+  //     （那是 docs/踩坑.md A6 时代的规矩，A6 已废止）。
+  //   现在只查：这两个锚点在、且有非空 powered。
   const byId = (n) => blocks.find((b) => b.localId === n);
-  const base = byId(0);
-  if (!base) problems.push('没有局部 id 0 的块 —— 必须重定义内建 RAIL（见 A6）');
-  else if (base.label !== 'RAIL') problems.push(`局部 id 0 的标签是 "${base.label}"，应为 "RAIL"`);
-  else if (!base.powered || !base.powered.length) problems.push('重定义的 RAIL 没有 powered 列表 —— 列车不会有动力（见 A6）');
+  const anchors = [byId(0), byId(1)];
+  for (let i = 0; i < 2; i++) {
+    const a = anchors[i];
+    if (!a) {
+      problems.push(`没有局部 id ${i} 的块 —— 兼容性锚点缺失（人工 2026-10-02：id 0 = SACN、id 1 = SACA）`);
+    } else if (!a.powered || !a.powered.length) {
+      problems.push(`局部 id ${i}（"${a.label}"）没有 powered 列表 —— 兼容性锚点失效`);
+    }
+  }
 
-  const elrl = byId(1);
-  if (!elrl) warns.push('没有局部 id 1 的块（未重定义内建 ELRL）—— 原版电力机车可能无法在我们轨道上跑');
-  else if (elrl.label !== 'ELRL') problems.push(`局部 id 1 的标签是 "${elrl.label}"，应为 "ELRL"`);
-
-  // --- 3. 我方每个 label 都要在 base RAIL 的 powered 里 ---------------------
-  const ours = blocks.filter((b) => b !== base && b !== elrl && b.label && b.numProps > 3);
-  if (base && base.powered) {
-    for (const b of ours) {
-      if (!base.powered.includes(b.label)) {
-        problems.push(`我方 label "${b.label}" 不在 RAIL 的 powered 列表里 ⇒ 原版列车在它上面没动力（见 A6）`);
+  // --- 4. 每个 label 都该出现在某个锚点的 powered 里（只提示）---------------
+  const reach = new Set();
+  for (const a of anchors) if (a && a.powered) for (const l of a.powered) reach.add(l);
+  if (reach.size) {
+    for (const b of blocks) {
+      if (!b.label || b.numProps <= 3) continue;
+      if (!reach.has(b.label)) {
+        warns.push(`label "${b.label}"（id ${b.localId}）不在任何兼容性锚点的 powered 里 —— 它与其他轨道之间可能跑不通`);
       }
     }
   }
@@ -321,7 +335,10 @@ export function check() {
     fail(`${encProblems.length + problems.length} 个问题`);
   }
   log('');
-  log(`✔ 全部通过：文本编码 + railtype 结构（${ours.length} 个自定义轨道 + 2 个 base 重定义）`);
+  // 人工裁定 2026-10-02：不再覆盖内建 RAIL/ELRL ⇒ 统计口径改成
+  //   「可见轨道 = 除锚点 id 0/1 之外、带完整属性的块」+「+2 锚点（隐藏兼容类型）」
+  const visible = blocks.filter((b) => b.localId !== 0 && b.localId !== 1 && b.numProps > 3);
+  log(`✔ 全部通过：文本编码 + railtype 结构（${blocks.length} 个 railtype 块，含兼容性锚点 id 0/1）`);
 }
 
 if (isMain(import.meta.url)) {

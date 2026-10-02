@@ -44,22 +44,345 @@
      那会把原版属性覆盖掉。
    =========================================================================== */
 
-item(FEAT_RAILTYPES, base_RAIL, 0) {
+// 人工标注：这里暂时不要改
+/* item(FEAT_RAILTYPES, base_RAIL, 0) {
     property {
         label:                    "RAIL";
         compatible_railtype_list: ["SADN", "SBDN", "SCDN", "SBDA", "SCDA", "SBEd", "SBDD"];
         powered_railtype_list:    ["SADN", "SBDN", "SCDN", "SBDA", "SCDA", "SBEd", "SBDD"];
     }
-}
+} */
 
 /* ELRL 只对电气化轨道供电（内燃车在电气化轨道上照样能跑，所以 compatible 给全） */
-item(FEAT_RAILTYPES, base_ELRL, 1) {
+/* item(FEAT_RAILTYPES, base_ELRL, 1) {
     property {
         label:                    "ELRL";
         compatible_railtype_list: ["SADN", "SBDN", "SCDN", "SBDA", "SCDA", "SBEd", "SBDD"];
         powered_railtype_list:    ["SBDA", "SCDA", "SBEd", "SBDD"];
     }
+} */
+// 人工标注：这里暂时不要改
+item(FEAT_RAILTYPES, hidden_rail_SACN, 0) {//兼容性维持。必要时也可以转为可用轨道
+    property {
+        label:                  "SACN";
+        compatible_railtype_list: ["RAIL", "ELRL", 
+                                    "SACN", "SBCN", "SCCN", "SDCN", "SECN",  "SFCN", "SGDN",
+                                    "SADN", "SBDN", "SCDN", "SDDN", "SEDN",  "SFDN", "SGDN",
+                                    "SAEN", "SBEN", "SCEN", "SDEN", "SEEN",  "SFEN", "SGEN",
+                                    "SACA", "SBCA", "SCCA", "SDCA", "SECA",  "SFCA", "SGCA",
+                                    "SADA", "SBDA", "SCDA", "SDDA", "SEDA",  "SFDA", "SGDA", 
+                                    "SAEA", "SBEA", "SCEA", "SDEA", "SEEA",  "SFEA", "SGEA",
+                                    "SACd", "SBCd", "SCCd", "SDCd", "SECd",
+                                    "SADd", "SBDd", "SCDd", "SDDd", "SEDd",
+                                    "SAEd", "SBEd", "SCEd", "SDEd", "SEEd",  
+                                    "SACD", "SBCD", "SCCD", "SDCD", "SECD", 
+                                    "SADD", "SBDD", "SCDD", "SDDD", "SEDD",   
+                                    "SAC3", "SBC3", "SCC3", "SDC3",
+                                    "SACZ", "SBCZ", "SCCZ", "SDCZ",    
+                                    "SACL", "SBCL", "SCCL", "SDCL",
+                                    "DACN", 
+                                    "DADN", "DBDN",
+                                    "DACA", 
+                                    "DADA", "DBDA",
+                                    "dACN", "dBCN"];
+        powered_railtype_list:    ["RAIL", "ELRL", 
+                                    "SACN", "SBCN", "SCCN", "SDCN", "SECN",  "SFCN", "SGDN",
+                                    "SADN", "SBDN", "SCDN", "SDDN", "SEDN",  "SFDN", "SGDN",
+                                    "SAEN", "SBEN", "SCEN", "SDEN", "SEEN",  "SFEN", "SGEN",
+                                    "SACA", "SBCA", "SCCA", "SDCA", "SECA",  "SFCA", "SGCA",
+                                    "SADA", "SBDA", "SCDA", "SDDA", "SEDA",  "SFDA", "SGDA", 
+                                    "SAEA", "SBEA", "SCEA", "SDEA", "SEEA",  "SFEA", "SGEA",
+                                    "SACd", "SBCd", "SCCd", "SDCd", "SECd",
+                                    "SADd", "SBDd", "SCDd", "SDDd", "SEDd",
+                                    "SAEd", "SBEd", "SCEd", "SDEd", "SEEd",  
+                                    "SACD", "SBCD", "SCCD", "SDCD", "SECD", 
+                                    "SADD", "SBDD", "SCDD", "SDDD", "SEDD",   
+                                    "SAC3", "SBC3", "SCC3", "SDC3",
+                                    "SACZ", "SBCZ", "SCCZ", "SDCZ",    
+                                    "SACL", "SBCL", "SCCL", "SDCL",
+                                    "DACN", 
+                                    "DADN", "DBDN",
+                                    "DACA", 
+                                    "DADA", "DBDA",
+                                    "dACN", "dBCN"];
+        railtype_flags:  bitmask(RAILTYPE_FLAG_HIDDEN);
+    }
 }
+item(FEAT_RAILTYPES, hidden_rail_SACA, 1) {//兼容性维持。必要时也可以转为可用轨道
+    property {
+        label:                  "SACA";
+        compatible_railtype_list: ["RAIL", "ELRL", 
+                                    "SACN", "SBCN", "SCCN", "SDCN", "SECN",  "SFCN", "SGDN",
+                                    "SADN", "SBDN", "SCDN", "SDDN", "SEDN",  "SFDN", "SGDN",
+                                    "SAEN", "SBEN", "SCEN", "SDEN", "SEEN",  "SFEN", "SGEN",
+                                    "SACA", "SBCA", "SCCA", "SDCA", "SECA",  "SFCA", "SGCA",
+                                    "SADA", "SBDA", "SCDA", "SDDA", "SEDA",  "SFDA", "SGDA", 
+                                    "SAEA", "SBEA", "SCEA", "SDEA", "SEEA",  "SFEA", "SGEA",
+                                    "SACd", "SBCd", "SCCd", "SDCd", "SECd",
+                                    "SADd", "SBDd", "SCDd", "SDDd", "SEDd",
+                                    "SAEd", "SBEd", "SCEd", "SDEd", "SEEd",  
+                                    "SACD", "SBCD", "SCCD", "SDCD", "SECD", 
+                                    "SADD", "SBDD", "SCDD", "SDDD", "SEDD",   
+                                    "SAC3", "SBC3", "SCC3", "SDC3",
+                                    "SACZ", "SBCZ", "SCCZ", "SDCZ",    
+                                    "SACL", "SBCL", "SCCL", "SDCL",
+                                    "DACN", 
+                                    "DADN", "DBDN",
+                                    "DACA", 
+                                    "DADA", "DBDA",
+                                    "dACN", "dBCN"];
+        powered_railtype_list:    [ "ELRL", 
+                                    "SACA", "SBCA", "SCCA", "SDCA", "SECA",  "SFCA", "SGCA",
+                                    "SADA", "SBDA", "SCDA", "SDDA", "SEDA",  "SFDA", "SGDA", 
+                                    "SAEA", "SBEA", "SCEA", "SDEA", "SEEA",  "SFEA", "SGEA",
+                                    "DACA", "DADA", "DBDA"];
+        railtype_flags:  bitmask(RAILTYPE_FLAG_HIDDEN);
+    }
+}
+
+/* item(FEAT_RAILTYPES, hidden_rail_SACd, 4) {//兼容性维持。本轨道直接由地铁轨道取代，暂时注释掉
+    property {
+        label:                  "SACd";
+        compatible_railtype_list: ["RAIL", "ELRL", 
+                                    "SACN", "SBCN", "SCCN", "SDCN", "SECN",  "SFCN", "SGDN",
+                                    "SADN", "SBDN", "SCDN", "SDDN", "SEDN",  "SFDN", "SGDN",
+                                    "SAEN", "SBEN", "SCEN", "SDEN", "SEEN",  "SFEN", "SGEN",
+                                    "SACA", "SBCA", "SCCA", "SDCA", "SECA",  "SFCA", "SGCA",
+                                    "SADA", "SBDA", "SCDA", "SDDA", "SEDA",  "SFDA", "SGDA", 
+                                    "SAEA", "SBEA", "SCEA", "SDEA", "SEEA",  "SFEA", "SGEA",
+                                    "SACd", "SBCd", "SCCd", "SDCd", "SECd",
+                                    "SADd", "SBDd", "SCDd", "SDDd", "SEDd",
+                                    "SAEd", "SBEd", "SCEd", "SDEd", "SEEd",  
+                                    "SACD", "SBCD", "SCCD", "SDCD", "SECD", 
+                                    "SADD", "SBDD", "SCDD", "SDDD", "SEDD",   
+                                    "SAC3", "SBC3", "SCC3", "SDC3",
+                                    "SACZ", "SBCZ", "SCCZ", "SDCZ",    
+                                    "SACL", "SBCL", "SCCL", "SDCL",
+                                    "DACN", 
+                                    "DADN", "DBDN",
+                                    "DACA", 
+                                    "DADA", "DBDA",
+                                    "dACN", "dBCN"];
+        powered_railtype_list:    [ "ELRL", 
+                                    "SACd", "SBCd", "SCCd", "SDCd", "SECd",
+                                    "SADd", "SBDd", "SCDd", "SDDd", "SEDd",
+                                    "SAEd", "SBEd", "SCEd", "SDEd", "SEEd",
+                                    "SACZ", "SBCZ", "SCCZ", "SDCZ"];
+        railtype_flags:  bitmask(RAILTYPE_FLAG_HIDDEN);
+    }
+} */
+item(FEAT_RAILTYPES, hidden_rail_SACD, 4) {//兼容性维持。必要时也可以转为可用轨道
+    property {
+        label:                  "SACD";
+        compatible_railtype_list: ["RAIL", "ELRL", 
+                                    "SACN", "SBCN", "SCCN", "SDCN", "SECN",  "SFCN", "SGDN",
+                                    "SADN", "SBDN", "SCDN", "SDDN", "SEDN",  "SFDN", "SGDN",
+                                    "SAEN", "SBEN", "SCEN", "SDEN", "SEEN",  "SFEN", "SGEN",
+                                    "SACA", "SBCA", "SCCA", "SDCA", "SECA",  "SFCA", "SGCA",
+                                    "SADA", "SBDA", "SCDA", "SDDA", "SEDA",  "SFDA", "SGDA", 
+                                    "SAEA", "SBEA", "SCEA", "SDEA", "SEEA",  "SFEA", "SGEA",
+                                    "SACd", "SBCd", "SCCd", "SDCd", "SECd",
+                                    "SADd", "SBDd", "SCDd", "SDDd", "SEDd",
+                                    "SAEd", "SBEd", "SCEd", "SDEd", "SEEd",  
+                                    "SACD", "SBCD", "SCCD", "SDCD", "SECD", 
+                                    "SADD", "SBDD", "SCDD", "SDDD", "SEDD",   
+                                    "SAC3", "SBC3", "SCC3", "SDC3",
+                                    "SACZ", "SBCZ", "SCCZ", "SDCZ",    
+                                    "SACL", "SBCL", "SCCL", "SDCL",
+                                    "DACN", 
+                                    "DADN", "DBDN",
+                                    "DACA", 
+                                    "DADA", "DBDA",
+                                    "dACN", "dBCN"];
+        powered_railtype_list:    [ "ELRL", 
+                                    "SACD", "SBCD", "SCCD", "SDCD", "SECD", 
+                                    "SADD", "SBDD", "SCDD", "SDDD", "SEDD"];
+        railtype_flags:  bitmask(RAILTYPE_FLAG_HIDDEN);
+    }
+}
+/* item(FEAT_RAILTYPES, hidden_rail_SAC3, 5) {//兼容性维持。由第三轨地铁轨道取代
+    property {
+        label:                  "SAC3";
+        compatible_railtype_list: ["RAIL", "ELRL", 
+                                    "SACN", "SBCN", "SCCN", "SDCN", "SECN",  "SFCN", "SGDN",
+                                    "SADN", "SBDN", "SCDN", "SDDN", "SEDN",  "SFDN", "SGDN",
+                                    "SAEN", "SBEN", "SCEN", "SDEN", "SEEN",  "SFEN", "SGEN",
+                                    "SACA", "SBCA", "SCCA", "SDCA", "SECA",  "SFCA", "SGCA",
+                                    "SADA", "SBDA", "SCDA", "SDDA", "SEDA",  "SFDA", "SGDA", 
+                                    "SAEA", "SBEA", "SCEA", "SDEA", "SEEA",  "SFEA", "SGEA",
+                                    "SACd", "SBCd", "SCCd", "SDCd", "SECd",
+                                    "SADd", "SBDd", "SCDd", "SDDd", "SEDd",
+                                    "SAEd", "SBEd", "SCEd", "SDEd", "SEEd",  
+                                    "SACD", "SBCD", "SCCD", "SDCD", "SECD", 
+                                    "SADD", "SBDD", "SCDD", "SDDD", "SEDD",   
+                                    "SAC3", "SBC3", "SCC3", "SDC3",
+                                    "SACZ", "SBCZ", "SCCZ", "SDCZ",    
+                                    "SACL", "SBCL", "SCCL", "SDCL",
+                                    "DACN", 
+                                    "DADN", "DBDN",
+                                    "DACA", 
+                                    "DADA", "DBDA",
+                                    "dACN", "dBCN"];
+        powered_railtype_list:    [ "ELRL", 
+                                    "SAC3", "SBC3", "SCC3", "SDC3",
+                                    "SACZ", "SBCZ", "SCCZ", "SDCZ",    
+                                    "SACL", "SBCL", "SCCL", "SDCL"];
+        railtype_flags:  bitmask(RAILTYPE_FLAG_HIDDEN);
+    }
+} */
+/* item(FEAT_RAILTYPES, hidden_rail_SACZ, 5) {//兼容性维持。由混合供电地铁轨道取代
+    property {
+        label:                  "SACZ";
+        compatible_railtype_list: ["RAIL", "ELRL", 
+                                    "SACN", "SBCN", "SCCN", "SDCN", "SECN",  "SFCN", "SGDN",
+                                    "SADN", "SBDN", "SCDN", "SDDN", "SEDN",  "SFDN", "SGDN",
+                                    "SAEN", "SBEN", "SCEN", "SDEN", "SEEN",  "SFEN", "SGEN",
+                                    "SACA", "SBCA", "SCCA", "SDCA", "SECA",  "SFCA", "SGCA",
+                                    "SADA", "SBDA", "SCDA", "SDDA", "SEDA",  "SFDA", "SGDA", 
+                                    "SAEA", "SBEA", "SCEA", "SDEA", "SEEA",  "SFEA", "SGEA",
+                                    "SACd", "SBCd", "SCCd", "SDCd", "SECd",
+                                    "SADd", "SBDd", "SCDd", "SDDd", "SEDd",
+                                    "SAEd", "SBEd", "SCEd", "SDEd", "SEEd",  
+                                    "SACD", "SBCD", "SCCD", "SDCD", "SECD", 
+                                    "SADD", "SBDD", "SCDD", "SDDD", "SEDD",   
+                                    "SAC3", "SBC3", "SCC3", "SDC3",
+                                    "SACZ", "SBCZ", "SCCZ", "SDCZ",    
+                                    "SACL", "SBCL", "SCCL", "SDCL",
+                                    "DACN", 
+                                    "DADN", "DBDN",
+                                    "DACA", 
+                                    "DADA", "DBDA",
+                                    "dACN", "dBCN"];
+        powered_railtype_list:    [ "ELRL", 
+                                    "SACd", "SBCd", "SCCd", "SDCd", "SECd",
+                                    "SADd", "SBDd", "SCDd", "SDDd", "SEDd",
+                                    "SAEd", "SBEd", "SCEd", "SDEd", "SEEd",
+                                    "SAC3", "SBC3", "SCC3", "SDC3",
+                                    "SACZ", "SBCZ", "SCCZ", "SDCZ",    
+                                    "SACL", "SBCL", "SCCL", "SDCL"];
+        railtype_flags:  bitmask(RAILTYPE_FLAG_HIDDEN);
+    }
+} */
+/* item(FEAT_RAILTYPES, hidden_rail_SACL, 5) {//兼容性维持。由直线电机地铁轨道取代
+    property {
+        label:                  "SACL";
+        compatible_railtype_list: ["RAIL", "ELRL", 
+                                    "SACN", "SBCN", "SCCN", "SDCN", "SECN",  "SFCN", "SGDN",
+                                    "SADN", "SBDN", "SCDN", "SDDN", "SEDN",  "SFDN", "SGDN",
+                                    "SAEN", "SBEN", "SCEN", "SDEN", "SEEN",  "SFEN", "SGEN",
+                                    "SACA", "SBCA", "SCCA", "SDCA", "SECA",  "SFCA", "SGCA",
+                                    "SADA", "SBDA", "SCDA", "SDDA", "SEDA",  "SFDA", "SGDA", 
+                                    "SAEA", "SBEA", "SCEA", "SDEA", "SEEA",  "SFEA", "SGEA",
+                                    "SACd", "SBCd", "SCCd", "SDCd", "SECd",
+                                    "SADd", "SBDd", "SCDd", "SDDd", "SEDd",
+                                    "SAEd", "SBEd", "SCEd", "SDEd", "SEEd",  
+                                    "SACD", "SBCD", "SCCD", "SDCD", "SECD", 
+                                    "SADD", "SBDD", "SCDD", "SDDD", "SEDD",   
+                                    "SAC3", "SBC3", "SCC3", "SDC3",
+                                    "SACZ", "SBCZ", "SCCZ", "SDCZ",    
+                                    "SACL", "SBCL", "SCCL", "SDCL",
+                                    "DACN", 
+                                    "DADN", "DBDN",
+                                    "DACA", 
+                                    "DADA", "DBDA",
+                                    "dACN", "dBCN"];
+        powered_railtype_list:    [ "ELRL",     
+                                    "SACL", "SBCL", "SCCL", "SDCL"];
+        railtype_flags:  bitmask(RAILTYPE_FLAG_HIDDEN);
+    }
+} */
+item(FEAT_RAILTYPES, hidden_rail_BACN, 5) {//兼容性维持。必要时也可以转为可用轨道
+    property {
+        label:                  "BACN";
+        compatible_railtype_list: ["RAIL", "ELRL", 
+                                    "SACN", "SBCN", "SCCN", "SDCN", "SECN",  "SFCN", "SGDN",
+                                    "SADN", "SBDN", "SCDN", "SDDN", "SEDN",  "SFDN", "SGDN",
+                                    "SAEN", "SBEN", "SCEN", "SDEN", "SEEN",  "SFEN", "SGEN",
+                                    "SACA", "SBCA", "SCCA", "SDCA", "SECA",  "SFCA", "SGCA",
+                                    "SADA", "SBDA", "SCDA", "SDDA", "SEDA",  "SFDA", "SGDA", 
+                                    "SAEA", "SBEA", "SCEA", "SDEA", "SEEA",  "SFEA", "SGEA",
+                                    "SACd", "SBCd", "SCCd", "SDCd", "SECd",
+                                    "SADd", "SBDd", "SCDd", "SDDd", "SEDd",
+                                    "SAEd", "SBEd", "SCEd", "SDEd", "SEEd",  
+                                    "SACD", "SBCD", "SCCD", "SDCD", "SECD", 
+                                    "SADD", "SBDD", "SCDD", "SDDD", "SEDD",   
+                                    "SAC3", "SBC3", "SCC3", "SDC3",
+                                    "SACZ", "SBCZ", "SCCZ", "SDCZ",    
+                                    "SACL", "SBCL", "SCCL", "SDCL",
+                                    "DACN", 
+                                    "DADN", "DBDN",
+                                    "DACA", 
+                                    "DADA", "DBDA",
+                                    "dACN", "dBCN",
+                                    "BADN", "BBDN", "BCDN", "BDDN",
+                                    "BADA", "BBDA", "BCDA", "BDDA"];
+        powered_railtype_list:    ["RAIL", "ELRL", 
+                                    "SACN", "SBCN", "SCCN", "SDCN", "SECN",  "SFCN", "SGDN",
+                                    "SADN", "SBDN", "SCDN", "SDDN", "SEDN",  "SFDN", "SGDN",
+                                    "SAEN", "SBEN", "SCEN", "SDEN", "SEEN",  "SFEN", "SGEN",
+                                    "SACA", "SBCA", "SCCA", "SDCA", "SECA",  "SFCA", "SGCA",
+                                    "SADA", "SBDA", "SCDA", "SDDA", "SEDA",  "SFDA", "SGDA", 
+                                    "SAEA", "SBEA", "SCEA", "SDEA", "SEEA",  "SFEA", "SGEA",
+                                    "SACd", "SBCd", "SCCd", "SDCd", "SECd",
+                                    "SADd", "SBDd", "SCDd", "SDDd", "SEDd",
+                                    "SAEd", "SBEd", "SCEd", "SDEd", "SEEd",  
+                                    "SACD", "SBCD", "SCCD", "SDCD", "SECD", 
+                                    "SADD", "SBDD", "SCDD", "SDDD", "SEDD",   
+                                    "SAC3", "SBC3", "SCC3", "SDC3",
+                                    "SACZ", "SBCZ", "SCCZ", "SDCZ",    
+                                    "SACL", "SBCL", "SCCL", "SDCL",
+                                    "DACN", 
+                                    "DADN", "DBDN",
+                                    "DACA", 
+                                    "DADA", "DBDA",
+                                    "dACN", "dBCN",
+                                    "BADN", "BBDN", "BCDN", "BDDN",
+                                    "BADA", "BBDA", "BCDA", "BDDA"];
+        railtype_flags:  bitmask(RAILTYPE_FLAG_HIDDEN);
+    }
+}
+item(FEAT_RAILTYPES, hidden_rail_BACA, 6) {//兼容性维持。已有的可变轨距电力车辆为可变供电。必要时也可以转为可用轨道
+    property {
+        label:                  "BACA";
+        compatible_railtype_list: ["RAIL", "ELRL", 
+                                    "SACN", "SBCN", "SCCN", "SDCN", "SECN",  "SFCN", "SGDN",
+                                    "SADN", "SBDN", "SCDN", "SDDN", "SEDN",  "SFDN", "SGDN",
+                                    "SAEN", "SBEN", "SCEN", "SDEN", "SEEN",  "SFEN", "SGEN",
+                                    "SACA", "SBCA", "SCCA", "SDCA", "SECA",  "SFCA", "SGCA",
+                                    "SADA", "SBDA", "SCDA", "SDDA", "SEDA",  "SFDA", "SGDA", 
+                                    "SAEA", "SBEA", "SCEA", "SDEA", "SEEA",  "SFEA", "SGEA",
+                                    "SACd", "SBCd", "SCCd", "SDCd", "SECd",
+                                    "SADd", "SBDd", "SCDd", "SDDd", "SEDd",
+                                    "SAEd", "SBEd", "SCEd", "SDEd", "SEEd",  
+                                    "SACD", "SBCD", "SCCD", "SDCD", "SECD", 
+                                    "SADD", "SBDD", "SCDD", "SDDD", "SEDD",   
+                                    "SAC3", "SBC3", "SCC3", "SDC3",
+                                    "SACZ", "SBCZ", "SCCZ", "SDCZ",    
+                                    "SACL", "SBCL", "SCCL", "SDCL",
+                                    "DACN", 
+                                    "DADN", "DBDN",
+                                    "DACA", 
+                                    "DADA", "DBDA",
+                                    "dACN", "dBCN",
+                                    "BADN", "BBDN", "BCDN", "BDDN",
+                                    "BADA", "BBDA", "BCDA", "BDDA"];
+        powered_railtype_list:    [ "ELRL", 
+                                    "SACA", "SBCA", "SCCA", "SDCA", "SECA",  "SFCA", "SGCA",
+                                    "SADA", "SBDA", "SCDA", "SDDA", "SEDA",  "SFDA", "SGDA", 
+                                    "SAEA", "SBEA", "SCEA", "SDEA", "SEEA",  "SFEA", "SGEA",
+                                    "SACd", "SBCd", "SCCd", "SDCd", "SECd",
+                                    "SADd", "SBDd", "SCDd", "SDDd", "SEDd",
+                                    "SAEd", "SBEd", "SCEd", "SDEd", "SEEd",  
+                                    "SACD", "SBCD", "SCCD", "SDCD", "SECD", 
+                                    "SADD", "SBDD", "SCDD", "SDDD", "SEDD",   
+                                    "SACZ", "SBCZ", "SCCZ", "SDCZ",    
+                                    "DACA", 
+                                    "DADA", "DBDA",
+                                    "BADA", "BBDA", "BCDA", "BDDA"];
+        railtype_flags:  bitmask(RAILTYPE_FLAG_HIDDEN);
+    }
+}
+// 窄轨，宽轨不与准轨直通，不做兼容性轨道
 
 
 /* ---------------------------------------------------------------------------
@@ -67,7 +390,7 @@ item(FEAT_RAILTYPES, base_ELRL, 1) {
    --------------------------------------------------------------------------- */
 
 // SADN —— 铁路（1881，A 档 80km/h，轴重 D，非电）
-item(FEAT_RAILTYPES, rail_SADN, 4) {
+item(FEAT_RAILTYPES, rail_SADN, 7) {
     property {
         label:                  "SADN";
         introduction_date:      date(1881, 1, 1);
@@ -79,14 +402,24 @@ item(FEAT_RAILTYPES, rail_SADN, 4) {
         new_engine_text:        string(STR_RAIL_SADN);
         compatible_railtype_list: ["RAIL", "ELRL", 
                                     "SADN", "SBDN", "SCDN", "SDDN", "SEDN",  "SFDN", "SGDN",
-                                    "SACN", "SBCN", "SCCN", "SDCN", "SECN",  "SFCN", "SGCN",
-                                    "SABN", "SBBN", "SCBN", 
-                                    "SADA", "SBDA", "SCDA",
-                                    "SACA", "SBCA", "SCCA",
-                                    "SABA", "SBBN", "SCBN"];
-        powered_railtype_list:    ["RAIL", "SADN", "SBDN", "SCDN",
-                                    "SACN", "SBCN", "SCCN",
-                                    "SABN", "SBBN", "SCBN"];
+                                    "SAEN", "SBEN", "SCEN", "SDEN", "SEEN",  "SFEN", "SGEN",
+                                    "SADA", "SBDA", "SCDA", "SDDA", "SEDA",  "SFDA", "SGDA", 
+                                    "SAEA", "SBEA", "SCEA", "SDEA", "SEEA",  "SFEA", "SGEA", 
+                                    "SADd", "SBDd", "SCDd", "SDDd", "SEDd", 
+                                    "SAEd", "SBEd", "SCEd", "SDEd", "SEEd",  
+                                    "SADD", "SBDD", "SCDD", "SDDD", "SEDD",   
+                                    "DADN", "DBDN",
+                                    "DADA", "DBDA"];
+        powered_railtype_list:    ["RAIL", "ELRL", 
+                                    "SADN", "SBDN", "SCDN", "SDDN", "SEDN",  "SFDN", "SGDN",
+                                    "SAEN", "SBEN", "SCEN", "SDEN", "SEEN",  "SFEN", "SGEN",
+                                    "SADA", "SBDA", "SCDA", "SDDA", "SEDA",  "SFDA", "SGDA", 
+                                    "SAEA", "SBEA", "SCEA", "SDEA", "SEEA",  "SFEA", "SGEA", 
+                                    "SADd", "SBDd", "SCDd", "SDDd", "SEDd",  
+                                    "SAEd", "SBEd", "SCEd", "SDEd", "SEEd", 
+                                    "SADD", "SBDD", "SCDD", "SDDD", "SEDD", 
+                                    "DADN", "DBDN",
+                                    "DADA", "DBDA"];
         railtype_flags:         0;
         curve_speed_multiplier: 1;
         station_graphics:       RAILTYPE_STATION_NORMAL;
@@ -130,7 +463,7 @@ item(FEAT_RAILTYPES, rail_SADN, 4) {
 }
 
 // SBDN —— 干线铁路（1911，B 档 120km/h，轴重 D，非电）
-item(FEAT_RAILTYPES, rail_SBDN, 5) {
+item(FEAT_RAILTYPES, rail_SBDN, 8) {
     property {
         label:                  "SBDN";
         introduction_date:      date(1911, 1, 1);
@@ -174,7 +507,7 @@ item(FEAT_RAILTYPES, rail_SBDN, 5) {
 }
 
 // SCDN —— 准高速铁路（1967，C 档 160km/h，轴重 D，非电）
-item(FEAT_RAILTYPES, rail_SCDN, 6) {
+item(FEAT_RAILTYPES, rail_SCDN, 9) {
     property {
         label:                  "SCDN";
         introduction_date:      date(1967, 1, 1);
@@ -205,7 +538,7 @@ item(FEAT_RAILTYPES, rail_SCDN, 6) {
    --------------------------------------------------------------------------- */
 
 // SBDA —— 电气化铁路（1958，B 档 120km/h，轴重 D，25kV AC）
-item(FEAT_RAILTYPES, rail_SBDA, 7) {
+item(FEAT_RAILTYPES, rail_SBDA, 10) {
     property {
         label:                  "SBDA";
         introduction_date:      date(1958, 1, 1);
@@ -230,7 +563,7 @@ item(FEAT_RAILTYPES, rail_SBDA, 7) {
 }
 
 // SCDA —— 电气化准高速铁路（1991，C 档 160km/h，轴重 D，25kV AC）
-item(FEAT_RAILTYPES, rail_SCDA, 8) {
+item(FEAT_RAILTYPES, rail_SCDA, 11) {
     property {
         label:                  "SCDA";
         introduction_date:      date(1991, 1, 1);
@@ -255,7 +588,7 @@ item(FEAT_RAILTYPES, rail_SCDA, 8) {
 }
 
 // SBEd —— 电气化厂矿铁路（1920，B 档，轴重 25t，1500V DC）
-item(FEAT_RAILTYPES, rail_SBEd, 9) {
+item(FEAT_RAILTYPES, rail_SBEd, 12) {
     property {
         label:                  "SBEd";
         introduction_date:      date(1920, 1, 1);
@@ -280,7 +613,7 @@ item(FEAT_RAILTYPES, rail_SBEd, 9) {
 }
 
 // SBDD —— 朝鲜电气化铁路（1950，B 档，轴重 D，3000V DC）
-item(FEAT_RAILTYPES, rail_SBDD, 10) {
+item(FEAT_RAILTYPES, rail_SBDD, 13) {
     property {
         label:                  "SBDD";
         introduction_date:      date(1950, 1, 1);
