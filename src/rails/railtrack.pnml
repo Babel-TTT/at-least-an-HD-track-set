@@ -560,6 +560,24 @@ item(FEAT_RAILTYPES, rail_SBDA, 10) {
         map_colour:             0x5A;
         sort_order:             SORT_ELECTRIC;
     }
+    /* ★ 2026-10-02 接入：P2-G2 的几何组（第一个电气化轨道）。
+       G2 = `BAL-C` + **U 形混凝土枕 `SLE-2`**（人工裁定）+ `RAI-1` + `TUN-2`。
+       与 G1 的差别只有枕木 ⇒ 用 probe_underlay_g2 / probe_overlay_g2。
+
+       ⚠ `junction3` / `junction4` 在 underlay_g2 里**复用了 G1 的模板**
+         （纯道砟、没有枕木，两个组完全一样）。
+
+       ⚠ **接触网暂时没接** —— `catenary_wire`(28) / `catenary_pylons`(8) 还没做，
+         所以这里不带那两组，先走引擎原版杆/线兜底（`RAILTYPE_FLAG_CATENARY`
+         已经开着，只是杆线是原版的）。等接触网做完补上即可。 */
+    graphics {
+        underlay:        probe_underlay_g2;
+        track_overlay:   probe_overlay_g2;
+        tunnels:         probe_tunnels_2;
+        tunnel_overlay:  probe_tunnel_over_2;
+        level_crossings: probe_level_crossing;
+        bridge_surfaces: probe_bridge_surfaces_g2;
+    }
 }
 
 // SCDA —— 电气化准高速铁路（1991，C 档 160km/h，轴重 D，25kV AC）

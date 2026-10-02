@@ -314,3 +314,60 @@ spriteset(probe_bridge_surfaces_brown, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
     t_G1_brown_track_slope_v2("gfx/brown.png")    // 4  坡 SW（x=1 边抬 / 近端高）
     t_G1_brown_track_slope_v1("gfx/brown.png")    // 5  坡 NW（y=0 边抬 / 远端高）
 }
+
+/* ===========================================================================
+   G2 —— `SBDA`（电气化铁路 25kV）的几何组（分表：gfx/g2.png）
+
+   人工裁定 2026-10-02：G2 用 **U 形混凝土枕**（`SLE-2`），道床/钢轨与 G1 相同。
+   ⇒ 下面这几组是 `probe_underlay` / `probe_overlay` / `probe_bridge_surfaces`
+     的 G2 平替，**槽位逐条对应**，接线时代换即可。
+
+   ⚠ underlay 的 `junction3` / `junction4` **仍指向 G1 的模板** ——
+     那两个模型是纯道砟、**没有枕木**，G2 与 G1 完全一样，没必要做第二份。
+
+   ⚠ 隧道口沿用 `probe_tunnels_2` / `probe_tunnel_over_2`（TUN-2）——
+     与 `SBDN` 同一套，不需要新做。
+
+   ⚠ **道口暂时沿用 G1 的 `probe_level_crossing`** —— 道口模型里也有枕木，
+     严格说也该出 G2 版；留作待办（见 美术要素方案.md）。
+   =========================================================================== */
+spriteset(probe_underlay_g2, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G2_track_straight_v0("gfx/g2.png")           //  0  RTO_X        X
+    t_G2_track_straight_v3("gfx/g2.png")           //  1  RTO_Y        Y
+    t_G2_track_halftrack_v0("gfx/g2.png")          //  2  RTO_N        UPPER
+    t_G2_track_halftrack_v2("gfx/g2.png")          //  3  RTO_S        LOWER
+    t_G2_track_halftrack_v3("gfx/g2.png")          //  4  RTO_E        RIGHT
+    t_G2_track_halftrack_v1("gfx/g2.png")          //  5  RTO_W        LEFT
+    t_G2_track_slope_v0("gfx/g2.png")              //  6  RTO_SLOPE_NE   v0（右上抬）
+    t_G2_track_slope_v3("gfx/g2.png")              //  7  RTO_SLOPE_SE   v3（右下抬）
+    t_G2_track_slope_v2("gfx/g2.png")              //  8  RTO_SLOPE_SW   v2（左下抬）
+    t_G2_track_slope_v1("gfx/g2.png")              //  9  RTO_SLOPE_NW   v1（左上抬）
+    t_G2_track_crossing_v0("gfx/g2.png")           // 10  RTO_CROSSING_XY
+    t_G1_junction3_v0("gfx/rail.png")              // 11  RTO_JUNCTION_SW ★ 复用 G1
+    t_G1_junction3_v2("gfx/rail.png")              // 12  RTO_JUNCTION_NE ★（无枕木）
+    t_G1_junction3_v1("gfx/rail.png")              // 13  RTO_JUNCTION_SE ★
+    t_G1_junction3_v3("gfx/rail.png")              // 14  RTO_JUNCTION_NW ★
+    t_G1_junction4_v0("gfx/rail.png")              // 15  RTO_JUNCTION_NSEW ★
+}
+
+spriteset(probe_overlay_g2, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G2_rail_straight_v0("gfx/g2.png")            // 0  RTO_X
+    t_G2_rail_straight_v3("gfx/g2.png")            // 1  RTO_Y
+    t_G2_rail_halftrack_v0("gfx/g2.png")           // 2  RTO_N
+    t_G2_rail_halftrack_v2("gfx/g2.png")           // 3  RTO_S
+    t_G2_rail_halftrack_v3("gfx/g2.png")           // 4  RTO_E
+    t_G2_rail_halftrack_v1("gfx/g2.png")           // 5  RTO_W
+    t_G2_rail_slope_v0("gfx/g2.png")               // 6  RTO_SLOPE_NE
+    t_G2_rail_slope_v3("gfx/g2.png")               // 7  RTO_SLOPE_SE
+    t_G2_rail_slope_v2("gfx/g2.png")               // 8  RTO_SLOPE_SW
+    t_G2_rail_slope_v1("gfx/g2.png")               // 9  RTO_SLOPE_NW
+}
+
+spriteset(probe_bridge_surfaces_g2, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G2_track_straight_v0("gfx/g2.png")           // 0  平 — X
+    t_G2_track_straight_v3("gfx/g2.png")           // 1  平 — Y
+    t_G2_track_slope_v0("gfx/g2.png")              // 2  坡 NE
+    t_G2_track_slope_v3("gfx/g2.png")              // 3  坡 SE
+    t_G2_track_slope_v2("gfx/g2.png")              // 4  坡 SW
+    t_G2_track_slope_v1("gfx/g2.png")              // 5  坡 NW
+}
