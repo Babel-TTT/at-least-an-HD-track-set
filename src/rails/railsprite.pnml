@@ -164,6 +164,30 @@ spriteset(probe_tunnel_over_2, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
 }
 
 /* ===========================================================================
+   TUN-2 + G2 —— 素混凝土端墙拱 + **U 形混凝土枕**（分表：gfx/tunnel2g2.png）
+
+   谁用：`SBDA`（P2-G2 电气化铁路）。人工裁定 2026-10-02：
+     「注意电气化轨道隧道的轨道还是旧的枕木没更换。更换然后推进导线」
+
+   ★ **隧道口是两条独立的轴**：
+       洞门样式  TUN-1（料石）  / TUN-2（素混凝土）
+       轨道组别  G1（木枕 SLE-1）/ G2（U 形混凝土枕 SLE-2）
+     `SADN`=TUN-1+G1 · `SBDN`/`SBEd`/`SBDD`=TUN-2+G1 · **`SBDA`=TUN-2+G2 ← 本组**
+
+   ★ **只提供 `tunnels:`（地面层）**：这一层才有道砟/轨枕/钢轨。
+     `tunnel_overlay:`（端墙+拱+压顶+仰面+石梁）**不含轨道** ⇒ `SBDA` 继续用
+     `probe_tunnel_over_2`，不重复出一套。
+
+   槽位顺序与取图顺序**完全照 TUN-2**：v0, v3, v2(_b), v1(_b)。
+   =========================================================================== */
+spriteset(probe_tunnels_2_g2, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G2_tunnel2_stone_v0("gfx/tunnel2g2.png")       // 0  DiagDir NE ← v0   A 组
+    t_G2_tunnel2_stone_v3("gfx/tunnel2g2.png")       // 1  DiagDir SE ← v3   A 组
+    t_G2_tunnel2_stone_b_v2("gfx/tunnel2g2.png")     // 2  DiagDir SW ← v2   B 组（左右翻转）
+    t_G2_tunnel2_stone_b_v1("gfx/tunnel2g2.png")     // 3  DiagDir NW ← v1   B 组（左右翻转）
+}
+
+/* ===========================================================================
    平交道口 —— 公路 × 铁路（分表：gfx/levelcrossing.png）
 
    核自官方 wiki（https://newgrf-specs.tt-wiki.net/index.php?title=NML:Railtypes ）：
@@ -394,4 +418,74 @@ spriteset(probe_catenary_pylons, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
     t_G1_pylon_b_v2("gfx/catenary.png")     // 5  PSO_EW_S   斜半轨，柱在 S 边中点
     t_G1_pylon_b_v1("gfx/catenary.png")     // 6  PSO_NS_W   斜半轨，柱在 W 边中点
     t_G1_pylon_b_v3("gfx/catenary.png")     // 7  PSO_NS_E   斜半轨，柱在 E 边中点
+}
+
+/* ===========================================================================
+   接触网导线 —— catenary_wire
+
+   ★ **写 30 格**（人工 2026-10 裁定「先按 30 写」）。
+     wiki 的 NML:Railtypes 表格写 28，而引擎源码 `enum RailCatenarySprite`
+     的声明序是 **30**（见 美术要素方案.md §1.5.1）。
+     多给不会坏事、少给会读到越界 —— **30 是安全侧**：
+       引擎只读 0..27 ⇒ 多出的 2 张没人引用（浪费 2 张图）
+       引擎读 0..29   ⇒ 正好
+     所以这里按 **30** 排，槽位名逐条写在右边。
+
+   ★ 槽位语义（名字就是引擎的枚举名，声明序 = 图集序）：
+     0-2   X_FLAT_SW / NE / BOTH      X 向、平瓦片：SW 半 / NE 半 / 整格
+     3-5   X_UP_*                      X 向、上坡（**这一轮复用 FLAT 的图**）
+     6-8   X_DOWN_*                    X 向、下坡（同上）
+     9-11  Y_FLAT_SE / NW / BOTH       Y 向、平
+     12-14 Y_UP_*                      同上
+     15-17 Y_DOWN_*                    同上
+     18/19 NS_W_BOTH / NS_E_BOTH       斜半轨(贴 W 角 / 贴 E 角)，整段
+     20/21 NS_W_N / NS_E_N             斜半轨，N 端那半
+     22/23 NS_W_S / NS_E_S             斜半轨，S 端那半
+     24/25 EW_N_BOTH / EW_S_BOTH       斜半轨(贴 N 角 / 贴 S 角)，整段
+     26/27 EW_N_W / EW_S_W             W 端那半
+     28/29 EW_N_E / EW_S_E             E 端那半
+
+   ★ **只用 9 个模型**：X/Y 互为 90° 旋转（v0/v1），NS/EW 同理。
+     旋转 R(x,y) = (1−y, x) 的对应关系已按几何逐个核过：
+       R(S–W 边 x=1) = E–S 边 y=1  ⇒ x_sw 的 v1 = Y 向 **SE** 端
+       R(N–E 边 x=0) = W–N 边 y=0  ⇒ x_ne 的 v1 = Y 向 **NW** 端
+       R(W 角斜线)   = S 角斜线    ⇒ ns_w_* 的 v1 = EW 的 **S 位**
+       R(E 角斜线)   = N 角斜线    ⇒ ns_e_* 的 v1 = EW 的 **N 位**
+     （端头也跟着走：NS_W 的 N 端 (0.5,0) → EW_S 的 W 端 (1,0.5) ✓）
+
+   ⚠ **这 30 个槽位 ↔ 我们的图，还没实机核过**（和支柱那次一样）。
+     实机看到错位就报一句「哪个槽的线跑到哪去了」，改这个表即可 ——
+     模型/模板都不用动。
+   =========================================================================== */
+spriteset(probe_catenary_wire, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G1_wire_x_sw_v0("gfx/catenary.png")         // 0  X_FLAT_SW     SW 半
+    t_G1_wire_x_ne_v0("gfx/catenary.png")         // 1  X_FLAT_NE     NE 半
+    t_G1_wire_x_both_v0("gfx/catenary.png")       // 2  X_FLAT_BOTH   整格
+    t_G1_wire_x_sw_v0("gfx/catenary.png")         // 3  X_UP_SW      （斜坡复用 FLAT）
+    t_G1_wire_x_ne_v0("gfx/catenary.png")         // 4  X_UP_NE
+    t_G1_wire_x_both_v0("gfx/catenary.png")       // 5  X_UP_BOTH
+    t_G1_wire_x_sw_v0("gfx/catenary.png")         // 6  X_DOWN_SW
+    t_G1_wire_x_ne_v0("gfx/catenary.png")         // 7  X_DOWN_NE
+    t_G1_wire_x_both_v0("gfx/catenary.png")       // 8  X_DOWN_BOTH
+    t_G1_wire_x_sw_v1("gfx/catenary.png")         // 9  Y_FLAT_SE     = R(x_sw)
+    t_G1_wire_x_ne_v1("gfx/catenary.png")         // 10 Y_FLAT_NW     = R(x_ne)
+    t_G1_wire_x_both_v1("gfx/catenary.png")       // 11 Y_FLAT_BOTH
+    t_G1_wire_x_sw_v1("gfx/catenary.png")         // 12 Y_UP_SE
+    t_G1_wire_x_ne_v1("gfx/catenary.png")         // 13 Y_UP_NW
+    t_G1_wire_x_both_v1("gfx/catenary.png")       // 14 Y_UP_BOTH
+    t_G1_wire_x_sw_v1("gfx/catenary.png")         // 15 Y_DOWN_SE
+    t_G1_wire_x_ne_v1("gfx/catenary.png")         // 16 Y_DOWN_NW
+    t_G1_wire_x_both_v1("gfx/catenary.png")       // 17 Y_DOWN_BOTH
+    t_G1_wire_ns_w_both_v0("gfx/catenary.png")    // 18 NS_W_BOTH     贴 W 角，整段
+    t_G1_wire_ns_e_both_v0("gfx/catenary.png")    // 19 NS_E_BOTH     贴 E 角，整段
+    t_G1_wire_ns_w_n_v0("gfx/catenary.png")       // 20 NS_W_N        N 端
+    t_G1_wire_ns_e_n_v0("gfx/catenary.png")       // 21 NS_E_N        N 端
+    t_G1_wire_ns_w_s_v0("gfx/catenary.png")       // 22 NS_W_S        S 端
+    t_G1_wire_ns_e_s_v0("gfx/catenary.png")       // 23 NS_E_S        S 端
+    t_G1_wire_ns_e_both_v1("gfx/catenary.png")    // 24 EW_N_BOTH     = R(ns_e_both)
+    t_G1_wire_ns_w_both_v1("gfx/catenary.png")    // 25 EW_S_BOTH     = R(ns_w_both)
+    t_G1_wire_ns_e_n_v1("gfx/catenary.png")       // 26 EW_N_W        = R(ns_e_n)
+    t_G1_wire_ns_w_n_v1("gfx/catenary.png")       // 27 EW_S_W        = R(ns_w_n)
+    t_G1_wire_ns_e_s_v1("gfx/catenary.png")       // 28 EW_N_E        = R(ns_e_s)
+    t_G1_wire_ns_w_s_v1("gfx/catenary.png")       // 29 EW_S_E        = R(ns_w_s)
 }

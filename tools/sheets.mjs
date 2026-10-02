@@ -35,6 +35,20 @@
  */
 export const SHEETS = [
   {
+    // P2-G2 的**隧道口地面层**：TUN-2 素混凝土端墙拱 + G2 U 形混凝土枕。
+    //
+    // ⚠ **必须登记在 `g2` 之前**：下面那个表的正则是 /^G2_/，
+    //   会先把 `G2_tunnel2_*` 吃掉（first-match-wins，见文件头）。
+    // ⚠ 也必须**单独一张表**：本族的取景框由「端墙下半 + 仰面 + 山体侧壁」决定，
+    //   与 g2 表（纯轨道，最高点 0.0230）完全不同；并进 g2 会把那 21 张顶移位。
+    //
+    // 只有 2 个模型（A 组 / B 组）—— `tunnel_overlay:` 那层不含轨道，
+    // G2 直接复用 TUN-2 的 `G1_tunnel2_stone_over*`，见 tools/gen-g1-tunnel.mjs。
+    key: 'tunnel2g2',
+    title: '隧道口 TUN-2 + G2（素混凝土端墙拱 + U 形混凝土枕；SBDA）',
+    match: /^G2_tunnel2/,
+  },
+  {
     // P2-G2（电气化铁路 `SBDA` 那一组）的模型。
     // 目前只有试件 G2_sleeper_test —— 混凝土枕的 U 形承轨槽形状确认件。
     key: 'g2',

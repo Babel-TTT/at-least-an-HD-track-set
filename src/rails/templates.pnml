@@ -366,6 +366,41 @@ template t_G1_tunnel2_stone_over_b_v1(sheet) {
 }
 
 // ---------------------------------------------------------------------------
+// G2_tunnel2_* —— **TUN-2 素混凝土端墙拱 + G2 U 形混凝土枕**（`SBDA` 用）
+//
+//   参数 sheet：调用处传 "gfx/tunnel2g2.png"（单独一张表，见 tools/sheets.mjs）
+//
+//   ★ 为什么单独一族（人工裁定 2026-10-02）：
+//     TUN-2 是「只换材质」从 TUN-1 得到的 ⇒ 轨枕仍是 **G1 木枕**。
+//     而 `SBDA` 的地面轨道是 **G2 混凝土枕** ⇒ 一进隧道就露出木枕，洞口换样。
+//     洞门样式（TUN-1/TUN-2）与轨道组别（G1/G2）是**两条独立的轴**。
+//
+//   ★ **只有 2 个模型**（`tunnels:` 地面层的 A 组 / B 组）：
+//     `tunnel_overlay:` 那层不含任何轨道，G2 直接复用 `t_G1_tunnel2_stone_over*`。
+//
+//   ⚠ 本表格位是 **263×167**（tunnel2 是 181）—— 地面层比立体层矮 14px。
+//     ⇒ 锚点 = 本表的 centerAnchor 算法值 + **对应 tunnel2 模板的手调增量**
+//       （与 G2 表同一套换算，见下面 G2_* 那一节）。
+//         平铺值                      手调增量            本表值
+//     v0  (-131,-35)              (+5,-1)              (-126,-36)
+//     v3  (-259,-99)              (+133,+63)           (-126,-36)
+//     _b_v2 (-131,-163)           (+12,+128)           (-119,-35)
+//     _b_v1 (-3,-99)              (-127,+63)           (-130,-36)
+// ---------------------------------------------------------------------------
+template t_G2_tunnel2_stone_v0(sheet) {
+  [0, 0, 263, 167, -126, -36, sheet]  // 【手调】照 t_G1_tunnel2_stone_v0 的增量
+}
+template t_G2_tunnel2_stone_v3(sheet) {
+  [789, 0, 263, 167, -126, -36, sheet]  // 【手调】
+}
+template t_G2_tunnel2_stone_b_v2(sheet) {
+  [1578, 0, 263, 167, -119, -35, sheet]  // 【手调】
+}
+template t_G2_tunnel2_stone_b_v1(sheet) {
+  [1315, 0, 263, 167, -130, -36, sheet]  // 【手调】
+}
+
+// ---------------------------------------------------------------------------
 // G2_* —— **P2-G2 的几何组**（`SBDA` 电气化铁路专用；分表 gfx/g2.png）
 //
 //   参数 sheet：调用处传 "gfx/g2.png"（单独一张表，见 tools/sheets.mjs）
@@ -583,6 +618,131 @@ template t_G1_pylon_b_v2(sheet) {
 }
 template t_G1_pylon_b_v3(sheet) {
   [1841, 0, 263, 241, -225, -173, sheet]
+}
+
+// ---------------------------------------------------------------------------
+// G1_wire_* —— 接触网**导线**的 9 个模型（分表仍是 gfx/catenary.png）
+//
+//   ★ 30 个槽位只用了**这 9 个模型的两个视图**：
+//       X 向 9 格 ← 3 个模型（x_sw / x_ne / x_both）的 **v0**
+//       Y 向 9 格 ← 同 3 个模型的 **v1**（R(x,y) = (1−y, x) 把 x 轴转到 y 轴）
+//       NS 斜 6 格 ← 3 个 ns_w / 3 个 ns_e 的 **v0**
+//       EW 斜 6 格 ← 同 6 个模型的 **v1**
+//     （UP / DOWN 这 12 格这一轮**先复用 FLAT 的图**，理由见
+//       models/G1_wire_x_sw.model 的文件头）
+//
+//   锚点：**全表一致、全是算法值，没有手调** ——
+//     v0 (−131,−109)   v1 (−3,−173)   v2 (−131,−237)   v3 (−259,−173)
+//   ⚠ 与支柱那 8 条**不一样**：支柱被人工调过（±4/±8）。导线是**居中在瓦片上**的，
+//     本来就该用算法值；支柱要"站在轨道旁边"才需要那点横向微调。
+// ---------------------------------------------------------------------------
+template t_G1_wire_x_sw_v0(sheet) {
+  [0, 1205, 263, 241, -131, -109, sheet]
+}
+template t_G1_wire_x_sw_v1(sheet) {
+  [263, 1205, 263, 241, -3, -173, sheet]
+}
+template t_G1_wire_x_sw_v2(sheet) {
+  [526, 1205, 263, 241, -131, -237, sheet]
+}
+template t_G1_wire_x_sw_v3(sheet) {
+  [789, 1205, 263, 241, -259, -173, sheet]
+}
+template t_G1_wire_x_ne_v0(sheet) {
+  [1052, 964, 263, 241, -131, -109, sheet]
+}
+template t_G1_wire_x_ne_v1(sheet) {
+  [1315, 964, 263, 241, -3, -173, sheet]
+}
+template t_G1_wire_x_ne_v2(sheet) {
+  [1578, 964, 263, 241, -131, -237, sheet]
+}
+template t_G1_wire_x_ne_v3(sheet) {
+  [1841, 964, 263, 241, -259, -173, sheet]
+}
+template t_G1_wire_x_both_v0(sheet) {
+  [0, 964, 263, 241, -131, -109, sheet]
+}
+template t_G1_wire_x_both_v1(sheet) {
+  [263, 964, 263, 241, -3, -173, sheet]
+}
+template t_G1_wire_x_both_v2(sheet) {
+  [526, 964, 263, 241, -131, -237, sheet]
+}
+template t_G1_wire_x_both_v3(sheet) {
+  [789, 964, 263, 241, -259, -173, sheet]
+}
+template t_G1_wire_ns_w_both_v0(sheet) {
+  [1052, 482, 263, 241, -131, -109, sheet]
+}
+template t_G1_wire_ns_w_both_v1(sheet) {
+  [1315, 482, 263, 241, -3, -173, sheet]
+}
+template t_G1_wire_ns_w_both_v2(sheet) {
+  [1578, 482, 263, 241, -131, -237, sheet]
+}
+template t_G1_wire_ns_w_both_v3(sheet) {
+  [1841, 482, 263, 241, -259, -173, sheet]
+}
+template t_G1_wire_ns_w_n_v0(sheet) {
+  [0, 723, 263, 241, -131, -109, sheet]
+}
+template t_G1_wire_ns_w_n_v1(sheet) {
+  [263, 723, 263, 241, -3, -173, sheet]
+}
+template t_G1_wire_ns_w_n_v2(sheet) {
+  [526, 723, 263, 241, -131, -237, sheet]
+}
+template t_G1_wire_ns_w_n_v3(sheet) {
+  [789, 723, 263, 241, -259, -173, sheet]
+}
+template t_G1_wire_ns_w_s_v0(sheet) {
+  [1052, 723, 263, 241, -131, -109, sheet]
+}
+template t_G1_wire_ns_w_s_v1(sheet) {
+  [1315, 723, 263, 241, -3, -173, sheet]
+}
+template t_G1_wire_ns_w_s_v2(sheet) {
+  [1578, 723, 263, 241, -131, -237, sheet]
+}
+template t_G1_wire_ns_w_s_v3(sheet) {
+  [1841, 723, 263, 241, -259, -173, sheet]
+}
+template t_G1_wire_ns_e_both_v0(sheet) {
+  [0, 241, 263, 241, -131, -109, sheet]
+}
+template t_G1_wire_ns_e_both_v1(sheet) {
+  [263, 241, 263, 241, -3, -173, sheet]
+}
+template t_G1_wire_ns_e_both_v2(sheet) {
+  [526, 241, 263, 241, -131, -237, sheet]
+}
+template t_G1_wire_ns_e_both_v3(sheet) {
+  [789, 241, 263, 241, -259, -173, sheet]
+}
+template t_G1_wire_ns_e_n_v0(sheet) {
+  [1052, 241, 263, 241, -131, -109, sheet]
+}
+template t_G1_wire_ns_e_n_v1(sheet) {
+  [1315, 241, 263, 241, -3, -173, sheet]
+}
+template t_G1_wire_ns_e_n_v2(sheet) {
+  [1578, 241, 263, 241, -131, -237, sheet]
+}
+template t_G1_wire_ns_e_n_v3(sheet) {
+  [1841, 241, 263, 241, -259, -173, sheet]
+}
+template t_G1_wire_ns_e_s_v0(sheet) {
+  [0, 482, 263, 241, -131, -109, sheet]
+}
+template t_G1_wire_ns_e_s_v1(sheet) {
+  [263, 482, 263, 241, -3, -173, sheet]
+}
+template t_G1_wire_ns_e_s_v2(sheet) {
+  [526, 482, 263, 241, -131, -237, sheet]
+}
+template t_G1_wire_ns_e_s_v3(sheet) {
+  [789, 482, 263, 241, -259, -173, sheet]
 }
 
 // ---------------------------------------------------------------------------

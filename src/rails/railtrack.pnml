@@ -573,11 +573,18 @@ item(FEAT_RAILTYPES, rail_SBDA, 10) {
     graphics {
         underlay:        probe_underlay_g2;
         track_overlay:   probe_overlay_g2;
-        tunnels:         probe_tunnels_2;
+        /* ★ 2026-10-02 换到 **TUN-2 + G2 混凝土枕**（人工：「电气化轨道隧道的轨道
+           还是旧的枕木没更换」）。TUN-2 是「只换材质」从 TUN-1 得来的 ⇒ 轨枕仍是
+           G1 木枕；`SBDA` 地面已经是混凝土枕，隧道里必须跟着换，否则洞口换样。
+           `tunnel_overlay:` 那层**不含轨道** ⇒ 继续用 probe_tunnel_over_2。 */
+        tunnels:         probe_tunnels_2_g2;
         tunnel_overlay:  probe_tunnel_over_2;
         level_crossings: probe_level_crossing;
         bridge_surfaces: probe_bridge_surfaces_g2;
         catenary_pylons: probe_catenary_pylons;
+        /* ★ 2026-10-02 接上导线（30 格，见 railsprite.pnml 的 probe_catenary_wire）。
+           wiki 写 28、引擎枚举是 30 ⇒ 按 30 写（多给安全）。 */
+        catenary_wire:   probe_catenary_wire;
     }
 }
 

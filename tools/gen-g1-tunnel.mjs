@@ -262,6 +262,40 @@ function sleepers() {
   return L;
 }
 
+// ---- ★ G2 轨枕：U 形混凝土枕（SLE-2）---------------------------------------
+//
+//   人工裁定 2026-10-02：「电气化轨道隧道的轨道还是旧的枕木没更换」——
+//   `SBDA` 的地面轨道早就换成 G2 混凝土枕了，**隧道口那一层还留着 G1 木枕**。
+//
+//   本函数与 tools/gen-g1-switches.mjs 里 G2 直线轨那套**逐字一致**
+//   （那边的常量：Z_BASE 0.0075 / Z_PAD 0.0087 / Z_MID 0.0095 / Z_TOP 0.0100）：
+//     底板   0 → 0.0075   `concrete`        顶 `concrete_seam`
+//     槽底A  0.0075 → 0.0087 y 0.4300~0.4660 `trim_dark`
+//     槽底B  0.0075 → 0.0087 y 0.5340~0.5700 `trim_dark`
+//     挡肩A  0.0075 → 0.0100 y 0.4100~0.4300 `concrete` 顶 `concrete`
+//     中间体 0.0075 → 0.0095 y 0.4660~0.5340 `concrete` 顶 `concrete_seam`（微凹）
+//     挡肩B  0.0075 → 0.0100 y 0.5700~0.5900 `concrete` 顶 `concrete`
+//
+//   ★ 枕木顶仍是 0.0100（= G1 木枕顶）⇒ **钢轨高度与 G1 完全一致**（人工要求）。
+//   ★ U 形靠**色差**读，不靠深度（竖直标度 156.77 px/格 ⇒ 5 cm 的槽只有 0.63 px）。
+const G2_Z_BASE = 0.0075, G2_Z_PAD = 0.0087, G2_Z_MID = 0.0095, G2_Z_TOP = 0.0100;
+
+function sleepersG2() {
+  const L = [];
+  const NT = 25, HW = 0.008;
+  for (let i = 0; i < NT; i++) {
+    const t = 0.012 + 0.976 * i / (NT - 1);
+    const a = t - HW, b = t + HW;
+    L.push(...box(a, 0.4100, b, 0.5900, SLEEPER_BASE, G2_Z_BASE, 'concrete', 'concrete_seam'));
+    L.push(...box(a, 0.4300, b, 0.4660, G2_Z_BASE, G2_Z_PAD, 'trim_dark', 'trim_dark'));
+    L.push(...box(a, 0.5340, b, 0.5700, G2_Z_BASE, G2_Z_PAD, 'trim_dark', 'trim_dark'));
+    L.push(...box(a, 0.4100, b, 0.4300, G2_Z_BASE, G2_Z_TOP, 'concrete', 'concrete'));
+    L.push(...box(a, 0.4660, b, 0.5340, G2_Z_BASE, G2_Z_MID, 'concrete', 'concrete_seam'));
+    L.push(...box(a, 0.5700, b, 0.5900, G2_Z_BASE, G2_Z_TOP, 'concrete', 'concrete'));
+  }
+  return L;
+}
+
 function rails() {
   const L = [];
   for (const [a, b] of RAIL_Y) L.push(...box(0, a, 1, b, RAIL_BASE, RAIL_TOP, 'rust', 'metal'));
@@ -685,6 +719,58 @@ export function generateTunnel() {
       const f = path.join(ROOT, 'models', nn + '.model');
       fs.writeFileSync(f, t, 'utf8');
       log(`  ✔ ${rel(f).padEnd(44)} ${String(t.split('\n').length).padStart(4)} 行   ${nf} 面   （TUN-2 素混凝土）`);
+    }
+  }
+
+  // -------------------------------------------------------------------------
+  // ★ P2-G2：TUN-2 素混凝土端墙拱 **+ G2 U 形混凝土枕**
+  //
+  //   人工裁定 2026-10-02：「注意电气化轨道隧道的轨道还是旧的枕木没更换。更换然后推进导线」。
+  //
+  //   为什么需要这一族：TUN-2 是**在 TUN-1 的文本上只换材质**得到的 ⇒ 它的轨枕
+  //   仍然是 G1 的木枕。而 `SBDA`（P2-G2）的地面轨道已经是混凝土枕
+  //   ⇒ 一进隧道就露出木枕，**枕木在洞口处会突然换样**。
+  //
+  //   隧道口是**两条独立的轴**，不能混：
+  //     洞门样式 TUN-1（料石）/ TUN-2（素混凝土）  —— 按人工裁定 §3.2 分给不同轨道
+  //     轨道组别 G1（木枕 SLE-1）/ G2（U 形混凝土枕 SLE-2）
+  //   `SADN`  = TUN-1 + G1     `SBDN`/`SBEd`/`SBDD` = TUN-2 + G1
+  //   `SBDA`  = TUN-2 + **G2** ← 本族
+  //
+  //   **只做 `tunnels:`（地面层）两个模型**（A 组 / B 组）：
+  //   `tunnel_overlay:` 那层**不含任何轨道**（只有端墙 + 拱 + 压顶 + 仰面 + 石梁），
+  //   所以 G2 直接复用 TUN-2 的 `G1_tunnel2_stone_over*` 两张，不重复出一套。
+  //
+  //   单独一张表 `gfx/tunnel2g2.png`（tools/sheets.mjs 的 `tunnel2g2`，
+  //   登记在 `g2` **之前** —— 后者的正则是 /^G2_/，会先把 G2_tunnel2_* 吃掉）：
+  //   本族的取景框与 g2 表未必一致，单独一张才**不会把 g2 那 21 张顶移位**。
+  // -------------------------------------------------------------------------
+  {
+    const sleepG2 = sleepersG2();
+    const groundA2 = [...ball, ...sleepG2, ...rail, ...br, ...innerA];
+    const groundB2 = [...ball, ...sleepG2, ...rail, ...br, ...innerB];
+    const src = [
+      ['G1_tunnel_stone',   groundA2, halfFar,  'A 组：远半'],
+      ['G1_tunnel_stone_b', groundB2, halfNear, 'B 组：近半'],
+    ];
+    log('');
+    log('  TUN-2 + G2 U 形混凝土枕（tunnels: 地面层两个模型）：');
+    for (const [name, ground, half, which] of src) {
+      let body = [...ground, ...half].join('\n');
+      const nn = name.replace('G1_tunnel_stone', 'G2_tunnel2_stone');
+      let s = header(nn, 'P2-G2：TUN-2 素混凝土端墙拱 + G2 U 形混凝土枕 —— tunnels: 组（' + which + '）', WHY);
+      s = s.replace(/TUN-1 料石端墙拱/g, 'TUN-2 素混凝土端墙拱 + G2 混凝土枕');
+      s += 'name      ' + nn + '\ngroup     misc\nfootprint 1 1\n';
+      s += 'zmax      ' + ZMAX_PIN + '\n\n';
+      s += '# --- 道砟 / **U 形混凝土枕（SLE-2）** / 钢轨 / 洞口暗幕 / 拱腹内壁 ---\n' + body + '\n';
+      s += '\n# --- 洞门 + 锥坡 + 山体侧壁：' + which + ' ---\n' + half.join('\n') + '\n';
+      // 与 TUN-2 同一套材质替换（料石 → 素混凝土）
+      s = s.replace(/\bstone_seam\b/g, 'metal_seam')
+        .replace(/\bstone_dark\b/g, 'panel_seam')
+        .replace(/\bstone\b/g, 'concrete_dark');
+      const f = path.join(ROOT, 'models', nn + '.model');
+      fs.writeFileSync(f, s, 'utf8');
+      log(`  ✔ ${rel(f).padEnd(44)} ${String(s.split('\n').length).padStart(4)} 行   ${ground.length + half.length} 面   （G2 混凝土枕 ${sleepG2.length / 30} 根）`);
     }
   }
   log('');
