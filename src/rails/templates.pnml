@@ -678,22 +678,22 @@ template t_G1_wire_x_short_v0(sheet) {
   [0, 964, 263, 241, -187, -133, sheet]        // 【手调】槽 2   X_FLAT_BOTH 1 格跨
 }
 template t_G1_wire_x_sw_up_v0(sheet) {
-  [1052, 1446, 263, 241, -187, -97, sheet]    // 【手调】槽 3-5 X_UP_*（模型已降 9 单位）
+  [1052, 1446, 263, 241, -187, -133, sheet]    // 【手调】槽 3-5 X_UP_*（模型已降 9 单位）
 }
 template t_G1_wire_x_ne_up_v0(sheet) {
-  [1052, 723, 263, 241, -187, -97, sheet]     // 【手调】
+  [1052, 723, 263, 241, -187, -133, sheet]     // 【手调】
 }
 template t_G1_wire_x_short_up_v0(sheet) {
-  [0, 1205, 263, 241, -187, -97, sheet]       // 【手调】
+  [0, 1205, 263, 241, -187, -133, sheet]       // 【手调】
 }
 template t_G1_wire_x_sw_down_v0(sheet) {
-  [0, 1446, 263, 241, -187, -137, sheet]      // 【手调】槽 6-8 X_DOWN_*（模型已升 1 单位）
+  [0, 1446, 263, 241, -187, -101, sheet]      // 【手调】槽 6-8 X_DOWN_*（模型已升 1 单位）
 }
 template t_G1_wire_x_ne_down_v0(sheet) {
-  [0, 723, 263, 241, -187, -137, sheet]       // 【手调】
+  [0, 723, 263, 241, -187, -101, sheet]       // 【手调】
 }
 template t_G1_wire_x_short_down_v0(sheet) {
-  [1052, 964, 263, 241, -187, -137, sheet]    // 【手调】
+  [1052, 964, 263, 241, -187, -101, sheet]    // 【手调】
 }
 template t_G1_wire_x_sw_v1(sheet) {
   [1315, 1205, 263, 241, -75, -133, sheet]   // 【手调】槽 9   Y_FLAT_SE（= R(x_sw)）
@@ -705,22 +705,22 @@ template t_G1_wire_x_short_v1(sheet) {
   [263, 964, 263, 241, -75, -133, sheet]     // 【手调】槽 11  Y_FLAT_BOTH
 }
 template t_G1_wire_x_sw_up_v1(sheet) {
-  [1315, 1446, 263, 241, -75, -97, sheet]   // 【手调】槽 12-14 Y_UP_*
+  [1315, 1446, 263, 241, -75, -133, sheet]   // 【手调】槽 12-14 Y_UP_*
 }
 template t_G1_wire_x_ne_up_v1(sheet) {
-  [1315, 723, 263, 241, -75, -97, sheet]    // 【手调】
+  [1315, 723, 263, 241, -75, -133, sheet]    // 【手调】
 }
 template t_G1_wire_x_short_up_v1(sheet) {
-  [263, 1205, 263, 241, -75, -97, sheet]    // 【手调】
+  [263, 1205, 263, 241, -75, -133, sheet]    // 【手调】
 }
 template t_G1_wire_x_sw_down_v1(sheet) {
-  [263, 1446, 263, 241, -75, -137, sheet]   // 【手调】槽 15-17 Y_DOWN_*
+  [263, 1446, 263, 241, -75, -101, sheet]   // 【手调】槽 15-17 Y_DOWN_*
 }
 template t_G1_wire_x_ne_down_v1(sheet) {
-  [263, 723, 263, 241, -75, -137, sheet]    // 【手调】
+  [263, 723, 263, 241, -75, -101, sheet]    // 【手调】
 }
 template t_G1_wire_x_short_down_v1(sheet) {
-  [1315, 964, 263, 241, -75, -137, sheet]   // 【手调】
+  [1315, 964, 263, 241, -75, -101, sheet]   // 【手调】
 }
 // ★ 斜向那 6 条（= 源码里的 6 个 WSO 槽）—— 2026-10-02 重做：
 //   ① 模型改画在**瓦片正中**（t = x−y = 0，见 gen-g1-catenary.mjs）；引擎给
