@@ -3,7 +3,7 @@
 
 # STRING                                    :SIMPLIFIED CHINESE
 
-STR_GRF_DESC                                :{GOLD}好歹是个高清轨道包{}{BLACK}32bpp 高倍缩放的中国风格铁路轨道，使用标准化轨道编码，与中国包列车互通。{}美术由手写等距模型离线渲染而成。{}接触网杆塔与导线尚未提供，暂用原版。
+STR_GRF_DESC                                :{GOLD}好歹是个高清轨道包{}{BLACK}32bpp 高倍缩放的中国风格铁路轨道，使用标准化轨道编码，与中国包列车互通。{}美术由手写等距模型离线渲染而成。{}接触网杆塔与导线由本包自绘。
 
 STR_GRF_URL                                 :https://github.com/
 

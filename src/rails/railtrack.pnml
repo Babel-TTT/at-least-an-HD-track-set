@@ -643,7 +643,7 @@ item(FEAT_RAILTYPES, rail_SCDA, 11) {
     }
 }
 
-// SBEd —— 电气化厂矿铁路（1920，B 档，轴重 25t，1500V DC）
+// SBEd —— 电气化厂矿铁路（1920，1500V DC；CSV：100km/h、轴重 30t）
 item(FEAT_RAILTYPES, rail_SBEd, 12) {
     property {
         label:                  "SBEd";
@@ -666,9 +666,30 @@ item(FEAT_RAILTYPES, rail_SBEd, 12) {
         map_colour:             0x5C;
         sort_order:             SORT_ELECTRIC;
     }
+    /* ★ 2026-10-03 接入：P2-G1 的几何组 —— 与 `SBDN` 逐行一样
+       （BAL-C 灰道床 + SLE-1 木枕 + RAI-1 + **TUN-2** 素混凝土洞口），
+       因为 `SBEd` 与 `SADN`/`SBDN`/`SBDD` 共用同一套几何（美术要素方案.md §3.2 的一期范围）。
+
+       再挂**我们自己的接触网**（`SBEd` 是 1500V DC 电气化线）——
+       这是 §1.6.4「把已经带 flag 的类型补齐接触网 graphics」清单里的第一条。
+
+       ⚠ **支柱样式借用了 C1**：按 §2 / §1.6.5.1 的设计，厂矿线该用 `EL-1500/E1`
+         （早期木杆 + **蓝牌**），但这两种样式都还没建模（人工：「先规划，不做」）
+         ⇒ 先挂现有的 `probe_catenary_pylons`（方形混凝土、无牌）。
+         以后 E1 / 蓝牌做好，**只改这一行**；导线全制式共用一套，不用换。 */
+    graphics {
+        underlay:        probe_underlay;
+        track_overlay:   probe_overlay;
+        tunnels:         probe_tunnels_2;
+        tunnel_overlay:  probe_tunnel_over_2;
+        level_crossings: probe_level_crossing;
+        bridge_surfaces: probe_bridge_surfaces;
+        catenary_pylons: probe_catenary_pylons;
+        catenary_wire:   probe_catenary_wire;
+    }
 }
 
-// SBDD —— 朝鲜电气化铁路（1950，B 档，轴重 D，3000V DC）
+// SBDD —— 朝鲜电气化铁路（1955，B 档，轴重 D，3000V DC）
 item(FEAT_RAILTYPES, rail_SBDD, 13) {
     property {
         label:                  "SBDD";
