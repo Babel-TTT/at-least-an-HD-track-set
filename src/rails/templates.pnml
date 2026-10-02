@@ -536,6 +536,56 @@ template t_G1_brown_levelcrossing_v3(sheet) {
 }
 
 // ---------------------------------------------------------------------------
+// G1_pylon_* —— **接触网支柱**（分表 gfx/catenary.png）
+//
+//   参数 sheet：调用处传 "gfx/catenary.png"
+//
+//   人工裁定 2026-10-02：接接触网。§1.5：柱顶 0.66 / 腕臂 0.50（承力索）/
+//   接触线 0.40（接触线由导线精灵画，不在这里）。
+//
+//   ★ 8 张的语义核自引擎源码 `enum PylonSpriteOffset`（见 美术要素方案.md §1.5.1）：
+//       0 PSO_Y_NE / 1 PSO_Y_SW / 2 PSO_X_NW / 3 PSO_X_SE   ← 直向轨道
+//       4 PSO_EW_N / 5 PSO_EW_S / 6 PSO_NS_W / 7 PSO_NS_E   ← 斜向半轨
+//     引擎按「支柱站在瓦片哪条边的中点」选图，还会自己加瓦片内偏移
+//     （`_x_pcp_offsets` / `_x_ppp_offsets`）⇒ **我们只要把柱子立在模型原点**。
+//
+//   ⇒ 直向那 4 个用 G1_pylon_a 的四个视图（腕臂分别指 +x/+y/−x/−y），
+//     斜向那 4 个用 G1_pylon_b（腕臂指 45° 对角线）。
+//
+//   ⚠ **视图→槽位的映射是推出来的，尚未实机核实**（本轮就是去验它）：
+//       槽 0（Y 向、柱在 N 边）腕臂该指 +y ⇒ 取 a 的 v1
+//       槽 1（Y 向、柱在 S 边）腕臂该指 −y ⇒ a 的 v3
+//       槽 2（X 向、柱在 W 边）腕臂该指 +x ⇒ a 的 v0
+//       槽 3（X 向、柱在 E 边）腕臂该指 −x ⇒ a 的 v2
+//       槽 4~7 先按 b 的 v0/v2/v1/v3 猜
+//     锚点全表一致：rect 263×241、xrel −131、yrel −109（都是算法值，无手调）。
+// ---------------------------------------------------------------------------
+template t_G1_pylon_a_v0(sheet) {
+  [0, 0, 263, 241, -131, -109, sheet]
+}
+template t_G1_pylon_a_v1(sheet) {
+  [263, 0, 263, 241, -131, -109, sheet]
+}
+template t_G1_pylon_a_v2(sheet) {
+  [526, 0, 263, 241, -131, -109, sheet]
+}
+template t_G1_pylon_a_v3(sheet) {
+  [789, 0, 263, 241, -131, -109, sheet]
+}
+template t_G1_pylon_b_v0(sheet) {
+  [1052, 0, 263, 241, -131, -109, sheet]
+}
+template t_G1_pylon_b_v1(sheet) {
+  [1315, 0, 263, 241, -131, -109, sheet]
+}
+template t_G1_pylon_b_v2(sheet) {
+  [1578, 0, 263, 241, -131, -109, sheet]
+}
+template t_G1_pylon_b_v3(sheet) {
+  [1841, 0, 263, 241, -131, -109, sheet]
+}
+
+// ---------------------------------------------------------------------------
 // G1_levelcrossing —— 平交道口（公路 × 铁路）的 `level_crossings:` 轨道图
 //   参数 sheet：调用处传 "gfx/levelcrossing.png"（**单独一张表**，见 tools/sheets.mjs）
 //

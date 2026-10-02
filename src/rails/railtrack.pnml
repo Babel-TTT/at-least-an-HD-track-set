@@ -567,9 +567,9 @@ item(FEAT_RAILTYPES, rail_SBDA, 10) {
        ⚠ `junction3` / `junction4` 在 underlay_g2 里**复用了 G1 的模板**
          （纯道砟、没有枕木，两个组完全一样）。
 
-       ⚠ **接触网暂时没接** —— `catenary_wire`(28) / `catenary_pylons`(8) 还没做，
-         所以这里不带那两组，先走引擎原版杆/线兜底（`RAILTYPE_FLAG_CATENARY`
-         已经开着，只是杆线是原版的）。等接触网做完补上即可。 */
+       ⚠ **接触网本轮只接支柱**（`catenary_pylons`）—— 为了实机核对
+         「8 个支柱槽位 ↔ 我们的视图」这个映射。导线（`catenary_wire`）
+         还没做，所以实机里只会看到杆、看不到线，正好把杆看清楚。 */
     graphics {
         underlay:        probe_underlay_g2;
         track_overlay:   probe_overlay_g2;
@@ -577,6 +577,7 @@ item(FEAT_RAILTYPES, rail_SBDA, 10) {
         tunnel_overlay:  probe_tunnel_over_2;
         level_crossings: probe_level_crossing;
         bridge_surfaces: probe_bridge_surfaces_g2;
+        catenary_pylons: probe_catenary_pylons;
     }
 }
 

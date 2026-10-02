@@ -371,3 +371,29 @@ spriteset(probe_bridge_surfaces_g2, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
     t_G2_track_slope_v2("gfx/g2.png")              // 4  坡 SW
     t_G2_track_slope_v1("gfx/g2.png")              // 5  坡 NW
 }
+
+/* ===========================================================================
+   接触网支柱 —— catenary_pylons（8 格）
+
+   槽位语义核自引擎源码 `enum PylonSpriteOffset`（见 美术要素方案.md §1.5.1）：
+     0 PSO_Y_NE / 1 PSO_Y_SW / 2 PSO_X_NW / 3 PSO_X_SE   ← 直向轨道（用 G1_pylon_a）
+     4 PSO_EW_N / 5 PSO_EW_S / 6 PSO_NS_W / 7 PSO_NS_E   ← 斜向半轨（用 G1_pylon_b）
+
+   ⚠ **视图→槽位是推出来的，本轮实机核对**：
+     直向：腕臂要横跨轨道 ⇒ 柱在 N 边指 +y、S 边指 −y、W 边指 +x、E 边指 −x
+           ⇒ a 的视图按「v1=+y / v3=−y / v0=+x / v2=−x」配。
+     斜向：先按 b 的 v0/v2/v1/v3 猜，等实机看。
+
+   ⚠ **`catenary_wire`（导线 28 还是 30）本轮不接** —— 只做支柱，
+     这样实机看到的就是「只有杆、没有线」，正好把杆的位置与朝向看清楚。
+   =========================================================================== */
+spriteset(probe_catenary_pylons, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G1_pylon_a_v1("gfx/catenary.png")     // 0  PSO_Y_NE   Y 向，柱在 N 边中点，臂 +y
+    t_G1_pylon_a_v3("gfx/catenary.png")     // 1  PSO_Y_SW   Y 向，柱在 S 边中点，臂 −y
+    t_G1_pylon_a_v0("gfx/catenary.png")     // 2  PSO_X_NW   X 向，柱在 W 边中点，臂 +x
+    t_G1_pylon_a_v2("gfx/catenary.png")     // 3  PSO_X_SE   X 向，柱在 E 边中点，臂 −x
+    t_G1_pylon_b_v0("gfx/catenary.png")     // 4  PSO_EW_N   斜半轨，柱在 N 边中点
+    t_G1_pylon_b_v2("gfx/catenary.png")     // 5  PSO_EW_S   斜半轨，柱在 S 边中点
+    t_G1_pylon_b_v1("gfx/catenary.png")     // 6  PSO_NS_W   斜半轨，柱在 W 边中点
+    t_G1_pylon_b_v3("gfx/catenary.png")     // 7  PSO_NS_E   斜半轨，柱在 E 边中点
+}
