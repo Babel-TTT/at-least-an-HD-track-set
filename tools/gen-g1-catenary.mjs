@@ -77,6 +77,8 @@ const WC = 0.0030;                 // 接触线竖直半厚（人工：再细点
 const WM = 0.0045;                 // 承力索竖直半厚
 const WY = 0.0045;                 // 直向：横向半宽（y 方向 ±）
 const DT = 0.010000;               // 斜向：t 方向半宽（人工：再细点）
+const T0 = 0.0000;                 // 斜向：画在瓦片**正中**的 t 基准（= 瓦片主对角线）
+                                   // ⚠ 不是 0.5！引擎会用包络盒 (8,0)/(0,8) 自己挪半格到左/右半轨
 const SEG = 5;                     // 折线段数（结点 = SEG+1）
 const DROP_S = [0.2, 0.4, 0.6, 0.8];      // 直向吊弦位置（沿格）
 const DROP_D = [0.25, 0.5, 0.75];         // 斜向吊弦位置（沿半格）
@@ -163,7 +165,16 @@ function straight(name, why, shape, drops, lines = LINES) {
 }
 
 /**
- * 斜向模型（贴 W 角那条：s = x+y ∈ [0.5,1.5]，t = x−y ≡ 0.5 ± DT）
+ * 斜向模型 —— **画在瓦片正中**：s = x+y ∈ [0.5,1.5]，t = x−y ≡ T0 ± DT，T0 = 0。
+ *
+ *   ⚠ 2026-10-02 从"贴 W 角"（T0 = 0.5）改成正中，核自 elrail_data.h:387-404：
+ *     斜向只有 6 个槽位（WSO_EW_SHORT / NS_SHORT / EW_E / NS_S / EW_W / NS_N），
+ *     **没有** NS_W/NS_E/EW_N/EW_S 之分 —— 引擎给 LEFT/RIGHT（UPPER/LOWER）
+ *     用**同一个精灵**，靠包络盒 origin `(8,0)` / `(0,8)`（屏幕上 ±64 px = 半格）
+ *     挪到左/右半轨。所以模型必须居中，否则引擎再挪一次就整条错半格。
+ *   ⇒ 配套：模板里斜向那 6 条 **x 不补偿**（让引擎的半格平移生效）、
+ *     **y 补偿**（掉 z 抬升 −8 px）⇒ 6 条全是 `−131, −101`。
+ *
  * @param {(p:number)=>number} shape  p = 沿半格参数 0..1 → **单位**下垂 0..1
  */
 function diagonal(name, why, shape, drops) {
@@ -174,8 +185,8 @@ function diagonal(name, why, shape, drops) {
       const sa = 0.5 + i / SEG, sb = 0.5 + (i + 1) / SEG;
       const pa = i / SEG, pb = (i + 1) / SEG;
       const za = L.z - L.D * shape(pa), zb = L.z - L.D * shape(pb);
-      const Am = pt(sa, 0.5 + DT), Ap = pt(sa, 0.5 - DT);
-      const Bm = pt(sb, 0.5 + DT), Bp = pt(sb, 0.5 - DT);
+      const Am = pt(sa, T0 + DT), Ap = pt(sa, T0 - DT);
+      const Bm = pt(sb, T0 + DT), Bp = pt(sb, T0 - DT);
       const P = (o, z) => [o[0], o[1], z];
       // 斜向绕序 = 直向那套的**镜像反序**（(s,t)→(x,y) 是镜像，det = −1/2）。
       // 映射：直向的 −y 侧 ↔ 这里的 t− 侧（Ap），+y 侧 ↔ t+ 侧（Am）。
@@ -191,7 +202,7 @@ function diagonal(name, why, shape, drops) {
   out.push('# --- 吊弦 ×' + drops.length + ' ---');
   for (const p of drops) {
     const s = 0.5 + p;
-    const [cx, cy] = pt(s, 0.5);
+    const [cx, cy] = pt(s, T0);
     const zc = HC - DC * shape(p), zm = HM - DM * shape(p);
     out.push('box ' + N(cx - DROP_W) + ' ' + N(cy - DROP_W) + ' ' + N(zc) + '  '
       + N(cx + DROP_W) + ' ' + N(cy + DROP_W) + ' ' + N(zm) + '   ' + C.m + ' top=' + C.m);

@@ -722,41 +722,50 @@ template t_G1_wire_x_ne_down_v1(sheet) {
 template t_G1_wire_x_short_down_v1(sheet) {
   [1315, 964, 263, 241, -187, -101, sheet]   // 【手调】
 }
+// ★ 斜向那 6 条（= 源码里的 6 个 WSO 槽）—— 2026-10-02 重做：
+//   ① 模型改画在**瓦片正中**（t = x−y = 0，见 gen-g1-catenary.mjs）；引擎给
+//      LEFT/RIGHT（UPPER/LOWER）用**同一个精灵** + 包络盒 origin (8,0)/(0,8)
+//      （屏幕上 ±64 px = 半格）自己分左右半轨。
+//   ② 所以模板 **x 不补偿**（让引擎的半格平移生效）、**y 只补偿 z 抬升**
+//      Δy = ((Δx+Δy) − Δz)·4 = (8 − 10)·4 = −8 ⇒ yrel = −109 − (−8) = **−101**
+//   ⇒ 6 条统一 xrel −131 · yrel −101（不再是 4 个朝向各一套）。
 template t_G1_wire_ns_w_short_v0(sheet) {
-  [0, 482, 263, 241, -195, -101, sheet]      // 【手调】槽 18  NS_W_BOTH 1 格跨
-}
-template t_G1_wire_ns_w_short_v2(sheet) {
-  [526, 482, 263, 241, -67, -101, sheet]     // 【手调】槽 19  NS_E_BOTH（R²）
+  [0, 482, 263, 241, -131, -101, sheet]      // 【手调】WSO  3  NS_SHORT（平·1 格跨）
 }
 template t_G1_wire_ns_w_n_v0(sheet) {
-  [0, 241, 263, 241, -195, -101, sheet]      // 【手调】槽 20  NS_W_N 杆在 N 端
-}
-template t_G1_wire_ns_w_s_v2(sheet) {
-  [1578, 241, 263, 241, -67, -101, sheet]    // 【手调】槽 21  NS_E_N（R² 把 S 端转到 N）
+  [0, 241, 263, 241, -131, -101, sheet]      // 【手调】WSO 19  NS_N（杆在 N 端）
 }
 template t_G1_wire_ns_w_s_v0(sheet) {
-  [1052, 241, 263, 241, -195, -101, sheet]   // 【手调】槽 22  NS_W_S 杆在 S 端
-}
-template t_G1_wire_ns_w_n_v2(sheet) {
-  [526, 241, 263, 241, -67, -101, sheet]     // 【手调】槽 23  NS_E_S（R² 把 N 端转到 S）
-}
-template t_G1_wire_ns_w_short_v3(sheet) {
-  [789, 482, 263, 241, -187, -97, sheet]     // 【手调】槽 24  EW_N_BOTH（R³）
+  [1052, 241, 263, 241, -131, -101, sheet]   // 【手调】WSO 11  NS_S（杆在 S 端）
 }
 template t_G1_wire_ns_w_short_v1(sheet) {
-  [263, 482, 263, 241, -187, -161, sheet]    // 【手调】槽 25  EW_S_BOTH（R）
-}
-template t_G1_wire_ns_w_s_v3(sheet) {
-  [1841, 241, 263, 241, -187, -97, sheet]    // 【手调】槽 26  EW_N_W（R³ 把 S 端转到 W）
+  [263, 482, 263, 241, -131, -101, sheet]    // 【手调】WSO  2  EW_SHORT
 }
 template t_G1_wire_ns_w_n_v1(sheet) {
-  [263, 241, 263, 241, -187, -161, sheet]    // 【手调】槽 27  EW_S_W（R 把 N 端转到 W）
-}
-template t_G1_wire_ns_w_n_v3(sheet) {
-  [789, 241, 263, 241, -187, -97, sheet]     // 【手调】槽 28  EW_N_E（R³ 把 N 端转到 E）
+  [263, 241, 263, 241, -131, -101, sheet]    // 【手调】WSO 18  EW_W（杆在 W 端）
 }
 template t_G1_wire_ns_w_s_v1(sheet) {
-  [1315, 241, 263, 241, -187, -161, sheet]   // 【手调】槽 29  EW_S_E（R 把 S 端转到 E）
+  [1315, 241, 263, 241, -131, -101, sheet]   // 【手调】WSO 10  EW_E（杆在 E 端）
+}
+// --- 下面 4 条（v2/v3）**已经没人引用**：斜向现在只出 v0（NS 向）与 v1（EW 向），
+//     左右半轨由引擎自己平移 ⇒ 不需要 R²/R³。留着当备用，删掉也可以。
+template t_G1_wire_ns_w_short_v2(sheet) {
+  [526, 482, 263, 241, -67, -101, sheet]     // （未使用）NS_E_BOTH（R²）
+}
+template t_G1_wire_ns_w_s_v2(sheet) {
+  [1578, 241, 263, 241, -67, -101, sheet]    // （未使用）NS_E_N（R²）
+}
+template t_G1_wire_ns_w_n_v2(sheet) {
+  [526, 241, 263, 241, -67, -101, sheet]     // （未使用）NS_E_S（R²）
+}
+template t_G1_wire_ns_w_short_v3(sheet) {
+  [789, 482, 263, 241, -187, -97, sheet]     // （未使用）EW_N_BOTH（R³）
+}
+template t_G1_wire_ns_w_s_v3(sheet) {
+  [1841, 241, 263, 241, -187, -97, sheet]    // （未使用）EW_N_W（R³）
+}
+template t_G1_wire_ns_w_n_v3(sheet) {
+  [789, 241, 263, 241, -187, -97, sheet]     // （未使用）EW_N_E（R³）
 }
 
 // ---------------------------------------------------------------------------
