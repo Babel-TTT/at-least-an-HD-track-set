@@ -90,29 +90,42 @@ const C = { c: 'trim_dark', m: 'metal_dark' };
 // 单位（平地 10）⇒ 模型里的内容要**反向**挪同样的量，游戏里才是同一高度。
 //   1 格 = 8 单位 ⇒ 1 单位 = 0.2041/8 = 0.0255125 格
 const UNIT = 0.2041 / 8;
-const UP_DZ = -9 * UNIT;           // 上坡：引擎多抬 9 单位 ⇒ 内容降 9
-const DOWN_DZ = +1 * UNIT;         // 下坡：引擎少抬 1 单位 ⇒ 内容升 1
+const UP_DZ = -9 * UNIT;           // 上坡低端：引擎多抬 9 单位 ⇒ 内容降 9
+const DOWN_DZ = +1 * UNIT;         // 下坡低端：引擎少抬 1 单位 ⇒ 内容升 1
+
+// ★ 坡道：导线要**跟着坡面斜**，不是水平（人工 2026-10-02：「按和上坡铁轨一样的坡度」）。
+//   一格坡道抬 8 单位 = **RISE = 0.2041 格 = 32 px @4x**（与 tools/gen-g1-slope.mjs 同源）。
+//   引擎的 origin 以**瓦片最低角**为准（`ELRAIL_ELEVRAISE = ELEVATION + TILE_HEIGHT + 1`），
+//   而平地的 `ELEVATION = 10` 正是"离地 10 单位" ⇒ 低端就是上面那两个常量 ✓，
+//   高端要再加一个 RISE：
+//     上坡（SLOPE_SW，x=1 那头高）：x=0 → UP_DZ(−9 单位)  · x=1 → UP_DZ + RISE(−1 单位)
+//     下坡（SLOPE_NE，x=0 那头高）：x=1 → DOWN_DZ(+1 单位) · x=0 → DOWN_DZ + RISE(+9 单位)
+//   ⚠ 上一版两端都写的是低端那个常量 ⇒ **高端差整整一个 RISE（32 px），会插进坡里**。
+const RISE = 0.2041;
 
 // 单位形状（0..1），实际下垂 = 每根线自己的 D × shape
 const arcHalf = (q) => 2 * q - q * q;            // 2 格跨的一半
 const arcShort = (q) => 4 * q * (1 - q);         // 1 格跨
 
 // 两根线：接触线（下、细、深色）+ 承力索（上、粗、浅色）
+//   dz(x)：沿格坐标 x ∈ [0,1] → z 偏移（平坡恒 0，坡道是斜的）
 const LINES = [
-  { z: HC, D: DC, W: WC, mat: C.c, tag: '接触线（contact）' },
-  { z: HM, D: DM, W: WM, mat: C.m, tag: '承力索（messenger）' },
+  { z: HC, D: DC, W: WC, mat: C.c, tag: '接触线（contact）', dz: () => 0 },
+  { z: HM, D: DM, W: WM, mat: C.m, tag: '承力索（messenger）', dz: () => 0 },
 ];
 
-/** 带 z 整体偏移的一组线（斜坡补偿用） */
-const linesAt = (dz) => LINES.map((L) => ({ ...L, z: L.z + dz }));
+/** 换一组 dz(x) 的线（斜坡用；diagonal 那边始终用 LINES，斜向没有坡道槽位） */
+const linesAt = (dzf) => LINES.map((L) => ({ ...L, dz: dzf }));
 
-const HDR = (name, why) =>
+const HDR = (name, why, dz) =>
   '# =============================================================================\n'
   + '# ' + name + ' —— 接触网导线（' + why + '）\n'
   + '#\n'
   + '# 【本文件由 tools/gen-g1-catenary.mjs 生成，请勿手改】\n'
   + '#   接触线杆位 z=' + N(HC) + ' 下垂 ' + N(DC) + ' · 承力索杆位 z=' + N(HM) + ' 下垂 ' + N(DM) + '\n'
   + '#   （模型里的 z 是"相对引擎原点"的；引擎另外抬 ELRAIL_ELEVATION = 0.2552 格）\n'
+  + '#   坡道：沿格 z 偏移 x=0 → ' + N(dz(0)) + ' · x=1 → ' + N(dz(1))
+  + (Math.abs(dz(1) - dz(0)) > 1e-9 ? '   ← 跟着坡面斜 RISE = ' + N(RISE) + ' 格' : '   （平坡）') + '\n'
   + '#   竖直半厚：接触线 ' + N(WC) + ' · 承力索 ' + N(WM) + '；' + SEG + ' 段折线\n'
   + '# =============================================================================\n\n';
 
@@ -124,12 +137,13 @@ const q = (pts, mat) => 'quad ' + pts.map(([x, y, z]) => N(x) + ' ' + N(y) + ' '
  * @param {number[]} drops           吊弦的沿格位置
  */
 function straight(name, why, shape, drops, lines = LINES) {
+  const dz = lines[0].dz ?? (() => 0);
   const out = [];
   for (const L of lines) {
     out.push('# --- ' + L.tag + ' ---');
     for (let i = 0; i < SEG; i++) {
       const xa = i / SEG, xb = (i + 1) / SEG;
-      const za = L.z - L.D * shape(xa), zb = L.z - L.D * shape(xb);
+      const za = L.z + L.dz(xa) - L.D * shape(xa), zb = L.z + L.dz(xb) - L.D * shape(xb);
       const A = { p: [xa, 0.5 - WY], m: [xa, 0.5 + WY] };
       const B = { p: [xb, 0.5 - WY], m: [xb, 0.5 + WY] };
       const P = (o, z) => [o[0], o[1], z];
@@ -141,11 +155,11 @@ function straight(name, why, shape, drops, lines = LINES) {
   out.push('');
   out.push('# --- 吊弦 ×' + drops.length + ' ---');
   for (const p of drops) {
-    const zc = HC - DC * shape(p), zm = HM - DM * shape(p);
+    const zc = HC + dz(p) - DC * shape(p), zm = HM + dz(p) - DM * shape(p);
     out.push('box ' + N(p - DROP_W) + ' ' + N(0.5 - DROP_W) + ' ' + N(zc) + '  '
       + N(p + DROP_W) + ' ' + N(0.5 + DROP_W) + ' ' + N(zm) + '   ' + C.m + ' top=' + C.m);
   }
-  return { name, text: HDR(name, why) + 'name      ' + name + '\ngroup     misc\nfootprint 1 1\nzmax      ' + N(HM + WM) + '\n\n' + out.join('\n') + '\n' };
+  return { name, text: HDR(name, why, dz) + 'name      ' + name + '\ngroup     misc\nfootprint 1 1\nzmax      ' + N(HM + WM) + '\n\n' + out.join('\n') + '\n' };
 }
 
 /**
@@ -182,7 +196,7 @@ function diagonal(name, why, shape, drops) {
     out.push('box ' + N(cx - DROP_W) + ' ' + N(cy - DROP_W) + ' ' + N(zc) + '  '
       + N(cx + DROP_W) + ' ' + N(cy + DROP_W) + ' ' + N(zm) + '   ' + C.m + ' top=' + C.m);
   }
-  return { name, text: HDR(name, why) + 'name      ' + name + '\ngroup     misc\nfootprint 1 1\nzmax      ' + N(HM + WM) + '\n\n' + out.join('\n') + '\n' };
+  return { name, text: HDR(name, why, () => 0) + 'name      ' + name + '\ngroup     misc\nfootprint 1 1\nzmax      ' + N(HM + WM) + '\n\n' + out.join('\n') + '\n' };
 }
 
 export function generateCatenary() {
@@ -194,10 +208,12 @@ export function generateCatenary() {
     ['ne', '2 格跨后半：杆在 N–E 端 x=0', (x) => arcHalf(x), ''],
     ['short', '1 格跨（两端都是杆）', (x) => arcShort(x), ''],
   ];
+  // 三种坡度。dz(x) 是"沿格坐标 x → z 偏移"：
+  //   平坡恒 0；坡道在**低端**用引擎补偿常量、往高端再加一个 RISE（跟着坡面斜）✓
   const ELEV = [
-    ['', '平', 0],
-    ['_up', '上坡', UP_DZ],
-    ['_down', '下坡', DOWN_DZ],
+    ['', '平', () => 0],
+    ['_up', '上坡（x=1 那头高）', (x) => UP_DZ + RISE * x],
+    ['_down', '下坡（x=0 那头高）', (x) => DOWN_DZ + RISE * (1 - x)],
   ];
   const made = [];
   for (const [key, why, dip] of SHAPES) {
@@ -229,8 +245,10 @@ if (isMain(import.meta.url)) {
   log('生成接触网导线（6 个模型）：');
   generateCatenary();
   log('');
-  log('  剖面   半弧 z(p)=z端−D(2p−p²) · 短弧 z(p)=z端−D·4p(1−p)');
+  log('  剖面   半弧 shape(q)=2q−q² · 短弧 shape(q)=4q(1−q)（单位形状 × 各自 D）');
   log('  下垂   接触线 ' + N(DC) + ' · 承力索 ' + N(DM) + '（1 格跨同深）');
+  log('  坡道   RISE ' + N(RISE) + ' 格／格：上坡 ' + N(UP_DZ) + '→' + N(UP_DZ + RISE)
+    + ' · 下坡 ' + N(DOWN_DZ + RISE) + '→' + N(DOWN_DZ) + '（低端 = 引擎补偿常量）');
   log('  槽位   直向 X=v0 / Y=v1；斜向 NS_W=v0 · EW_S=v1 · NS_E=v2 · EW_N=v3');
   log('');
   log('  下一步：make render → 更新 src/rails/templates.pnml → make check');
