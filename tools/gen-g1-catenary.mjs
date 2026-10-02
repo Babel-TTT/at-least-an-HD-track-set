@@ -32,14 +32,20 @@
 //
 // -----------------------------------------------------------------------------
 // 【剖面】
-//   半弧（2 格跨的一半，p=0 在杆位、p=1 在跨中）：
-//       z(p) = z杆位 − D·(2p − p²)
-//   短弧（1 格跨，两端都是杆）：
-//       z(p) = z杆位 − D·4p(1−p)
-//   D：接触线 0.0180 · 承力索 0.0550（人工裁定：**1 格跨同深**，不按 L² 缩）
+//   形状函数返回**单位下垂**（0..1），每根线再乘自己的 D：
+//       半弧（2 格跨的一半；q = 离杆位的归一距离，q=0 在杆位、q=1 在跨中）
+//           shape(q) = 2q − q²
+//       短弧（1 格跨，两端都是杆；q = 沿格归一坐标）
+//           shape(q) = 4q(1−q)
+//       ⇒ z = z杆位 − D·shape(q)
+//   D：接触线 0.0000（人工：拉平，现实里接触线就是靠张力拉平的）
+//      承力索 0.1500
+//   ⚠ **两根线的 D 必须各用各的**。早先版本把 DC 直接喂进形状函数，
+//     LINES[] 里承力索自己的 D 从来没被读到 ⇒ 两根线永远同深
+//     （DC 改成 0 之后就是两条笔直的线，改 DM 只动高度不动弧度）。
 //   `z杆位` 是「相对引擎给定原点」的 —— 引擎另外抬
 //   `ELRAIL_ELEVATION = 10` 单位 = **0.2552 格**（elrail.cpp:1281），所以模型里
-//   写 HC = 0.1448 / HM = 0.2448，游戏里才是 0.40 / 0.50 格。
+//   写 HC = 0.1448 / HM = 0.3248，游戏里才是 **0.40 / 0.58 格**。
 //
 // -----------------------------------------------------------------------------
 // 【绕序】`quad` 不带法线，flatiso 用 Newell 按顶点序算法线，反了会被背面剔除。
@@ -87,8 +93,9 @@ const UNIT = 0.2041 / 8;
 const UP_DZ = -9 * UNIT;           // 上坡：引擎多抬 9 单位 ⇒ 内容降 9
 const DOWN_DZ = +1 * UNIT;         // 下坡：引擎少抬 1 单位 ⇒ 内容升 1
 
-const arcHalf = (p, D) => D * (2 * p - p * p);   // 2 格跨的一半
-const arcShort = (p, D) => D * 4 * p * (1 - p);  // 1 格跨
+// 单位形状（0..1），实际下垂 = 每根线自己的 D × shape
+const arcHalf = (q) => 2 * q - q * q;            // 2 格跨的一半
+const arcShort = (q) => 4 * q * (1 - q);         // 1 格跨
 
 // 两根线：接触线（下、细、深色）+ 承力索（上、粗、浅色）
 const LINES = [
@@ -113,16 +120,16 @@ const q = (pts, mat) => 'quad ' + pts.map(([x, y, z]) => N(x) + ' ' + N(y) + ' '
 
 /**
  * 直向模型（沿瓦片 x 轴，横向 ±y）
- * @param {(p:number)=>number} dip  p = 沿格参数 0..1 → 下垂量
- * @param {number[]} drops         吊弦的沿格位置
+ * @param {(p:number)=>number} shape  p = 沿格坐标 x∈[0,1] → **单位**下垂 0..1
+ * @param {number[]} drops           吊弦的沿格位置
  */
-function straight(name, why, dip, drops, lines = LINES) {
+function straight(name, why, shape, drops, lines = LINES) {
   const out = [];
   for (const L of lines) {
     out.push('# --- ' + L.tag + ' ---');
     for (let i = 0; i < SEG; i++) {
       const xa = i / SEG, xb = (i + 1) / SEG;
-      const za = L.z - dip(xa), zb = L.z - dip(xb);
+      const za = L.z - L.D * shape(xa), zb = L.z - L.D * shape(xb);
       const A = { p: [xa, 0.5 - WY], m: [xa, 0.5 + WY] };
       const B = { p: [xb, 0.5 - WY], m: [xb, 0.5 + WY] };
       const P = (o, z) => [o[0], o[1], z];
@@ -134,7 +141,7 @@ function straight(name, why, dip, drops, lines = LINES) {
   out.push('');
   out.push('# --- 吊弦 ×' + drops.length + ' ---');
   for (const p of drops) {
-    const zc = HC - dip(p), zm = HM - dip(p);
+    const zc = HC - DC * shape(p), zm = HM - DM * shape(p);
     out.push('box ' + N(p - DROP_W) + ' ' + N(0.5 - DROP_W) + ' ' + N(zc) + '  '
       + N(p + DROP_W) + ' ' + N(0.5 + DROP_W) + ' ' + N(zm) + '   ' + C.m + ' top=' + C.m);
   }
@@ -143,23 +150,27 @@ function straight(name, why, dip, drops, lines = LINES) {
 
 /**
  * 斜向模型（贴 W 角那条：s = x+y ∈ [0.5,1.5]，t = x−y ≡ 0.5 ± DT）
- * @param {(p:number)=>number} dip  p = 沿半格参数 0..1 → 下垂量
+ * @param {(p:number)=>number} shape  p = 沿半格参数 0..1 → **单位**下垂 0..1
  */
-function diagonal(name, why, dip, drops) {
+function diagonal(name, why, shape, drops) {
   const out = [];
   const pt = (s, t) => [(s + t) / 2, (s - t) / 2];
   for (const L of LINES) {    out.push('# --- ' + L.tag + ' ---');
     for (let i = 0; i < SEG; i++) {
       const sa = 0.5 + i / SEG, sb = 0.5 + (i + 1) / SEG;
       const pa = i / SEG, pb = (i + 1) / SEG;
-      const za = L.z - dip(pa), zb = L.z - dip(pb);
+      const za = L.z - L.D * shape(pa), zb = L.z - L.D * shape(pb);
       const Am = pt(sa, 0.5 + DT), Ap = pt(sa, 0.5 - DT);
       const Bm = pt(sb, 0.5 + DT), Bp = pt(sb, 0.5 - DT);
       const P = (o, z) => [o[0], o[1], z];
-      // 注意：斜向绕序与直向**相反**（(s,t)→(x,y) 是镜像）
-      out.push(q([P(Ap, za + L.W), P(Bp, zb + L.W), P(Bm, zb + L.W), P(Am, za + L.W)], L.mat));
-      out.push(q([P(Am, za + L.W), P(Bm, zb + L.W), P(Bm, zb - L.W), P(Am, za - L.W)], L.mat));
-      out.push(q([P(Ap, za - L.W), P(Bp, zb - L.W), P(Bp, zb + L.W), P(Ap, za + L.W)], L.mat));
+      // 斜向绕序 = 直向那套的**镜像反序**（(s,t)→(x,y) 是镜像，det = −1/2）。
+      // 映射：直向的 −y 侧 ↔ 这里的 t− 侧（Ap），+y 侧 ↔ t+ 侧（Am）。
+      //   ⚠ 2026-10-02 修：上一版这里写反了方向，结果**所有面法线朝内**
+      //     （out/check-normals.mjs 报接触线 15/15 面 n=(0,0,−1)、侧面 n=(∓0.71,±0.71,0)），
+      //     斜向导线被整片背面剔除 ⇒ 实机里只剩 3 根吊弦在飘。
+      out.push(q([P(Am, za + L.W), P(Bm, zb + L.W), P(Bp, zb + L.W), P(Ap, za + L.W)], L.mat));  // 顶面
+      out.push(q([P(Ap, za + L.W), P(Bp, zb + L.W), P(Bp, zb - L.W), P(Ap, za - L.W)], L.mat));  // t− 侧
+      out.push(q([P(Am, za - L.W), P(Bm, zb - L.W), P(Bm, zb + L.W), P(Am, za + L.W)], L.mat));  // t+ 侧
     }
   }
   out.push('');
@@ -167,7 +178,7 @@ function diagonal(name, why, dip, drops) {
   for (const p of drops) {
     const s = 0.5 + p;
     const [cx, cy] = pt(s, 0.5);
-    const zc = HC - dip(p), zm = HM - dip(p);
+    const zc = HC - DC * shape(p), zm = HM - DM * shape(p);
     out.push('box ' + N(cx - DROP_W) + ' ' + N(cy - DROP_W) + ' ' + N(zc) + '  '
       + N(cx + DROP_W) + ' ' + N(cy + DROP_W) + ' ' + N(zm) + '   ' + C.m + ' top=' + C.m);
   }
@@ -175,12 +186,13 @@ function diagonal(name, why, dip, drops) {
 }
 
 export function generateCatenary() {
-  // 直向：3 种形状 × 3 种坡度（平/上/下）。dip 的自变量一律是"离杆位多远"：
-  //   sw：杆在 x=1 ⇒ p = 1−x；ne：杆在 x=0 ⇒ p = x；short：两端都是杆（对称）
+  // 直向：3 种形状 × 3 种坡度（平/上/下）。形状函数的自变量一律是
+  // **离杆位的归一距离 q**（q=0 在杆上，q=1 在跨中），再乘各自的 D：
+  //   sw：杆在 x=1 ⇒ q = 1−x；ne：杆在 x=0 ⇒ q = x；short：两端都是杆（对称）
   const SHAPES = [
-    ['sw', '2 格跨前半：杆在 S–W 端 x=1', (p) => arcHalf(1 - p, DC), ''],
-    ['ne', '2 格跨后半：杆在 N–E 端 x=0', (p) => arcHalf(p, DC), ''],
-    ['short', '1 格跨（两端都是杆）', (p) => arcShort(p, DC), ''],
+    ['sw', '2 格跨前半：杆在 S–W 端 x=1', (x) => arcHalf(1 - x), ''],
+    ['ne', '2 格跨后半：杆在 N–E 端 x=0', (x) => arcHalf(x), ''],
+    ['short', '1 格跨（两端都是杆）', (x) => arcShort(x), ''],
   ];
   const ELEV = [
     ['', '平', 0],
@@ -194,11 +206,17 @@ export function generateCatenary() {
     }
   }
   // 斜向三张（贴 W 角那条；斜线只有平瓦片，引擎给的 z_offset 全是 ELEVATION）。
-  // 自变量是"沿半格离杆位多远"：
-  //   n：杆在 N 端（s=0.5）；s：杆在 S 端（s=1.5）；short：对称
-  made.push(diagonal('G1_wire_ns_w_n', '斜向 2 格跨前半：杆在 N 端', (p) => arcHalf(1 - p, DC), DROP_D));
-  made.push(diagonal('G1_wire_ns_w_s', '斜向 2 格跨后半：杆在 S 端', (p) => arcHalf(p, DC), DROP_D));
-  made.push(diagonal('G1_wire_ns_w_short', '斜向 1 格跨（两端都是杆）', (p) => arcShort(p, DC), DROP_D));
+  // 这里 p = s − 0.5 ∈ [0,1]，也就是"沿半格从 s=0.5 那头算起"。
+  //
+  // ⚠ **哪头是 N 端**（这一版刚倒过来，之前是反的）：
+  //   引擎里 NS_W 的 bbox = (8,0,8,8)：dx∈[8,16] ⇒ x∈[0.5,1]、
+  //   dy∈[0,8] ⇒ y∈[0,0.5]，正好贴 W 角 (1,0) ✓（dx↔我们的 x、dy↔我们的 y）。
+  //   这条斜线两端是 (0.5,0)=s0.5 和 (1,0.5)=s1.5。引擎 N 角在 (0,0)、S 角 (16,16)，
+  //   (8,0) 落在北边那条边上 ⇒ **s=0.5 那头是 N 端**。
+  //   ⇒ n（杆在 N 端）q = p；s（杆在 S 端）q = 1−p。
+  made.push(diagonal('G1_wire_ns_w_n', '斜向 2 格跨前半：杆在 N 端 (s=0.5)', (p) => arcHalf(p), DROP_D));
+  made.push(diagonal('G1_wire_ns_w_s', '斜向 2 格跨后半：杆在 S 端 (s=1.5)', (p) => arcHalf(1 - p), DROP_D));
+  made.push(diagonal('G1_wire_ns_w_short', '斜向 1 格跨（两端都是杆）', (p) => arcShort(p), DROP_D));
   for (const m of made) {
     const f = path.join(ROOT, 'models', m.name + '.model');
     fs.writeFileSync(f, m.text, 'utf8');
