@@ -473,8 +473,26 @@ item(FEAT_RAILTYPES, rail_SBDN, 8) {
         build_window_caption:   string(STR_RAIL_SBDN);
         autoreplace_text:       string(STR_RAIL_SBDN);
         new_engine_text:        string(STR_RAIL_SBDN);
-        compatible_railtype_list: ["SADN", "SBDN", "SCDN", "SBDA", "SCDA", "RAIL"];
-        powered_railtype_list:    ["SADN", "SBDN", "SCDN", "RAIL"];
+        compatible_railtype_list: ["RAIL", "ELRL", 
+                                    "SADN", "SBDN", "SCDN", "SDDN", "SEDN",  "SFDN", "SGDN",
+                                    "SAEN", "SBEN", "SCEN", "SDEN", "SEEN",  "SFEN", "SGEN",
+                                    "SADA", "SBDA", "SCDA", "SDDA", "SEDA",  "SFDA", "SGDA", 
+                                    "SAEA", "SBEA", "SCEA", "SDEA", "SEEA",  "SFEA", "SGEA", 
+                                    "SADd", "SBDd", "SCDd", "SDDd", "SEDd", 
+                                    "SAEd", "SBEd", "SCEd", "SDEd", "SEEd",  
+                                    "SADD", "SBDD", "SCDD", "SDDD", "SEDD",   
+                                    "DADN", "DBDN",
+                                    "DADA", "DBDA"];
+        powered_railtype_list:    ["RAIL", "ELRL", 
+                                    "SADN", "SBDN", "SCDN", "SDDN", "SEDN",  "SFDN", "SGDN",
+                                    "SAEN", "SBEN", "SCEN", "SDEN", "SEEN",  "SFEN", "SGEN",
+                                    "SADA", "SBDA", "SCDA", "SDDA", "SEDA",  "SFDA", "SGDA", 
+                                    "SAEA", "SBEA", "SCEA", "SDEA", "SEEA",  "SFEA", "SGEA", 
+                                    "SADd", "SBDd", "SCDd", "SDDd", "SEDd",  
+                                    "SAEd", "SBEd", "SCEd", "SDEd", "SEEd", 
+                                    "SADD", "SBDD", "SCDD", "SDDD", "SEDD", 
+                                    "DADN", "DBDN",
+                                    "DADA", "DBDA"];
         railtype_flags:         0;
         curve_speed_multiplier: 1;
         station_graphics:       RAILTYPE_STATION_NORMAL;
@@ -548,8 +566,20 @@ item(FEAT_RAILTYPES, rail_SBDA, 10) {
         build_window_caption:   string(STR_RAIL_SBDA);
         autoreplace_text:       string(STR_RAIL_SBDA);
         new_engine_text:        string(STR_RAIL_SBDA);
-        compatible_railtype_list: ["SADN", "SBDN", "SCDN", "SBDA", "SCDA", "ELRL"];
-        powered_railtype_list:    ["SBDA", "SCDA", "ELRL"];
+        compatible_railtype_list: ["RAIL", "ELRL", 
+                                    "SADN", "SBDN", "SCDN", "SDDN", "SEDN",  "SFDN", "SGDN",
+                                    "SAEN", "SBEN", "SCEN", "SDEN", "SEEN",  "SFEN", "SGEN",
+                                    "SADA", "SBDA", "SCDA", "SDDA", "SEDA",  "SFDA", "SGDA", 
+                                    "SAEA", "SBEA", "SCEA", "SDEA", "SEEA",  "SFEA", "SGEA", 
+                                    "SADd", "SBDd", "SCDd", "SDDd", "SEDd", 
+                                    "SAEd", "SBEd", "SCEd", "SDEd", "SEEd",  
+                                    "SADD", "SBDD", "SCDD", "SDDD", "SEDD",   
+                                    "DADN", "DBDN",
+                                    "DADA", "DBDA"];
+        powered_railtype_list:    [ "ELRL", 
+                                    "SADA", "SBDA", "SCDA", "SDDA", "SEDA",  "SFDA", "SGDA", 
+                                    "SAEA", "SBEA", "SCEA", "SDEA", "SEEA",  "SFEA", "SGEA",
+                                    "DACA", "DADA", "DBDA"];
         railtype_flags:         bitmask(RAILTYPE_FLAG_CATENARY);
         curve_speed_multiplier: 1;
         station_graphics:       RAILTYPE_STATION_NORMAL;
