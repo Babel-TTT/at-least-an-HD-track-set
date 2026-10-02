@@ -35,6 +35,13 @@
  */
 export const SHEETS = [
   {
+    // P2-G2（电气化铁路 `SBDA` 那一组）的模型。
+    // 目前只有试件 G2_sleeper_test —— 混凝土枕的 U 形承轨槽形状确认件。
+    key: 'g2',
+    title: 'G2 几何组（混凝土枕 U 形承轨槽；SBDA）',
+    match: /^G2_/,
+  },
+  {
     // 「褐色道床」那套（人工 2026-10：SADN 的道床比同组另三种更褐）。
     // 内容是 9 个带道砟的模型的机械副本（道砟 gravel → roof_shingle），
     // 由 tools/gen-g1-switches.mjs 末尾那一段吐出来。
