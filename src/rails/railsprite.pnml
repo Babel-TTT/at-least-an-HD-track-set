@@ -438,7 +438,7 @@ spriteset(probe_catenary_pylons, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
       12 X_SW_DOWN  13 Y_SE_UP   14 X_SW_UP   15 Y_SE_DOWN
       16 X_NE      17 Y_NW      18 EW_W      19 NS_N           ← 杆在"第二端"
       20 X_NE_DOWN 21 Y_NW_UP   22 X_NE_UP   23 Y_NW_DOWN
-      24..27 ENTRANCE_SW / NW / NE / SE                          ← 车库、隧道口
+      24..27 ENTRANCE_SW / NW / NE / SE                          ← 车库、隧道口（**已禁用**）
 
      **实机已核 4 个**（人工 2026-10-02 标「正常」）：8=X_SW ✓ 9=Y_SE ✓
      16=X_NE ✓ 17=Y_NW ✓ —— 与源码逐条吻合。
@@ -456,8 +456,11 @@ spriteset(probe_catenary_pylons, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
        R(N–E 边 x=0) = W–N 边 y=0  ⇒ x_ne 的 v1 = Y 向 **NW** 端
        R(瓦片主对角线) = 同一条线   ⇒ ns_w_* 的 v1 = EW 向（杆 N→W、S→E）
 
-   ⚠ **仍未实机核过**的：4 条 ENTRANCE（暂借 X_SHORT 的图，见下）与斜向那 6 条。
+   ⚠ **仍未实机核过**的：斜向那 6 条（2/3/10/11/18/19）。
      实机看到哪一格不对，报一句「第几号槽的线跑到哪去了」，改这个表即可。
+   ★ 24..27 ENTRANCE：人工裁定 2026-10-03 → **禁用**（全透明占位）。
+     原来借 X_SHORT 的图，洞口会画出一条整格平导线；要做「半截入洞导线」
+     时把 spriteset 里那 4 行换成对应模板即可。
    =========================================================================== */
 spriteset(probe_catenary_wire, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
     // ★ 索引 = 引擎的 WireSpriteOffset（elrail.cpp:589 `wire_base + sss.image_offset`）
@@ -490,8 +493,15 @@ spriteset(probe_catenary_wire, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
     t_G1_wire_x_ne_up_v1("gfx/catenary.png")       // 21 WSO_Y_NW_UP        上坡·杆在 NW 端
     t_G1_wire_x_ne_up_v0("gfx/catenary.png")       // 22 WSO_X_NE_UP        上坡·杆在 NE 端
     t_G1_wire_x_ne_down_v1("gfx/catenary.png")     // 23 WSO_Y_NW_DOWN      下坡·杆在 NW 端
-    t_G1_wire_x_short_v0("gfx/catenary.png")       // 24 WSO_ENTRANCE_SW    车库/隧道口（暂借 X_SHORT）
-    t_G1_wire_x_short_v1("gfx/catenary.png")       // 25 WSO_ENTRANCE_NW    同上
-    t_G1_wire_x_short_v0("gfx/catenary.png")       // 26 WSO_ENTRANCE_NE    同上
-    t_G1_wire_x_short_v1("gfx/catenary.png")       // 27 WSO_ENTRANCE_SE    同上
+    // 24..27 洞口/车库口：**禁用**（人工裁定 2026-10-03）
+    //   原先暂借 X_SHORT 的图 —— 结果是洞口画出一条「平·1 格跨 X/Y 向」的
+    //   整格导线，与洞口对不上。改用**全透明占位**。
+    //   取图：借 levelcrossing 表里 G1_levelcrossing_blank 的那一格
+    //   （[1052,0,263,135]，人工已核 max alpha = 0）。
+    //   ⚠ 跨表引用是有意的：不想往 catenary 表里插空模型（插进去会重排后面
+    //     所有格位）。以后若要做「半截入洞导线」，把下面 4 行换成对应模板即可。
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png")  // 24 WSO_ENTRANCE_SW  全透明
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png")  // 25 WSO_ENTRANCE_NW  全透明
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png")  // 26 WSO_ENTRANCE_NE  全透明
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png")  // 27 WSO_ENTRANCE_SE  全透明
 }
