@@ -95,6 +95,19 @@ export const SHEETS = [
     match: /^G1_levelcrossing/,
   },
   {
+    // 接触网**支柱的样式 / 标牌变体**（人工 2026-10-03：厂矿电气化铁路 `SBEd` 要用
+    // 「早期木杆 + 蓝牌」⇒ 新增 `G1_sty_early_blue_a|_b`）。
+    // 现有那套方形混凝土柱是 `G1_pylon_a/_b`（在下面的 catenary 表里）；
+    // 本表放**别的样式 / 别的标牌**，命名 `G1_sty_<样式>_<标牌>_<a|b>`。
+    //
+    // ⚠ 名字刻意**不用** `G1_pylon*`：catenary 表是**前缀**正则 /^G1_(catenary|pylon|wire)/，
+    //   叫 G1_pylon_xxx 就会被它先吃掉，插进那张表 ⇒ 28 条导线 + 8 条支柱模板的
+    //   rect 全被顶移位（同 levelcrossing 那条注释的理由）。单独一张表只多新模板。
+    key: 'pylonstyle',
+    title: '接触网支柱样式（早期木杆等；与 gfx/catenary.png 分开）',
+    match: /^G1_sty_/,
+  },
+  {
     key: 'catenary',
     title: '接触网（杆塔 / 导线）',
     match: /^G1_(catenary|pylon|wire)/,

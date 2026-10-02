@@ -421,6 +421,29 @@ spriteset(probe_catenary_pylons, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
 }
 
 /* ===========================================================================
+   接触网支柱 —— **早期木杆 + 蓝牌**（`PYL-E1`，8 格；分表 gfx/pylonstyle.png）
+
+   人工 2026-10-03：厂矿电气化铁路 `SBEd`（1500V DC · 1920）用这一套
+   —— 样式见 美术要素方案.md §1.6.5.2，蓝牌见 §1.6.3 方案 A；
+   模型是手写的 `models/G1_sty_early_blue_a|_b.model`（a 直向 / b 斜向 45°）。
+
+   槽位映射与上面那套（C1）**完全一样**（同一个引擎枚举、同一套几何朝向）：
+       直向 a：v0→槽 0 / v2→槽 1 / v1→槽 2 / v3→槽 3
+       斜向 b：v0→槽 4 / v2→槽 5 / v1→槽 6 / v3→槽 7
+   ⚠ 斜向那 4 个（槽 4~7）**还没实机核过**（与 C1 同样的未验证项）。
+   =========================================================================== */
+spriteset(probe_catenary_pylons_early_blue, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G1_sty_early_blue_a_v0("gfx/pylonstyle.png")   // 0  PSO_Y_NE   Y 向，柱在 N 边中点
+    t_G1_sty_early_blue_a_v2("gfx/pylonstyle.png")   // 1  PSO_Y_SW   Y 向，柱在 S 边中点
+    t_G1_sty_early_blue_a_v1("gfx/pylonstyle.png")   // 2  PSO_X_NW   X 向，柱在 W 边中点
+    t_G1_sty_early_blue_a_v3("gfx/pylonstyle.png")   // 3  PSO_X_SE   X 向，柱在 E 边中点
+    t_G1_sty_early_blue_b_v0("gfx/pylonstyle.png")   // 4  PSO_EW_N   斜半轨，柱在 N 边中点
+    t_G1_sty_early_blue_b_v2("gfx/pylonstyle.png")   // 5  PSO_EW_S   斜半轨，柱在 S 边中点
+    t_G1_sty_early_blue_b_v1("gfx/pylonstyle.png")   // 6  PSO_NS_W   斜半轨，柱在 W 边中点
+    t_G1_sty_early_blue_b_v3("gfx/pylonstyle.png")   // 7  PSO_NS_E   斜半轨，柱在 E 边中点
+}
+
+/* ===========================================================================
    接触网导线 —— catenary_wire
 
    ★ **28 格**（2026-10-02 定案；此前误按 30 排，已改）。

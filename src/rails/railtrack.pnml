@@ -673,10 +673,12 @@ item(FEAT_RAILTYPES, rail_SBEd, 12) {
        再挂**我们自己的接触网**（`SBEd` 是 1500V DC 电气化线）——
        这是 §1.6.4「把已经带 flag 的类型补齐接触网 graphics」清单里的第一条。
 
-       ⚠ **支柱样式借用了 C1**：按 §2 / §1.6.5.1 的设计，厂矿线该用 `EL-1500/E1`
-         （早期木杆 + **蓝牌**），但这两种样式都还没建模（人工：「先规划，不做」）
-         ⇒ 先挂现有的 `probe_catenary_pylons`（方形混凝土、无牌）。
-         以后 E1 / 蓝牌做好，**只改这一行**；导线全制式共用一套，不用换。 */
+       ⚠ **支柱样式 = `EL-1500/E1`（早期木杆 + 蓝牌）**：按 §2 / §1.6.5.1 厂矿线就该用这个
+         ⇒ 2026-10-03 建了 `G1_sty_early_blue_a|_b`（早期木杆 + 蓝环箍牌，
+         分表 gfx/pylonstyle.png）并接在这里。
+         导线（`catenary_wire`）全制式共用一套，不用换。
+
+       ⚠ 斜向那 4 格（槽 4~7）的视图→槽位映射**还没实机核对**（与 C1 相同的未验证项）。 */
     graphics {
         underlay:        probe_underlay;
         track_overlay:   probe_overlay;
@@ -684,7 +686,7 @@ item(FEAT_RAILTYPES, rail_SBEd, 12) {
         tunnel_overlay:  probe_tunnel_over_2;
         level_crossings: probe_level_crossing;
         bridge_surfaces: probe_bridge_surfaces;
-        catenary_pylons: probe_catenary_pylons;
+        catenary_pylons: probe_catenary_pylons_early_blue;
         catenary_wire:   probe_catenary_wire;
     }
 }
