@@ -693,12 +693,24 @@ export function generate() {
     //   ⇒ 用**长宽比**分族（y span > x span ⇒ X 向），不写死坐标，抗改动。
     //
     //   同一族里：按「与轨向垂直的那条边的范围」分组 = 一根枕木
-    //     X 向：按 (x0,x1) 分组，槽开在 y ∈ [0.43,0.466] / [0.534,0.57]
-    //     Y 向：按 (y0,y1) 分组，槽开在 x ∈ [0.43,0.466] / [0.534,0.57]
+    //     X 向：按 (x0,x1) 分组，槽开在 y ∈ 轨中心±0.018
+    //     Y 向：按 (y0,y1) 分组，槽开在 x ∈ 轨中心±0.018
     //   也只在有枕木的地方叠薄板 ⇒ 枕木之间的道砟缝不被盖住。
+    //
+    //   ⚠ 槽位**从本模型自己的钢轨行（rust）现算**，不写死 —— 交叉两个方向
+    //     烘了不同屏幕偏移，写死直线轨的带会让 Y 向垫板整条跑偏（2026-10-03）。
     // -----------------------------------------------------------------------
     {
-      const S0 = 0.4300, S1 = 0.4660, S2 = 0.5340, S3 = 0.5700;
+      // ⚠ 垫板位置**必须跟着本模型自己的钢轨走**，不能照抄直线轨的固定带。
+      //
+      //   交叉的两个方向各自烘进了不同的屏幕偏移（G1_crossing.model 头部：
+      //   X 组 [5,-1] px、Y 组 [-4,2] px），换算成世界位移：
+      //     X 轨 y 中心 0.4484+0.0117 = 0.4601   （直线轨是 0.4484）
+      //     Y 轨 x 中心 0.4484+0.03125 = 0.4797  （直线轨是 0.4484）
+      //   2026-10-03 实机发现：垫板照抄直线轨的 [0.43,0.466]/[0.534,0.57] 时，
+      //   **Y 向那两条整条跑到钢轨外面**（Y 轨在 x 0.4757/0.5788）。
+      //   ⇒ 改成从钢轨算：垫板 = 轨中心 ± HALF（HALF 与直线轨 U 槽同宽 0.018）。
+      const HALF = 0.0180;
       const ZP = 0.0100, ZPAD = 0.0103;
       const g = path.join(ROOT, 'models', 'G2_track_crossing.model');
       if (!fs.existsSync(g)) log('  × 跳过交叉：G2_track_crossing 还不存在');
@@ -706,6 +718,8 @@ export function generate() {
         const lines = fs.readFileSync(g, 'utf8').split('\n');
         const famA = new Map();   // X 向枕木：key = x0|x1 → y 范围
         const famB = new Map();   // Y 向枕木：key = y0|y1 → x 范围
+        const railY = [];         // 沿 x 跑的钢轨：记**中心 y**
+        const railX = [];         // 沿 y 跑的钢轨：记**中心 x**
         for (const ln of lines) {
           const m = /^box\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(concrete\S*)/.exec(ln);
           if (!m) continue;
@@ -717,20 +731,37 @@ export function generate() {
             famB.set(`${y0.toFixed(4)}|${y1.toFixed(4)}`, [x0, x1]);
           }
         }
+        for (const ln of lines) {
+          const m = /^box\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+rust\b/.exec(ln);
+          if (!m) continue;
+          const x0 = +m[1], y0 = +m[2], x1 = +m[4], y1 = +m[5];
+          if (![x0, y0, x1, y1].every(isFinite)) continue;
+          if (x1 - x0 > y1 - y0) railY.push((y0 + y1) / 2);   // 沿 x 跑 ⇒ 记 y 中心
+          else railX.push((x0 + x1) / 2);                     // 沿 y 跑 ⇒ 记 x 中心
+        }
+        railY.sort((a, b) => a - b);
+        railX.sort((a, b) => a - b);
+        const FALLBACK = [[0.4300, 0.4660], [0.5340, 0.5700]];   // 找不到钢轨时的老固定带
+        const bandY = railY.length === 2 ? railY.map((c) => [c - HALF, c + HALF]) : FALLBACK;
+        const bandX = railX.length === 2 ? railX.map((c) => [c - HALF, c + HALF]) : FALLBACK;
+        if (railY.length !== 2 || railX.length !== 2) {
+          log(`  ⚠ 交叉：钢轨根数不是 2+2（沿 x ${railY.length} / 沿 y ${railX.length}），`
+            + '垫板退回直线轨固定带 —— 去查模型的 rust 钢轨行');
+        } else {
+          log(`  · 交叉垫板跟着钢轨：y 带 ${railY.map((c) => (c - HALF).toFixed(4) + '~' + (c + HALF).toFixed(4)).join(' / ')}`
+            + `，x 带 ${railX.map((c) => (c - HALF).toFixed(4) + '~' + (c + HALF).toFixed(4)).join(' / ')}`);
+        }
+        const pad = (a, b, ya, yb) =>
+          `box ${a.toFixed(4)} ${ya.toFixed(4)} ${ZP.toFixed(4)}  `
+          + `${b.toFixed(4)} ${yb.toFixed(4)} ${ZPAD.toFixed(4)}  trim_dark top=trim_dark`;
         const add = [];
         for (const [k] of famA) {
           const [xa, xb] = k.split('|').map(Number);
-          for (const [ya, yb] of [[S0, S1], [S2, S3]]) {
-            add.push(`box ${xa.toFixed(4)} ${ya.toFixed(4)} ${ZP.toFixed(4)}  `
-              + `${xb.toFixed(4)} ${yb.toFixed(4)} ${ZPAD.toFixed(4)}  trim_dark top=trim_dark`);
-          }
+          for (const [ya, yb] of bandY) add.push(pad(xa, xb, ya, yb));
         }
         for (const [k] of famB) {
           const [ya, yb] = k.split('|').map(Number);
-          for (const [xa, xb] of [[S0, S1], [S2, S3]]) {
-            add.push(`box ${xa.toFixed(4)} ${ya.toFixed(4)} ${ZP.toFixed(4)}  `
-              + `${xb.toFixed(4)} ${yb.toFixed(4)} ${ZPAD.toFixed(4)}  trim_dark top=trim_dark`);
-          }
+          for (const [xa, xb] of bandX) add.push(pad(xa, xb, ya, yb));
         }
         if (!add.length) log('  × 交叉：没找到枕木 box，跳过');
         else {
