@@ -631,118 +631,128 @@ template t_G1_pylon_b_v3(sheet) {
 //     （UP / DOWN 这 12 格这一轮**先复用 FLAT 的图**，理由见
 //       models/G1_wire_x_sw.model 的文件头）
 //
-//   锚点：**全表一致、全是算法值，没有手调** ——
-//     v0 (−131,−109)   v1 (−3,−173)   v2 (−131,−237)   v3 (−259,−173)
-//   ⚠ 与支柱那 8 条**不一样**：支柱被人工调过（±4/±8）。导线是**居中在瓦片上**的，
-//     本来就该用算法值；支柱要"站在轨道旁边"才需要那点横向微调。
+//   锚点：**36 条全部一样 = (−131, −109)，而且与朝向无关**。
+//
+//   ⚠⚠ **不要照抄 openttd.json 里的 xrel/yrel**（2026-10-02 踩过）：
+//     那是「相对**该朝向旋转后占地矩形的西北角**」，
+//     而 OpenTTD 摆放精灵用的是「相对**瓦片原点**」，瓦片原点**不随精灵内容旋转**。
+//     1×1 模型 view 0 两者恰好相等，view 1/2/3 各差半格（128/64 px）——
+//     照抄会让 Y 向 / 斜向那批导线整体飘半格到一格。
+//     正确算法（tools/util.mjs:125 `anchorToXrelYrel`，**唯一口径**）：
+//         瓦片原点像素 = centerAnchor − 占地中心投影偏移
+//         1×1 时 偏移 = (0, 64)      ⇒ xrel = −ca.x , yrel = 64 − ca.y
+//     本表 centerAnchor = [131, 173]（4 个朝向完全一致）
+//         ⇒ xrel = −131 , yrel = 64 − 173 = **−109** ✓
+//     支柱那 8 条之所以逐朝向不同，是**人工按槽位实机微调**出来的（模型原点在柱脚、
+//     要把它挪到轨道旁），不是算法值 —— 导线是居中在瓦片上的，用算法值。
 // ---------------------------------------------------------------------------
 template t_G1_wire_x_sw_v0(sheet) {
   [0, 1205, 263, 241, -131, -109, sheet]
 }
 template t_G1_wire_x_sw_v1(sheet) {
-  [263, 1205, 263, 241, -3, -173, sheet]
+  [263, 1205, 263, 241, -131, -109, sheet]
 }
 template t_G1_wire_x_sw_v2(sheet) {
-  [526, 1205, 263, 241, -131, -237, sheet]
+  [526, 1205, 263, 241, -131, -109, sheet]
 }
 template t_G1_wire_x_sw_v3(sheet) {
-  [789, 1205, 263, 241, -259, -173, sheet]
+  [789, 1205, 263, 241, -131, -109, sheet]
 }
 template t_G1_wire_x_ne_v0(sheet) {
   [1052, 964, 263, 241, -131, -109, sheet]
 }
 template t_G1_wire_x_ne_v1(sheet) {
-  [1315, 964, 263, 241, -3, -173, sheet]
+  [1315, 964, 263, 241, -131, -109, sheet]
 }
 template t_G1_wire_x_ne_v2(sheet) {
-  [1578, 964, 263, 241, -131, -237, sheet]
+  [1578, 964, 263, 241, -131, -109, sheet]
 }
 template t_G1_wire_x_ne_v3(sheet) {
-  [1841, 964, 263, 241, -259, -173, sheet]
+  [1841, 964, 263, 241, -131, -109, sheet]
 }
 template t_G1_wire_x_both_v0(sheet) {
   [0, 964, 263, 241, -131, -109, sheet]
 }
 template t_G1_wire_x_both_v1(sheet) {
-  [263, 964, 263, 241, -3, -173, sheet]
+  [263, 964, 263, 241, -131, -109, sheet]
 }
 template t_G1_wire_x_both_v2(sheet) {
-  [526, 964, 263, 241, -131, -237, sheet]
+  [526, 964, 263, 241, -131, -109, sheet]
 }
 template t_G1_wire_x_both_v3(sheet) {
-  [789, 964, 263, 241, -259, -173, sheet]
+  [789, 964, 263, 241, -131, -109, sheet]
 }
 template t_G1_wire_ns_w_both_v0(sheet) {
   [1052, 482, 263, 241, -131, -109, sheet]
 }
 template t_G1_wire_ns_w_both_v1(sheet) {
-  [1315, 482, 263, 241, -3, -173, sheet]
+  [1315, 482, 263, 241, -131, -109, sheet]
 }
 template t_G1_wire_ns_w_both_v2(sheet) {
-  [1578, 482, 263, 241, -131, -237, sheet]
+  [1578, 482, 263, 241, -131, -109, sheet]
 }
 template t_G1_wire_ns_w_both_v3(sheet) {
-  [1841, 482, 263, 241, -259, -173, sheet]
+  [1841, 482, 263, 241, -131, -109, sheet]
 }
 template t_G1_wire_ns_w_n_v0(sheet) {
   [0, 723, 263, 241, -131, -109, sheet]
 }
 template t_G1_wire_ns_w_n_v1(sheet) {
-  [263, 723, 263, 241, -3, -173, sheet]
+  [263, 723, 263, 241, -131, -109, sheet]
 }
 template t_G1_wire_ns_w_n_v2(sheet) {
-  [526, 723, 263, 241, -131, -237, sheet]
+  [526, 723, 263, 241, -131, -109, sheet]
 }
 template t_G1_wire_ns_w_n_v3(sheet) {
-  [789, 723, 263, 241, -259, -173, sheet]
+  [789, 723, 263, 241, -131, -109, sheet]
 }
 template t_G1_wire_ns_w_s_v0(sheet) {
   [1052, 723, 263, 241, -131, -109, sheet]
 }
 template t_G1_wire_ns_w_s_v1(sheet) {
-  [1315, 723, 263, 241, -3, -173, sheet]
+  [1315, 723, 263, 241, -131, -109, sheet]
 }
 template t_G1_wire_ns_w_s_v2(sheet) {
-  [1578, 723, 263, 241, -131, -237, sheet]
+  [1578, 723, 263, 241, -131, -109, sheet]
 }
 template t_G1_wire_ns_w_s_v3(sheet) {
-  [1841, 723, 263, 241, -259, -173, sheet]
+  [1841, 723, 263, 241, -131, -109, sheet]
 }
 template t_G1_wire_ns_e_both_v0(sheet) {
   [0, 241, 263, 241, -131, -109, sheet]
 }
 template t_G1_wire_ns_e_both_v1(sheet) {
-  [263, 241, 263, 241, -3, -173, sheet]
+  [263, 241, 263, 241, -131, -109, sheet]
 }
 template t_G1_wire_ns_e_both_v2(sheet) {
-  [526, 241, 263, 241, -131, -237, sheet]
+  [526, 241, 263, 241, -131, -109, sheet]
 }
 template t_G1_wire_ns_e_both_v3(sheet) {
-  [789, 241, 263, 241, -259, -173, sheet]
+  [789, 241, 263, 241, -131, -109, sheet]
 }
 template t_G1_wire_ns_e_n_v0(sheet) {
   [1052, 241, 263, 241, -131, -109, sheet]
 }
 template t_G1_wire_ns_e_n_v1(sheet) {
-  [1315, 241, 263, 241, -3, -173, sheet]
+  [1315, 241, 263, 241, -131, -109, sheet]
 }
 template t_G1_wire_ns_e_n_v2(sheet) {
-  [1578, 241, 263, 241, -131, -237, sheet]
+  [1578, 241, 263, 241, -131, -109, sheet]
 }
 template t_G1_wire_ns_e_n_v3(sheet) {
-  [1841, 241, 263, 241, -259, -173, sheet]
+  [1841, 241, 263, 241, -131, -109, sheet]
 }
 template t_G1_wire_ns_e_s_v0(sheet) {
   [0, 482, 263, 241, -131, -109, sheet]
 }
 template t_G1_wire_ns_e_s_v1(sheet) {
-  [263, 482, 263, 241, -3, -173, sheet]
+  [263, 482, 263, 241, -131, -109, sheet]
 }
 template t_G1_wire_ns_e_s_v2(sheet) {
-  [526, 482, 263, 241, -131, -237, sheet]
+  [526, 482, 263, 241, -131, -109, sheet]
 }
 template t_G1_wire_ns_e_s_v3(sheet) {
-  [789, 482, 263, 241, -259, -173, sheet]
+  [789, 482, 263, 241, -131, -109, sheet]
 }
 
 // ---------------------------------------------------------------------------
