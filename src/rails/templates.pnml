@@ -630,16 +630,16 @@ template t_G1_pylon_b_v3(sheet) {
 //
 //   三条硬事实（**下面那段旧说明有两条是错的，已作废**）：
 //
-//   ① **X/Y 那 18 格都是整格线**。表里 X 三张包围盒都是 `(0,7,15,1)`、
-//      Y 三张都是 `(7,0,1,15)` ⇒ SW/NE（SE/NW）**不是半格**，
-//      只是"两端接线头"那点差别 ⇒ 一族一条整格线就够。
-//   ② **斜线 4 张的位置由包围盒写死**：
-//        NS_W 18/20/22 = `(8,0,8,8)` ⇒ 我们 x0.5~1,y0~0.5 = **贴 W 角**那半条
-//        NS_E 19/21/23 = `(0,8,8,8)` ⇒ 我们 x0~0.5,y0.5~1 = **贴 E 角**那半条
-//        EW_N 24/26/28 = UPPER = 贴 N 角 = 贴 E 角那条转 90°（用 v1）
-//        EW_S 25/27/29 = LOWER = 贴 S 角 = 贴 W 角那条转 90°（用 v1）
-//      ⇒ **槽位↔图 的对应与读码前一致**（那部分本来就推对了）。
-//   ③ **错的是锚点与高度** —— 这才是实机里"到处乱"的真因：
+//   ① ★★ **每个方向要 3 张：2 格跨的前半 / 后半 + 1 格跨**（人工 2026-10-02 指出，
+//      我第一版读错了）：
+//        `_rail_wires[…][轨道位][几处立杆]` —— 第 3 维就是"本格有几处立杆"：
+//          **只有一端有杆** ⇒ 这一格是 **2 格跨的一半**（另一半在隔壁那格）
+//          **两端都有杆**   ⇒ 这一格是 **1 格跨的完整弧**
+//        旁证：`enum WireSpriteOffset` 里第三张就叫 `WSO_X_SHORT` ✓
+//      ⇒ 包络盒三张都是 `(0,7,15,1)`（整格）**不代表形状相同**，是我上一版的错判。
+//   ② **斜线 4 个轨道位由同一组模型的 4 个朝向出**（R 旋转把"贴 W 角"转到 S/E/N 角），
+//      包络盒 `(8,0,8,8)` / `(0,8,8,8)` = 我们 x0.5~1,y0~0.5 与 x0~0.5,y0.5~1 ✓
+//   ③ **摆放锚点有两个坑**（实机里"到处乱"的真因）：
 //      · 引擎按表里的 `(x_offset, y_offset, z_offset)` 当原点，而我们按"瓦片原点"
 //        给了 (−131,−109) ⇒ **每族整体偏 56~64 px，而且各族偏的方向不一样**。
 //      · 引擎给导线额外抬 `ELRAIL_ELEVATION = 10` 单位 = **0.2552 格**
@@ -661,40 +661,100 @@ template t_G1_pylon_b_v3(sheet) {
 //     EW_N      24,26,28      (7,0,10)      ( 56,−12)    −187, −97
 //     EW_S      25,27,29      (15,8,10)     ( 56, 52)    −187,−161
 //
-//   ⚠ 上/下坡那 6 条只是**用 yrel 把引擎多抬的 9 单位（=36 px）压回去** ——
-//     模型只有一套水平线，所以斜坡上的导线暂时是"水平、但高度对"的。
-//     要真正做到顺着坡度斜，得再出 2 个模型（`G1_wire_x_up` / `_down`），
-//     把模型里的 z 整体偏移 —— 等实机确认平地这套对了再做。
+//   ⚠ 上/下坡那 12 条（X/Y 各 6）**用真模型**：生成器对模型里的 z 整体偏移
+//     （上坡 −9 单位、下坡 +1 单位，抵消引擎 ELRAIL_ELEVRAISE/EVLOWER 的差），
+//     所以模板的 yrel 只需按上表的 Δ 算，不再另加补偿。
+//     代价（已知）：斜坡上的弧**不跟着坡度走**（只是高度对）。
 // ---------------------------------------------------------------------------
-template t_G1_wire_x_v0(sheet) {
-  [1315, 241, 263, 241, -187, -161, sheet]       // 【手调】引擎原点补偿，非人工：槽 0-2   X 平（整格）
+template t_G1_wire_x_sw_v0(sheet) {
+  [1052, 1205, 263, 241, -75, -97, sheet]    // 【手调】引擎原点补偿：槽 0   X_FLAT_SW 2 格跨前半
 }
-template t_G1_wire_x_up_v0(sheet) {
-  [0, 482, 263, 241, -75, -61, sheet]       // 【手调】引擎原点补偿，非人工：槽 3-5   X 上坡
+template t_G1_wire_x_ne_v0(sheet) {
+  [1052, 482, 263, 241, -75, -97, sheet]     // 【手调】槽 1   X_FLAT_NE 2 格跨后半
 }
-template t_G1_wire_x_down_v0(sheet) {
-  [0, 482, 263, 241, -75, -101, sheet]      // 【手调】引擎原点补偿，非人工：槽 6-8   X 下坡
+template t_G1_wire_x_short_v0(sheet) {
+  [0, 964, 263, 241, -75, -97, sheet]        // 【手调】槽 2   X_FLAT_BOTH 1 格跨
 }
-template t_G1_wire_x_v1(sheet) {
-  [263, 241, 263, 241, -187, -97, sheet]    // 【手调】引擎原点补偿，非人工：槽 9-11  Y 平（整格）
+template t_G1_wire_x_sw_up_v0(sheet) {
+  [1052, 1446, 263, 241, -75, -61, sheet]    // 【手调】槽 3-5 X_UP_*（模型已降 9 单位）
 }
-template t_G1_wire_x_up_v1(sheet) {
-  [263, 482, 263, 241, -187, -61, sheet]    // 【手调】引擎原点补偿，非人工：槽 12-14 Y 上坡
+template t_G1_wire_x_ne_up_v0(sheet) {
+  [1052, 723, 263, 241, -75, -61, sheet]     // 【手调】
 }
-template t_G1_wire_x_down_v1(sheet) {
-  [263, 482, 263, 241, -187, -101, sheet]   // 【手调】引擎原点补偿，非人工：槽 15-17 Y 下坡
+template t_G1_wire_x_short_up_v0(sheet) {
+  [0, 1205, 263, 241, -75, -61, sheet]       // 【手调】
 }
-template t_G1_wire_ns_w_v0(sheet) {
-  [1052, 241, 263, 241, -195, -101, sheet]  // 【手调】引擎原点补偿，非人工：槽 18/20/22  NS_W（贴 W 角）
+template t_G1_wire_x_sw_down_v0(sheet) {
+  [0, 1446, 263, 241, -75, -101, sheet]      // 【手调】槽 6-8 X_DOWN_*（模型已升 1 单位）
 }
-template t_G1_wire_ns_e_v0(sheet) {
-  [0, 241, 263, 241, -67, -101, sheet]      // 【手调】引擎原点补偿，非人工：槽 19/21/23  NS_E（贴 E 角）
+template t_G1_wire_x_ne_down_v0(sheet) {
+  [0, 723, 263, 241, -75, -101, sheet]       // 【手调】
 }
-template t_G1_wire_ns_e_v1(sheet) {
-  [263, 482, 263, 241, -187, -97, sheet]    // 【手调】引擎原点补偿，非人工：槽 24/26/28  EW_N（贴 N 角）
+template t_G1_wire_x_short_down_v0(sheet) {
+  [1052, 964, 263, 241, -75, -101, sheet]    // 【手调】
 }
-template t_G1_wire_ns_w_v1(sheet) {
-  [0, 482, 263, 241, -75, -97, sheet]  // 【手调】引擎原点补偿，非人工：槽 25/27/29  EW_S（贴 S 角）
+template t_G1_wire_x_sw_v1(sheet) {
+  [1315, 1205, 263, 241, -187, -97, sheet]   // 【手调】槽 9   Y_FLAT_SE（= R(x_sw)）
+}
+template t_G1_wire_x_ne_v1(sheet) {
+  [1315, 482, 263, 241, -187, -97, sheet]    // 【手调】槽 10  Y_FLAT_NW
+}
+template t_G1_wire_x_short_v1(sheet) {
+  [263, 964, 263, 241, -187, -97, sheet]     // 【手调】槽 11  Y_FLAT_BOTH
+}
+template t_G1_wire_x_sw_up_v1(sheet) {
+  [1315, 1446, 263, 241, -187, -61, sheet]   // 【手调】槽 12-14 Y_UP_*
+}
+template t_G1_wire_x_ne_up_v1(sheet) {
+  [1315, 723, 263, 241, -187, -61, sheet]    // 【手调】
+}
+template t_G1_wire_x_short_up_v1(sheet) {
+  [263, 1205, 263, 241, -187, -61, sheet]    // 【手调】
+}
+template t_G1_wire_x_sw_down_v1(sheet) {
+  [263, 1446, 263, 241, -187, -101, sheet]   // 【手调】槽 15-17 Y_DOWN_*
+}
+template t_G1_wire_x_ne_down_v1(sheet) {
+  [263, 723, 263, 241, -187, -101, sheet]    // 【手调】
+}
+template t_G1_wire_x_short_down_v1(sheet) {
+  [1315, 964, 263, 241, -187, -101, sheet]   // 【手调】
+}
+template t_G1_wire_ns_w_short_v0(sheet) {
+  [0, 482, 263, 241, -195, -101, sheet]      // 【手调】槽 18  NS_W_BOTH 1 格跨
+}
+template t_G1_wire_ns_w_short_v2(sheet) {
+  [526, 482, 263, 241, -67, -101, sheet]     // 【手调】槽 19  NS_E_BOTH（R²）
+}
+template t_G1_wire_ns_w_n_v0(sheet) {
+  [0, 241, 263, 241, -195, -101, sheet]      // 【手调】槽 20  NS_W_N 杆在 N 端
+}
+template t_G1_wire_ns_w_s_v2(sheet) {
+  [1578, 241, 263, 241, -67, -101, sheet]    // 【手调】槽 21  NS_E_N（R² 把 S 端转到 N）
+}
+template t_G1_wire_ns_w_s_v0(sheet) {
+  [1052, 241, 263, 241, -195, -101, sheet]   // 【手调】槽 22  NS_W_S 杆在 S 端
+}
+template t_G1_wire_ns_w_n_v2(sheet) {
+  [526, 241, 263, 241, -67, -101, sheet]     // 【手调】槽 23  NS_E_S（R² 把 N 端转到 S）
+}
+template t_G1_wire_ns_w_short_v3(sheet) {
+  [789, 482, 263, 241, -187, -97, sheet]     // 【手调】槽 24  EW_N_BOTH（R³）
+}
+template t_G1_wire_ns_w_short_v1(sheet) {
+  [263, 482, 263, 241, -187, -161, sheet]    // 【手调】槽 25  EW_S_BOTH（R）
+}
+template t_G1_wire_ns_w_s_v3(sheet) {
+  [1841, 241, 263, 241, -187, -97, sheet]    // 【手调】槽 26  EW_N_W（R³ 把 S 端转到 W）
+}
+template t_G1_wire_ns_w_n_v1(sheet) {
+  [263, 241, 263, 241, -187, -161, sheet]    // 【手调】槽 27  EW_S_W（R 把 N 端转到 W）
+}
+template t_G1_wire_ns_w_n_v3(sheet) {
+  [789, 241, 263, 241, -187, -97, sheet]     // 【手调】槽 28  EW_N_E（R³ 把 N 端转到 E）
+}
+template t_G1_wire_ns_w_s_v1(sheet) {
+  [1315, 241, 263, 241, -187, -161, sheet]   // 【手调】槽 29  EW_S_E（R 把 S 端转到 E）
 }
 
 // ---------------------------------------------------------------------------
