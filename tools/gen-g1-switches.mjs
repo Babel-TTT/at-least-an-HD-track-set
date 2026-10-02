@@ -584,8 +584,12 @@ export function generate() {
     //   加 U 槽要按各自的「沿轨坐标」重排几何，逐个处理；先保证颜色一致，
     //   这样 7 个模型放一起不会一半灰一半木色。
     //
-    //   材质映射（与 U 形那套同一组色）：
-    //     wood_dark → concrete          wood_seam → concrete_seam
+    //   材质映射（★ 必须**明显亮于道砟**）：
+    //     wood_dark → concrete    (186,182,173)
+    //     wood_seam → tile_grey   (198,195,188)
+    //   为什么不用 concrete_seam(152,149,141)：那和道砟 gravel(156,149,138)
+    //   **几乎同色**，2026-10-02 踩过 —— 坡道渲出来枕木整个消失、
+    //   混凝土枕直接融进道砟里。两档都要比 gravel 亮 30 级以上才看得见。
     //   注意 `top=wood_seam` 也要换（模型里是显式写的）。
     // -----------------------------------------------------------------------
     const REMAP = [
@@ -605,13 +609,13 @@ export function generate() {
       const note =
         '# ⚠【G2 混凝土枕变体（**只换了颜色，U 槽还没加**）—— 不要手改本文件】\n'
         + `#   由 tools/gen-g1-switches.mjs 从 models/${src}.model 机械改写而来：\n`
-        + `#     模型名 ${src} → ${dst}；枕木材质 wood_dark→concrete / wood_seam→concrete_seam（${nWood} 处）。\n`
+        + `#     模型名 ${src} → ${dst}；枕木材质 wood_dark→concrete / wood_seam→tile_grey（${nWood} 处）。\n`
         + '#   **几何一字未改。** U 形承轨槽要按本模型自己的「沿轨坐标」重排几何，尚未做。\n'
         + '#   用途：P2-G2 的 `SBDA`（电气化铁路 25kV）。\n'
         + '# =============================================================================\n';
       const t = note + raw.split(src).join(dst)
         .replace(/\bwood_dark\b/g, 'concrete')
-        .replace(/\bwood_seam\b/g, 'concrete_seam');
+        .replace(/\bwood_seam\b/g, 'tile_grey');
       const g = path.join(ROOT, 'models', dst + '.model');
       fs.writeFileSync(g, t, 'utf8');
       log(`  ✔ ${rel(g).padEnd(34)} ${String(t.split('\n').length).padStart(4)} 行   枕木换色 ${nWood} 处`);
@@ -677,6 +681,128 @@ export function generate() {
           + add.join('\n') + '\n';
         fs.writeFileSync(g, out, 'utf8');
         log(`  ✔ ${rel(g).padEnd(34)} 加 U 槽薄板 ${add.length} 片（${nS} 根枕木）`);
+      }
+    }
+
+    // -----------------------------------------------------------------------
+    // 交叉的 U 形承轨槽（box 版，**两个方向各一套枕木**）
+    //
+    //   交叉里有两族枕木：
+    //     X 向轨道的枕木 —— 在 y 上长（横跨轨向）、在 x 上是窄条
+    //     Y 向轨道的枕木 —— 反过来
+    //   ⇒ 用**长宽比**分族（y span > x span ⇒ X 向），不写死坐标，抗改动。
+    //
+    //   同一族里：按「与轨向垂直的那条边的范围」分组 = 一根枕木
+    //     X 向：按 (x0,x1) 分组，槽开在 y ∈ [0.43,0.466] / [0.534,0.57]
+    //     Y 向：按 (y0,y1) 分组，槽开在 x ∈ [0.43,0.466] / [0.534,0.57]
+    //   也只在有枕木的地方叠薄板 ⇒ 枕木之间的道砟缝不被盖住。
+    // -----------------------------------------------------------------------
+    {
+      const S0 = 0.4300, S1 = 0.4660, S2 = 0.5340, S3 = 0.5700;
+      const ZP = 0.0100, ZPAD = 0.0103;
+      const g = path.join(ROOT, 'models', 'G2_track_crossing.model');
+      if (!fs.existsSync(g)) log('  × 跳过交叉：G2_track_crossing 还不存在');
+      else {
+        const lines = fs.readFileSync(g, 'utf8').split('\n');
+        const famA = new Map();   // X 向枕木：key = x0|x1 → y 范围
+        const famB = new Map();   // Y 向枕木：key = y0|y1 → x 范围
+        for (const ln of lines) {
+          const m = /^box\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\s+(concrete\S*)/.exec(ln);
+          if (!m) continue;
+          const [x0, y0, , x1, y1] = [+m[1], +m[2], +m[3], +m[4], +m[5]];
+          if (![x0, y0, x1, y1].every(isFinite)) continue;
+          if (y1 - y0 > x1 - x0) {          // 在 y 上长 ⇒ X 向轨道的枕木
+            famA.set(`${x0.toFixed(4)}|${x1.toFixed(4)}`, [y0, y1]);
+          } else {                          // 在 x 上长 ⇒ Y 向轨道的枕木
+            famB.set(`${y0.toFixed(4)}|${y1.toFixed(4)}`, [x0, x1]);
+          }
+        }
+        const add = [];
+        for (const [k] of famA) {
+          const [xa, xb] = k.split('|').map(Number);
+          for (const [ya, yb] of [[S0, S1], [S2, S3]]) {
+            add.push(`box ${xa.toFixed(4)} ${ya.toFixed(4)} ${ZP.toFixed(4)}  `
+              + `${xb.toFixed(4)} ${yb.toFixed(4)} ${ZPAD.toFixed(4)}  trim_dark top=trim_dark`);
+          }
+        }
+        for (const [k] of famB) {
+          const [ya, yb] = k.split('|').map(Number);
+          for (const [xa, xb] of [[S0, S1], [S2, S3]]) {
+            add.push(`box ${xa.toFixed(4)} ${ya.toFixed(4)} ${ZP.toFixed(4)}  `
+              + `${xb.toFixed(4)} ${yb.toFixed(4)} ${ZPAD.toFixed(4)}  trim_dark top=trim_dark`);
+          }
+        }
+        if (!add.length) log('  × 交叉：没找到枕木 box，跳过');
+        else {
+          const out = lines.join('\n').replace(/\n?$/, '\n')
+            + '\n# --- U 形承轨槽薄板（交叉，box；两个方向各一套）---\n'
+            + add.join('\n') + '\n';
+          fs.writeFileSync(g, out, 'utf8');
+          log(`  ✔ ${rel(g).padEnd(34)} 加 U 槽薄板 ${add.length} 片`
+            + `（X 向 ${famA.size} 根 / Y 向 ${famB.size} 根）`);
+        }
+      }
+    }
+
+    // -----------------------------------------------------------------------
+    // 坡道的 U 形承轨槽（quad 版，**必须跟着坡度倾斜**）
+    //
+    //   坡道模型的枕木是 box，但**整体绕 y 轴倾斜** —— 实测 dz/dx ≈ −0.20625，
+    //   正好等于一个地形高差 0.2041（模型头：z 0.2100@x=0.0200 → 0.2133@x=0.0040）。
+    //   ⇒ 薄板不能用 prism（prism 顶面是平的），必须发成**四点独立 z 的 quad**。
+    //
+    //   每根枕木（按它的 x 范围分组）取两端最高 z，然后在 z 之上 0.0003 叠 3 片：
+    //     y ∈ [0.43,0.466] 深色 / [0.466,0.534] 中间调 / [0.534,0.57] 深色
+    // -----------------------------------------------------------------------
+    {
+      const BANDS = [
+        [0.4300, 0.4660, 'trim_dark'],
+        [0.4660, 0.5340, 'concrete_seam'],
+        [0.5340, 0.5700, 'trim_dark'],
+      ];
+      const DZ = 0.0003;
+      for (const dst of ['G2_track_slope', 'G2_rail_slope']) {
+        const g = path.join(ROOT, 'models', dst + '.model');
+        if (!fs.existsSync(g)) { log(`  × 跳过 ${dst}：还不存在`); continue; }
+        const lines = fs.readFileSync(g, 'utf8').split('\n');
+        const grp = new Map();      // x0|x1 → { x0, x1, z0, z1 }（两端最高 z）
+        for (const ln of lines) {
+          const m = /^quad\s+(.+)$/.exec(ln);
+          if (!m) continue;
+          const t = m[1].trim().split(/\s+/);
+          if (!/^concrete/.test(t[t.length - 1])) continue;
+          const n = t.slice(0, t.length - 1).map(Number);
+          if (n.length !== 12 || n.some((v) => !isFinite(v))) continue;
+          const xs = [n[0], n[3], n[6], n[9]], zs = [n[2], n[5], n[8], n[11]];
+          const x0 = Math.min(...xs), x1 = Math.max(...xs);
+          // ⚠ 枕木的**侧面/端面** quad 在 x 上是退化的（x0 == x1），
+          //   不过滤的话会被当成一根根独立的枕木，根数会多 3 倍
+          //   （2026-10-02 踩过：25 根被数成 75 根）。
+          if (x1 - x0 < 0.003) continue;
+          const key = `${x0.toFixed(4)}|${x1.toFixed(4)}`;
+          const r = grp.get(key) || { x0, x1, z0: -Infinity, z1: -Infinity };
+          for (let i = 0; i < 4; i++) {
+            if (Math.abs(xs[i] - x0) < 1e-6) r.z0 = Math.max(r.z0, zs[i]);
+            if (Math.abs(xs[i] - x1) < 1e-6) r.z1 = Math.max(r.z1, zs[i]);
+          }
+          grp.set(key, r);
+        }
+        const add = [];
+        for (const [, r] of grp) {
+          if (!isFinite(r.z0) || !isFinite(r.z1)) continue;
+          for (const [y0, y1, mat] of BANDS) {
+            const za = (r.z0 + DZ).toFixed(4), zb = (r.z1 + DZ).toFixed(4);
+            const xa = r.x0.toFixed(4), xb = r.x1.toFixed(4);
+            add.push(`quad ${xa} ${y0} ${za}  ${xa} ${y1} ${za}  `
+              + `${xb} ${y1} ${zb}  ${xb} ${y0} ${zb}   ${mat}`);
+          }
+        }
+        if (!add.length) { log(`  × ${dst}：没找到枕木 quad，跳过`); continue; }
+        const out = lines.join('\n').replace(/\n?$/, '\n')
+          + '\n# --- U 形承轨槽薄板（坡道，quad；跟着坡度倾斜）---\n'
+          + add.join('\n') + '\n';
+        fs.writeFileSync(g, out, 'utf8');
+        log(`  ✔ ${rel(g).padEnd(34)} 加 U 槽薄板 ${add.length} 片（${grp.size} 根枕木）`);
       }
     }
   }
