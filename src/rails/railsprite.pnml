@@ -458,34 +458,34 @@ spriteset(probe_catenary_pylons, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
      模型/模板都不用动。
    =========================================================================== */
 spriteset(probe_catenary_wire, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
-    t_G1_wire_x_sw_v0("gfx/catenary.png")         // 0  X_FLAT_SW     SW 半
-    t_G1_wire_x_ne_v0("gfx/catenary.png")         // 1  X_FLAT_NE     NE 半
-    t_G1_wire_x_both_v0("gfx/catenary.png")       // 2  X_FLAT_BOTH   整格
-    t_G1_wire_x_sw_v0("gfx/catenary.png")         // 3  X_UP_SW      （斜坡复用 FLAT）
-    t_G1_wire_x_ne_v0("gfx/catenary.png")         // 4  X_UP_NE
-    t_G1_wire_x_both_v0("gfx/catenary.png")       // 5  X_UP_BOTH
-    t_G1_wire_x_sw_v0("gfx/catenary.png")         // 6  X_DOWN_SW
-    t_G1_wire_x_ne_v0("gfx/catenary.png")         // 7  X_DOWN_NE
-    t_G1_wire_x_both_v0("gfx/catenary.png")       // 8  X_DOWN_BOTH
-    t_G1_wire_x_sw_v1("gfx/catenary.png")         // 9  Y_FLAT_SE     = R(x_sw)
-    t_G1_wire_x_ne_v1("gfx/catenary.png")         // 10 Y_FLAT_NW     = R(x_ne)
-    t_G1_wire_x_both_v1("gfx/catenary.png")       // 11 Y_FLAT_BOTH
-    t_G1_wire_x_sw_v1("gfx/catenary.png")         // 12 Y_UP_SE
-    t_G1_wire_x_ne_v1("gfx/catenary.png")         // 13 Y_UP_NW
-    t_G1_wire_x_both_v1("gfx/catenary.png")       // 14 Y_UP_BOTH
-    t_G1_wire_x_sw_v1("gfx/catenary.png")         // 15 Y_DOWN_SE
-    t_G1_wire_x_ne_v1("gfx/catenary.png")         // 16 Y_DOWN_NW
-    t_G1_wire_x_both_v1("gfx/catenary.png")       // 17 Y_DOWN_BOTH
-    t_G1_wire_ns_w_both_v0("gfx/catenary.png")    // 18 NS_W_BOTH     贴 W 角，整段
-    t_G1_wire_ns_e_both_v0("gfx/catenary.png")    // 19 NS_E_BOTH     贴 E 角，整段
-    t_G1_wire_ns_w_n_v0("gfx/catenary.png")       // 20 NS_W_N        N 端
-    t_G1_wire_ns_e_n_v0("gfx/catenary.png")       // 21 NS_E_N        N 端
-    t_G1_wire_ns_w_s_v0("gfx/catenary.png")       // 22 NS_W_S        S 端
-    t_G1_wire_ns_e_s_v0("gfx/catenary.png")       // 23 NS_E_S        S 端
-    t_G1_wire_ns_e_both_v1("gfx/catenary.png")    // 24 EW_N_BOTH     = R(ns_e_both)
-    t_G1_wire_ns_w_both_v1("gfx/catenary.png")    // 25 EW_S_BOTH     = R(ns_w_both)
-    t_G1_wire_ns_e_n_v1("gfx/catenary.png")       // 26 EW_N_W        = R(ns_e_n)
-    t_G1_wire_ns_w_n_v1("gfx/catenary.png")       // 27 EW_S_W        = R(ns_w_n)
-    t_G1_wire_ns_e_s_v1("gfx/catenary.png")       // 28 EW_N_E        = R(ns_e_s)
-    t_G1_wire_ns_w_s_v1("gfx/catenary.png")       // 29 EW_S_E        = R(ns_w_s)
+    t_G1_wire_x_v0("gfx/catenary.png")            // 0  WIRE_X_FLAT_SW    X 向整格
+    t_G1_wire_x_v0("gfx/catenary.png")            // 1  WIRE_X_FLAT_NE    （同一条）
+    t_G1_wire_x_v0("gfx/catenary.png")            // 2  WIRE_X_FLAT_BOTH  （同一条）
+    t_G1_wire_x_up_v0("gfx/catenary.png")         // 3  WIRE_X_UP_SW
+    t_G1_wire_x_up_v0("gfx/catenary.png")         // 4  WIRE_X_UP_NE
+    t_G1_wire_x_up_v0("gfx/catenary.png")         // 5  WIRE_X_UP_BOTH
+    t_G1_wire_x_down_v0("gfx/catenary.png")       // 6  WIRE_X_DOWN_SW
+    t_G1_wire_x_down_v0("gfx/catenary.png")       // 7  WIRE_X_DOWN_NE
+    t_G1_wire_x_down_v0("gfx/catenary.png")       // 8  WIRE_X_DOWN_BOTH
+    t_G1_wire_x_v1("gfx/catenary.png")            // 9  WIRE_Y_FLAT_SE    Y 向整格 = R(X)
+    t_G1_wire_x_v1("gfx/catenary.png")            // 10 WIRE_Y_FLAT_NW
+    t_G1_wire_x_v1("gfx/catenary.png")            // 11 WIRE_Y_FLAT_BOTH
+    t_G1_wire_x_up_v1("gfx/catenary.png")         // 12 WIRE_Y_UP_SE
+    t_G1_wire_x_up_v1("gfx/catenary.png")         // 13 WIRE_Y_UP_NW
+    t_G1_wire_x_up_v1("gfx/catenary.png")         // 14 WIRE_Y_UP_BOTH
+    t_G1_wire_x_down_v1("gfx/catenary.png")       // 15 WIRE_Y_DOWN_SE
+    t_G1_wire_x_down_v1("gfx/catenary.png")       // 16 WIRE_Y_DOWN_NW
+    t_G1_wire_x_down_v1("gfx/catenary.png")       // 17 WIRE_Y_DOWN_BOTH
+    t_G1_wire_ns_w_v0("gfx/catenary.png")         // 18 WIRE_NS_W_BOTH  贴 W 角那半条
+    t_G1_wire_ns_e_v0("gfx/catenary.png")         // 19 WIRE_NS_E_BOTH  贴 E 角那半条
+    t_G1_wire_ns_w_v0("gfx/catenary.png")         // 20 WIRE_NS_W_N
+    t_G1_wire_ns_e_v0("gfx/catenary.png")         // 21 WIRE_NS_E_N
+    t_G1_wire_ns_w_v0("gfx/catenary.png")         // 22 WIRE_NS_W_S
+    t_G1_wire_ns_e_v0("gfx/catenary.png")         // 23 WIRE_NS_E_S
+    t_G1_wire_ns_e_v1("gfx/catenary.png")         // 24 WIRE_EW_N_BOTH  贴 N 角 = NS_E 转 90°
+    t_G1_wire_ns_w_v1("gfx/catenary.png")         // 25 WIRE_EW_S_BOTH  贴 S 角 = NS_W 转 90°
+    t_G1_wire_ns_e_v1("gfx/catenary.png")         // 26 WIRE_EW_N_W
+    t_G1_wire_ns_w_v1("gfx/catenary.png")         // 27 WIRE_EW_S_W
+    t_G1_wire_ns_e_v1("gfx/catenary.png")         // 28 WIRE_EW_N_E
+    t_G1_wire_ns_w_v1("gfx/catenary.png")         // 29 WIRE_EW_S_E
 }
