@@ -1,0 +1,178 @@
+# ⚠【G2 混凝土枕变体 —— 不要手改本文件】
+#   由 tools/gen-g1-switches.mjs 从 models/G1_rail_straight.model 机械改写而来：
+#     模型名 G1_rail_straight → G2_rail_straight；木枕 → U 形混凝土枕（换了 25 根）。
+#   **道砟 / 钢轨 / 颗粒一字未改**，枕木顶仍是 0.0100（与 G1 一致，钢轨高度不变）。
+#   U 形靠色差读：挡肩 concrete（亮）/ 槽底垫板 trim_dark（深）/ 中间体 concrete_seam（中）。
+#   要改形状请改本段生成逻辑，然后重跑 `node tools/gen-g1-switches.mjs`。
+#   用途：P2-G2 的 `SBDA`（电气化铁路 25kV）。
+# =============================================================================
+# =============================================================================
+# G2_rail_straight —— G1 几何组：直线轨的 overlay（喂 track_overlay 的 RTO_X / RTO_Y）
+#
+# 【overlay 用：只有钢轨 + 轨枕，没有道砟】
+#   核自 OpenTTD 源码 rail_cmd.cpp:3796-3816：道岔瓦片是
+#     「junction 道砟 underlay（G1_junction3/4）」+「逐段 overlay 钢轨」
+#   所以 overlay 这一层必须**透明底、只画钢轨和轨枕**，否则会把道砟
+#   又盖一层上去。
+#
+# 本文件由 tools/gen-g1-switches.mjs 同目录的脚本从 models/probe_track_x.model 去掉道砟得到，
+# 去掉的道砟面数：168
+# =============================================================================
+
+name      G2_rail_straight
+group     misc
+footprint 1 1
+zmax      0.028
+
+box 0.0120 0.4100 0.0000 0.0240 0.5900 0.0075 concrete top=concrete_seam
+box 0.0120 0.4300 0.0075 0.0240 0.4660 0.0087 trim_dark top=trim_dark
+box 0.0120 0.5340 0.0075 0.0240 0.5700 0.0087 trim_dark top=trim_dark
+box 0.0120 0.4100 0.0075 0.0240 0.4300 0.01 concrete top=concrete
+box 0.0120 0.4660 0.0075 0.0240 0.5340 0.0095 concrete top=concrete_seam
+box 0.0120 0.5700 0.0075 0.0240 0.5900 0.01 concrete top=concrete
+box 0.0520 0.4100 0.0000 0.0680 0.5900 0.0075 concrete top=concrete_seam
+box 0.0520 0.4300 0.0075 0.0680 0.4660 0.0087 trim_dark top=trim_dark
+box 0.0520 0.5340 0.0075 0.0680 0.5700 0.0087 trim_dark top=trim_dark
+box 0.0520 0.4100 0.0075 0.0680 0.4300 0.01 concrete top=concrete
+box 0.0520 0.4660 0.0075 0.0680 0.5340 0.0095 concrete top=concrete_seam
+box 0.0520 0.5700 0.0075 0.0680 0.5900 0.01 concrete top=concrete
+box 0.0920 0.4100 0.0000 0.1080 0.5900 0.0075 concrete top=concrete_seam
+box 0.0920 0.4300 0.0075 0.1080 0.4660 0.0087 trim_dark top=trim_dark
+box 0.0920 0.5340 0.0075 0.1080 0.5700 0.0087 trim_dark top=trim_dark
+box 0.0920 0.4100 0.0075 0.1080 0.4300 0.01 concrete top=concrete
+box 0.0920 0.4660 0.0075 0.1080 0.5340 0.0095 concrete top=concrete_seam
+box 0.0920 0.5700 0.0075 0.1080 0.5900 0.01 concrete top=concrete
+box 0.1320 0.4100 0.0000 0.1480 0.5900 0.0075 concrete top=concrete_seam
+box 0.1320 0.4300 0.0075 0.1480 0.4660 0.0087 trim_dark top=trim_dark
+box 0.1320 0.5340 0.0075 0.1480 0.5700 0.0087 trim_dark top=trim_dark
+box 0.1320 0.4100 0.0075 0.1480 0.4300 0.01 concrete top=concrete
+box 0.1320 0.4660 0.0075 0.1480 0.5340 0.0095 concrete top=concrete_seam
+box 0.1320 0.5700 0.0075 0.1480 0.5900 0.01 concrete top=concrete
+box 0.1720 0.4100 0.0000 0.1880 0.5900 0.0075 concrete top=concrete_seam
+box 0.1720 0.4300 0.0075 0.1880 0.4660 0.0087 trim_dark top=trim_dark
+box 0.1720 0.5340 0.0075 0.1880 0.5700 0.0087 trim_dark top=trim_dark
+box 0.1720 0.4100 0.0075 0.1880 0.4300 0.01 concrete top=concrete
+box 0.1720 0.4660 0.0075 0.1880 0.5340 0.0095 concrete top=concrete_seam
+box 0.1720 0.5700 0.0075 0.1880 0.5900 0.01 concrete top=concrete
+box 0.2120 0.4100 0.0000 0.2280 0.5900 0.0075 concrete top=concrete_seam
+box 0.2120 0.4300 0.0075 0.2280 0.4660 0.0087 trim_dark top=trim_dark
+box 0.2120 0.5340 0.0075 0.2280 0.5700 0.0087 trim_dark top=trim_dark
+box 0.2120 0.4100 0.0075 0.2280 0.4300 0.01 concrete top=concrete
+box 0.2120 0.4660 0.0075 0.2280 0.5340 0.0095 concrete top=concrete_seam
+box 0.2120 0.5700 0.0075 0.2280 0.5900 0.01 concrete top=concrete
+box 0.2520 0.4100 0.0000 0.2680 0.5900 0.0075 concrete top=concrete_seam
+box 0.2520 0.4300 0.0075 0.2680 0.4660 0.0087 trim_dark top=trim_dark
+box 0.2520 0.5340 0.0075 0.2680 0.5700 0.0087 trim_dark top=trim_dark
+box 0.2520 0.4100 0.0075 0.2680 0.4300 0.01 concrete top=concrete
+box 0.2520 0.4660 0.0075 0.2680 0.5340 0.0095 concrete top=concrete_seam
+box 0.2520 0.5700 0.0075 0.2680 0.5900 0.01 concrete top=concrete
+box 0.2920 0.4100 0.0000 0.3080 0.5900 0.0075 concrete top=concrete_seam
+box 0.2920 0.4300 0.0075 0.3080 0.4660 0.0087 trim_dark top=trim_dark
+box 0.2920 0.5340 0.0075 0.3080 0.5700 0.0087 trim_dark top=trim_dark
+box 0.2920 0.4100 0.0075 0.3080 0.4300 0.01 concrete top=concrete
+box 0.2920 0.4660 0.0075 0.3080 0.5340 0.0095 concrete top=concrete_seam
+box 0.2920 0.5700 0.0075 0.3080 0.5900 0.01 concrete top=concrete
+box 0.3320 0.4100 0.0000 0.3480 0.5900 0.0075 concrete top=concrete_seam
+box 0.3320 0.4300 0.0075 0.3480 0.4660 0.0087 trim_dark top=trim_dark
+box 0.3320 0.5340 0.0075 0.3480 0.5700 0.0087 trim_dark top=trim_dark
+box 0.3320 0.4100 0.0075 0.3480 0.4300 0.01 concrete top=concrete
+box 0.3320 0.4660 0.0075 0.3480 0.5340 0.0095 concrete top=concrete_seam
+box 0.3320 0.5700 0.0075 0.3480 0.5900 0.01 concrete top=concrete
+box 0.3720 0.4100 0.0000 0.3880 0.5900 0.0075 concrete top=concrete_seam
+box 0.3720 0.4300 0.0075 0.3880 0.4660 0.0087 trim_dark top=trim_dark
+box 0.3720 0.5340 0.0075 0.3880 0.5700 0.0087 trim_dark top=trim_dark
+box 0.3720 0.4100 0.0075 0.3880 0.4300 0.01 concrete top=concrete
+box 0.3720 0.4660 0.0075 0.3880 0.5340 0.0095 concrete top=concrete_seam
+box 0.3720 0.5700 0.0075 0.3880 0.5900 0.01 concrete top=concrete
+box 0.4120 0.4100 0.0000 0.4280 0.5900 0.0075 concrete top=concrete_seam
+box 0.4120 0.4300 0.0075 0.4280 0.4660 0.0087 trim_dark top=trim_dark
+box 0.4120 0.5340 0.0075 0.4280 0.5700 0.0087 trim_dark top=trim_dark
+box 0.4120 0.4100 0.0075 0.4280 0.4300 0.01 concrete top=concrete
+box 0.4120 0.4660 0.0075 0.4280 0.5340 0.0095 concrete top=concrete_seam
+box 0.4120 0.5700 0.0075 0.4280 0.5900 0.01 concrete top=concrete
+box 0.4520 0.4100 0.0000 0.4680 0.5900 0.0075 concrete top=concrete_seam
+box 0.4520 0.4300 0.0075 0.4680 0.4660 0.0087 trim_dark top=trim_dark
+box 0.4520 0.5340 0.0075 0.4680 0.5700 0.0087 trim_dark top=trim_dark
+box 0.4520 0.4100 0.0075 0.4680 0.4300 0.01 concrete top=concrete
+box 0.4520 0.4660 0.0075 0.4680 0.5340 0.0095 concrete top=concrete_seam
+box 0.4520 0.5700 0.0075 0.4680 0.5900 0.01 concrete top=concrete
+box 0.4920 0.4100 0.0000 0.5080 0.5900 0.0075 concrete top=concrete_seam
+box 0.4920 0.4300 0.0075 0.5080 0.4660 0.0087 trim_dark top=trim_dark
+box 0.4920 0.5340 0.0075 0.5080 0.5700 0.0087 trim_dark top=trim_dark
+box 0.4920 0.4100 0.0075 0.5080 0.4300 0.01 concrete top=concrete
+box 0.4920 0.4660 0.0075 0.5080 0.5340 0.0095 concrete top=concrete_seam
+box 0.4920 0.5700 0.0075 0.5080 0.5900 0.01 concrete top=concrete
+box 0.5320 0.4100 0.0000 0.5480 0.5900 0.0075 concrete top=concrete_seam
+box 0.5320 0.4300 0.0075 0.5480 0.4660 0.0087 trim_dark top=trim_dark
+box 0.5320 0.5340 0.0075 0.5480 0.5700 0.0087 trim_dark top=trim_dark
+box 0.5320 0.4100 0.0075 0.5480 0.4300 0.01 concrete top=concrete
+box 0.5320 0.4660 0.0075 0.5480 0.5340 0.0095 concrete top=concrete_seam
+box 0.5320 0.5700 0.0075 0.5480 0.5900 0.01 concrete top=concrete
+box 0.5720 0.4100 0.0000 0.5880 0.5900 0.0075 concrete top=concrete_seam
+box 0.5720 0.4300 0.0075 0.5880 0.4660 0.0087 trim_dark top=trim_dark
+box 0.5720 0.5340 0.0075 0.5880 0.5700 0.0087 trim_dark top=trim_dark
+box 0.5720 0.4100 0.0075 0.5880 0.4300 0.01 concrete top=concrete
+box 0.5720 0.4660 0.0075 0.5880 0.5340 0.0095 concrete top=concrete_seam
+box 0.5720 0.5700 0.0075 0.5880 0.5900 0.01 concrete top=concrete
+box 0.6120 0.4100 0.0000 0.6280 0.5900 0.0075 concrete top=concrete_seam
+box 0.6120 0.4300 0.0075 0.6280 0.4660 0.0087 trim_dark top=trim_dark
+box 0.6120 0.5340 0.0075 0.6280 0.5700 0.0087 trim_dark top=trim_dark
+box 0.6120 0.4100 0.0075 0.6280 0.4300 0.01 concrete top=concrete
+box 0.6120 0.4660 0.0075 0.6280 0.5340 0.0095 concrete top=concrete_seam
+box 0.6120 0.5700 0.0075 0.6280 0.5900 0.01 concrete top=concrete
+box 0.6520 0.4100 0.0000 0.6680 0.5900 0.0075 concrete top=concrete_seam
+box 0.6520 0.4300 0.0075 0.6680 0.4660 0.0087 trim_dark top=trim_dark
+box 0.6520 0.5340 0.0075 0.6680 0.5700 0.0087 trim_dark top=trim_dark
+box 0.6520 0.4100 0.0075 0.6680 0.4300 0.01 concrete top=concrete
+box 0.6520 0.4660 0.0075 0.6680 0.5340 0.0095 concrete top=concrete_seam
+box 0.6520 0.5700 0.0075 0.6680 0.5900 0.01 concrete top=concrete
+box 0.6920 0.4100 0.0000 0.7080 0.5900 0.0075 concrete top=concrete_seam
+box 0.6920 0.4300 0.0075 0.7080 0.4660 0.0087 trim_dark top=trim_dark
+box 0.6920 0.5340 0.0075 0.7080 0.5700 0.0087 trim_dark top=trim_dark
+box 0.6920 0.4100 0.0075 0.7080 0.4300 0.01 concrete top=concrete
+box 0.6920 0.4660 0.0075 0.7080 0.5340 0.0095 concrete top=concrete_seam
+box 0.6920 0.5700 0.0075 0.7080 0.5900 0.01 concrete top=concrete
+box 0.7320 0.4100 0.0000 0.7480 0.5900 0.0075 concrete top=concrete_seam
+box 0.7320 0.4300 0.0075 0.7480 0.4660 0.0087 trim_dark top=trim_dark
+box 0.7320 0.5340 0.0075 0.7480 0.5700 0.0087 trim_dark top=trim_dark
+box 0.7320 0.4100 0.0075 0.7480 0.4300 0.01 concrete top=concrete
+box 0.7320 0.4660 0.0075 0.7480 0.5340 0.0095 concrete top=concrete_seam
+box 0.7320 0.5700 0.0075 0.7480 0.5900 0.01 concrete top=concrete
+box 0.7720 0.4100 0.0000 0.7880 0.5900 0.0075 concrete top=concrete_seam
+box 0.7720 0.4300 0.0075 0.7880 0.4660 0.0087 trim_dark top=trim_dark
+box 0.7720 0.5340 0.0075 0.7880 0.5700 0.0087 trim_dark top=trim_dark
+box 0.7720 0.4100 0.0075 0.7880 0.4300 0.01 concrete top=concrete
+box 0.7720 0.4660 0.0075 0.7880 0.5340 0.0095 concrete top=concrete_seam
+box 0.7720 0.5700 0.0075 0.7880 0.5900 0.01 concrete top=concrete
+box 0.8120 0.4100 0.0000 0.8280 0.5900 0.0075 concrete top=concrete_seam
+box 0.8120 0.4300 0.0075 0.8280 0.4660 0.0087 trim_dark top=trim_dark
+box 0.8120 0.5340 0.0075 0.8280 0.5700 0.0087 trim_dark top=trim_dark
+box 0.8120 0.4100 0.0075 0.8280 0.4300 0.01 concrete top=concrete
+box 0.8120 0.4660 0.0075 0.8280 0.5340 0.0095 concrete top=concrete_seam
+box 0.8120 0.5700 0.0075 0.8280 0.5900 0.01 concrete top=concrete
+box 0.8520 0.4100 0.0000 0.8680 0.5900 0.0075 concrete top=concrete_seam
+box 0.8520 0.4300 0.0075 0.8680 0.4660 0.0087 trim_dark top=trim_dark
+box 0.8520 0.5340 0.0075 0.8680 0.5700 0.0087 trim_dark top=trim_dark
+box 0.8520 0.4100 0.0075 0.8680 0.4300 0.01 concrete top=concrete
+box 0.8520 0.4660 0.0075 0.8680 0.5340 0.0095 concrete top=concrete_seam
+box 0.8520 0.5700 0.0075 0.8680 0.5900 0.01 concrete top=concrete
+box 0.8920 0.4100 0.0000 0.9080 0.5900 0.0075 concrete top=concrete_seam
+box 0.8920 0.4300 0.0075 0.9080 0.4660 0.0087 trim_dark top=trim_dark
+box 0.8920 0.5340 0.0075 0.9080 0.5700 0.0087 trim_dark top=trim_dark
+box 0.8920 0.4100 0.0075 0.9080 0.4300 0.01 concrete top=concrete
+box 0.8920 0.4660 0.0075 0.9080 0.5340 0.0095 concrete top=concrete_seam
+box 0.8920 0.5700 0.0075 0.9080 0.5900 0.01 concrete top=concrete
+box 0.9320 0.4100 0.0000 0.9480 0.5900 0.0075 concrete top=concrete_seam
+box 0.9320 0.4300 0.0075 0.9480 0.4660 0.0087 trim_dark top=trim_dark
+box 0.9320 0.5340 0.0075 0.9480 0.5700 0.0087 trim_dark top=trim_dark
+box 0.9320 0.4100 0.0075 0.9480 0.4300 0.01 concrete top=concrete
+box 0.9320 0.4660 0.0075 0.9480 0.5340 0.0095 concrete top=concrete_seam
+box 0.9320 0.5700 0.0075 0.9480 0.5900 0.01 concrete top=concrete
+box 0.9720 0.4100 0.0000 0.9880 0.5900 0.0075 concrete top=concrete_seam
+box 0.9720 0.4300 0.0075 0.9880 0.4660 0.0087 trim_dark top=trim_dark
+box 0.9720 0.5340 0.0075 0.9880 0.5700 0.0087 trim_dark top=trim_dark
+box 0.9720 0.4100 0.0075 0.9880 0.4300 0.01 concrete top=concrete
+box 0.9720 0.4660 0.0075 0.9880 0.5340 0.0095 concrete top=concrete_seam
+box 0.9720 0.5700 0.0075 0.9880 0.5900 0.01 concrete top=concrete
+box 0.0000 0.4444 0.0100  1.0000 0.4524 0.0230   rust   top=metal
+box 0.0000 0.5476 0.0100  1.0000 0.5556 0.0230   rust   top=metal

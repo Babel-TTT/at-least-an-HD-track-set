@@ -490,6 +490,90 @@ export function generate() {
       log(`  ✔ ${rel(g).padEnd(34)} ${String(t.split('\n').length).padStart(4)} 行   褐色道砟 ${nGravel} 面`);
     }
   }
+
+  // =========================================================================
+  // ★ G2（电气化铁路 `SBDA` 那一组）—— 把**木枕换成 U 形混凝土枕**
+  //
+  //   人工裁定 2026-10-02：「G2 改成类似现实混凝土枕木的 U 形状」。
+  //   做法同 TUN-2 / 褐色道床：**读 G1 的模型 → 只换枕木 → 改名吐 G2**，
+  //   道砟/钢轨/颗粒一字不改，**不动任何已有模型**。
+  //
+  //   ★ 高度**必须与 G1 一致**（人工：「铁轨的高度要和之前的枕木保持一致就行」）：
+  //       G1 木枕   z 0.0000 → 0.0100（分 3 段 / 25 根 / 间距 0.04）
+  //       G1 钢轨   z 0.0100 → 0.0230  ← 正好压在枕木顶上
+  //     ⇒ G2 的 U 形**全部压在 0~0.0100 之内**，不抬高：
+  //       底板顶 0.0075 ／ 垫板顶 0.0087 ／ 中间体顶 0.0095（微凹）／ 挡肩顶 0.0100
+  //
+  //   ★ 「U 形」靠**色差**读，不靠深度（人工选 a）：
+  //       挡肩      `concrete`      最亮 —— 高出来的肩
+  //       承轨槽底  `trim_dark`     最深 —— 凹进去的槽（现实里就是深色橡胶垫板）
+  //       中间体顶  `concrete_seam` 中间调 —— 比两端低一点
+  //     理由：竖直标度 156.77 px/格 ⇒ 真实 5 cm 的槽只有 0.63 px，几何挖不出来。
+  //
+  //   ★ 承轨槽**必须明显宽于钢轨**（2026-10-02 踩过）：
+  //       钢轨只占 y 0.008 格；第一版把槽做成 0.010 宽 ⇒ 每边只露 0.15 px，
+  //       深色垫板**整块被钢轨盖住**，U 形一点都读不出来。
+  //       现在槽宽 0.036 格（y 0.4300~0.4660 / 0.5340~0.5700），
+  //       钢轨两侧各露 0.014 格 ≈ **1.8 px**（真实档 256px/格）⇒ 看得见。
+  //       物理上也说得通：承轨槽本来就比钢轨宽（0.036 格 ≈ 0.50 m）。
+  //
+  //   ⚠ **本轮只做「直线轨」两个模型**（`track_straight` / `rail_straight`）——
+  //     它们的枕木是**正交 box**，替换干净。其余几种的枕木是 45° 的 `prism`
+  //     （半轨）或带 z 变化的 `quad`（坡道），要另想办法，等人工看过直线再说。
+  //     `junction3` / `junction4` **根本没有枕木**（纯道砟），G2 直接复用 G1 那两个。
+  // =========================================================================
+  {
+    const Z_BASE = 0.0075;   // 底板顶
+    const Z_PAD  = 0.0087;   // 承轨槽底垫板顶（钢轨 z 0.0100 压在上面）
+    const Z_MID  = 0.0095;   // 中间体顶（比挡肩低 0.0005 = 微微下凹）
+    const Z_TOP  = 0.0100;   // 挡肩顶 = G1 木枕顶（**不许改**）
+
+    // G1 木枕的一根 = 连续三行 box，y 固定 0.41/0.47/0.53 → 0.59。
+    // ⚠ 相邻两根的段材质是**交织**的（一根 wood_dark/seam/dark，下一根 seam/dark/seam）
+    //   —— 2026-10-02 踩过：只写死一种，25 根里只换掉 13 根。
+    //   所以三段都用 wood_(?:dark|seam) 放开。
+    const RE = new RegExp(
+      '^box (\\S+) 0\\.4100 0\\.0000 (\\S+) 0\\.4700 0\\.0100 wood_(?:dark|seam) top=wood_seam\\n'
+      + 'box \\1 0\\.4700 0\\.0000 \\2 0\\.5300 0\\.0100 wood_(?:dark|seam) top=wood_seam\\n'
+      + 'box \\1 0\\.5300 0\\.0000 \\2 0\\.5900 0\\.0100 wood_(?:dark|seam) top=wood_seam$', 'gm');
+
+    const G2LIST = [
+      ['probe_track_x',    'G2_track_straight'],
+      ['G1_rail_straight', 'G2_rail_straight'],
+    ];
+    log('');
+    log('  G2 混凝土枕（U 形承轨槽）：');
+    for (const [src, dst] of G2LIST) {
+      const f = path.join(ROOT, 'models', src + '.model');
+      if (!fs.existsSync(f)) { log(`  × 跳过 ${src}：源模型不存在`); continue; }
+      const raw = fs.readFileSync(f, 'utf8');
+      let n = 0;
+      const body = raw.replace(RE, (_m, X0, X1) => {
+        n++;
+        return [
+          `box ${X0} 0.4100 0.0000 ${X1} 0.5900 ${Z_BASE} concrete top=concrete_seam`,
+          `box ${X0} 0.4300 ${Z_BASE} ${X1} 0.4660 ${Z_PAD} trim_dark top=trim_dark`,
+          `box ${X0} 0.5340 ${Z_BASE} ${X1} 0.5700 ${Z_PAD} trim_dark top=trim_dark`,
+          `box ${X0} 0.4100 ${Z_BASE} ${X1} 0.4300 ${Z_TOP} concrete top=concrete`,
+          `box ${X0} 0.4660 ${Z_BASE} ${X1} 0.5340 ${Z_MID} concrete top=concrete_seam`,
+          `box ${X0} 0.5700 ${Z_BASE} ${X1} 0.5900 ${Z_TOP} concrete top=concrete`,
+        ].join('\n');
+      });
+      const note =
+        '# ⚠【G2 混凝土枕变体 —— 不要手改本文件】\n'
+        + `#   由 tools/gen-g1-switches.mjs 从 models/${src}.model 机械改写而来：\n`
+        + `#     模型名 ${src} → ${dst}；木枕 → U 形混凝土枕（换了 ${n} 根）。\n`
+        + '#   **道砟 / 钢轨 / 颗粒一字未改**，枕木顶仍是 0.0100（与 G1 一致，钢轨高度不变）。\n'
+        + '#   U 形靠色差读：挡肩 concrete（亮）/ 槽底垫板 trim_dark（深）/ 中间体 concrete_seam（中）。\n'
+        + '#   要改形状请改本段生成逻辑，然后重跑 `node tools/gen-g1-switches.mjs`。\n'
+        + '#   用途：P2-G2 的 `SBDA`（电气化铁路 25kV）。\n'
+        + '# =============================================================================\n';
+      const t = note + body.split(src).join(dst);
+      const g = path.join(ROOT, 'models', dst + '.model');
+      fs.writeFileSync(g, t, 'utf8');
+      log(`  ✔ ${rel(g).padEnd(34)} ${String(t.split('\n').length).padStart(4)} 行   换成混凝土枕 ${n} 根`);
+    }
+  }
   log('');
   log('  每方向屏幕偏移（px，正=右/下）—— 改这张表后重跑本工具：');
   log('  ' + pad('方向', 8) + pad('屏幕偏移', 12) + pad('世界位移', 24) + pad('纵向', 10) + '横向');
