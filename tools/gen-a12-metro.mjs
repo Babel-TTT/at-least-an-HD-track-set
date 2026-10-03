@@ -55,7 +55,10 @@ const RISE = 0.2041;                                   // 一格坡道的抬升�
 const EPS = 0.0008;                                    // 顶面换材质时的微小抬升
 
 const MAT = {
-  slab: 'plaster_grey', groove: 'granite_grey', seat: 'plaster_grey_seam',
+  // 人工 2026-10-03：「混凝土还是太黄了，颜色改成 (160,160,160) 左右」
+  //   ⇒ 板用本地新增的中性灰 `concrete_mid`(160,160,160)（见 tools/flatiso/VENDORED.md 的登记），
+  //     沟底 / 承轨台各自再暗一档，且都用中性（不暖）的灰。
+  slab: 'concrete_mid', groove: 'granite_grey_seam', seat: 'granite_grey',
   rail: 'rust', railTop: 'metal',
   third: 'rust', thirdTop: 'metal',
   cover: 'wood_dark', coverTop: 'wood_seam',
@@ -251,7 +254,7 @@ const TU = {
   COP: { x0: 0.6680, x1: 0.8120, y0: 0.1420, y1: 0.8580, top: 0.2860 },   // 压顶（= TUN-1）
   HX0: 0.6800, HX1: 0.0000, HZ1: 0.2041,                                  // 仰面（= TUN-1）
   BORE_X: 0.6700,                   // 洞内暗幕
-  W: 'concrete_dark', D: 'panel_seam', I: 'metal_seam', HILL: 'dirt',
+  W: 'concrete_mid', D: 'granite_grey_seam', I: 'panel_seam', HILL: 'dirt',
 };
 /** 仰面（顶坡）在 x 处的高度：洞口 = 板顶，向山体斜降到一层地形 */
 const hillZ5 = (x) => TU.TOP + (TU.HZ1 - TU.TOP) * (TU.HX0 - x) / (TU.HX0 - TU.HX1);
