@@ -13,6 +13,15 @@
 //   models/G4_rail_straight.model  overlay  槽 0/1  钢轨层（透明底）
 //   models/G4_rail_half.model      overlay  槽 2-5  钢轨层（半格轨）
 //   models/G4_rail_slope.model     overlay  槽 6-9  钢轨层（坡道）
+//   models/G4_z_track_half_m.model underlay 槽 3/4  半格轨**镜像版**（第三轨在 −y 侧）
+//   models/G4_z_rail_half_m.model  overlay  槽 3/4  同上，钢轨层
+//
+//   为什么要有「镜像版」（人工 2026-10-03 实机截图的第三轨左右交错）：
+//     引擎给斜向链的两个槽位是 LEFT(RTO_W) 与 RIGHT(RTO_E)，取图朝向 v1 / v3 —— 同一模型
+//     相差 180°，第三轨必然被甩到直线两侧。补一个关于带中心镜像的模型，取它的 v2/v3
+//     接到 RTO_S / RTO_E，同一根直线上的第三轨才落在同一侧。
+//     ⚠ 模型名 `G4_z_*`（排在同表所有 `G4_t*` 之后）是**故意的**：
+//       atlas 按模型名排序给格位，排在最后才不会挤动前面 36 张精灵的 rect。
 //
 // 为什么用生成器（人工 2026-10-03 批准，见 docs/建模标准.md 台账）：
 //   ① 斜向要按 `c = x+y`、`d = x−0.5` 的对角坐标算，再裁到瓦片里（光半轨那件就有
@@ -32,7 +41,8 @@
 //   ★ 不乘 √2：G1 是**按屏幕像素**对齐的 —— 斜向两轨在屏幕上的间距与直向一样是 6.6 px
 //   ★ 这个映射是**镜像**（det = −1/2）⇒ 映射后顶点序会翻，本工具统一用 ccw() 归正
 //
-// ⚠ 交叉 / 道岔**不做中央排水沟**（并集里挖不出沟）。要在那儿也加沟，先改这里。
+// ⚠ 交叉 / 道岔**不做中央排水沟**（沟已被整体取消，见上）；
+//   但交叉里的第三轨**必须在另一条轨道的板带处断开**（见第 7 件）。
 // =============================================================================
 
 import fs from 'node:fs';
@@ -44,8 +54,10 @@ import { ROOT, log, rel, isMain } from './util.mjs';
 // ---------------------------------------------------------------- 口径常量
 const BAND = [0.3200, 0.6800];          // 道床板带
 const SLAB_Z = 0.0100;                  // 板顶
-const GROOVE = [0.4800, 0.5200];        // 中央排水沟
-const GROOVE_Z = 0.0030;
+// 【人工 2026-10-03】去掉中央排水沟（原来 0.48~0.52 一条沟）：
+//   斜向半格轨的那块板会被沟纵向切成两条窄带，两条带在瓦片里的位置不同 ⇒
+//   各自被瓦片边界裁掉的长度也不同（一条 x±y 到 ±0.32、另一条到 ±0.5），
+//   实机里就是「板缺半截、连钢轨都短一根」。改成**一整块板**，与 G1 同形。
 const RAILS = [0.4484, 0.5516];         // 钢轨中心
 const RAIL_HW = 0.0040, RAIL_Z0 = 0.0100, RAIL_Z1 = 0.0230;
 const SEAT = { n: 25, t0: 0.0120, pitch: 0.0400, len: 0.0160, hw: 0.0140, z1: 0.0175 };
@@ -69,12 +81,14 @@ const N = (v) => Number(v.toFixed(6));
 
 // ---------------------------------------------------------------- 形状表
 // 每个形状 = 轴对齐的一"块"：x 沿轨（0…1）、y 横向（绝对坐标）、z 上下、材质
-function trackShapes({ slab = true, rails = true, seats = true, third = true } = {}) {
+function trackShapes({ slab = true, rails = true, seats = true, third = true, flip = false } = {}) {
+  // flip = 把第三轨/罩挪到板带**另一侧**（关于带中心 y = 0.5 镜像）。
+  //   板 / 钢轨 / 扣件座本来就关于 0.5 对称，镜像后逐字不变。
+  //   用途见下面第 3b/4b 件：斜向链上 LEFT 与 RIGHT 差 180°，不镜像的话第三轨
+  //   会在同一条直线上左右交替（实机截图就是那样）。
   const S = [];
   if (slab) {
-    S.push({ x0: 0, x1: 1, y0: BAND[0], y1: GROOVE[0], z0: 0, z1: SLAB_Z, mat: MAT.slab });
-    S.push({ x0: 0, x1: 1, y0: GROOVE[1], y1: BAND[1], z0: 0, z1: SLAB_Z, mat: MAT.slab });
-    S.push({ x0: 0, x1: 1, y0: GROOVE[0], y1: GROOVE[1], z0: 0, z1: GROOVE_Z, mat: MAT.groove });
+    S.push({ x0: 0, x1: 1, y0: BAND[0], y1: BAND[1], z0: 0, z1: SLAB_Z, mat: MAT.slab });
   }
   if (rails) for (const c of RAILS) {
     S.push({ x0: 0, x1: 1, y0: c - RAIL_HW, y1: c + RAIL_HW, z0: RAIL_Z0, z1: RAIL_Z1, mat: MAT.rail, top: MAT.railTop });
@@ -86,8 +100,9 @@ function trackShapes({ slab = true, rails = true, seats = true, third = true } =
     }
   }
   if (third) {
-    S.push({ x0: 0, x1: 1, y0: THIRD.c - THIRD.hw, y1: THIRD.c + THIRD.hw, z0: RAIL_Z0, z1: THIRD.z1, mat: MAT.third, top: MAT.thirdTop });
-    S.push({ x0: 0, x1: 1, y0: THIRD.c - COVER.hw, y1: THIRD.c + COVER.hw, z0: THIRD.z1, z1: COVER.z1, mat: MAT.cover, top: MAT.coverTop });
+    const c = flip ? 1 - THIRD.c : THIRD.c;
+    S.push({ x0: 0, x1: 1, y0: c - THIRD.hw, y1: c + THIRD.hw, z0: RAIL_Z0, z1: THIRD.z1, mat: MAT.third, top: MAT.thirdTop });
+    S.push({ x0: 0, x1: 1, y0: c - COVER.hw, y1: c + COVER.hw, z0: THIRD.z1, z1: COVER.z1, mat: MAT.cover, top: MAT.coverTop });
   }
   return S;
 }
@@ -448,7 +463,7 @@ export function generate() {
         'underlay 槽 0/1（RTO_X / RTO_Y）：整体道床（`BAL-H`）+ 无枕扣件座（`SLE-5`）',
         '+ 第三轨（`RAI-4`）—— 完整画面（G1 的规矩：underlay 自带钢轨，overlay 才去掉道床）',
         '',
-        '口径：板带 y 0.32~0.68（与 G1 道砟同宽）· 板顶 0.010 · 中央排水沟宽 0.04 深 0.007',
+        '口径：板带 y 0.32~0.68（与 G1 道砟同宽）· 板顶 0.010 · **无中央排水沟**（人工 2026-10-03 去掉）',
         '      钢轨中心 0.4484 / 0.5516（=1435mm）· 轨顶 0.0230 · 扣件座 25 个（间距 0.04）',
         '      第三轨在 +y 外侧（人工：镜头视角的外侧）+ 木质覆盖板',
       ],
@@ -458,13 +473,16 @@ export function generate() {
   // 2) 直向 overlay（只有钢轨层）
   {
     const L = [];
-    for (const b of trackShapes({ slab: false })) emitBox(L, b);
+    for (const b of trackShapes({ slab: false, third: false })) emitBox(L, b);
     files.push(model('G4_rail_straight', {
       zmax: fmt(FLAT),
       notes: [
-        'overlay 槽 0/1（RTO_X / RTO_Y）：**透明底、只画跟着钢轨走的东西**',
+        'overlay 槽 0/1（RTO_X / RTO_Y）：**透明底、只画钢轨 + 扣件座**',
         '（核自 rail_cmd.cpp:3796-3816：道岔瓦片 = 道床 underlay + 逐段 overlay 钢轨）',
-        '= 钢轨 + 扣件座 + 第三轨/罩，与 G4_track_x 的那一部分逐字相同',
+        '',
+        '⚠ **不含第三轨/罩**（人工 2026-10-03 排查）：道岔瓦片上引擎会按轨位**逐段**叠这张图',
+        '   （三向道岔要叠 X/Y/N/S/E/W 里的 3 张）⇒ 第三轨会同时出现 3 套、互相穿插。',
+        '   去掉之后道岔口没有第三轨 —— 与 G1 一样，也正是现实里道岔处该做的（接触轨必须断开）。',
       ],
     }, header('G4_rail_straight', L)));
   }
@@ -489,13 +507,35 @@ export function generate() {
   // 4) 半格轨 overlay
   {
     const L = [];
-    for (const b of trackShapes({ slab: false })) emitDiag(L, b);
+    for (const b of trackShapes({ slab: false, third: false })) emitDiag(L, b);
     files.push(model('G4_rail_half', {
       zmax: fmt(FLAT),
       notes: [
         'overlay 槽 2-5：半格轨的**钢轨层**（透明底，无道床）',
+        '',
+        '同样**不含第三轨/罩**（道岔瓦片会逐段叠这张图，见 G4_rail_straight 的说明）。',
       ],
     }, header('G4_rail_half', L)));
+  }
+
+  // 3b) 半格轨**镜像版**：第三轨在板带另一侧，供 RTO_S / RTO_E 用
+  //     （overlay 层不用镜像 —— 它不含第三轨，而板/钢轨本来就对称。）
+  {
+    const L = [];
+    for (const b of trackShapes({ flip: true })) emitDiag(L, b);
+    files.push(model('G4_z_track_half_m', {
+      zmax: fmt(FLAT),
+      notes: [
+        'underlay 槽 3/4（RTO_S / RTO_E）专用：半格轨的**镜像版**（第三轨在 −y 侧）',
+        '',
+        '镜像是关于板带中心 y = 0.5 做的 ⇒ 板 / 钢轨 / 扣件座与原版逐字相同，',
+        '只有第三轨 + 罩换到另一侧。接法（见 railsprite.pnml）：',
+        '  RTO_N ← G4_track_half.v0     RTO_W ← G4_track_half.v1',
+        '  RTO_S ← **本件.v2**          RTO_E ← **本件.v3**',
+        '引擎给斜向链的 LEFT 取 v1、RIGHT 取 v3（相差 180°）；本件的 180° 再把镜像翻回来，',
+        '于是同一条直线上的第三轨落在同一侧（人工 2026-10-03 实机截图的左右交错）。',
+      ],
+    }, header('G4_z_track_half_m', L)));
   }
 
   // 5) 坡道（基准 SLOPE_NE：z += RISE·(1−x)）
@@ -518,11 +558,11 @@ export function generate() {
   // 6) 坡道 overlay
   {
     const L = [];
-    for (const b of trackShapes({ slab: false })) emitSheared(L, b);
+    for (const b of trackShapes({ slab: false, third: false })) emitSheared(L, b);
     files.push(model('G4_rail_slope', {
       zmax: fmt(SLOPE),
       notes: [
-        'overlay 槽 6-9：坡道的**钢轨层**（透明底，无道床）',
+        'overlay 槽 6-9：坡道的**钢轨层**（透明底，无道床、无第三轨 —— 同 G4_rail_straight 的理由）',
       ],
     }, header('G4_rail_slope', L)));
   }
@@ -531,18 +571,24 @@ export function generate() {
   {
     const L = [];
     for (const b of slabCrossing()) emitBox(L, b);
-    // X 向：钢轨 + 扣件座 + 第三轨/罩（整格）
-    for (const b of trackShapes({ slab: false })) emitBox(L, b);
-    // Y 向：钢轨 + 扣件座（沿 y 走），第三轨/罩单独拆成两段接在后面
+    // X 向：钢轨 + 扣件座（整格）
+    for (const b of trackShapes({ slab: false, third: false })) emitBox(L, b);
+    // Y 向：钢轨 + 扣件座（沿 y 走）
     const yDir = (b) => ({ x0: b.y0, x1: b.y1, y0: b.x0, y1: b.x1, z0: b.z0, z1: b.z1, mat: b.mat, top: b.top });
     for (const b of trackShapes({ slab: false, third: false })) emitBox(L, yDir(b));
-    // Y 向第三轨 / 覆盖板：在碰到 X 向那套的地方断开（共面重叠会 z-fighting）
-    for (const seg of [[0, THIRD.c - COVER.hw], [THIRD.c + COVER.hw, 1]]) {
-      for (const [z0, z1, y0o, y1o, mat, top] of [
-        [RAIL_Z0, THIRD.z1, -THIRD.hw, THIRD.hw, MAT.third, MAT.thirdTop],
-        [THIRD.z1, COVER.z1, -COVER.hw, COVER.hw, MAT.cover, MAT.coverTop],
-      ]) {
-        emitBox(L, { x0: THIRD.c + y0o, x1: THIRD.c + y1o, y0: seg[0], y1: seg[1], z0, z1, mat, top });
+    // 第三轨 / 罩：**两个方向都在对方轨道占的板带里断开**（人工 2026-10-03 排查）
+    //   现实里接触轨过交叉必须断开，否则钢轨会把它短路；图形上也免得两根钢轨
+    //   压着一条穿过去的第三轨。断口 = 对方的板带 [BAND[0], BAND[1]]（宽 0.36）。
+    //   四段（每方向 2 段 × 第三轨/罩 2 层）互不重叠 —— 别改成整格，会与对方共面相交。
+    for (const [z0, z1, hw, mat, top] of [
+      [RAIL_Z0, THIRD.z1, THIRD.hw, MAT.third, MAT.thirdTop],
+      [THIRD.z1, COVER.z1, COVER.hw, MAT.cover, MAT.coverTop],
+    ]) {
+      for (const [t0, t1] of [[0, BAND[0]], [BAND[1], 1]]) {
+        // X 向那根：沿 x 走，横向在 y = THIRD.c
+        emitBox(L, { x0: t0, x1: t1, y0: THIRD.c - hw, y1: THIRD.c + hw, z0, z1, mat, top });
+        // Y 向那根：沿 y 走，横向在 x = THIRD.c
+        emitBox(L, { x0: THIRD.c - hw, x1: THIRD.c + hw, y0: t0, y1: t1, z0, z1, mat, top });
       }
     }
     files.push(model('G4_crossing', {
@@ -550,8 +596,9 @@ export function generate() {
       notes: [
         'underlay 槽 10（RTO_CROSSING_XY）：交叉，**自带两组钢轨**（G1 的交叉也是这样）',
         '',
-        '道床板 = X 带 ∪ Y 带，拆成 3 块互不重叠的板（共面重叠会 z-fighting）。',
-        '两组钢轨/扣件座各自整格；Y 向的第三轨与罩在碰到 X 向那套时断开成两段。',
+        '道床板 = X 带 ∪ Y 带（十字），拆成 3 块互不重叠的轴对齐板（共面重叠会 z-fighting）；',
+        '板本身已无排水沟。两组钢轨/扣件座各自整格；',
+        '第三轨与罩**两个方向都在对方板带处断开成两段**。',
       ],
     }, header('G4_crossing', L)));
   }

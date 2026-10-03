@@ -107,13 +107,20 @@ spriteset(probe_overlay, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
 
    ⚠ 道岔那 4 格（11-14）与四向（15）只给**道床板**、不给钢轨：引擎在道岔瓦片上
      逐段把 overlay 的钢轨层叠上去（rail_cmd.cpp:3796-3816），与 G1 的做法一致。
+
+   ⚠⚠ 半格轨的 S / E 两格（3、4）**故意用镜像模型** `G4_z_track_half_m`：
+      引擎给斜向链的 LEFT 取 v1、RIGHT 取 v3，同一模型相差 180° ⇒ 第三轨会被甩到
+      直线两侧（人工 2026-10-03 实机截图：第三轨左右交错）。镜像件的 v2/v3 再把
+      镜像翻回来，同一条直线上的第三轨才落在同一侧。板/钢轨对称，逐字相同。
+      overlay 不需要镜像 —— 它**不含第三轨/罩**（道岔会逐段叠它，带了就会出现
+      三套第三轨互相穿插；也符合现实里道岔处接触轨必须断开的做法）。
    =========================================================================== */
 spriteset(probe_underlay_metro, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
     t_G4_track_x_v0("gfx/metro.png")          //  0  RTO_X          X
     t_G4_track_x_v3("gfx/metro.png")          //  1  RTO_Y          Y
     t_G4_track_half_v0("gfx/metro.png")       //  2  RTO_N          UPPER（切 N 角）
-    t_G4_track_half_v2("gfx/metro.png")       //  3  RTO_S          LOWER
-    t_G4_track_half_v3("gfx/metro.png")       //  4  RTO_E          RIGHT
+    t_G4_z_track_half_m_v2("gfx/metro.png")   //  3  RTO_S          LOWER ← **镜像版**（第三轨同侧）
+    t_G4_z_track_half_m_v3("gfx/metro.png")   //  4  RTO_E          RIGHT ← **镜像版**
     t_G4_track_half_v1("gfx/metro.png")       //  5  RTO_W          LEFT
     t_G4_track_slope_v0("gfx/metro.png")      //  6  RTO_SLOPE_NE   v0（右上抬）
     t_G4_track_slope_v3("gfx/metro.png")      //  7  RTO_SLOPE_SE   v3（右下抬）
@@ -130,9 +137,9 @@ spriteset(probe_underlay_metro, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
 spriteset(probe_overlay_metro, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
     t_G4_rail_straight_v0("gfx/metro.png")    // 0  RTO_X
     t_G4_rail_straight_v3("gfx/metro.png")    // 1  RTO_Y
-    t_G4_rail_half_v0("gfx/metro.png")        // 2  RTO_N
-    t_G4_rail_half_v2("gfx/metro.png")        // 3  RTO_S
-    t_G4_rail_half_v3("gfx/metro.png")        // 4  RTO_E
+    t_G4_rail_half_v0("gfx/metro.png")        // 2  RTO_N（**无第三轨/罩**）
+    t_G4_rail_half_v2("gfx/metro.png")        // 3  RTO_S（与 underlay 的镜像件同形）
+    t_G4_rail_half_v3("gfx/metro.png")        // 4  RTO_E（同上，镜像对钢轨无影响）
     t_G4_rail_half_v1("gfx/metro.png")        // 5  RTO_W
     t_G4_rail_slope_v0("gfx/metro.png")       // 6  RTO_SLOPE_NE
     t_G4_rail_slope_v3("gfx/metro.png")       // 7  RTO_SLOPE_SE

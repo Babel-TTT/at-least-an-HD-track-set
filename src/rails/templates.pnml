@@ -878,7 +878,8 @@ template t_G1_levelcrossing_blank_v0(sheet) {
 // G4_* —— **A12 组（`SAC3` 第三轨地铁）**（分表 gfx/metro.png）
 //
 //   模型由 `tools/gen-a12-metro.mjs` 生成（2026-10-03 人工批准新建）；
-//   口径：BAL-H 整体道床 + SLE-5 无枕（只有扣件座）+ RAI-4 第三轨 + 中央排水沟，
+//   口径：BAL-H 整体道床 + SLE-5 无枕（只有扣件座）+ RAI-4 第三轨
+//   （**无中央排水沟** —— 人工 2026-10-03 去掉，见生成器文件头），
 //   板带/钢轨位置与 G1 共用（见 models/G4_track_x.model 的文件头）。
 //
 //   ★ 取值：flatiso 的 `centerAnchor` 反推值 —— 本表 ca = [131, 81]
@@ -906,6 +907,30 @@ template t_G4_track_half_v2(sheet) {
 }
 template t_G4_track_half_v3(sheet) {
   [789, 447, 263, 149, -131, -17, sheet]
+}
+
+// ---------------------------------------------------------------------------
+// G4_z_track_half_m —— 半格轨的**镜像版**（第三轨在板带另一侧）
+//   只接两个槽位：RTO_S ← v2、RTO_E ← v3（见 railsprite.pnml）。
+//   为什么：斜向链上 LEFT(RTO_W←v1) 与 RIGHT(RTO_E←v3) 是同一模型相差 180°，
+//   第三轨必然被甩到直线两侧（人工 2026-10-03 实机截图就是那样左右交错）。
+//   镜像是关于板带中心 y = 0.5 做的 ⇒ 板/钢轨/扣件座与原版逐字相同。
+//
+//   ⚠ 模型名 `G4_z_*` 排在**同表所有 `G4_t*` 之后**是故意的：atlas 按模型名
+//     排序给格位，这样新精灵落在第 5 行（索引 36-39），前面 36 张的 rect 一格没动。
+//     格子尺寸没变 ⇒ ca 仍是 [131, 81] ⇒ xrel/yrel 与 G4_track_half 相同。
+// ---------------------------------------------------------------------------
+template t_G4_z_track_half_m_v0(sheet) {
+  [1052, 596, 263, 149, -131, -17, sheet]
+}
+template t_G4_z_track_half_m_v1(sheet) {
+  [1315, 596, 263, 149, -131, -17, sheet]
+}
+template t_G4_z_track_half_m_v2(sheet) {
+  [1578, 596, 263, 149, -131, -17, sheet]
+}
+template t_G4_z_track_half_m_v3(sheet) {
+  [1841, 596, 263, 149, -131, -17, sheet]
 }
 template t_G4_track_slope_v0(sheet) {
   [1052, 447, 263, 149, -131, -17, sheet]
