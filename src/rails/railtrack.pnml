@@ -753,11 +753,14 @@ item(FEAT_RAILTYPES, rail_SAC3, 14) {
     /* ★ 2026-10-03：A12 组（`BAL-H` 整体道床 + `SLE-5` 无枕 + `RAI-4` 第三轨）接入。
        模型由 `tools/gen-a12-metro.mjs` 生成，分表 `gfx/metro.png`。
 
-       ⚠ **还缺 TUN-5**（地铁矩形洞门）：`tunnels:` / `tunnel_overlay:` 暂时不给
-         ⇒ 进隧道会看到**原版洞口**。TUN-5 做好后补这两行即可。 */
+       ⚠ **TUN-5 已接入**（地铁矩形洞门，2026-10-03）：`tunnels:` = `probe_tunnels_metro`、
+         `tunnel_overlay:` = `probe_tunnel_over_metro`（分表 gfx/tunnel5.png）。
+         端墙尺寸与"盖住原版草山包"的几何与 TUN-1 同源，只把拱洞改成矩形、材质换素混凝土。 */
     graphics {
         underlay:        probe_underlay_metro;
         track_overlay:   probe_overlay_metro;
+        tunnels:         probe_tunnels_metro;
+        tunnel_overlay:  probe_tunnel_over_metro;
         bridge_surfaces: probe_bridge_surfaces_metro;
     }
 }

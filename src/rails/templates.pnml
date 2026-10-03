@@ -968,3 +968,35 @@ template t_G4_rail_slope_v3(sheet) {
   [789, 298, 263, 149, -131, -17, sheet]
 }
 
+// ---------------------------------------------------------------------------
+// G4_tunnel5_* —— **A12 组（`SAC3`）地铁矩形洞口 TUN-5**（分表 gfx/tunnel5.png）
+//
+//   模型由 `tools/gen-a12-metro.mjs` 生成；端墙尺寸与盖土几何与 TUN-1 同源。
+//   ★ 取值：本表 ca = [131, 99] ⇒ xrel = −131、yrel = −(99 − 64) = **−35**。
+//   取值口径与 G4_* 那批一样（所有朝向同一个值，1×1 占地）。
+// ---------------------------------------------------------------------------
+template t_G4_tunnel5_v0(sheet) {
+  [0, 0, 263, 167, -131, -35, sheet]
+}
+template t_G4_tunnel5_v3(sheet) {
+  [789, 0, 263, 167, -131, -35, sheet]
+}
+template t_G4_tunnel5_b_v1(sheet) {
+  [1315, 0, 263, 167, -131, -35, sheet]
+}
+template t_G4_tunnel5_b_v2(sheet) {
+  [1578, 0, 263, 167, -131, -35, sheet]
+}
+template t_G4_tunnel5_over_v0(sheet) {
+  [0, 167, 263, 167, -131, -35, sheet]
+}
+template t_G4_tunnel5_over_v3(sheet) {
+  [789, 167, 263, 167, -131, -35, sheet]
+}
+template t_G4_tunnel5_over_b_v1(sheet) {
+  [1315, 167, 263, 167, -131, -35, sheet]
+}
+template t_G4_tunnel5_over_b_v2(sheet) {
+  [1578, 167, 263, 167, -131, -35, sheet]
+}
+

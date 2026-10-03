@@ -151,6 +151,28 @@ spriteset(probe_bridge_surfaces_metro, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
 }
 
 /* ===========================================================================
+   A12 组洞口 —— **TUN-5 地铁矩形洞门**（分表 gfx/tunnel5.png）
+
+   两个 spriteset 对应 NML 的 `tunnels:`（地面层，4 张）与 `tunnel_overlay:`
+   （立体层，4 张，画在车之上）。槽位 = DiagDirection，顺序 NE, SE, SW, NW；
+   喂图顺序 **v0, v3, v2, v1**（与 G1 的 probe_tunnels_2 逐条一样）。
+   A/B 两组的分工见 models/G4_tunnel5.model 的文件头。
+   =========================================================================== */
+spriteset(probe_tunnels_metro, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G4_tunnel5_v0("gfx/tunnel5.png")          // 0  DiagDir NE ← v0   A 组（远半）
+    t_G4_tunnel5_v3("gfx/tunnel5.png")          // 1  DiagDir SE ← v3   A 组
+    t_G4_tunnel5_b_v2("gfx/tunnel5.png")        // 2  DiagDir SW ← v2   B 组（近半）
+    t_G4_tunnel5_b_v1("gfx/tunnel5.png")        // 3  DiagDir NW ← v1   B 组
+}
+
+spriteset(probe_tunnel_over_metro, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G4_tunnel5_over_v0("gfx/tunnel5.png")     // 0  DiagDir NE ← v0   A 组（近半）
+    t_G4_tunnel5_over_v3("gfx/tunnel5.png")     // 1  DiagDir SE ← v3   A 组
+    t_G4_tunnel5_over_b_v2("gfx/tunnel5.png")   // 2  DiagDir SW ← v2   B 组（远半）
+    t_G4_tunnel5_over_b_v1("gfx/tunnel5.png")   // 3  DiagDir NW ← v1   B 组
+}
+
+/* ===========================================================================
    隧道口 —— TUN-1「料石端墙拱」（分表：gfx/tunnel.png）
 
    两个组，对应 NML 的 `tunnels:` 与 `tunnel_overlay:`（核自官方 wiki

@@ -183,24 +183,29 @@ function slabCrossing(z0 = 0, z1 = SLAB_Z) {
   ];
 }
 
-/** 三向道岔（基准朝向 = 缺**西**臂的那个 T）—— 4 块，互不重叠
- *  形状是拿 G1_junction3 实测覆盖反推的（缺的臂装到 v0 ↔ RTO_JUNCTION_SW 上） */
+/** 三向道岔（基准朝向 = 缺**西**臂）—— **矩形 + 梯形** = 六边形
+ *   人工 2026-10-03：「三向的做成矩形和梯形的组合」。
+ *   形状 = 矩形（x 0.32~0.68 全 y，北/南两臂）+ 东侧梯形（x=0.68 到 x−y=0.68 / x+y=1.68 两条 45° 切边）。
+ *   45° 切的进深 0.32 = 对角线板带半宽 0.18 的补（0.5 − 0.18）——与交叉板带同一口径。 */
 function slabJunction3(z0 = 0, z1 = SLAB_Z) {
-  return [
-    { x0: BAND[0], x1: BAND[1], y0: BAND[0], y1: BAND[1], z0, z1, mat: MAT.slab },     // 中心
-    { x0: BAND[0], x1: BAND[1], y0: 0, y1: BAND[0], z0, z1, mat: MAT.slab },           // 北臂
-    { x0: BAND[0], x1: BAND[1], y0: BAND[1], y1: 1, z0, z1, mat: MAT.slab },           // 南臂
-    { x0: BAND[1], x1: 1, y0: BAND[0], y1: BAND[1], z0, z1, mat: MAT.slab },           // 东臂
-  ];
+  const a = BAND[0], b = BAND[1];
+  const cut = 1 - a;                       // 0.68（东侧两条切边在 x 轴上的截距）
+  return [{
+    poly: [[a, 0], [b, 0], [1, a], [1, b], [b, 1], [a, 1]],
+    z0, z1, mat: MAT.slab,
+  }];
 }
 
-/** 四向道岔 = 十字 + 北/南两个角三角（G1_junction4 实测就是这样：
- *  角片只补了 N / S 两角，E / W 两角留空 —— 照它，别再自己发明） */
+/** 四向道岔 = **正八边形**：整格切掉四个 45° 角
+ *   人工 2026-10-03：「四向的类似正八边形」。
+ *   八条边 = 瓦片四条边（各被切掉 0.5−0.18 = 0.32 的两端）+ 四条 45° 切边；
+ *   切边正好是对角线板带（|x+y−0.5| ≤ 0.18 及其镜像）的外沿。 */
 function slabJunction4(z0 = 0, z1 = SLAB_Z) {
-  const b = slabCrossing(z0, z1);
-  b.push({ poly: [[BAND[0], 0], [0, BAND[0]], [BAND[0], BAND[0]]], z0, z1, mat: MAT.slab });
-  b.push({ poly: [[BAND[1], 1], [1, BAND[1]], [BAND[1], BAND[1]]], z0, z1, mat: MAT.slab });
-  return b;
+  const a = BAND[0], b = BAND[1];
+  return [{
+    poly: [[a, 0], [b, 0], [1, a], [1, b], [b, 1], [a, 1], [0, b], [0, a]],
+    z0, z1, mat: MAT.slab,
+  }];
 }
 
 /** 发一块水平多边形柱（轴对齐的用 box，三角形用 prism） */
@@ -211,6 +216,190 @@ function emitSlab(L, b) {
   } else {
     emitBox(L, b);
   }
+}
+
+// ===========================================================================
+// TUN-5 地铁矩形洞门（`tunnels:` + `tunnel_overlay:` 两层 × A/B 两组 = 4 个模型）
+//
+//   人工 2026-10-03（§6 确认门）：「本期就做 TUN-5：矩形洞门端墙，**不做护坡**」。
+//
+//   ⚠ 为什么必须照抄 TUN-1 的**外形尺寸与盖土几何**：
+//     定义了 `tunnel_overlay:` 之后，引擎只是把原版隧道换成「**只有草的**底图」
+//     —— **形状还在**，那个草山包永远在那儿，只能靠我们的图盖住它。
+//     所以下面这些常量、以及「压顶 + 仰面 + 山体侧壁（翼墙）」的算法
+//     **与 tools/gen-g1-tunnel.mjs 逐字同源**（那边是实机调了 4 轮才对的）；
+//     改这里之前先看那边，或者两个文件一起改。
+//
+//   与 TUN-1 的差别只有两处：
+//     ① 洞口从**半圆拱**改成**矩形**（宽 0.32 格 = 4.4 m，净高 0.20 = 拱顶同高）
+//     ② 材质用 TUN-2 那套**素混凝土**（concrete_dark / panel_seam / metal_seam）
+//
+//   分层（照 TUN-1 的结论）：
+//     引擎顺序 = 草地底 → `tunnels:` → 车 → 草地覆盖 → `tunnel_overlay:`
+//     ⇒ 「被车遮」的（洞内、洞门下半、翼墙）归 tunnels:
+//     ⇒ 「遮车」的（墙身上半、过梁、压顶、仰面）归 tunnel_overlay:
+//     ⇒ overlay 是一张 sortable sprite，**只能放离镜头近的那半**
+//       ⇒ 按 y=0.5 切两半、配两套分组 = 4 个模型（同 TUN-1）
+// ===========================================================================
+const TU = {
+  X0: 0.6800, X1: 0.8000,          // 端墙厚度（正面 x=0.80 = 从外量 0.2，与 TUN-1 同）
+  Y0: 0.1600, Y1: 0.8400,          // 端墙宽 0.68 格 = 9.5 m
+  TOP: 0.2720,                      // 板顶（= TUN-1）
+  OY0: 0.3400, OY1: 0.6600,        // 矩形洞口 y 区间（宽 0.32）
+  OH: 0.2000,                       // 洞口净高（= TUN-1 的拱顶高，接口一致）
+  SPLIT_Z: 0.0450,                  // z 切分线（= TUN-1 的起拱线）
+  COP: { x0: 0.6680, x1: 0.8120, y0: 0.1420, y1: 0.8580, top: 0.2860 },   // 压顶（= TUN-1）
+  HX0: 0.6800, HX1: 0.0000, HZ1: 0.2041,                                  // 仰面（= TUN-1）
+  BORE_X: 0.6700,                   // 洞内暗幕
+  W: 'concrete_dark', D: 'panel_seam', I: 'metal_seam', HILL: 'dirt',
+};
+/** 仰面（顶坡）在 x 处的高度：洞口 = 板顶，向山体斜降到一层地形 */
+const hillZ5 = (x) => TU.TOP + (TU.HZ1 - TU.TOP) * (TU.HX0 - x) / (TU.HX0 - TU.HX1);
+
+/** Newell 法线（与 flatiso core/mesh.mjs 同式） */
+function newell5(p) {
+  let nx = 0, ny = 0, nz = 0;
+  for (let i = 0; i < p.length; i++) {
+    const a = p[i], b = p[(i + 1) % p.length];
+    nx += (a[1] - b[1]) * (a[2] + b[2]);
+    ny += (a[2] - b[2]) * (a[0] + b[0]);
+    nz += (a[0] - b[0]) * (a[1] + b[1]);
+  }
+  return [nx, ny, nz];
+}
+/** 发一个「朝向已保证」的 quad（want = 期望外法线方向） */
+function q5(L, pts, want, mat) {
+  let p = pts;
+  const n = newell5(pts);
+  if (n[0] * want[0] + n[1] * want[1] + n[2] * want[2] < 0) p = pts.slice().reverse();
+  L.push(`quad ${p.flat().map(fmt).join(' ')}  ${mat}`);
+}
+
+/** 洞内轨道：与 G4_track_x **同源**（整格道床 + 钢轨 + 扣件座 + 第三轨），只是多了暗幕 */
+function metroTunnelGround() {
+  const L = [];
+  for (const b of trackShapes()) emitBox(L, b);
+  // 洞口暗幕（贴在端墙背面之后，堵住洞口的黑板）
+  q5(L, [[TU.BORE_X, TU.OY0, 0], [TU.BORE_X, TU.OY0, TU.OH + 0.006],
+         [TU.BORE_X, TU.OY1, TU.OH + 0.006], [TU.BORE_X, TU.OY1, 0]],
+     [1, 0, 0], 'trim_black');
+  return L;
+}
+
+/** 洞门下半（z < SPLIT_Z）：两垛墙脚 + 洞口两侧内壁 + 洞口顶棚（不可见，不画） */
+function portalLow5() {
+  const L = [];
+  const { X0, X1, Y0, Y1, OY0, OY1, OH, SPLIT_Z, W, D, I } = TU;
+  // 墙脚（洞口左右各一垛）
+  q5(L, [[X1, Y0, SPLIT_Z], [X1, Y0, 0], [X1, OY0, 0], [X1, OY0, SPLIT_Z]], [1, 0, 0], W);
+  q5(L, [[X1, OY1, SPLIT_Z], [X1, OY1, 0], [X1, Y1, 0], [X1, Y1, SPLIT_Z]], [1, 0, 0], W);
+  // 洞口两侧内壁（朝洞内）
+  q5(L, [[X0, OY0, OH], [X1, OY0, OH], [X1, OY0, 0], [X0, OY0, 0]], [0, 1, 0], I);
+  q5(L, [[X0, OY1, OH], [X0, OY1, 0], [X1, OY1, 0], [X1, OY1, OH]], [0, -1, 0], I);
+  // 墙脚外端面
+  q5(L, [[X0, Y0, SPLIT_Z], [X1, Y0, SPLIT_Z], [X1, Y0, 0], [X0, Y0, 0]], [0, -1, 0], D);
+  q5(L, [[X0, Y1, SPLIT_Z], [X0, Y1, 0], [X1, Y1, 0], [X1, Y1, SPLIT_Z]], [0, 1, 0], D);
+  return L;
+}
+
+/** 洞门上半（z ≥ SPLIT_Z）：两垛墙身正面 + 外端面（按 y 切左右，进 overlay） */
+function portalHigh5() {
+  const L = [];
+  const { X0, X1, Y0, Y1, OY0, OY1, TOP, SPLIT_Z, W, D } = TU;
+  q5(L, [[X1, Y0, TOP], [X1, Y0, SPLIT_Z], [X1, OY0, SPLIT_Z], [X1, OY0, TOP]], [1, 0, 0], W);
+  q5(L, [[X1, OY1, TOP], [X1, OY1, SPLIT_Z], [X1, Y1, SPLIT_Z], [X1, Y1, TOP]], [1, 0, 0], W);
+  q5(L, [[X0, Y0, TOP], [X1, Y0, TOP], [X1, Y0, SPLIT_Z], [X0, Y0, SPLIT_Z]], [0, -1, 0], D);
+  q5(L, [[X0, Y1, TOP], [X0, Y1, SPLIT_Z], [X1, Y1, SPLIT_Z], [X1, Y1, TOP]], [0, 1, 0], D);
+  return L;
+}
+
+/** 过梁（洞口正上方那块墙身）：整块归 overlay，**不参与左右切分**（同 TUN-1 的石梁） */
+function lintel5() {
+  const L = [];
+  const { X0, X1, OY0, OY1, TOP, OH, W, D } = TU;
+  q5(L, [[X1, OY0, TOP], [X1, OY1, TOP], [X1, OY1, OH], [X1, OY0, OH]], [1, 0, 0], W);
+  q5(L, [[X0, OY0, TOP], [X0, OY0, OH], [X0, OY1, OH], [X0, OY1, TOP]], [-1, 0, 0], D);
+  q5(L, [[X0, OY0, TOP], [X0, OY1, TOP], [X1, OY1, TOP], [X1, OY0, TOP]], [0, 0, 1], D);
+  return L;
+}
+
+/** 压顶 + 仰面（梯形）：整块归 overlay（同 TUN-1 的 upperAlways） */
+function always5() {
+  const L = [];
+  const { COP, HX0, HX1, Y0, Y1, HILL } = TU;
+  q5(L, [[COP.x1, COP.y0, COP.top], [COP.x1, COP.y0, TU.TOP], [COP.x1, COP.y1, TU.TOP], [COP.x1, COP.y1, COP.top]], [1, 0, 0], TU.D);
+  q5(L, [[COP.x1, COP.y0, COP.top], [COP.x1, COP.y1, COP.top], [COP.x0, COP.y1, COP.top], [COP.x0, COP.y0, COP.top]], [0, 0, 1], TU.W);
+  q5(L, [[COP.x1, COP.y0, COP.top], [COP.x0, COP.y0, COP.top], [COP.x0, COP.y0, TU.TOP], [COP.x1, COP.y0, TU.TOP]], [0, -1, 0], TU.D);
+  q5(L, [[COP.x1, COP.y1, COP.top], [COP.x1, COP.y1, TU.TOP], [COP.x0, COP.y1, TU.TOP], [COP.x0, COP.y1, COP.top]], [0, 1, 0], TU.D);
+  q5(L, [[HX1, 0, hillZ5(HX1)], [HX0, Y0, hillZ5(HX0)], [HX0, Y1, hillZ5(HX0)], [HX1, 1, hillZ5(HX1)]], [0, 0, 1], HILL);
+  return L;
+}
+
+/** 翼墙（竖向三角）+ 山体侧壁：与 gen-g1-tunnel.mjs 的 wingWall 同源（sgn>0 = +y 侧） */
+function wing5(sgn) {
+  const L = [];
+  const Y = (v) => (sgn > 0 ? 1 - v : v);
+  const ny = sgn > 0 ? 1 : -1;
+  const yP = Y(TU.Y0), yE = sgn > 0 ? 1 : 0;
+  const T = [TU.X1, yP, TU.TOP], B = [TU.X1, yP, 0];
+  const C = [TU.HX1, yE, TU.HZ1], F = [TU.HX0, yP, 0];
+  q5(L, [T, B, C, C], [0, ny, 0], TU.W);
+  q5(L, [C, [TU.HX0, yP, hillZ5(TU.HX0)], F, F], [0, ny, 0], TU.HILL);
+  return L;
+}
+
+/** 按顶点平均 y 把 quad 行切成「远半 / 近半」（同 gen-g1-tunnel.mjs 的 splitByY） */
+function split5(lines) {
+  const lo = [], hi = [];
+  for (const l of lines) {
+    if (!l.startsWith('quad')) { lo.push(l); continue; }
+    const n = l.slice(4).trim().split(/\s+/);
+    const ys = [1, 4, 7, 10].map((i) => Number(n[i]));
+    ((ys.reduce((a, b) => a + b, 0) / ys.length) >= 0.5 ? hi : lo).push(l);
+  }
+  return { lo, hi };
+}
+
+function tunnel5Models() {
+  const ground = [...metroTunnelGround(), ...portalLow5(), ...wing5(-1), ...wing5(+1)];
+  const { lo: halfFar, hi: halfNear } = split5(portalHigh5());
+  const always = always5();
+  const lintel = lintel5();
+  const H = (name, title, extra) => '# =============================================================================\n'
+    + `# ${name} —— ${title}\n#\n`
+    + '# 【本文件由 tools/gen-a12-metro.mjs 生成，请勿手改】\n#\n'
+    + extra
+    + '# =============================================================================\n\n';
+  const WHY = '# TUN-5 地铁矩形洞门（A12 / `SAC3`）\n'
+    + '# 基准朝向 = DiagDir NE：洞口在 x=0 那条边（N–E），轨道沿 x\n'
+    + '# 取图顺序 v0=NE  v1=NW  v2=SW  v3=SE；⚠ 引擎槽位顺序是 NE/SE/SW/NW ⇒ 喂图 v0,v3,v2,v1\n'
+    + '#\n'
+    + '# 【为什么四个模型】overlay 是一张 sortable sprite，只能放「离镜头近」的半边：\n'
+    + '#   v0/v3 近半 = y ≥ 0.5      v1/v2 近半 = y < 0.5\n'
+    + '#   A 组（_v0/_v3 用）：tunnels:=远半  overlay=近半\n'
+    + '#   B 组（_v1/_v2 用）：tunnels:=近半  overlay=远半\n'
+    + '#\n'
+    + '# ⚠ 端墙尺寸（x 0.68~0.80 / 宽 y 0.16~0.84 / 板顶 0.272 / 压顶 / 仰面 / 翼墙）\n'
+    + '#   **与 gen-g1-tunnel.mjs 的 TUN-1 逐字同源** —— 那是实机调了 4 轮才盖住\n'
+    + '#   原版草山包的形状，别自己发明。\n';
+  const out = [];
+  const asm = (name, title, bodyA, bodyB, extra) => {
+    const s = H(name, title, WHY + (extra || ''))
+      + `name      ${name}\ngroup     misc\nfootprint 1 1\nzmax      0.2140\n\n`
+      + bodyA.join('\n') + '\n' + (bodyB ? '\n' + bodyB.join('\n') + '\n' : '');
+    out.push([name, s]);
+  };
+  asm('G4_tunnel5', 'A12 地铁洞口 TUN-5 —— tunnels: 组（A 组：远半）',
+      ground, halfFar, '# --- 洞内轨道 + 暗幕 + 洞门下半 + 翼墙×2 + **洞门上半的远半** ---\n');
+  asm('G4_tunnel5_over', 'A12 地铁洞口 TUN-5 —— tunnel_overlay: 组（A 组：近半）',
+      halfNear, [...always, ...lintel],
+      '# --- **洞门上半的近半** + 压顶 + 仰面 + 过梁（整块）---\n');
+  asm('G4_tunnel5_b', 'A12 地铁洞口 TUN-5 —— tunnels: 组（B 组：近半）',
+      ground, halfNear, '# --- 洞内轨道 + 暗幕 + 洞门下半 + 翼墙×2 + **洞门上半的近半** ---\n');
+  asm('G4_tunnel5_over_b', 'A12 地铁洞口 TUN-5 —— tunnel_overlay: 组（B 组：远半）',
+      halfFar, [...always, ...lintel],
+      '# --- **洞门上半的远半** + 压顶 + 仰面 + 过梁（整块）---\n');
+  return out;
 }
 
 // ---------------------------------------------------------------- 写文件
@@ -374,8 +563,11 @@ export function generate() {
         'underlay 槽 11-14（RTO_JUNCTION_SW / NE / SE / NW）：三向道岔的道床板',
         '',
         '**只有道床板，没有钢轨**（同 G1：道岔瓦片由引擎逐段叠 overlay 的钢轨层）。',
-        '形状 = **缺一条臂的十字**（基准朝向缺西臂：北 / 南 / 东 三臂 + 中心），4 块互不重叠。',
-        '—— 这个"缺哪条臂"是拿 G1_junction3 的实测覆盖反推的（缺的臂要装到 v0 ↔ RTO_JUNCTION_SW 上）。',
+        '形状（人工 2026-10-03 裁定）= **矩形 + 梯形** = 六边形：',
+        '  (0.32,0) (0.68,0) (1,0.32) (1,0.68) (0.68,1) (0.32,1)',
+        '—— 矩形是北/南两臂（x 0.32~0.68 全 y），东侧那两条 45° 斜边是梯形；',
+        '   缺的那条臂（基准朝向左边的"西"）由 4 个朝向转到 NE/SW/SE/NW 四个槽位上。',
+        '   45° 切的进深 0.32 = 对角线板带半宽 0.18 的补（0.5 − 0.18），与交叉板带同口径。',
       ],
     }, header('G4_junction3', L)));
   }
@@ -389,10 +581,20 @@ export function generate() {
       notes: [
         'underlay 槽 15（RTO_JUNCTION_NSEW）：四向道岔的道床板',
         '',
-        '形状 = 十字（X 带 ∪ Y 带，3 块）+ **北角 / 南角两个三角**（补上对角线的角片）。',
-        '⚠ 照 G1_junction4 的实测覆盖：它**只补了 N / S 两角**，E / W 两角留空 —— 别再自己发明。',
+        '形状（人工 2026-10-03 裁定）= **正八边形**：整格切掉四个 45° 角。',
+        '  (0.32,0) (0.68,0) (1,0.32) (1,0.68) (0.68,1) (0.32,1) (0,0.68) (0,0.32)',
+        '八条边 = 瓦片四条边（各被切掉 0.5−0.18 = 0.32 的两端）+ 四条 45° 斜边；',
+        '斜边正好是对角线板带（|x+y−0.5| ≤ 0.18 及其镜像）的外沿。',
+        '同样不带钢轨（overlay 负责）。',
       ],
     }, header('G4_junction4', L)));
+  }
+
+  // 10) 洞口 TUN-5（地铁矩形洞门）—— 4 个模型：地面层 ×2（A/B 组）+ 立体层 ×2
+  for (const [name, text] of tunnel5Models()) {
+    const f = path.join(ROOT, 'models', `${name}.model`);
+    fs.writeFileSync(f, text);
+    files.push(f);
   }
 
   return files;
