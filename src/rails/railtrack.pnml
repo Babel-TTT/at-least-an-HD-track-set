@@ -654,8 +654,12 @@ item(FEAT_RAILTYPES, rail_SBEd, 12) {
         build_window_caption:   string(STR_RAIL_SBEd);
         autoreplace_text:       string(STR_RAIL_SBEd);
         new_engine_text:        string(STR_RAIL_SBEd);
-        compatible_railtype_list: ["SADN", "SBDN", "SBEd", "ELRL"];
-        powered_railtype_list:    ["SBEd", "ELRL"];
+        compatible_railtype_list: ["RAIL", "ELRL", 
+                                    "SAEN", "SBEN", "SCEN", "SDEN", "SEEN",  "SFEN", "SGEN",
+                                    "SAEA", "SBEA", "SCEA", "SDEA", "SEEA",  "SFEA", "SGEA", 
+                                    "SAEd", "SBEd", "SCEd", "SDEd", "SEEd"];
+        powered_railtype_list:    [ "ELRL", 
+                                    "SAEd", "SBEd", "SCEd", "SDEd", "SEEd"];
         railtype_flags:         bitmask(RAILTYPE_FLAG_CATENARY);
         curve_speed_multiplier: 1;
         station_graphics:       RAILTYPE_STATION_NORMAL;
