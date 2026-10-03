@@ -88,10 +88,10 @@ function trackShapes({ slab = true, rails = true, seats = true, third = true, fl
   //   会在同一条直线上左右交替（实机截图就是那样）。
   const S = [];
   if (slab) {
-    S.push({ x0: 0, x1: 1, y0: BAND[0], y1: BAND[1], z0: 0, z1: SLAB_Z, mat: MAT.slab });
+    S.push({ long: true, x0: 0, x1: 1, y0: BAND[0], y1: BAND[1], z0: 0, z1: SLAB_Z, mat: MAT.slab });
   }
   if (rails) for (const c of RAILS) {
-    S.push({ x0: 0, x1: 1, y0: c - RAIL_HW, y1: c + RAIL_HW, z0: RAIL_Z0, z1: RAIL_Z1, mat: MAT.rail, top: MAT.railTop });
+    S.push({ long: true, x0: 0, x1: 1, y0: c - RAIL_HW, y1: c + RAIL_HW, z0: RAIL_Z0, z1: RAIL_Z1, mat: MAT.rail, top: MAT.railTop });
   }
   if (seats) for (let k = 0; k < SEAT.n; k++) {
     const t = SEAT.t0 + k * SEAT.pitch;
@@ -101,8 +101,8 @@ function trackShapes({ slab = true, rails = true, seats = true, third = true, fl
   }
   if (third) {
     const c = flip ? 1 - THIRD.c : THIRD.c;
-    S.push({ x0: 0, x1: 1, y0: c - THIRD.hw, y1: c + THIRD.hw, z0: RAIL_Z0, z1: THIRD.z1, mat: MAT.third, top: MAT.thirdTop });
-    S.push({ x0: 0, x1: 1, y0: c - COVER.hw, y1: c + COVER.hw, z0: THIRD.z1, z1: COVER.z1, mat: MAT.cover, top: MAT.coverTop });
+    S.push({ long: true, x0: 0, x1: 1, y0: c - THIRD.hw, y1: c + THIRD.hw, z0: RAIL_Z0, z1: THIRD.z1, mat: MAT.third, top: MAT.thirdTop });
+    S.push({ long: true, x0: 0, x1: 1, y0: c - COVER.hw, y1: c + COVER.hw, z0: THIRD.z1, z1: COVER.z1, mat: MAT.cover, top: MAT.coverTop });
   }
   return S;
 }
@@ -161,22 +161,30 @@ function emitBox(L, b) {
     + `${b.mat}${b.top ? ` top=${b.top}` : ''}`);
 }
 
-/** 斜向：映射 + 归正绕序，用 prism / poly
+/** 斜向：**沿轨道方向铺满整格**，再裁到瓦片，用 prism / poly
  *
- *  ⚠⚠ **不裁到瓦片**（人工 2026-10-03 第二次返工：斜向链每段接缝一个 V 形缺口）
- *   半格轨的那块板，正确形状是**两端垂直于轨道**的矩形（世界坐标里
- *   `{y−x ∈ 带} ∩ {x+y ∈ [0.5, 1.5]}`），四个角有两个落在世界 [0,1]² 之外
- *   （y < 0 或 x > 1，超出量各 0.09 格）。
- *   照铁律裁到 [0,1]² 会把这两角削掉 —— 而**相邻瓦片的板本来就缺同一处**
- *   （它被同一条瓦片边裁），没人能补 ⇒ 实机里就是每段两端各一个三角缺口。
- *   这两角在**屏幕上仍落在瓦片/画布之内**（等距投影把世界 y<0 的那角投回画布里），
- *   所以：格位尺寸不变、模板 rect 一格不动，只多一条 flatiso 的"超出占地"警告。
- *   ⇒ 这是**故意**的，别"修"回去。交叉/道岔那些并集板仍照旧裁到瓦片。
+ *  ★ 形状口径（人工 2026-10-03 第三轮，给了示意图）：
+ *    半格轨的板 = **板带 ∩ 瓦片**，端部由**瓦片边**（世界 x=1 / y=0）切出来
+ *    ⇒ 屏幕上是"左右竖直、上下 2:1 斜切"的**梯形**。相邻两格正好共用那条斜边，
+ *      拼起来无缝；而且**整块都在瓦片内**，不会被邻格精灵（地面 / 别的板）盖掉。
+ *
+ *  ⚠ 走过的两条弯路，都写在这儿别再犯：
+ *    ① 只取局部 x∈[0,1]（= 理想矩形的端部，沿 `x±y = const` 垂直切）：
+ *       那块板的世界坐标有两个角出瓦片（y<0 / x>1）；出瓦片的部分**会**被邻格精灵盖住
+ *       （后画的瓦片盖先画的），实机里就只剩中间一个矩形，接缝处露白。
+ *    ② 把那条理想矩形整块发出去（不裁）：同理，溢出的角被盖，反而更差。
+ *    ⇒ 正确做法是**反着来**：让几何**铺满**瓦片（比瓦片长），交给 `clipTile` 去切。
+ *      被切掉的正好是瓦片外那部分 —— 本来就不该由这一格画。
+ *
+ *  只有"沿轨全长"的件（板 / 钢轨 / 第三轨 / 罩，模型里带 `long: true`）才延长；
+ *  扣件座是离散的小块，局部 x 本来就按整格排好，延长会变成一条长条。
  */
 function emitDiag(L, b) {
-  const poly = ccw([
-    mapD(b.x0, b.y0), mapD(b.x1, b.y0), mapD(b.x1, b.y1), mapD(b.x0, b.y1),
-  ]);
+  const X0 = b.long ? -1 : b.x0;
+  const X1 = b.long ? 2 : b.x1;
+  const poly = clipTile(ccw([
+    mapD(X0, b.y0), mapD(X1, b.y0), mapD(X1, b.y1), mapD(X0, b.y1),
+  ]));
   if (poly.length < 3) return;
   const P = poly.map((p) => `${fmt(p[0])},${fmt(p[1])}`).join('  ');
   if (b.top) {
