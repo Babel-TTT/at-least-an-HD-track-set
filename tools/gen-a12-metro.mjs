@@ -1,0 +1,406 @@
+// =============================================================================
+// tools/gen-a12-metro.mjs —— 生成 A12 组（`SAC3` 第三轨地铁）的模型
+//
+//   node tools/gen-a12-metro.mjs          （或 make metro）
+//
+// 产出（**会被本工具整件重写**，别手改）：
+//   models/G4_track_x.model        underlay 槽 0/1  整体道床 + 无枕扣件座 + 第三轨（完整画面）
+//   models/G4_track_half.model     underlay 槽 2-5  切 N 角的半格轨（4 朝向给 N/E/S/W）
+//   models/G4_track_slope.model    underlay 槽 6-9  坡道（基准朝向 SLOPE_NE）
+//   models/G4_crossing.model       underlay 槽 10   交叉（自带两组钢轨）
+//   models/G4_junction3.model      underlay 槽 11-14 三向道岔（只有道床板）
+//   models/G4_junction4.model      underlay 槽 15   四向道岔（只有道床板）
+//   models/G4_rail_straight.model  overlay  槽 0/1  钢轨层（透明底）
+//   models/G4_rail_half.model      overlay  槽 2-5  钢轨层（半格轨）
+//   models/G4_rail_slope.model     overlay  槽 6-9  钢轨层（坡道）
+//
+// 为什么用生成器（人工 2026-10-03 批准，见 docs/建模标准.md 台账）：
+//   ① 斜向要按 `c = x+y`、`d = x−0.5` 的对角坐标算，再裁到瓦片里（光半轨那件就有
+//      25 个承轨台 × 2 条轨 × 4 个角点 = 200 个坐标）；
+//   ② 坡道要把**每个顶点**按 `z += RISE·(1−x)` 剪切 —— `box`/`prism` 都是轴对齐的，做不到；
+//   ③ 交叉/道岔要做板带并集，且**不能有共面重叠**（会 z-fighting）。
+//
+// -----------------------------------------------------------------------------
+// 口径（全部与 G1 共用，理由：道岔/交叉的并集规则、实机调好的锚点都靠它）
+//   轨道中心 y = 0.5 · 板带 y ∈ [0.32, 0.68]（= G1 道砟同宽）
+//   钢轨中心 y = 0.4484 / 0.5516（= 1435 mm）· 轨顶 z = 0.0230 · 板顶 z = 0.0100
+//   枕位（= 扣件座位置）与 G1 的枕木同一条：t = 0.012 + k·0.04，k = 0…24
+//   第三轨在 **+y 外侧**（人工：「镜头视角的外侧 + 覆盖板」）
+//
+// 斜向映射（照 G1 的 `probe_half_upper`：**切 N 角**那一半，轨道线 x+y = 0.5）
+//   c = y     d = x − 0.5        (x,y) = ((c+d)/2, (c−d)/2)
+//   ★ 不乘 √2：G1 是**按屏幕像素**对齐的 —— 斜向两轨在屏幕上的间距与直向一样是 6.6 px
+//   ★ 这个映射是**镜像**（det = −1/2）⇒ 映射后顶点序会翻，本工具统一用 ccw() 归正
+//
+// ⚠ 交叉 / 道岔**不做中央排水沟**（并集里挖不出沟）。要在那儿也加沟，先改这里。
+// =============================================================================
+
+import fs from 'node:fs';
+import path from 'node:path';
+import { pathToFileURL } from 'node:url';
+
+import { ROOT, log, rel, isMain } from './util.mjs';
+
+// ---------------------------------------------------------------- 口径常量
+const BAND = [0.3200, 0.6800];          // 道床板带
+const SLAB_Z = 0.0100;                  // 板顶
+const GROOVE = [0.4800, 0.5200];        // 中央排水沟
+const GROOVE_Z = 0.0030;
+const RAILS = [0.4484, 0.5516];         // 钢轨中心
+const RAIL_HW = 0.0040, RAIL_Z0 = 0.0100, RAIL_Z1 = 0.0230;
+const SEAT = { n: 25, t0: 0.0120, pitch: 0.0400, len: 0.0160, hw: 0.0140, z1: 0.0175 };
+const THIRD = { c: 0.5925, hw: 0.0035, z1: 0.0180 };   // 接触轨
+const COVER = { hw: 0.0085, z1: 0.0210 };              // 覆盖板
+const RISE = 0.2041;                                   // 一格坡道的抬升（与 gen-g1-slope 同源）
+const EPS = 0.0008;                                    // 顶面换材质时的微小抬升
+
+const MAT = {
+  slab: 'plaster_grey', groove: 'granite_grey', seat: 'plaster_grey_seam',
+  rail: 'rust', railTop: 'metal',
+  third: 'rust', thirdTop: 'metal',
+  cover: 'wood_dark', coverTop: 'wood_seam',
+};
+
+const fmt = (v) => v.toFixed(4);
+const N = (v) => Number(v.toFixed(6));
+
+// ---------------------------------------------------------------- 形状表
+// 每个形状 = 轴对齐的一"块"：x 沿轨（0…1）、y 横向（绝对坐标）、z 上下、材质
+function trackShapes({ slab = true, rails = true, seats = true, third = true } = {}) {
+  const S = [];
+  if (slab) {
+    S.push({ x0: 0, x1: 1, y0: BAND[0], y1: GROOVE[0], z0: 0, z1: SLAB_Z, mat: MAT.slab });
+    S.push({ x0: 0, x1: 1, y0: GROOVE[1], y1: BAND[1], z0: 0, z1: SLAB_Z, mat: MAT.slab });
+    S.push({ x0: 0, x1: 1, y0: GROOVE[0], y1: GROOVE[1], z0: 0, z1: GROOVE_Z, mat: MAT.groove });
+  }
+  if (rails) for (const c of RAILS) {
+    S.push({ x0: 0, x1: 1, y0: c - RAIL_HW, y1: c + RAIL_HW, z0: RAIL_Z0, z1: RAIL_Z1, mat: MAT.rail, top: MAT.railTop });
+  }
+  if (seats) for (let k = 0; k < SEAT.n; k++) {
+    const t = SEAT.t0 + k * SEAT.pitch;
+    for (const c of RAILS) {
+      S.push({ x0: t, x1: t + SEAT.len, y0: c - SEAT.hw, y1: c + SEAT.hw, z0: RAIL_Z0, z1: SEAT.z1, mat: MAT.seat });
+    }
+  }
+  if (third) {
+    S.push({ x0: 0, x1: 1, y0: THIRD.c - THIRD.hw, y1: THIRD.c + THIRD.hw, z0: RAIL_Z0, z1: THIRD.z1, mat: MAT.third, top: MAT.thirdTop });
+    S.push({ x0: 0, x1: 1, y0: THIRD.c - COVER.hw, y1: THIRD.c + COVER.hw, z0: THIRD.z1, z1: COVER.z1, mat: MAT.cover, top: MAT.coverTop });
+  }
+  return S;
+}
+
+// ---------------------------------------------------------------- 多边形工具
+/** 有向面积（> 0 = 逆时针，flatiso 的 prism 要这个序） */
+function area2(p) {
+  let a = 0;
+  for (let i = 0; i < p.length; i++) {
+    const q = p[(i + 1) % p.length];
+    a += p[i][0] * q[1] - q[0] * p[i][1];
+  }
+  return a / 2;
+}
+const ccw = (p) => (area2(p) < 0 ? p.slice().reverse() : p);
+
+/** 半平面裁剪：a·x + b·y − c ≥ 0 */
+function halfPlane(p, a, b, c) {
+  const out = [];
+  for (let i = 0; i < p.length; i++) {
+    const A = p[i], B = p[(i + 1) % p.length];
+    const va = a * A[0] + b * A[1] - c, vb = a * B[0] + b * B[1] - c;
+    if (va >= 0) out.push(A);
+    if ((va >= 0) !== (vb >= 0)) {
+      const t = va / (va - vb);
+      out.push([A[0] + t * (B[0] - A[0]), A[1] + t * (B[1] - A[1])]);
+    }
+  }
+  return out;
+}
+
+/** 裁到瓦片 [0,1]²，并去掉重复点 */
+function clipTile(p) {
+  let q = p;
+  q = halfPlane(q, 1, 0, 0);
+  q = halfPlane(q, 0, 1, 0);
+  q = halfPlane(q, -1, 0, -1);
+  q = halfPlane(q, 0, -1, -1);
+  const out = [];
+  for (const v of q) {
+    const w = [N(v[0]), N(v[1])];
+    const last = out[out.length - 1];
+    if (!last || Math.hypot(w[0] - last[0], w[1] - last[1]) > 1e-6) out.push(w);
+  }
+  while (out.length > 1 && Math.hypot(out[0][0] - out[out.length - 1][0], out[0][1] - out[out.length - 1][1]) < 1e-6) out.pop();
+  return out;
+}
+
+/** 斜向映射：局部 (x 沿轨, y 横向) → 世界 (x,y)，轨道线为 x+y = 0.5（切 N 角） */
+const mapD = (x, y) => [(y + (x - 0.5)) / 2, (y - (x - 0.5)) / 2];
+
+// ---------------------------------------------------------------- 三个发射器
+/** 直向：轴对齐的 box */
+function emitBox(L, b) {
+  L.push(`box ${fmt(b.x0)} ${fmt(b.y0)} ${fmt(b.z0)}  ${fmt(b.x1)} ${fmt(b.y1)} ${fmt(b.z1)}   `
+    + `${b.mat}${b.top ? ` top=${b.top}` : ''}`);
+}
+
+/** 斜向：映射 + 裁瓦片 + 归正绕序，用 prism / poly */
+function emitDiag(L, b) {
+  const poly = clipTile(ccw([
+    mapD(b.x0, b.y0), mapD(b.x1, b.y0), mapD(b.x1, b.y1), mapD(b.x0, b.y1),
+  ]));
+  if (poly.length < 3) return;
+  const P = poly.map((p) => `${fmt(p[0])},${fmt(p[1])}`).join('  ');
+  if (b.top) {
+    L.push(`prism ${fmt(b.z0)} ${fmt(b.z1 - EPS)}  ${b.mat}  ${P}`);
+    L.push(`poly ${fmt(b.z1)}  ${b.top}  ${P}`);
+  } else {
+    L.push(`prism ${fmt(b.z0)} ${fmt(b.z1)}  ${b.mat}  ${P}`);
+  }
+}
+
+/** 坡道：每个顶点 z += RISE·(1−x)，六个面都用 quad 手写 */
+function emitSheared(L, b) {
+  const z = (x, zz) => N(zz + RISE * (1 - x));
+  const P = (x, y, zz) => [N(x), N(y), z(x, zz)];
+  const A = P(b.x0, b.y0, b.z0), B = P(b.x1, b.y0, b.z0), C = P(b.x1, b.y1, b.z0), D = P(b.x0, b.y1, b.z0);
+  const A2 = P(b.x0, b.y0, b.z1), B2 = P(b.x1, b.y0, b.z1), C2 = P(b.x1, b.y1, b.z1), D2 = P(b.x0, b.y1, b.z1);
+  const q = (p1, p2, p3, p4, mat) => L.push(`quad ${[...p1, ...p2, ...p3, ...p4].map(fmt).join(' ')}  ${mat}`);
+  q(A2, B2, C2, D2, b.top || b.mat);   // 顶面 +z
+  q(A, D, C, B, b.mat);                 // 底面 −z
+  q(A, B, B2, A2, b.mat);               // −y 侧
+  q(D2, C2, C, D, b.mat);               // +y 侧
+  q(A2, D2, D, A, b.mat);               // −x 侧
+  q(B, C, C2, B2, b.mat);               // +x 侧
+}
+
+// ---------------------------------------------------------------- 道床板（交叉 / 道岔用）
+/** 交叉（X 带 ∪ Y 带）—— 拆成 3 块互不重叠的轴对齐板 */
+function slabCrossing(z0 = 0, z1 = SLAB_Z) {
+  return [
+    { x0: 0, x1: 1, y0: BAND[0], y1: BAND[1], z0, z1, mat: MAT.slab },                 // X 带
+    { x0: BAND[0], x1: BAND[1], y0: 0, y1: BAND[0], z0, z1, mat: MAT.slab },           // Y 带（北侧）
+    { x0: BAND[0], x1: BAND[1], y0: BAND[1], y1: 1, z0, z1, mat: MAT.slab },           // Y 带（南侧）
+  ];
+}
+
+/** 三向道岔（基准朝向 = 缺**西**臂的那个 T）—— 4 块，互不重叠
+ *  形状是拿 G1_junction3 实测覆盖反推的（缺的臂装到 v0 ↔ RTO_JUNCTION_SW 上） */
+function slabJunction3(z0 = 0, z1 = SLAB_Z) {
+  return [
+    { x0: BAND[0], x1: BAND[1], y0: BAND[0], y1: BAND[1], z0, z1, mat: MAT.slab },     // 中心
+    { x0: BAND[0], x1: BAND[1], y0: 0, y1: BAND[0], z0, z1, mat: MAT.slab },           // 北臂
+    { x0: BAND[0], x1: BAND[1], y0: BAND[1], y1: 1, z0, z1, mat: MAT.slab },           // 南臂
+    { x0: BAND[1], x1: 1, y0: BAND[0], y1: BAND[1], z0, z1, mat: MAT.slab },           // 东臂
+  ];
+}
+
+/** 四向道岔 = 十字 + 北/南两个角三角（G1_junction4 实测就是这样：
+ *  角片只补了 N / S 两角，E / W 两角留空 —— 照它，别再自己发明） */
+function slabJunction4(z0 = 0, z1 = SLAB_Z) {
+  const b = slabCrossing(z0, z1);
+  b.push({ poly: [[BAND[0], 0], [0, BAND[0]], [BAND[0], BAND[0]]], z0, z1, mat: MAT.slab });
+  b.push({ poly: [[BAND[1], 1], [1, BAND[1]], [BAND[1], BAND[1]]], z0, z1, mat: MAT.slab });
+  return b;
+}
+
+/** 发一块水平多边形柱（轴对齐的用 box，三角形用 prism） */
+function emitSlab(L, b) {
+  if (b.poly) {
+    const P = ccw(b.poly).map((p) => `${fmt(p[0])},${fmt(p[1])}`).join('  ');
+    L.push(`prism ${fmt(b.z0)} ${fmt(b.z1)}  ${b.mat}  ${P}`);
+  } else {
+    emitBox(L, b);
+  }
+}
+
+// ---------------------------------------------------------------- 写文件
+function header(name, lines) {
+  return lines.filter((l) => l !== null).join('\n') + '\n';
+}
+
+function model(name, { zmax, notes }, body) {
+  const head = [
+    `# =============================================================================`,
+    `# ${name} —— A12 组（\`SAC3\` 第三轨地铁）`,
+    `#`,
+    ...notes.map((n) => `# ${n}`),
+    `#`,
+    `# ⚠ 本文件由 tools/gen-a12-metro.mjs 生成（**整件重写**），别手改；改口径改生成器。`,
+    `# =============================================================================`,
+    ``,
+    `name      ${name}`,
+    `group     misc`,
+    `footprint 1 1`,
+    `zmax      ${zmax}`,
+    ``,
+  ].join('\n');
+  const file = path.join(ROOT, 'models', `${name}.model`);
+  fs.writeFileSync(file, head + body + '\n');
+  return file;
+}
+
+// ---------------------------------------------------------------- 各件
+const FLAT = 0.0280;                       // 平轨件的取景上限（与 G1 同）
+const SLOPE = N(FLAT + RISE);              // 坡道件要罩住抬起来的那头
+
+export function generate() {
+  const files = [];
+
+  // 1) 直向 underlay（完整画面）
+  {
+    const L = [];
+    for (const b of trackShapes()) emitBox(L, b);
+    files.push(model('G4_track_x', {
+      zmax: fmt(FLAT),
+      notes: [
+        'underlay 槽 0/1（RTO_X / RTO_Y）：整体道床（`BAL-H`）+ 无枕扣件座（`SLE-5`）',
+        '+ 第三轨（`RAI-4`）—— 完整画面（G1 的规矩：underlay 自带钢轨，overlay 才去掉道床）',
+        '',
+        '口径：板带 y 0.32~0.68（与 G1 道砟同宽）· 板顶 0.010 · 中央排水沟宽 0.04 深 0.007',
+        '      钢轨中心 0.4484 / 0.5516（=1435mm）· 轨顶 0.0230 · 扣件座 25 个（间距 0.04）',
+        '      第三轨在 +y 外侧（人工：镜头视角的外侧）+ 木质覆盖板',
+      ],
+    }, header('G4_track_x', L)));
+  }
+
+  // 2) 直向 overlay（只有钢轨层）
+  {
+    const L = [];
+    for (const b of trackShapes({ slab: false })) emitBox(L, b);
+    files.push(model('G4_rail_straight', {
+      zmax: fmt(FLAT),
+      notes: [
+        'overlay 槽 0/1（RTO_X / RTO_Y）：**透明底、只画跟着钢轨走的东西**',
+        '（核自 rail_cmd.cpp:3796-3816：道岔瓦片 = 道床 underlay + 逐段 overlay 钢轨）',
+        '= 钢轨 + 扣件座 + 第三轨/罩，与 G4_track_x 的那一部分逐字相同',
+      ],
+    }, header('G4_rail_straight', L)));
+  }
+
+  // 3) 半格轨（斜向，切 N 角）
+  {
+    const L = [];
+    for (const b of trackShapes()) emitDiag(L, b);
+    files.push(model('G4_track_half', {
+      zmax: fmt(FLAT),
+      notes: [
+        'underlay 槽 2-5（RTO_N / RTO_S / RTO_E / RTO_W）：**切 N 角的半格轨**',
+        '（轨道线 x+y = 0.5，从 N 边中点到 W 边中点；4 个朝向给出 4 个角）',
+        '',
+        '斜向映射 c = y、d = x−0.5 ⇒ (x,y) = ((c+d)/2, (c−d)/2)；不乘 √2，',
+        '因为 G1 是按**屏幕像素**对齐的（斜向两轨在屏上的间距同样是 6.6 px）。',
+        '映射是镜像（det = −1/2），顶点序由 ccw() 统一归正。',
+      ],
+    }, header('G4_track_half', L)));
+  }
+
+  // 4) 半格轨 overlay
+  {
+    const L = [];
+    for (const b of trackShapes({ slab: false })) emitDiag(L, b);
+    files.push(model('G4_rail_half', {
+      zmax: fmt(FLAT),
+      notes: [
+        'overlay 槽 2-5：半格轨的**钢轨层**（透明底，无道床）',
+      ],
+    }, header('G4_rail_half', L)));
+  }
+
+  // 5) 坡道（基准 SLOPE_NE：z += RISE·(1−x)）
+  {
+    const L = [];
+    for (const b of trackShapes()) emitSheared(L, b);
+    files.push(model('G4_track_slope', {
+      zmax: fmt(SLOPE),
+      notes: [
+        'underlay 槽 6-9（RTO_SLOPE_NE / SE / SW / NW）：坡道',
+        '',
+        '基准朝向 = SLOPE_NE，地面 z 只随 x 变：`z(x) = RISE·(1−x)`（RISE = 0.2041 = 一格',
+        '坡道抬 32 px @4x，与 tools/gen-g1-slope.mjs 同源）。每个顶点都按这个抬 ⇒ 整条',
+        '道床/钢轨自然贴成斜面；box/prism 都是轴对齐的，所以六个面全用 quad 手写。',
+        '4 个朝向给出 4 个坡向（喂图顺序 v0,v3,v2,v1，见 railsprite.pnml）。',
+      ],
+    }, header('G4_track_slope', L)));
+  }
+
+  // 6) 坡道 overlay
+  {
+    const L = [];
+    for (const b of trackShapes({ slab: false })) emitSheared(L, b);
+    files.push(model('G4_rail_slope', {
+      zmax: fmt(SLOPE),
+      notes: [
+        'overlay 槽 6-9：坡道的**钢轨层**（透明底，无道床）',
+      ],
+    }, header('G4_rail_slope', L)));
+  }
+
+  // 7) 交叉（X ∪ Y，自带两组钢轨）
+  {
+    const L = [];
+    for (const b of slabCrossing()) emitBox(L, b);
+    // X 向：钢轨 + 扣件座 + 第三轨/罩（整格）
+    for (const b of trackShapes({ slab: false })) emitBox(L, b);
+    // Y 向：钢轨 + 扣件座（沿 y 走），第三轨/罩单独拆成两段接在后面
+    const yDir = (b) => ({ x0: b.y0, x1: b.y1, y0: b.x0, y1: b.x1, z0: b.z0, z1: b.z1, mat: b.mat, top: b.top });
+    for (const b of trackShapes({ slab: false, third: false })) emitBox(L, yDir(b));
+    // Y 向第三轨 / 覆盖板：在碰到 X 向那套的地方断开（共面重叠会 z-fighting）
+    for (const seg of [[0, THIRD.c - COVER.hw], [THIRD.c + COVER.hw, 1]]) {
+      for (const [z0, z1, y0o, y1o, mat, top] of [
+        [RAIL_Z0, THIRD.z1, -THIRD.hw, THIRD.hw, MAT.third, MAT.thirdTop],
+        [THIRD.z1, COVER.z1, -COVER.hw, COVER.hw, MAT.cover, MAT.coverTop],
+      ]) {
+        emitBox(L, { x0: THIRD.c + y0o, x1: THIRD.c + y1o, y0: seg[0], y1: seg[1], z0, z1, mat, top });
+      }
+    }
+    files.push(model('G4_crossing', {
+      zmax: fmt(FLAT),
+      notes: [
+        'underlay 槽 10（RTO_CROSSING_XY）：交叉，**自带两组钢轨**（G1 的交叉也是这样）',
+        '',
+        '道床板 = X 带 ∪ Y 带，拆成 3 块互不重叠的板（共面重叠会 z-fighting）。',
+        '两组钢轨/扣件座各自整格；Y 向的第三轨与罩在碰到 X 向那套时断开成两段。',
+      ],
+    }, header('G4_crossing', L)));
+  }
+
+  // 8) 三向道岔（只有道床板）
+  {
+    const L = [];
+    for (const b of slabJunction3()) emitSlab(L, b);
+    files.push(model('G4_junction3', {
+      zmax: fmt(FLAT),
+      notes: [
+        'underlay 槽 11-14（RTO_JUNCTION_SW / NE / SE / NW）：三向道岔的道床板',
+        '',
+        '**只有道床板，没有钢轨**（同 G1：道岔瓦片由引擎逐段叠 overlay 的钢轨层）。',
+        '形状 = **缺一条臂的十字**（基准朝向缺西臂：北 / 南 / 东 三臂 + 中心），4 块互不重叠。',
+        '—— 这个"缺哪条臂"是拿 G1_junction3 的实测覆盖反推的（缺的臂要装到 v0 ↔ RTO_JUNCTION_SW 上）。',
+      ],
+    }, header('G4_junction3', L)));
+  }
+
+  // 9) 四向道岔（十字 + 北/南角三角）
+  {
+    const L = [];
+    for (const b of slabJunction4()) emitSlab(L, b);
+    files.push(model('G4_junction4', {
+      zmax: fmt(FLAT),
+      notes: [
+        'underlay 槽 15（RTO_JUNCTION_NSEW）：四向道岔的道床板',
+        '',
+        '形状 = 十字（X 带 ∪ Y 带，3 块）+ **北角 / 南角两个三角**（补上对角线的角片）。',
+        '⚠ 照 G1_junction4 的实测覆盖：它**只补了 N / S 两角**，E / W 两角留空 —— 别再自己发明。',
+      ],
+    }, header('G4_junction4', L)));
+  }
+
+  return files;
+}
+
+if (isMain(import.meta.url)) {
+  const t0 = Date.now();
+  const files = generate();
+  for (const f of files) log(`  → ${rel(f)}`);
+  log(`✔ 生成 ${files.length} 个模型，用时 ${((Date.now() - t0) / 1000).toFixed(2)} s`);
+}

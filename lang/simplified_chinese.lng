@@ -33,3 +33,4 @@ STR_RAIL_SBDA                               :电气化铁路（25kV AC）
 STR_RAIL_SCDA                               :电气化准高速铁路（25kV AC）
 STR_RAIL_SBEd                               :电气化厂矿铁路（1500V DC）
 STR_RAIL_SBDD                               :朝鲜电气化铁路（3000V DC）
+STR_RAIL_SAC3                               :地铁轨道（第三轨·1969）

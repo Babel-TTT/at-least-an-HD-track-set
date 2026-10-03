@@ -99,6 +99,58 @@ spriteset(probe_overlay, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
 }
 
 /* ===========================================================================
+   A12 组（`SAC3` 第三轨地铁）—— underlay / track_overlay（分表 gfx/metro.png）
+
+   模型由 `tools/gen-a12-metro.mjs` 生成；模板取值（rect / −131,−17）见 templates.pnml。
+   槽位顺序与 G1 **完全一样**（引擎的 RTO_* / 坡道 NE/SE/SW/NW 那一套），
+   所以「哪个朝向喂哪个槽」直接照抄 G1 那两段。
+
+   ⚠ 道岔那 4 格（11-14）与四向（15）只给**道床板**、不给钢轨：引擎在道岔瓦片上
+     逐段把 overlay 的钢轨层叠上去（rail_cmd.cpp:3796-3816），与 G1 的做法一致。
+   =========================================================================== */
+spriteset(probe_underlay_metro, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G4_track_x_v0("gfx/metro.png")          //  0  RTO_X          X
+    t_G4_track_x_v3("gfx/metro.png")          //  1  RTO_Y          Y
+    t_G4_track_half_v0("gfx/metro.png")       //  2  RTO_N          UPPER（切 N 角）
+    t_G4_track_half_v2("gfx/metro.png")       //  3  RTO_S          LOWER
+    t_G4_track_half_v3("gfx/metro.png")       //  4  RTO_E          RIGHT
+    t_G4_track_half_v1("gfx/metro.png")       //  5  RTO_W          LEFT
+    t_G4_track_slope_v0("gfx/metro.png")      //  6  RTO_SLOPE_NE   v0（右上抬）
+    t_G4_track_slope_v3("gfx/metro.png")      //  7  RTO_SLOPE_SE   v3（右下抬）
+    t_G4_track_slope_v2("gfx/metro.png")      //  8  RTO_SLOPE_SW   v2（左下抬）
+    t_G4_track_slope_v1("gfx/metro.png")      //  9  RTO_SLOPE_NW   v1（左上抬）
+    t_G4_crossing_v0("gfx/metro.png")         // 10  RTO_CROSSING_XY（自带两组钢轨）
+    t_G4_junction3_v0("gfx/metro.png")        // 11  RTO_JUNCTION_SW（只有道床板）
+    t_G4_junction3_v2("gfx/metro.png")        // 12  RTO_JUNCTION_NE（v2）
+    t_G4_junction3_v1("gfx/metro.png")        // 13  RTO_JUNCTION_SE（v1）
+    t_G4_junction3_v3("gfx/metro.png")        // 14  RTO_JUNCTION_NW（v3）
+    t_G4_junction4_v0("gfx/metro.png")        // 15  RTO_JUNCTION_NSEW（只有道床板）
+}
+
+spriteset(probe_overlay_metro, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G4_rail_straight_v0("gfx/metro.png")    // 0  RTO_X
+    t_G4_rail_straight_v3("gfx/metro.png")    // 1  RTO_Y
+    t_G4_rail_half_v0("gfx/metro.png")        // 2  RTO_N
+    t_G4_rail_half_v2("gfx/metro.png")        // 3  RTO_S
+    t_G4_rail_half_v3("gfx/metro.png")        // 4  RTO_E
+    t_G4_rail_half_v1("gfx/metro.png")        // 5  RTO_W
+    t_G4_rail_slope_v0("gfx/metro.png")       // 6  RTO_SLOPE_NE
+    t_G4_rail_slope_v3("gfx/metro.png")       // 7  RTO_SLOPE_SE
+    t_G4_rail_slope_v2("gfx/metro.png")       // 8  RTO_SLOPE_SW
+    t_G4_rail_slope_v1("gfx/metro.png")       // 9  RTO_SLOPE_NW
+}
+
+// 桥面（6 格）—— 复用同一批模型；顺序与 G1 的 probe_bridge_surfaces 逐条一样
+spriteset(probe_bridge_surfaces_metro, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G4_track_x_v0("gfx/metro.png")          // 0  平 — X
+    t_G4_track_x_v3("gfx/metro.png")          // 1  平 — Y
+    t_G4_track_slope_v0("gfx/metro.png")      // 2  坡 NE
+    t_G4_track_slope_v3("gfx/metro.png")      // 3  坡 SE
+    t_G4_track_slope_v2("gfx/metro.png")      // 4  坡 SW
+    t_G4_track_slope_v1("gfx/metro.png")      // 5  坡 NW
+}
+
+/* ===========================================================================
    隧道口 —— TUN-1「料石端墙拱」（分表：gfx/tunnel.png）
 
    两个组，对应 NML 的 `tunnels:` 与 `tunnel_overlay:`（核自官方 wiki

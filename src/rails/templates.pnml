@@ -874,3 +874,97 @@ template t_G1_levelcrossing_blank_v0(sheet) {
   [1052, 0, 263, 135, -131, -3, sheet]
 }
 
+// ---------------------------------------------------------------------------
+// G4_* —— **A12 组（`SAC3` 第三轨地铁）**（分表 gfx/metro.png）
+//
+//   模型由 `tools/gen-a12-metro.mjs` 生成（2026-10-03 人工批准新建）；
+//   口径：BAL-H 整体道床 + SLE-5 无枕（只有扣件座）+ RAI-4 第三轨 + 中央排水沟，
+//   板带/钢轨位置与 G1 共用（见 models/G4_track_x.model 的文件头）。
+//
+//   ★ 取值：flatiso 的 `centerAnchor` 反推值 —— 本表 ca = [131, 81]
+//     ⇒ xrel = −131、yrel = −(81 − 64) = **−17**，**所有朝向同一个值**（1×1 占地）。
+//     实机若发现某族整体偏，按 G1 的老规矩在**那一行**手调并标【手调】。
+//
+//   槽位对照（与 G1 逐条同名，见 railsprite.pnml）：
+//     underlay  0/1 直向 · 2-5 半格轨(N/S/E/W) · 6-9 坡道 · 10 交叉 · 11-14 三向 · 15 四向
+//     overlay   0/1 直向 · 2-5 半格轨 · 6-9 坡道
+// ---------------------------------------------------------------------------
+template t_G4_track_x_v0(sheet) {
+  [0, 596, 263, 149, -131, -17, sheet]
+}
+template t_G4_track_x_v3(sheet) {
+  [789, 596, 263, 149, -131, -17, sheet]
+}
+template t_G4_track_half_v0(sheet) {
+  [0, 447, 263, 149, -131, -17, sheet]
+}
+template t_G4_track_half_v1(sheet) {
+  [263, 447, 263, 149, -131, -17, sheet]
+}
+template t_G4_track_half_v2(sheet) {
+  [526, 447, 263, 149, -131, -17, sheet]
+}
+template t_G4_track_half_v3(sheet) {
+  [789, 447, 263, 149, -131, -17, sheet]
+}
+template t_G4_track_slope_v0(sheet) {
+  [1052, 447, 263, 149, -131, -17, sheet]
+}
+template t_G4_track_slope_v1(sheet) {
+  [1315, 447, 263, 149, -131, -17, sheet]
+}
+template t_G4_track_slope_v2(sheet) {
+  [1578, 447, 263, 149, -131, -17, sheet]
+}
+template t_G4_track_slope_v3(sheet) {
+  [1841, 447, 263, 149, -131, -17, sheet]
+}
+template t_G4_crossing_v0(sheet) {
+  [0, 0, 263, 149, -131, -17, sheet]
+}
+template t_G4_junction3_v0(sheet) {
+  [1052, 0, 263, 149, -131, -17, sheet]
+}
+template t_G4_junction3_v1(sheet) {
+  [1315, 0, 263, 149, -131, -17, sheet]
+}
+template t_G4_junction3_v2(sheet) {
+  [1578, 0, 263, 149, -131, -17, sheet]
+}
+template t_G4_junction3_v3(sheet) {
+  [1841, 0, 263, 149, -131, -17, sheet]
+}
+template t_G4_junction4_v0(sheet) {
+  [0, 149, 263, 149, -131, -17, sheet]
+}
+template t_G4_rail_straight_v0(sheet) {
+  [1052, 298, 263, 149, -131, -17, sheet]
+}
+template t_G4_rail_straight_v3(sheet) {
+  [1841, 298, 263, 149, -131, -17, sheet]
+}
+template t_G4_rail_half_v0(sheet) {
+  [1052, 149, 263, 149, -131, -17, sheet]
+}
+template t_G4_rail_half_v1(sheet) {
+  [1315, 149, 263, 149, -131, -17, sheet]
+}
+template t_G4_rail_half_v2(sheet) {
+  [1578, 149, 263, 149, -131, -17, sheet]
+}
+template t_G4_rail_half_v3(sheet) {
+  [1841, 149, 263, 149, -131, -17, sheet]
+}
+template t_G4_rail_slope_v0(sheet) {
+  [0, 298, 263, 149, -131, -17, sheet]
+}
+template t_G4_rail_slope_v1(sheet) {
+  [263, 298, 263, 149, -131, -17, sheet]
+}
+template t_G4_rail_slope_v2(sheet) {
+  [526, 298, 263, 149, -131, -17, sheet]
+}
+template t_G4_rail_slope_v3(sheet) {
+  [789, 298, 263, 149, -131, -17, sheet]
+}
+

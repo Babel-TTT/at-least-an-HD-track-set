@@ -95,6 +95,20 @@ export const SHEETS = [
     match: /^G1_levelcrossing/,
   },
   {
+    // A12 组（`SAC3` 第三轨地铁）的**洞口**：TUN-5 矩形洞门（人工 2026-10-03 定：不做护坡）。
+    // ⚠ 必须登记在下面的 metro **之前**：那个表的正则是 /^G4_/，会先把 G4_tunnel5_* 吃掉。
+    key: 'tunnel5',
+    title: '地铁洞口 TUN-5（矩形洞门；SAC3）',
+    match: /^G4_tunnel5/,
+  },
+  {
+    // A12 组（`SAC3` 第三轨地铁）的轨道：BAL-H 整体道床 + SLE-5 无枕 + RAI-4 第三轨。
+    // 单独一张表（同 rail 表的理由：混进去会把已有几十条 rect 顶移位）。
+    key: 'metro',
+    title: '地铁整体道床（BAL-H + 第三轨；SAC3）',
+    match: /^G4_/,
+  },
+  {
     // 接触网**支柱的样式 / 标牌变体**（人工 2026-10-03：厂矿电气化铁路 `SBEd` 要用
     // 「早期木杆 + 蓝牌」⇒ 新增 `G1_sty_early_blue_a|_b`）。
     // 现有那套方形混凝土柱是 `G1_pylon_a/_b`（在下面的 catenary 表里）；
