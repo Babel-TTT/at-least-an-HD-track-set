@@ -287,7 +287,7 @@ const TU = {
   SPLIT_Z: 0.0450,                  // z 切分线（= TUN-1 的起拱线）
   COP: { x0: 0.6680, x1: 0.8120, y0: 0.1420, y1: 0.8580, top: 0.2860 },   // 压顶（= TUN-1）
   HX0: 0.6800, HX1: 0.0000, HZ1: 0.2041,                                  // 仰面（= TUN-1）
-  BORE_X: 0.7950,                   // 洞内暗幕（人工 2026-10-03：**紧贴洞口平面**，别往里放）
+  BORE_X: 0.7200,                   // 洞内暗幕（人工 2026-10-03/04：往里 0.08 格，两侧露出的部分由洞口内壁挡住）
   W: 'concrete_mid', D: 'granite_grey_seam', I: 'panel_seam', HILL: 'dirt',
 };
 /** 仰面（顶坡）在 x 处的高度：洞口 = 板顶，向山体斜降到一层地形 */
@@ -375,14 +375,15 @@ function always5() {
   q5(L, [[COP.x1, COP.y0, COP.top], [COP.x0, COP.y0, COP.top], [COP.x0, COP.y0, TU.TOP], [COP.x1, COP.y0, TU.TOP]], [0, -1, 0], TU.D);
   q5(L, [[COP.x1, COP.y1, COP.top], [COP.x1, COP.y1, TU.TOP], [COP.x0, COP.y1, TU.TOP], [COP.x0, COP.y1, COP.top]], [0, 1, 0], TU.D);
   q5(L, [[HX1, 0, hillZ5(HX1)], [HX0, Y0, hillZ5(HX0)], [HX0, Y1, hillZ5(HX0)], [HX1, 1, hillZ5(HX1)]], [0, 0, 1], HILL);
-  // 山坡的**两条侧边**（人工 2026-10-03：「隧道图像没有侧边」）：
-  //   仰面是张梯形土坡，y 方向的两条边原来是悬空的薄片（坡面高度 0.2041~0.272，
-  //   离地面还有 0.2 格）——从侧面看就是"一张土纸贴在洞门上方"。
-  //   这里补两块**垂直落到地面**的侧壁，山体才有厚度。材质用 HILL（土），
-  //   与翼墙（W/D 混凝土）接在一条边上。
+  // 山坡的**两条侧边**（人工 2026-10-03：「隧道图像没有侧边」；2026-10-04：「侧面应该是
+  //   一个三角形」）：仰面是张梯形土坡，y 方向的两条边原来悬空（坡面 0.2041~0.272，
+  //   离地面还有 0.2 格），从侧面看就是"一张土纸贴在山体上"。
+  //   ⇒ 各补**一块三角形**：端墙那一侧的竖边（由端墙端面收口）+ 坡面边缘 + 落到地面。
+  //     不要再补矩形 —— 那会和翼墙的三角面叠在一起，形状糊成一团。
   const zA = hillZ5(HX1), zB = hillZ5(HX0);
-  q5(L, [[HX1, 1, zA], [HX0, Y1, zB], [HX0, Y1, 0], [HX1, 1, 0]], [0, 1, 0], HILL);
-  q5(L, [[HX1, 0, zA], [HX0, Y0, zB], [HX0, Y0, 0], [HX1, 0, 0]], [0, -1, 0], HILL);
+  //   ⚠ flatiso 的 `quad` 只认 4 点 ⇒ 三角形**末点重复**（同 wing5 的写法）
+  q5(L, [[HX0, Y1, zB], [HX0, Y1, 0], [HX1, 1, zA], [HX1, 1, zA]], [0, 1, 0], HILL);
+  q5(L, [[HX0, Y0, zB], [HX0, Y0, 0], [HX1, 0, zA], [HX1, 0, zA]], [0, -1, 0], HILL);
   return L;
 }
 
@@ -412,8 +413,15 @@ function split5(lines) {
 }
 
 function tunnel5Models() {
-  const ground = [...metroTunnelGround(), ...portalLow5(), ...wing5(-1), ...wing5(+1)];
-  const { lo: halfFar, hi: halfNear } = split5(portalHigh5());
+  // ⚠ **洞门的上下两半都要按 y = 0.5 切**（人工 2026-10-04：「洞口柱子还断成两截了」
+  //   「洞口柱的侧面也有问题」）。
+  //   原来柱脚（portalLow5）整块塞在 tunnels: 里，而柱身的近半在 overlay 里
+  //   ⇒ 靠近镜头那根柱子被劈成两半（下半在 underlay、上半在 sortable 层），
+  //   中间还夹着引擎插进去的草地覆盖 ⇒ 实机里就是"柱子断成两截"、侧面也对不上。
+  //   现在两个函数都过 split5：A 组拿 lo、B 组拿 hi，保证**一根柱子整根在同一层**。
+  const base = [...metroTunnelGround(), ...wing5(-1), ...wing5(+1)];
+  const low = split5(portalLow5());
+  const high = split5(portalHigh5());
   const always = always5();
   const lintel = lintel5();
   const H = (name, title, extra) => '# =============================================================================\n'
@@ -434,22 +442,24 @@ function tunnel5Models() {
     + '#   **与 gen-g1-tunnel.mjs 的 TUN-1 逐字同源** —— 那是实机调了 4 轮才盖住\n'
     + '#   原版草山包的形状，别自己发明。\n';
   const out = [];
-  const asm = (name, title, bodyA, bodyB, extra) => {
+  const asm = (name, title, body, extra) => {
     const s = H(name, title, WHY + (extra || ''))
       + `name      ${name}\ngroup     misc\nfootprint 1 1\nzmax      0.2140\n\n`
-      + bodyA.join('\n') + '\n' + (bodyB ? '\n' + bodyB.join('\n') + '\n' : '');
+      + body.join('\n') + '\n';
     out.push([name, s]);
   };
   asm('G4_tunnel5', 'A12 地铁洞口 TUN-5 —— tunnels: 组（A 组：远半）',
-      ground, halfFar, '# --- 洞内轨道 + 暗幕 + 洞门下半 + 翼墙×2 + **洞门上半的远半** ---\n');
+      [...base, ...low.lo, ...high.lo],
+      '# --- 洞内轨道 + 暗幕 + 翼墙×2 + **洞门（柱脚 + 墙身）的远半** ---\n');
   asm('G4_tunnel5_over', 'A12 地铁洞口 TUN-5 —— tunnel_overlay: 组（A 组：近半）',
-      halfNear, [...always, ...lintel],
-      '# --- **洞门上半的近半** + 压顶 + 仰面 + 过梁（整块）---\n');
+      [...low.hi, ...high.hi, ...always, ...lintel],
+      '# --- **洞门的近半（柱脚 + 墙身）** + 压顶 + 仰面 + 过梁（整块）---\n');
   asm('G4_tunnel5_b', 'A12 地铁洞口 TUN-5 —— tunnels: 组（B 组：近半）',
-      ground, halfNear, '# --- 洞内轨道 + 暗幕 + 洞门下半 + 翼墙×2 + **洞门上半的近半** ---\n');
+      [...base, ...low.hi, ...high.hi],
+      '# --- 洞内轨道 + 暗幕 + 翼墙×2 + **洞门（柱脚 + 墙身）的近半** ---\n');
   asm('G4_tunnel5_over_b', 'A12 地铁洞口 TUN-5 —— tunnel_overlay: 组（B 组：远半）',
-      halfFar, [...always, ...lintel],
-      '# --- **洞门上半的远半** + 压顶 + 仰面 + 过梁（整块）---\n');
+      [...low.lo, ...high.lo, ...always, ...lintel],
+      '# --- **洞门的远半（柱脚 + 墙身）** + 压顶 + 仰面 + 过梁（整块）---\n');
   return out;
 }
 
