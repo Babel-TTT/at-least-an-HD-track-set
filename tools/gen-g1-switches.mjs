@@ -83,20 +83,29 @@ const SHIFT = Object.fromEntries(
 );
 
 // ---------------------------------------------------------------------------
-// ★ 人工 2026-10-05：**交叉模型里的 X 向轨道**再单独挪 (2, −1) px
+// ★ 人工 2026-10-05：**交叉模型里的 X / Y 两个方向**各再单独挪一点
+//
+//   X 向：(2, −1) px —— **沿轨**方向（沿世界 +x 的屏幕方向 = (−2,+1)）⇒ 钢轨通长
+//          铺满整片瓦片，等于没挪；真正生效的是 X 向**枕木相位**沿轨 2.24px。
+//   Y 向：(−2, +1) px —— 换算成世界位移是 **纯 +x 0.015625 格**，对沿 y 跑的 Y 轨
+//          是**横移 1.79px**（钢轨真的会动）+ 沿轨 1.34px（枕木相位）。
+//          两个数看着像"反的"，其实都是「世界 x 方向的 ±1/64 格」，只是各自
+//          投影到屏幕后不同 —— 判别口诀：屏幕 u_X = (−2,+1)，u_Y = (+2,+1)。
 //
 //   范围只有 `G1_crossing` 这一份几何 —— 平交道口（`G1_levelcrossing`）、
-//   三向 / 四向道岔（`G1_junction3` / `G1_junction4`）**不动**，仍走 DIR_DELTA.X。
+//   三向 / 四向道岔（`G1_junction3` / `G1_junction4`）**不动**，仍走 DIR_DELTA。
 //   由它机械派生的两张（`G1_brown_crossing` / `G2_track_crossing`）是**同一份
 //   几何换材质**，所以跟着一起挪，正是人工点名的三张。
 //
 //   口径与 DIR_DELTA 完全一致：单位 = 4x 屏幕像素，正 = 右 / 下。
-//   为什么不直接改 DIR_DELTA.X：那张表是**按方向**的唯一口径，改它会连带
-//   平交道口与四向道岔的道砟一起挪；人工这次只点了交叉。
+//   为什么不直接改 DIR_DELTA：那张表是**按方向**的唯一口径，改它会连带
+//   平交道口与四向道岔的道砟一起挪；人工两次都只点了交叉。
 // ---------------------------------------------------------------------------
 export const CROSS_X_EXTRA = [2, -1];
-/** 调试开关 G1_SWITCHES_ZERO=1 时，这个增量也一起归零 */
+export const CROSS_Y_EXTRA = [-2, 1];
+/** 调试开关 G1_SWITCHES_ZERO=1 时，这两个增量也一起归零 */
 const EFF_CROSS_X_EXTRA = ZERO_DELTA ? [0, 0] : CROSS_X_EXTRA;
+const EFF_CROSS_Y_EXTRA = ZERO_DELTA ? [0, 0] : CROSS_Y_EXTRA;
 
 /** 叠加用：把屏幕增量加到某个方向已换算好的世界位移上（worldShift 是线性的） */
 function addScreenShift(key, extraPx) {
@@ -299,9 +308,13 @@ export function generate() {
 
   // ---- G1_crossing -------------------------------------------------------
   {
-    // ★ X 向轨道多挪 EFF_CROSS_X_EXTRA（见那张表的注释）；Y 向不变。
-    XTRA = { X: addScreenShift('X', EFF_CROSS_X_EXTRA) };
+    // ★ X / Y 两个方向各多挪一次「交叉专用」增量（见那两张表的注释）。
+    XTRA = {
+      X: addScreenShift('X', EFF_CROSS_X_EXTRA),
+      Y: addScreenShift('Y', EFF_CROSS_Y_EXTRA),
+    };
     const X_EFF = EFF_DELTA.X.map((v, i) => v + EFF_CROSS_X_EXTRA[i]);
+    const Y_EFF = EFF_DELTA.Y.map((v, i) => v + EFF_CROSS_Y_EXTRA[i]);
     const { lines, n } = ballastQuads(['X', 'Y'], 20260930);
     let s = header('G1_crossing —— G1 几何组：平交道口轨（TRACK_BIT_CROSS = X | Y）',
       '# 喂给 underlay 的 RTO_CROSSING_XY（1 个朝向）。\n'
@@ -312,8 +325,11 @@ export function generate() {
       + '# 【本模型的关键】X 轨与 Y 轨各自的屏幕偏移**不同**（见表），一张精灵只能有一个\n'
       + '#   xrel/yrel ⇒ 两个方向的偏移都烘进下面的坐标里。\n'
       + '#   X 方向偏移 ' + JSON.stringify(X_EFF) + ' px = DIR_DELTA.X ' + JSON.stringify(EFF_DELTA.X)
-      + ' + **交叉专用** ' + JSON.stringify(EFF_CROSS_X_EXTRA) + '（人工 2026-10-05，只有本模型加）\n'
-      + '#   Y 方向偏移 ' + JSON.stringify(EFF_DELTA.Y) + ' px（照 DIR_DELTA，未加成）\n'
+      + ' + **交叉专用** ' + JSON.stringify(EFF_CROSS_X_EXTRA) + '（人工 2026-10-05）\n'
+      + '#     ⚠ (2,−1) 是 X 轨的**沿轨**方向 ⇒ 钢轨坐标不变，动的是枕木相位\n'
+      + '#   Y 方向偏移 ' + JSON.stringify(Y_EFF) + ' px = DIR_DELTA.Y ' + JSON.stringify(EFF_DELTA.Y)
+      + ' + **交叉专用** ' + JSON.stringify(EFF_CROSS_Y_EXTRA) + '（人工 2026-10-05）\n'
+      + '#     ⚠ (−2,+1) = 世界 +x 1/64 格 ⇒ 对 Y 轨是**横移**（钢轨真的动）\n'
       + '#\n'
       + '# 【中心处理】两组钢轨都画满；Y 轨抬 0.001 格（=0.16px）只为定序；\n'
       + '#   Y 轨枕跳过中心 5 根，让中间的枕木只属于 X 轨，避免叠成一片。\n');
@@ -322,11 +338,11 @@ export function generate() {
     s += lines.join('\n') + '\n';
     s += '\n# --- 轨枕：X 轨 25 根画满（偏移 ' + X_EFF.join(',') + '）---\n';
     s += sleeperBoxes('x', 0.008, 'X', false).join('\n') + '\n';
-    s += '\n# --- 轨枕：Y 轨 25 根，跳过中心 5 根（偏移 ' + EFF_DELTA.Y.join(',') + '）---\n';
+    s += '\n# --- 轨枕：Y 轨 25 根，跳过中心 5 根（偏移 ' + Y_EFF.join(',') + '）---\n';
     s += sleeperBoxes('y', 0.008, 'Y', true).join('\n') + '\n';
     s += '\n# --- 钢轨：X 组 2 根（z 0.0140->0.0270，偏移 ' + X_EFF.join(',') + '）---\n';
     s += railBoxes('x', 0.0230, 'X').join('\n') + '\n';
-    s += '\n# --- 钢轨：Y 组 2 根（z 0.0150->0.0280，偏移 ' + EFF_DELTA.Y.join(',') + '）---\n';
+    s += '\n# --- 钢轨：Y 组 2 根（z 0.0150->0.0280，偏移 ' + Y_EFF.join(',') + '）---\n';
     s += railBoxes('y', 0.0240, 'Y').join('\n') + '\n';
     out.push(['G1_crossing', s, n]);
     XTRA = null;                     // 后面 levelcrossing / junction 必须走原表
@@ -743,10 +759,10 @@ export function generate() {
       // ⚠ 垫板位置**必须跟着本模型自己的钢轨走**，不能照抄直线轨的固定带。
       //
       //   交叉的两个方向各自烘进了不同的屏幕偏移（G1_crossing.model 头部：
-      //   X 组 [7,-2] px = DIR_DELTA.X [5,-1] + 交叉专用 [2,-1]、Y 组 [-3,1] px），
-      //   换算成世界位移：
-      //     X 轨 y 中心 0.4484 + 0.01172 = 0.4601   （直线轨是 0.4484）
-      //     Y 轨 x 中心 0.4484 + 0.01953 = 0.4679   （直线轨是 0.4484）
+      //   X 组 [7,-2] px = DIR_DELTA.X [5,-1] + 交叉专用 [2,-1]、
+      //   Y 组 [-5,2] px = DIR_DELTA.Y [-3,1] + 交叉专用 [-2,1]），换算成世界位移：
+      //     X 轨 y 中心 0.4484 + 0.01172 = 0.4601            （直线轨是 0.4484）
+      //     Y 轨 x 中心 0.4484 + 0.01953 + 0.015625 = 0.4836 （直线轨是 0.4484）
       //   2026-10-03 实机发现：垫板照抄直线轨的 [0.43,0.466]/[0.534,0.57] 时，
       //   **Y 向那两条整条跑到钢轨外面**（Y 轨在 x 0.4757/0.5788）。
       //   ⇒ 改成从钢轨算：垫板 = 轨中心 ± HALF（HALF 与直线轨 U 槽同宽 0.018）。
@@ -895,9 +911,10 @@ export function generate() {
   }
   log('    ↑ 纵向分量：钢轨/道砟是连续的，补空白会把纵向那截抵消；');
   log('      但**枕木相位会跟着位移走**（末端不够会多铺一根补上），这一项在实机里看得见。');
-  log(`    ★ 交叉专用增量 CROSS_X_EXTRA = ${JSON.stringify(EFF_CROSS_X_EXTRA)} px` +
-      ` ⇒ G1_crossing（及褐色 / G2 派生两张）的 X 向轨道实际用 ` +
-      `${JSON.stringify(EFF_DELTA.X.map((v, i) => v + EFF_CROSS_X_EXTRA[i]))} px；` +
+  log(`    ★ 交叉专用增量 X ${JSON.stringify(EFF_CROSS_X_EXTRA)} / Y ${JSON.stringify(EFF_CROSS_Y_EXTRA)} px` +
+      ` ⇒ G1_crossing（及褐色 / G2 派生两张）实际用 X ` +
+      `${JSON.stringify(EFF_DELTA.X.map((v, i) => v + EFF_CROSS_X_EXTRA[i]))} / Y ` +
+      `${JSON.stringify(EFF_DELTA.Y.map((v, i) => v + EFF_CROSS_Y_EXTRA[i]))} px；` +
       '平交道口 / 三向 / 四向不加。');
   if (clipped) log(`  ⚠ 有 ${clipped} 处几何被 clipBox 剪到 —— 正常情况下应该是 0`);
   log('');
