@@ -388,14 +388,34 @@ export function addHip(mesh, x0, y0, x1, y1, zEave, zRidge, inset, over, mat, o 
 
 // ---------------------------------------------------------------- 自检
 
-/** 检查网格是否越界 / 穿地 / 退化。 */
-export function validateMesh(mesh, footprint, tol = 0.02) {
+/**
+ * **允许几何探出「名义占地」的量**（单位：瓦片）。
+ *
+ * 为什么要有这个量（人工 2026-10-04）：
+ *   精灵在瓦片边界上是**切齐**的 —— 两块相邻瓦片的精灵各自止于同一条世界直线，
+ *   那条线上只剩两边的抗锯齿半透明像素，拼起来就是**一条 1px 的接缝**；
+ *   轨道的尽头还会出现小缺口。让几何**略微探出边界**，相邻精灵就**叠上**，
+ *   接缝被后画的那一张盖掉（OpenTTD 的精灵本来就互相重叠）。
+ *
+ * 所以 `footprint` 是**名义**占地，不是硬边界：
+ *   * 出界 ≤ `OVERFLOW_ALLOW`  —— **完全正常**，连警告都不报（合法用法）；
+ *   * 出界 >  `OVERFLOW_ALLOW` —— **仍然只是警告**（可能真的画错/被裁），不致命。
+ *
+ * 注意：真正的硬墙不在几何上，而在**画布**上 —— 内容一旦探到取景框边缘就会被裁，
+ * 那一条由 `tools/check.mjs` 的"内容贴到格位边缘"检查兜住。
+ */
+export const OVERFLOW_ALLOW = 0.0625;   // 1/16 格 ≈ 16 px（tilePx = 256）
+
+/** 检查网格是否越界 / 穿地 / 退化。`allow` 见 `OVERFLOW_ALLOW`。 */
+export function validateMesh(mesh, footprint, tol = 0.02, allow = OVERFLOW_ALLOW) {
   const w = [];
   const { mn, mx } = mesh.bbox();
   if (!mesh.pos.length) { w.push('空网格'); return w; }
   if (footprint) {
-    if (mn[0] < -tol || mn[1] < -tol || mx[0] > footprint[0] + tol || mx[1] > footprint[1] + tol) {
-      w.push(`超出占地 [${footprint}]：x[${mn[0].toFixed(3)},${mx[0].toFixed(3)}] y[${mn[1].toFixed(3)},${mx[1].toFixed(3)}]`);
+    const over = Math.max(-mn[0], -mn[1], mx[0] - footprint[0], mx[1] - footprint[1]);
+    if (over > allow + tol) {
+      w.push(`超出占地 [${footprint}] ${over.toFixed(3)} 格（允许 ${allow}）：`
+        + `x[${mn[0].toFixed(3)},${mx[0].toFixed(3)}] y[${mn[1].toFixed(3)},${mx[1].toFixed(3)}]`);
     }
   }
   if (mn[2] < -0.005) w.push(`穿地：z=${mn[2].toFixed(4)}`);

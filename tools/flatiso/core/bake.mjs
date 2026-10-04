@@ -25,7 +25,9 @@ import { renderSprite, measureFrame } from './raster.mjs';
  */
 export function prepareModel(text, opts = {}) {
   const { meta, mesh } = parseModel(text, opts);
-  const warnings = validateMesh(mesh, meta.footprint);
+  // 第 4 个参数 = 允许探出名义占地的量（见 core/mesh.mjs 的 OVERFLOW_ALLOW）。
+  // 传 undefined 就用模块默认值。
+  const warnings = validateMesh(mesh, meta.footprint, opts.tol ?? 0.02, opts.overflow);
   if (opts.ao !== false) {
     bakeAO(mesh, {
       rays: opts.aoRays ?? 20,

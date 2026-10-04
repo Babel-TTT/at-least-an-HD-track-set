@@ -18,6 +18,7 @@ import { createHash } from 'node:crypto';
 import { makeView } from '../core/project.mjs';
 import { makeLook } from '../core/look.mjs';
 import { prepareModel, unionFrame, renderModel, listModelFiles } from '../core/bake.mjs';
+import { OVERFLOW_ALLOW } from '../core/mesh.mjs';
 import { zoomLevelName } from '../core/grf.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -35,19 +36,24 @@ function parseArgs(argv) {
 
 const args = parseArgs(process.argv.slice(2));
 const tilePx = Number(args['tile-px'] ?? 256);
+// 允许探出名义占地的量（格）；不给就用 core/mesh.mjs 的 OVERFLOW_ALLOW。
+const overflow = args.overflow !== undefined ? Number(args.overflow) : undefined;
 const view = makeView({ tilePx });
 const look = makeLook({ preset: String(args.preset ?? 'stylized') });
 
 const problems = [];
 const notes = [];
+const fails = [];
 const fail = (m) => problems.push(m);
 const ok = (m) => notes.push(m);
+/** 「允许但要说一声」的事：不算问题，单独列出来（见 core/mesh.mjs 的 OVERFLOW_ALLOW）。 */
+const warn = (m) => fails.push(m);
 
 const modelsDir = path.join(ROOT, 'models');
 const files = listModelFiles(modelsDir);
 if (!files.length) { console.error(`没有模型：${modelsDir}`); process.exit(2); }
 
-console.log(`flatiso 自检  tilePx=${tilePx}  zPx=${view.zPx.toFixed(4)}\n`);
+console.log(`flatiso 自检  tilePx=${tilePx}  zPx=${view.zPx.toFixed(4)}  占地名义出界允许 ${overflow ?? OVERFLOW_ALLOW} 格\n`);
 
 // ---- 投影口径本身也要验 ---------------------------------------------------
 {
@@ -70,14 +76,16 @@ for (const file of files) {
   let prepared;
   try {
     prepared = prepareModel(fs.readFileSync(file, 'utf8'), {
-      name: stem, aoRays: look.aoRays, aoDist: look.aoDist, aoSteps: look.aoSteps,
+      name: stem, aoRays: look.aoRays, aoDist: look.aoDist, aoSteps: look.aoSteps, overflow,
     });
   } catch (e) {
     fail(`${stem}: 解析失败 —— ${e.message}`);
     continue;
   }
   const { meta, mesh, warnings } = prepared;
-  for (const w of warnings) fail(`${stem}: ${w}`);
+  // 「占地」是**名义**的：小幅出界是合法用法（人工 2026-10-04：让轨道探出边界去盖接缝），
+  // 所以它只**警告**；穿地 / 退化面仍然是**失败**。
+  for (const w of warnings) (w.startsWith('超出占地') ? warn : fail)(`${stem}: ${w}`);
   if (!Number.isInteger(meta.footprint[0]) || !Number.isInteger(meta.footprint[1])) {
     fail(`${stem}: 占地必须是整瓦片`);
   }
@@ -202,10 +210,15 @@ if (!fs.existsSync(atlasFile)) {
 // ---- 报告 -----------------------------------------------------------------
 console.log('');
 for (const n of notes) console.log(`  ✓ ${n}`);
+if (fails.length) {
+  console.log('');
+  for (const f of fails) console.log(`  ! ${f}`);
+  console.log(`\n警告 ${fails.length} 条（「超出占地」是允许的用法，见 core/mesh.mjs 的 OVERFLOW_ALLOW）`);
+}
 if (problems.length) {
   console.log('');
   for (const p of problems) console.log(`  ✗ ${p}`);
   console.log(`\n自检失败：${problems.length} 个问题`);
   process.exit(1);
 }
-console.log(`\n自检通过：${files.length} 个模型，0 个问题`);
+console.log(`\n自检通过：${files.length} 个模型，0 个问题${fails.length ? `，${fails.length} 条警告` : ''}`);

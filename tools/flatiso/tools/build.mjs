@@ -13,6 +13,7 @@ import { fileURLToPath } from 'node:url';
 import { makeView } from '../core/project.mjs';
 import { makeLook, PRESETS } from '../core/look.mjs';
 import { prepareModel, unionFrame, renderModel, listModelFiles } from '../core/bake.mjs';
+import { OVERFLOW_ALLOW } from '../core/mesh.mjs';
 import { packSheets, writeSheets, darken, contactSheet, upscale, checker } from '../core/atlas.mjs';
 import { encodePNG } from '../core/png.mjs';
 import { previewHtml } from '../core/preview.mjs';
@@ -47,6 +48,9 @@ const zPxOverride = args.zpx ? Number(args.zpx) : null;
 const preset = String(args.preset ?? 'stylized');
 const flat = !!args.flat;
 const cull = !args['no-cull'];
+// 允许几何探出「名义占地」的量（格）。不给就用 core/mesh.mjs 的 OVERFLOW_ALLOW。
+// 人工 2026-10-04：占地是名义的 —— 让轨道探出边界一点点去盖瓦片接缝是合法用法。
+const overflow = args.overflow !== undefined ? Number(args.overflow) : undefined;
 // ★ 人工授权（本工程 实现计划.md D5）：只加"镜像"能力，不放宽任何检查。
 //   core/project.mjs 里本来就有 mirror 分支，这里把它接到命令行即可。
 const mirror = !!args.mirror;
@@ -80,6 +84,7 @@ console.log(`  模型目录  ${modelsDir}`);
 console.log(`  输出目录  ${outDir}`);
 console.log(`  投影      tilePx=${view.tilePx}  1x1 = ${view.tilePx}×${view.tilePx / 2}px  zPx=${view.zPx.toFixed(3)}`);
 console.log(`  观感      ${preset}   朝向 ${rotations}×${rotStep}°   超采样 ${ss}×`);
+console.log(`  占地      名义（允许出界 ${overflow ?? OVERFLOW_ALLOW} 格，超出才警告）`);
 console.log('');
 
 const items = [];
@@ -91,7 +96,7 @@ for (const file of files) {
   let prepared;
   try {
     prepared = prepareModel(fs.readFileSync(file, 'utf8'), {
-      name: stem,
+      name: stem, overflow,
       aoRays: look.aoRays, aoDist: look.aoDist, aoSteps: look.aoSteps, aoBias: look.aoBias,
     });
   } catch (e) {
