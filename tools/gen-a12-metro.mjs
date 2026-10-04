@@ -287,7 +287,7 @@ const TU = {
   SPLIT_Z: 0.0450,                  // z 切分线（= TUN-1 的起拱线）
   COP: { x0: 0.6680, x1: 0.8120, y0: 0.1420, y1: 0.8580, top: 0.2860 },   // 压顶（= TUN-1）
   HX0: 0.6800, HX1: 0.0000, HZ1: 0.2041,                                  // 仰面（= TUN-1）
-  BORE_X: 0.6700,                   // 洞内暗幕
+  BORE_X: 0.7950,                   // 洞内暗幕（人工 2026-10-03：**紧贴洞口平面**，别往里放）
   W: 'concrete_mid', D: 'granite_grey_seam', I: 'panel_seam', HILL: 'dirt',
 };
 /** 仰面（顶坡）在 x 处的高度：洞口 = 板顶，向山体斜降到一层地形 */
@@ -316,9 +316,15 @@ function q5(L, pts, want, mat) {
 function metroTunnelGround() {
   const L = [];
   for (const b of trackShapes()) emitBox(L, b);
-  // 洞口暗幕（贴在端墙背面之后，堵住洞口的黑板）
-  q5(L, [[TU.BORE_X, TU.OY0, 0], [TU.BORE_X, TU.OY0, TU.OH + 0.006],
-         [TU.BORE_X, TU.OY1, TU.OH + 0.006], [TU.BORE_X, TU.OY1, 0]],
+  // 洞口暗幕 —— 两条口径（人工 2026-10-03 实机截图：「黑幕位置靠后」）：
+  //   ① **x 贴着洞口平面**（正面 X1 = 0.80，取 0.795）。原来放 0.67（端墙背面再往里
+  //      0.13 格），等距投影后整块往屏幕右侧跑 0.13×128 ≈ 17 px ⇒ 从洞口右边露出去，
+  //      洞里变成「左边一块黑、右边露出灰色内壁」——顺手也毁掉了洞口两侧那两根
+  //      "柱子"（= 内壁）的左右对称。
+  //   ② **z 从道床顶面起**（0.030），不要从 0 起 —— 否则暗幕会切进道床和钢轨。
+  const z0 = 0.0300;
+  q5(L, [[TU.BORE_X, TU.OY0, z0], [TU.BORE_X, TU.OY0, TU.OH + 0.006],
+         [TU.BORE_X, TU.OY1, TU.OH + 0.006], [TU.BORE_X, TU.OY1, z0]],
      [1, 0, 0], 'trim_black');
   return L;
 }
@@ -369,6 +375,14 @@ function always5() {
   q5(L, [[COP.x1, COP.y0, COP.top], [COP.x0, COP.y0, COP.top], [COP.x0, COP.y0, TU.TOP], [COP.x1, COP.y0, TU.TOP]], [0, -1, 0], TU.D);
   q5(L, [[COP.x1, COP.y1, COP.top], [COP.x1, COP.y1, TU.TOP], [COP.x0, COP.y1, TU.TOP], [COP.x0, COP.y1, COP.top]], [0, 1, 0], TU.D);
   q5(L, [[HX1, 0, hillZ5(HX1)], [HX0, Y0, hillZ5(HX0)], [HX0, Y1, hillZ5(HX0)], [HX1, 1, hillZ5(HX1)]], [0, 0, 1], HILL);
+  // 山坡的**两条侧边**（人工 2026-10-03：「隧道图像没有侧边」）：
+  //   仰面是张梯形土坡，y 方向的两条边原来是悬空的薄片（坡面高度 0.2041~0.272，
+  //   离地面还有 0.2 格）——从侧面看就是"一张土纸贴在洞门上方"。
+  //   这里补两块**垂直落到地面**的侧壁，山体才有厚度。材质用 HILL（土），
+  //   与翼墙（W/D 混凝土）接在一条边上。
+  const zA = hillZ5(HX1), zB = hillZ5(HX0);
+  q5(L, [[HX1, 1, zA], [HX0, Y1, zB], [HX0, Y1, 0], [HX1, 1, 0]], [0, 1, 0], HILL);
+  q5(L, [[HX1, 0, zA], [HX0, Y0, zB], [HX0, Y0, 0], [HX1, 0, 0]], [0, -1, 0], HILL);
   return L;
 }
 
