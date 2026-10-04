@@ -404,40 +404,16 @@ function always5() {
   q5(L, [[COP.x1, COP.y0, COP.top], [COP.x1, COP.y1, COP.top], [COP.x0, COP.y1, COP.top], [COP.x0, COP.y0, COP.top]], [0, 0, 1], TU.W);
   q5(L, [[COP.x1, COP.y0, COP.top], [COP.x0, COP.y0, COP.top], [COP.x0, COP.y0, TU.TOP], [COP.x1, COP.y0, TU.TOP]], [0, -1, 0], TU.D);
   q5(L, [[COP.x1, COP.y1, COP.top], [COP.x1, COP.y1, TU.TOP], [COP.x0, COP.y1, TU.TOP], [COP.x0, COP.y1, COP.top]], [0, 1, 0], TU.D);
+  q5(L, [[HX1, 0, hillZ5(HX1)], [HX0, Y0, hillZ5(HX0)], [HX0, Y1, hillZ5(HX0)], [HX1, 1, hillZ5(HX1)]], [0, 0, 1], HILL);
   // 山坡的**两条侧边**（人工 2026-10-03：「隧道图像没有侧边」；2026-10-04：「侧面应该是
   //   一个三角形」）：仰面是张梯形土坡，y 方向的两条边原来悬空（坡面 0.2041~0.272，
   //   离地面还有 0.2 格），从侧面看就是"一张土纸贴在山体上"。
-  //   ⇒ 各补**一块三角形**：端墙那一侧的竖边 + 坡面边缘 + 落到地面。
+  //   ⇒ 各补**一块三角形**：端墙那一侧的竖边（由端墙端面收口）+ 坡面边缘 + 落到地面。
   //     不要再补矩形 —— 那会和翼墙的三角面叠在一起，形状糊成一团。
-  //
-  // ★★ 补"洞顶背面那条透明缝"（人工 2026-10-04：「**洞顶背面有一条缝没有面成透明的了**」）
-  //
-  //   现象：洞顶（压顶）背面那个角上有一条**透出背景的 V 形缺口**。
-  //
-  //   根因两条，**都要治**：
-  //     ① **坡面与侧壁的近端角没接上压顶的背角**。压顶是**挑出**坡面的
-  //        （比坡面往后 `HX0−COP.x0`、往两侧 `Y0−COP.y0` 都多一点，顶面还高 `COP.top−TOP`），
-  //        而坡面 / 侧壁只顶到坡面那条边 ⇒ 压顶背角**底下是空的**。
-  //     ② **压顶自己少了两个面**：`always5` 原来只画了正面(+x) / 顶面(+z) / 两个侧面(±y)，
-  //        没有背面(−x) 也没有底面(−z)。而 `core/raster.mjs` 是**背面剔除**
-  //        （`cull`：只画朝向相机的面）⇒ 相机转到 −x/−y 那一边时，
-  //        **唯一**能盖住这个角的面恰好就是这两个"没画的面"。
-  //
-  //   修法：坡面与侧壁的近端角一律取**压顶的背面下角**（`COP.x0` / `COP.y0|y1` / `TOP`），
-  //         三块在**同一条棱**上收口；再补上压顶的背面与底面。
-  //   ⚠ 判据是"**下面这几块的外角要和它上面那块构件的外角重合**"，不是写死高度；
-  //     也不要只补一面就完事 —— 四个朝向里两个靠坡面、两个靠背面，缺一不可。
-  //   （实测：改之前四个朝向里两个有线宽 3px 的缺口，改之后**四个朝向全部归零**。
-  //     `models/G4_tunnel5_over.model` 的分面数 19 → **21**。）
-  const zA = hillZ5(HX1);
-  const nearY0 = [COP.x0, COP.y0, TU.TOP], nearY1 = [COP.x0, COP.y1, TU.TOP];
-  q5(L, [[HX1, 0, zA], nearY0, nearY1, [HX1, 1, zA]], [0, 0, 1], HILL);
+  const zA = hillZ5(HX1), zB = hillZ5(HX0);
   //   ⚠ flatiso 的 `quad` 只认 4 点 ⇒ 三角形**末点重复**（同 wing5 的写法）
-  q5(L, [nearY1, [HX0, Y1, 0], [HX1, 1, zA], [HX1, 1, zA]], [0, 1, 0], HILL);
-  q5(L, [nearY0, [HX0, Y0, 0], [HX1, 0, zA], [HX1, 0, zA]], [0, -1, 0], HILL);
-  // 压顶的背面（x = COP.x0）与底面（z = TOP）
-  q5(L, [[COP.x0, COP.y0, COP.top], [COP.x0, COP.y1, COP.top], [COP.x0, COP.y1, TU.TOP], [COP.x0, COP.y0, TU.TOP]], [-1, 0, 0], TU.W);
-  q5(L, [[COP.x0, COP.y0, TU.TOP], [COP.x0, COP.y1, TU.TOP], [COP.x1, COP.y1, TU.TOP], [COP.x1, COP.y0, TU.TOP]], [0, 0, -1], TU.D);
+  q5(L, [[HX0, Y1, zB], [HX0, Y1, 0], [HX1, 1, zA], [HX1, 1, zA]], [0, 1, 0], HILL);
+  q5(L, [[HX0, Y0, zB], [HX0, Y0, 0], [HX1, 0, zA], [HX1, 0, zA]], [0, -1, 0], HILL);
   return L;
 }
 
