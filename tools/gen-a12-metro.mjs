@@ -419,14 +419,9 @@ function tunnel5Models() {
   //   ⇒ 靠近镜头那根柱子被劈成两半（下半在 underlay、上半在 sortable 层），
   //   中间还夹着引擎插进去的草地覆盖 ⇒ 实机里就是"柱子断成两截"、侧面也对不上。
   //   现在两个函数都过 split5：A 组拿 lo、B 组拿 hi，保证**一根柱子整根在同一层**。
-  //   ⑤ **洞门上半（portalHigh5）整块放 overlay**（人工 2026-10-04 在索引图上圈出
-  //      `G4_tunnel5`（tunnels: 层）左上那根柱子：「这部分放进 Overlay」）。
-  //      它原来是按 y 切的：近半在 overlay、**远半留在 tunnels:** —— 而引擎在 tunnels:
-  //      之后画的那层**草地覆盖**会把它压掉，实机里就是左侧那根柱子缺了上半。
-  //      柱脚（portalLow5）仍切半，所以 A / B 两组照旧，只是两组 overlay 的洞门上半相同。
   const base = [...metroTunnelGround(), ...wing5(-1), ...wing5(+1)];
   const low = split5(portalLow5());
-  const high = portalHigh5();
+  const high = split5(portalHigh5());
   const always = always5();
   const lintel = lintel5();
   const H = (name, title, extra) => '# =============================================================================\n'
@@ -454,18 +449,17 @@ function tunnel5Models() {
     out.push([name, s]);
   };
   asm('G4_tunnel5', 'A12 地铁洞口 TUN-5 —— tunnels: 组（A 组：远半）',
-      [...base, ...low.lo],
-      '# --- 洞内轨道 + 暗幕 + 翼墙×2 + **柱脚的远半** ---\n'
-      + '#     （洞门上半整块在 tunnel_overlay 里，见 G4_tunnel5_over）\n');
+      [...base, ...low.lo, ...high.lo],
+      '# --- 洞内轨道 + 暗幕 + 翼墙×2 + **洞门（柱脚 + 墙身）的远半** ---\n');
   asm('G4_tunnel5_over', 'A12 地铁洞口 TUN-5 —— tunnel_overlay: 组（A 组：近半）',
-      [...low.hi, ...high, ...always, ...lintel],
-      '# --- **洞门上半（整块）** + **柱脚的近半** + 压顶 + 仰面 + 过梁 ---\n');
+      [...low.hi, ...high.hi, ...always, ...lintel],
+      '# --- **洞门的近半（柱脚 + 墙身）** + 压顶 + 仰面 + 过梁（整块）---\n');
   asm('G4_tunnel5_b', 'A12 地铁洞口 TUN-5 —— tunnels: 组（B 组：近半）',
-      [...base, ...low.hi],
-      '# --- 洞内轨道 + 暗幕 + 翼墙×2 + **柱脚的近半** ---\n');
+      [...base, ...low.hi, ...high.hi],
+      '# --- 洞内轨道 + 暗幕 + 翼墙×2 + **洞门（柱脚 + 墙身）的近半** ---\n');
   asm('G4_tunnel5_over_b', 'A12 地铁洞口 TUN-5 —— tunnel_overlay: 组（B 组：远半）',
-      [...low.lo, ...high, ...always, ...lintel],
-      '# --- **洞门上半（整块）** + **柱脚的远半** + 压顶 + 仰面 + 过梁 ---\n');
+      [...low.lo, ...high.lo, ...always, ...lintel],
+      '# --- **洞门的远半（柱脚 + 墙身）** + 压顶 + 仰面 + 过梁（整块）---\n');
   return out;
 }
 
