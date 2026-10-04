@@ -27,12 +27,12 @@ STR_COST_16_1                               :x16
 
 # ---------------------------------------------------------------- railtypes
 
-STR_RAIL_SADN                               :Railway (1881)
-STR_RAIL_SBDN                               :Main line (1911)
-STR_RAIL_SCDN                               :Semi-high-speed (1967)
-STR_RAIL_SBDA                               :Electrified railway (25kV AC)
+STR_RAIL_SADN                               :Railway {GOLD}80km/h
+STR_RAIL_SBDN                               :Main line {GOLD}120km/h
+STR_RAIL_SCDN                               :Semi-high-speed {GOLD}160km/h
+STR_RAIL_SBDA                               :{RED}25kVAC{BLACK} Electrified railway {GOLD}120km/h
 STR_RAIL_SCDA                               :Electrified semi-high-speed (25kV AC)
-STR_RAIL_SBEd                               :Industrial railway (1500V DC)
+STR_RAIL_SBEd                               :{LTBLUE}1.5kVDC{BLACK} Industrial electrified railway {GOLD}100km/h
 STR_RAIL_SBDD                               :Korean electrified railway (3000V DC)
-STR_RAIL_SAC3                               :Metro (third rail, 1969)
-STR_RAIL_NACN                               :Narrow gauge (1900, metre gauge, 80 km/h)
+STR_RAIL_SAC3                               :{GREEN}3rd Rail{BLACK}Metro {GOLD}80km/h
+STR_RAIL_NACN                               :Narrow gauge {GOLD}80km/h

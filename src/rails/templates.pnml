@@ -86,7 +86,7 @@ template t_probe_half_upper_v3(sheet) {
 // 只被 tunnels spriteset 占位用，P4 会换成真正的隧道口。
 // ---------------------------------------------------------------------------
 template t_probe_tile_v0(sheet) {
-  [0, 604, 263, 151, -127, -22, sheet]  // az   0  【手调】
+  [0, 604, 263, 151, -131, -19, sheet]  // az   0  【手调】
 }
 template t_probe_tile_v1(sheet) {
   [263, 604, 263, 151, -131, -19, sheet]  // az  90
@@ -106,7 +106,7 @@ template t_probe_tile_v3(sheet) {
 //   引擎的两个槽位按约定取 v0（RTO_X）与 v3（RTO_Y），见 railsprite.pnml。
 // ---------------------------------------------------------------------------
 template t_probe_track_x_v0(sheet) {
-  [1052, 604, 263, 151, -126, -20, sheet]  // az   0  TRACK_X  ← RTO_X 用这张  【手调】
+  [1052, 604, 263, 151, -124, -21, sheet]  // az   0  TRACK_X  ← RTO_X 用这张  【手调】
 }
 template t_probe_track_x_v1(sheet) {
   [1315, 604, 263, 151, -130, -20, sheet]  // az  90  TRACK_Y  【手调】
@@ -124,7 +124,7 @@ template t_probe_track_x_v3(sheet) {
 //   4 个朝向对称，引擎只取 v0 喂 RTO_CROSSING_XY。
 // ---------------------------------------------------------------------------
 template t_G1_crossing_v0(sheet) {
-  [0, 0, 263, 151, -127, -21, sheet]  // → RTO_CROSSING_XY  【手调】
+  [0, 0, 263, 151, -125, -22, sheet]  // → RTO_CROSSING_XY  【手调】
 }
 template t_G1_crossing_v1(sheet) {
   [263, 0, 263, 151, -131, -19, sheet]
@@ -448,7 +448,7 @@ template t_G2_track_slope_v1(sheet) {
   [263, 543, 263, 181, -131, -49, sheet]  // 【手调】源 t_G1_track_slope_v1 位移 0,0
 }
 template t_G2_track_crossing_v0(sheet) {
-  [0, 362, 263, 181, -127, -51, sheet]  // 【手调】源 t_G1_crossing_v0 位移 4,-2
+  [0, 362, 263, 181, -125, -52, sheet]  // 【手调】源 t_G1_crossing_v0 位移 4,-2
 }
 template t_G2_rail_straight_v0(sheet) {
   [1052, 181, 263, 181, -126, -50, sheet]  // 【手调】源 t_G1_rail_straight_v0 位移 5,-1
@@ -534,7 +534,7 @@ template t_G1_brown_track_slope_v1(sheet) {
   [263, 543, 263, 181, -131, -49, sheet]  // 【手调】源 t_G1_track_slope_v1 位移 0,0
 }
 template t_G1_brown_crossing_v0(sheet) {
-  [0, 0, 263, 181, -127, -51, sheet]  // 【手调】源 t_G1_crossing_v0 位移 4,-2
+  [0, 0, 263, 181, -125, -52, sheet]  // 【手调】源 t_G1_crossing_v0 位移 4,-2
 }
 template t_G1_brown_junction3_v0(sheet) {
   [1052, 181, 263, 181, -129, -51, sheet]  // 【手调】源 t_G1_junction3_v0 位移 2,-2
@@ -945,7 +945,7 @@ template t_G4_track_slope_v3(sheet) {
   [1841, 447, 263, 149, -130, -19, sheet]
 }
 template t_G4_crossing_v0(sheet) {
-  [0, 0, 263, 149, -129, -18, sheet]
+  [0, 0, 263, 149, -127, -19, sheet]
 }
 template t_G4_junction3_v0(sheet) {
   [1052, 0, 263, 149, -130, -19, sheet]
