@@ -401,6 +401,14 @@ function always5() {
   const L = [];
   const { COP, HX0, HX1, Y0, Y1, HILL } = TU;
   q5(L, [[COP.x1, COP.y0, COP.top], [COP.x1, COP.y0, TU.TOP], [COP.x1, COP.y1, TU.TOP], [COP.x1, COP.y1, COP.top]], [1, 0, 0], TU.D);
+  // ★ 压顶的**背面**（x = COP.x0）—— 人工 2026-10-04：「**我说的是洞顶的背面**」。
+  //   ⚠ 对照 TUN-1（`tools/gen-g1-tunnel.mjs`）：那边的压顶是**直接调 `box()`** 的，
+  //     而 `box()` = **顶面 + 4 个侧面**（只不做底面）。TUN-5 这里当初是手抄的，
+  //     **漏抄了 `x = x0` 这一个侧面** ⇒ 洞顶背面根本没有面；
+  //     管线又是**背面剔除**的（`core/raster.mjs` 的 `cull`：只画朝向相机的面）⇒
+  //     相机转到背面那两个朝向时，那一条就是**透明缝**（精灵里直接透出背景）。
+  //   ⇒ 补齐成和 `box()` 一样的 4 个侧面（底面仍然不做，与 TUN-1 一致）。
+  q5(L, [[COP.x0, COP.y0, COP.top], [COP.x0, COP.y1, COP.top], [COP.x0, COP.y1, TU.TOP], [COP.x0, COP.y0, TU.TOP]], [-1, 0, 0], TU.D);
   q5(L, [[COP.x1, COP.y0, COP.top], [COP.x1, COP.y1, COP.top], [COP.x0, COP.y1, COP.top], [COP.x0, COP.y0, COP.top]], [0, 0, 1], TU.W);
   q5(L, [[COP.x1, COP.y0, COP.top], [COP.x0, COP.y0, COP.top], [COP.x0, COP.y0, TU.TOP], [COP.x1, COP.y0, TU.TOP]], [0, -1, 0], TU.D);
   q5(L, [[COP.x1, COP.y1, COP.top], [COP.x1, COP.y1, TU.TOP], [COP.x0, COP.y1, TU.TOP], [COP.x0, COP.y1, COP.top]], [0, 1, 0], TU.D);
