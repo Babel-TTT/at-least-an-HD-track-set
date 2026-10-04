@@ -997,31 +997,40 @@ template t_G4_rail_slope_v3(sheet) {
 // G4_tunnel5_* —— **A12 组（`SAC3`）地铁矩形洞口 TUN-5**（分表 gfx/tunnel5.png）
 //
 //   模型由 `tools/gen-a12-metro.mjs` 生成；端墙尺寸与盖土几何与 TUN-1 同源。
-//   ★ 取值：本表 ca = [131, 99] ⇒ xrel = −131、yrel = −(99 − 64) = **−35**。
-//   取值口径与 G4_* 那批一样（所有朝向同一个值，1×1 占地）。
+//   ★ 算出来的基准：本表 ca = [131, 99] ⇒ xrel −131、yrel −35。
+//   ⚠ **但这 8 条全是手调的，`make check` 会一直报"与 centerAnchor 不一致" —— 看到
+//      【手调】就跳过**：
+//     · underlay（`tunnels:`）四条只微调 1~2 px，让洞口左右看着对称；
+//     · ★★ **overlay（`tunnel_overlay:`）四条的 yrel 另有约 120 px 的偏移**：
+//       引擎画 overlay 那张 sortable sprite 时用的**不是**和底图同一套原点，
+//       所以它必须比算出来的值**再往上挪一大截**。
+//       **G1 隧道是同一规律**（`t_G1_tunnel_stone_*` 的 yrel ≈ −50，
+//       而 `t_G1_tunnel_stone_over_*` ≈ −170，实机验证过的）。
+//     ⇒ ⚠ **别把这四条 overlay 的 yrel"修"回 −35**，那会让洞口上半掉到洞口下面去。
+//       （详见 `docs/踩坑.md` A8）
 // ---------------------------------------------------------------------------
 template t_G4_tunnel5_v0(sheet) {
-  [0, 0, 263, 167, -126, -36, sheet]
+  [0, 0, 263, 167, -126, -36, sheet]  // 【手调】
 }
 template t_G4_tunnel5_v3(sheet) {
-  [789, 0, 263, 167, -130, -37, sheet]
+  [789, 0, 263, 167, -130, -37, sheet]  // 【手调】
 }
 template t_G4_tunnel5_b_v1(sheet) {
-  [1315, 0, 263, 167, -129, -36, sheet]
+  [1315, 0, 263, 167, -129, -36, sheet]  // 【手调】
 }
 template t_G4_tunnel5_b_v2(sheet) {
-  [1578, 0, 263, 167, -129, -36, sheet]
+  [1578, 0, 263, 167, -129, -36, sheet]  // 【手调】
 }
 template t_G4_tunnel5_over_v0(sheet) {
-  [0, 167, 263, 167, -126, -156, sheet]
+  [0, 167, 263, 167, -126, -156, sheet]  // 【手调】overlay 另有 ~120px 偏移
 }
 template t_G4_tunnel5_over_v3(sheet) {
-  [789, 167, 263, 167, -128, -156, sheet]
+  [789, 167, 263, 167, -128, -156, sheet]  // 【手调】overlay 另有 ~120px 偏移
 }
 template t_G4_tunnel5_over_b_v1(sheet) {
-  [1315, 167, 263, 167, -128, -156, sheet]
+  [1315, 167, 263, 167, -128, -156, sheet]  // 【手调】overlay 另有 ~120px 偏移
 }
 template t_G4_tunnel5_over_b_v2(sheet) {
-  [1578, 167, 263, 167, -128, -156, sheet]
+  [1578, 167, 263, 167, -128, -156, sheet]  // 【手调】overlay 另有 ~120px 偏移
 }
 
