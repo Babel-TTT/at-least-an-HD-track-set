@@ -86,7 +86,7 @@ template t_probe_half_upper_v3(sheet) {
 // 只被 tunnels spriteset 占位用，P4 会换成真正的隧道口。
 // ---------------------------------------------------------------------------
 template t_probe_tile_v0(sheet) {
-  [0, 604, 263, 151, -129, -21, sheet]  // az   0  【手调】
+  [0, 604, 263, 151, -127, -22, sheet]  // az   0  【手调】
 }
 template t_probe_tile_v1(sheet) {
   [263, 604, 263, 151, -131, -19, sheet]  // az  90
@@ -146,7 +146,7 @@ template t_G1_junction3_v0(sheet) {
   [1052, 0, 263, 151, -129, -21, sheet]  // → RTO_JUNCTION_SW  【手调】
 }
 template t_G1_junction3_v1(sheet) {
-  [1315, 0, 263, 151, -130, -21, sheet]  // → RTO_JUNCTION_SE  【手调】
+  [1315, 0, 263, 151, -125, -22, sheet]  // → RTO_JUNCTION_SE  【手调】
 }
 template t_G1_junction3_v2(sheet) {
   [1578, 0, 263, 151, -128, -21, sheet]  // → RTO_JUNCTION_NE  【手调】
@@ -504,7 +504,7 @@ template t_G2_rail_slope_v1(sheet) {
 //     钉死不动；但若 centerAnchor 变了，下面取图顺序仍对、锚点需重算。
 // ---------------------------------------------------------------------------
 template t_G1_brown_track_x_v0(sheet) {
-  [1052, 543, 263, 181, -126, -50, sheet]  // 【手调】源 t_probe_track_x_v0 位移 5,-1
+  [1052, 543, 263, 181, -124, -51, sheet]  // 【手调】源 t_probe_track_x_v0 位移 5,-1
 }
 template t_G1_brown_track_x_v3(sheet) {
   [1841, 543, 263, 181, -130, -50, sheet]  // 【手调】源 t_probe_track_x_v3 位移 1,-1
@@ -543,7 +543,7 @@ template t_G1_brown_junction3_v2(sheet) {
   [1578, 181, 263, 181, -128, -51, sheet]  // 【手调】源 t_G1_junction3_v2 位移 3,-2
 }
 template t_G1_brown_junction3_v1(sheet) {
-  [1315, 181, 263, 181, -130, -51, sheet]  // 【手调】源 t_G1_junction3_v1 位移 1,-2
+  [1315, 181, 263, 181, -125, -52, sheet]  // 【手调】源 t_G1_junction3_v1 位移 1,-2
 }
 template t_G1_brown_junction3_v3(sheet) {
   [1841, 181, 263, 181, -129, -51, sheet]  // 【手调】源 t_G1_junction3_v3 位移 2,-2
@@ -900,7 +900,7 @@ template t_G4_track_half_v0(sheet) {
   [0, 447, 263, 149, -129, -19, sheet]
 }
 template t_G4_track_half_v1(sheet) {
-  [263, 447, 263, 149, -129, -19, sheet]
+  [263, 447, 263, 149, -130, -19, sheet]
 }
 template t_G4_track_half_v2(sheet) {
   [526, 447, 263, 149, -129, -19, sheet]
