@@ -345,14 +345,22 @@ function portalLow5() {
   return L;
 }
 
-/** 洞门上半（z ≥ SPLIT_Z）：两垛墙身正面 + 外端面（按 y 切左右，进 overlay） */
-function portalHigh5() {
+/** 洞门上半（默认 z ∈ [SPLIT_Z, TOP]）：两垛墙身正面 + 外端面
+ *
+ *  ⚠ **可分段调用**（人工 2026-10-04：「和洞口（也就是洞顶下沿，不是洞顶上沿）同高」）：
+ *    柱身要按 z 切成两段 —— 与**过梁同高**的那一段（z ∈ [OH, TOP]）整块进 overlay，
+ *    其余（z ∈ [SPLIT_Z, OH]）仍按 y 切左右。
+ *    理由：过梁（lintel5）本来就在 overlay；柱子同一高度那段若留在 tunnels:，
+ *    会被引擎在它之后画的那层**草地覆盖**压掉 ⇒ 实机里柱子和过梁之间裂开一道缝。
+ *    将来改 TU.OH / TU.TOP 时，这两段的分界自动跟着动。
+ */
+function portalHigh5({ z0 = TU.SPLIT_Z, z1 = TU.TOP } = {}) {
   const L = [];
-  const { X0, X1, Y0, Y1, OY0, OY1, TOP, SPLIT_Z, W, D } = TU;
-  q5(L, [[X1, Y0, TOP], [X1, Y0, SPLIT_Z], [X1, OY0, SPLIT_Z], [X1, OY0, TOP]], [1, 0, 0], W);
-  q5(L, [[X1, OY1, TOP], [X1, OY1, SPLIT_Z], [X1, Y1, SPLIT_Z], [X1, Y1, TOP]], [1, 0, 0], W);
-  q5(L, [[X0, Y0, TOP], [X1, Y0, TOP], [X1, Y0, SPLIT_Z], [X0, Y0, SPLIT_Z]], [0, -1, 0], D);
-  q5(L, [[X0, Y1, TOP], [X0, Y1, SPLIT_Z], [X1, Y1, SPLIT_Z], [X1, Y1, TOP]], [0, 1, 0], D);
+  const { X0, X1, Y0, Y1, OY0, OY1, W, D } = TU;
+  q5(L, [[X1, Y0, z1], [X1, Y0, z0], [X1, OY0, z0], [X1, OY0, z1]], [1, 0, 0], W);
+  q5(L, [[X1, OY1, z1], [X1, OY1, z0], [X1, Y1, z0], [X1, Y1, z1]], [1, 0, 0], W);
+  q5(L, [[X0, Y0, z1], [X1, Y0, z1], [X1, Y0, z0], [X0, Y0, z0]], [0, -1, 0], D);
+  q5(L, [[X0, Y1, z1], [X0, Y1, z0], [X1, Y1, z0], [X1, Y1, z1]], [0, 1, 0], D);
   return L;
 }
 
@@ -413,15 +421,24 @@ function split5(lines) {
 }
 
 function tunnel5Models() {
-  // ⚠ **洞门的上下两半都要按 y = 0.5 切**（人工 2026-10-04：「洞口柱子还断成两截了」
-  //   「洞口柱的侧面也有问题」）。
-  //   原来柱脚（portalLow5）整块塞在 tunnels: 里，而柱身的近半在 overlay 里
-  //   ⇒ 靠近镜头那根柱子被劈成两半（下半在 underlay、上半在 sortable 层），
-  //   中间还夹着引擎插进去的草地覆盖 ⇒ 实机里就是"柱子断成两截"、侧面也对不上。
-  //   现在两个函数都过 split5：A 组拿 lo、B 组拿 hi，保证**一根柱子整根在同一层**。
+  // ★ 分层口径（人工 2026-10-04 定稿，别再反复）：
+  //
+  //   tunnels: 底图 = 洞内道床 / 轨道 / 暗幕 + 翼墙×2
+  //                 + 洞门（柱脚 + 柱身）的**远半**
+  //   overlay      = 洞门（柱脚 + 柱身）的**近半**
+  //                 + **柱顶与过梁同高那一段（z ∈ [OH, TOP]）—— 整块，不分左右**
+  //                 + 压顶 / 仰面 / 过梁
+  //
+  //   分界的由来（人工：「和洞口（也就是洞顶下沿，不是洞顶上沿）同高」）：
+  //   过梁 lintel5() 本来就占 z ∈ [OH, TOP] 且在 overlay；柱子同一高度那段若留在
+  //   tunnels:，会被引擎在它之后画的那层**草地覆盖**压掉 ⇒ 实机里柱子与过梁之间
+  //   裂开一道缝。所以这一段必须跟着过梁一起进 overlay。
+  //   ⚠ 柱脚 / 柱身仍按 y = 0.5 切（一根柱子整根在同一层），只是把最上面这一段
+  //     额外整块加到两组 overlay 里 —— 不是把柱子切开。
   const base = [...metroTunnelGround(), ...wing5(-1), ...wing5(+1)];
-  const low = split5(portalLow5());
-  const high = split5(portalHigh5());
+  const low = split5(portalLow5());                    // 柱脚：按 y 切左右
+  const high = split5(portalHigh5({ z1: TU.OH }));     // 柱身（洞口上沿以下）：按 y 切左右
+  const crown = portalHigh5({ z0: TU.OH });            // 柱顶（与过梁同高）：整块
   const always = always5();
   const lintel = lintel5();
   const H = (name, title, extra) => '# =============================================================================\n'
@@ -450,16 +467,20 @@ function tunnel5Models() {
   };
   asm('G4_tunnel5', 'A12 地铁洞口 TUN-5 —— tunnels: 组（A 组：远半）',
       [...base, ...low.lo, ...high.lo],
-      '# --- 洞内轨道 + 暗幕 + 翼墙×2 + **洞门（柱脚 + 墙身）的远半** ---\n');
-  asm('G4_tunnel5_over', 'A12 地铁洞口 TUN-5 —— tunnel_overlay: 组（A 组：近半）',
-      [...low.hi, ...high.hi, ...always, ...lintel],
-      '# --- **洞门的近半（柱脚 + 墙身）** + 压顶 + 仰面 + 过梁（整块）---\n');
+      '# --- 洞内轨道 + 暗幕 + 翼墙×2 + **洞门（柱脚 + 柱身）的远半** ---\n'
+      + '#     （柱顶那一段不在这儿：它整块跟着过梁进了 tunnel_overlay）\n');
+  asm('G4_tunnel5_over', 'A12 地铁洞口 TUN-5 —— tunnel_overlay: 组（A 组：近半 + 柱顶整块）',
+      [...low.hi, ...high.hi, ...crown, ...always, ...lintel],
+      '# --- **洞门近半（柱脚 + 柱身）** + **柱顶（与过梁同高，z ∈ [OH, TOP]，整块）**\n'
+      + '#     + 压顶 + 仰面 + 过梁 ---\n');
   asm('G4_tunnel5_b', 'A12 地铁洞口 TUN-5 —— tunnels: 组（B 组：近半）',
       [...base, ...low.hi, ...high.hi],
-      '# --- 洞内轨道 + 暗幕 + 翼墙×2 + **洞门（柱脚 + 墙身）的近半** ---\n');
-  asm('G4_tunnel5_over_b', 'A12 地铁洞口 TUN-5 —— tunnel_overlay: 组（B 组：远半）',
-      [...low.lo, ...high.lo, ...always, ...lintel],
-      '# --- **洞门的远半（柱脚 + 墙身）** + 压顶 + 仰面 + 过梁（整块）---\n');
+      '# --- 洞内轨道 + 暗幕 + 翼墙×2 + **洞门（柱脚 + 柱身）的近半** ---\n'
+      + '#     （柱顶那一段不在这儿：它整块跟着过梁进了 tunnel_overlay）\n');
+  asm('G4_tunnel5_over_b', 'A12 地铁洞口 TUN-5 —— tunnel_overlay: 组（B 组：远半 + 柱顶整块）',
+      [...low.lo, ...high.lo, ...crown, ...always, ...lintel],
+      '# --- **洞门远半（柱脚 + 柱身）** + **柱顶（与过梁同高，z ∈ [OH, TOP]，整块）**\n'
+      + '#     + 压顶 + 仰面 + 过梁 ---\n');
   return out;
 }
 
