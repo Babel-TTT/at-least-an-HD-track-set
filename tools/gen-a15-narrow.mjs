@@ -62,6 +62,13 @@
 //     整格 / 道口：x = 0 → −OVER、x = 1 → 1+OVER
 //     斜向：        x = 0 的顶点 x −= OVER；y = 0 的顶点 y −= OVER（同理 1 那一侧）
 //     交叉 / 道岔： 两条轴都按上面的规则
+//                   ⚠ **例外：钢轨**。源模型里沿轨通长的钢轨是 `box`，被
+//                     `gen-g1-switches.mjs` 的 `clipBox` 钳在 [0.0005, 0.9995]
+//                     （见那边的 `CLIP0/CLIP1`），**不是正好 0 / 1** ⇒ 靠「贴边」
+//                     判据探不出去；而道砟板是 `quad`、正好 0/1，**反而探了**。
+//                     结果瓦片缝上是一条 ≈4px 的光板 —— 实机看就是「钢轨不够长」。
+//                     ⇒ 钢轨单独用放宽到 `RAIL_EDGE_TOL`(=0.001 > 0.0005) 的判据。
+//                     枕木不探（与直向件一致：源里枕木本来就内缩 0.012/0.988）。
 //     隧道：        **只有轨道材质**探出（洞门 / 压顶 / 仰面 / 翼墙不动）
 //   ⚠ **坡道不探出**（与 gen-a12-metro.mjs 同口径）：高端再往外延会顶大格位、
 //     低端再往外延会穿地；坡道两端的缝交给**邻格直向件的探出**去盖。
@@ -81,6 +88,15 @@ const K = 0.70;              // 横向收窄比例（米轨 1000mm）★ 窄轨�
 const OVER = 0.03125;        // 沿轨探出（1/32 格）
 const CROSS_EDGE = 0.195;    // 交叉/道岔：判"这一维属于哪条带"的阈值（带半宽 0.18 + 抖动）
 const ARCH_EDGE = 0.160;     // 隧道：拱洞/洞身那一段的横向半径（TUN-1 的 ARCH_R = 0.155）
+
+/**
+ * 钢轨「沿轨到头」的容差（见文件头「探出边界」）。
+ * 源里钢轨是 `box`，被 `gen-g1-switches.mjs` 的 clipBox 钳在 **0.0005 / 0.9995**，
+ * 所以判「到头」不能用「正好 0/1」，容差必须 > 0.0005。
+ * 只给钢轨放宽：枕木是 0.012/0.988（本来就该内缩，不能探）。
+ */
+const RAIL_EDGE_TOL = 0.001;
+const RAIL_MAT = /^rust$/;
 
 /** 洞里的「轨道」材质 —— 只有这些才跟着收窄 + 探出，其余（stone* / dirt / trim_black）是洞门 */
 const TRACK_MATS = /^(gravel|wood|wood_dark|wood_seam|rust|metal)$/;
@@ -139,6 +155,15 @@ function ext(v) {
   if (near1(v)) return OVER;
   return 0;
 }
+/**
+ * 钢轨专用的「到头」判据：把 `RAIL_EDGE_TOL` 的贴边缝也算到头。
+ * 见文件头：源钢轨是 clipBox 出来的 0.0005 / 0.9995，单靠 ext() 永远探不出去。
+ */
+function railExt(v) {
+  if (v <= RAIL_EDGE_TOL) return -OVER;
+  if (v >= 1 - RAIL_EDGE_TOL) return OVER;
+  return 0;
+}
 const narrow = (c) => 0.5 + K * (c - 0.5);
 
 /**
@@ -170,7 +195,13 @@ function xform(job, x, y, mat) {
     case 'cross': {
       let nx = Math.abs(x - 0.5) <= job.edge ? narrow(x) : x;
       let ny = Math.abs(y - 0.5) <= job.edge ? narrow(y) : y;
-      if (job.over) { nx += ext(x); ny += ext(y); }
+      if (job.over) {
+        // ★ 钢轨（rust）用放宽的判据：源里它是 clipBox 的 0.0005/0.9995，
+        //   道砟板是 0/1 —— 两边用同一把尺子就会出现「板探了、轨没探」的 4px 光板。
+        const rail = RAIL_MAT.test(mat);
+        nx += rail ? railExt(x) : ext(x);
+        ny += rail ? railExt(y) : ext(y);
+      }
       return [N(nx), N(ny)];
     }
     case 'tunnel': {
