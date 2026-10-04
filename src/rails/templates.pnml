@@ -1001,7 +1001,7 @@ template t_G4_rail_slope_v3(sheet) {
 //   取值口径与 G4_* 那批一样（所有朝向同一个值，1×1 占地）。
 // ---------------------------------------------------------------------------
 template t_G4_tunnel5_v0(sheet) {
-  [0, 0, 263, 167, -122, -35, sheet]
+  [0, 0, 263, 167, -126, -36, sheet]
 }
 template t_G4_tunnel5_v3(sheet) {
   [789, 0, 263, 167, -130, -37, sheet]
@@ -1013,15 +1013,15 @@ template t_G4_tunnel5_b_v2(sheet) {
   [1578, 0, 263, 167, -129, -36, sheet]
 }
 template t_G4_tunnel5_over_v0(sheet) {
-  [0, 167, 263, 167, -132, -159, sheet]
+  [0, 167, 263, 167, -126, -156, sheet]
 }
 template t_G4_tunnel5_over_v3(sheet) {
-  [789, 167, 263, 167, -130, -37, sheet]
+  [789, 167, 263, 167, -128, -156, sheet]
 }
 template t_G4_tunnel5_over_b_v1(sheet) {
-  [1315, 167, 263, 167, -130, -37, sheet]
+  [1315, 167, 263, 167, -128, -156, sheet]
 }
 template t_G4_tunnel5_over_b_v2(sheet) {
-  [1578, 167, 263, 167, -130, -37, sheet]
+  [1578, 167, 263, 167, -128, -156, sheet]
 }
 
