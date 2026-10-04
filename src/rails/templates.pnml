@@ -933,10 +933,10 @@ template t_G4_z_track_half_m_v3(sheet) {
   [1841, 596, 263, 149, -130, -19, sheet]
 }
 template t_G4_track_slope_v0(sheet) {
-  [1052, 447, 263, 149, -130, -19, sheet]
+  [1052, 447, 263, 149, -127, -19, sheet]
 }
 template t_G4_track_slope_v1(sheet) {
-  [1315, 447, 263, 149, -130, -19, sheet]
+  [1315, 447, 263, 149, -128, -19, sheet]
 }
 template t_G4_track_slope_v2(sheet) {
   [1578, 447, 263, 149, -130, -19, sheet]
@@ -981,10 +981,10 @@ template t_G4_rail_half_v3(sheet) {
   [1841, 149, 263, 149, -130, -19, sheet]
 }
 template t_G4_rail_slope_v0(sheet) {
-  [0, 298, 263, 149, -130, -19, sheet]
+  [0, 298, 263, 149, -127, -19, sheet]
 }
 template t_G4_rail_slope_v1(sheet) {
-  [263, 298, 263, 149, -130, -19, sheet]
+  [263, 298, 263, 149, -128, -19, sheet]
 }
 template t_G4_rail_slope_v2(sheet) {
   [526, 298, 263, 149, -130, -19, sheet]
@@ -1032,5 +1032,137 @@ template t_G4_tunnel5_over_b_v1(sheet) {
 }
 template t_G4_tunnel5_over_b_v2(sheet) {
   [1578, 167, 263, 167, -128, -156, sheet]  // 【手调】overlay 另有 ~120px 偏移
+}
+
+// ---------------------------------------------------------------------------
+// G5_* —— **A15 组（`NACN` 窄轨）**：BAL-D 道床 + SLE-1 木枕 + RAI-7 窄轨（米轨 1000mm）
+//          + TUN-7 小断面拱（人工 2026-10-04 §6 确认门裁定，k = 0.70）
+//
+//   参数 sheet：
+//     轨道（G5_track_* / G5_rail_* / G5_crossing / G5_junction* / G5_levelcrossing）
+//        → 调用处传 "gfx/narrow.png"
+//     洞口（G5_tunnel7*）→ 调用处传 "gfx/tunnel7.png"
+//
+//   ★ 模型由 `tools/gen-a15-narrow.mjs`（人工批准新建）从 **G1 的既有模型按 k 收窄**而来
+//     （G1 的几何是实机调了十几轮的结果，重画只会更差；口径见那个生成器的文件头）。
+//
+//   ★ 摆位口径 = **本表的 centerAnchor 算法值 + 源模板的【手调】增量**
+//     （与 brown / g2 / tunnel2g2 那几族同一套换算，见上面 G2_* 那一节）。
+//     所以下面凡是带增量的行都标【手调】—— 位移是从对应 G1 模板继承的，不是算法原值。
+//
+//   ⚠ narrow 表格位 **263×144**（源 rail 表是 151），tunnel7 是 **263×167**
+//     （与 tunnel2g2 / tunnel5 同格位）⇒ **不能照抄源模板的行，必须走上面的换算**。
+//
+//   槽位对照与 G1 逐条同名（见 railsprite.pnml 的 probe_underlay_narrow 等）：
+//     underlay  0/1 直向 · 2-5 半格轨(N/S/E/W) · 6-9 坡道 · 10 交叉 · 11-14 三向 · 15 四向
+//     overlay   0/1 直向 · 2-5 半格轨 · 6-9 坡道
+//   ---------------------------------------------------------------------------
+template t_G5_track_x_v0(sheet) {
+  [1052, 576, 263, 144, -126, -13, sheet]  // 【手调】源 t_probe_track_x_v0 增量 (+5,-1)
+}
+template t_G5_track_x_v3(sheet) {
+  [1841, 576, 263, 144, -130, -13, sheet]  // 【手调】源 t_probe_track_x_v3 增量 (+1,-1)
+}
+template t_G5_rail_straight_v0(sheet) {
+  [0, 432, 263, 144, -126, -13, sheet]  // 【手调】源 t_G1_rail_straight_v0 增量 (+5,-1)
+}
+template t_G5_rail_straight_v3(sheet) {
+  [789, 432, 263, 144, -130, -13, sheet]  // 【手调】源 t_G1_rail_straight_v3 增量 (+1,-1)
+}
+template t_G5_track_half_v0(sheet) {
+  [1052, 432, 263, 144, -128, -14, sheet]  // 【手调】源 t_probe_half_upper_v0 增量 (+3,-2)
+}
+template t_G5_track_half_v1(sheet) {
+  [1315, 432, 263, 144, -128, -15, sheet]  // 【手调】源 t_probe_half_upper_v1 增量 (+3,-3)
+}
+template t_G5_track_half_v2(sheet) {
+  [1578, 432, 263, 144, -129, -14, sheet]  // 【手调】源 t_probe_half_upper_v2 增量 (+2,-2)
+}
+template t_G5_track_half_v3(sheet) {
+  [1841, 432, 263, 144, -128, -15, sheet]  // 【手调】源 t_probe_half_upper_v3 增量 (+3,-3)
+}
+template t_G5_rail_half_v0(sheet) {
+  [0, 288, 263, 144, -128, -14, sheet]  // 【手调】源 t_G1_rail_halftrack_v0 增量 (+3,-2)
+}
+template t_G5_rail_half_v1(sheet) {
+  [263, 288, 263, 144, -128, -15, sheet]  // 【手调】源 t_G1_rail_halftrack_v1 增量 (+3,-3)
+}
+template t_G5_rail_half_v2(sheet) {
+  [526, 288, 263, 144, -129, -14, sheet]  // 【手调】源 t_G1_rail_halftrack_v2 增量 (+2,-2)
+}
+template t_G5_rail_half_v3(sheet) {
+  [789, 288, 263, 144, -128, -15, sheet]  // 【手调】源 t_G1_rail_halftrack_v3 增量 (+3,-3)
+}
+template t_G5_track_slope_v0(sheet) {
+  [0, 576, 263, 144, -128, -13, sheet]  // 【手调】源 t_G1_track_slope_v0 增量 (+3,-1)
+}
+template t_G5_track_slope_v1(sheet) {
+  [263, 576, 263, 144, -131, -12, sheet]
+}
+template t_G5_track_slope_v2(sheet) {
+  [526, 576, 263, 144, -126, -13, sheet]  // 【手调】源 t_G1_track_slope_v2 增量 (+5,-1)
+}
+template t_G5_track_slope_v3(sheet) {
+  [789, 576, 263, 144, -131, -12, sheet]
+}
+template t_G5_rail_slope_v0(sheet) {
+  [1052, 288, 263, 144, -128, -13, sheet]  // 【手调】源 t_G1_rail_slope_v0 增量 (+3,-1)
+}
+template t_G5_rail_slope_v1(sheet) {
+  [1315, 288, 263, 144, -131, -12, sheet]
+}
+template t_G5_rail_slope_v2(sheet) {
+  [1578, 288, 263, 144, -126, -13, sheet]  // 【手调】源 t_G1_rail_slope_v2 增量 (+5,-1)
+}
+template t_G5_rail_slope_v3(sheet) {
+  [1841, 288, 263, 144, -131, -12, sheet]
+}
+template t_G5_crossing_v0(sheet) {
+  [0, 0, 263, 144, -127, -14, sheet]  // 【手调】源 t_G1_crossing_v0 增量 (+4,-2)
+}
+template t_G5_junction3_v0(sheet) {
+  [1052, 0, 263, 144, -129, -14, sheet]  // 【手调】源 t_G1_junction3_v0 增量 (+2,-2)
+}
+template t_G5_junction3_v1(sheet) {
+  [1315, 0, 263, 144, -125, -15, sheet]  // 【手调】源 t_G1_junction3_v1 增量 (+6,-3)
+}
+template t_G5_junction3_v2(sheet) {
+  [1578, 0, 263, 144, -128, -14, sheet]  // 【手调】源 t_G1_junction3_v2 增量 (+3,-2)
+}
+template t_G5_junction3_v3(sheet) {
+  [1841, 0, 263, 144, -129, -14, sheet]  // 【手调】源 t_G1_junction3_v3 增量 (+2,-2)
+}
+template t_G5_junction4_v0(sheet) {
+  [0, 144, 263, 144, -129, -15, sheet]  // 【手调】源 t_G1_junction4_v0 增量 (+2,-3)
+}
+template t_G5_levelcrossing_v0(sheet) {
+  [1052, 144, 263, 144, -126, -13, sheet]  // 【手调】源 t_G1_levelcrossing_v0 增量 (+5,-1)
+}
+template t_G5_levelcrossing_v3(sheet) {
+  [1841, 144, 263, 144, -234, -65, sheet]  // 【手调】源 t_G1_levelcrossing_v3 增量 (-103,-53)
+}
+template t_G5_tunnel7_v0(sheet) {
+  [0, 0, 263, 167, -126, -36, sheet]  // 【手调】与 t_G2_tunnel2_stone_v0 同值（同格位、同外形）
+}
+template t_G5_tunnel7_v3(sheet) {
+  [789, 0, 263, 167, -126, -36, sheet]  // 【手调】
+}
+template t_G5_tunnel7_b_v1(sheet) {
+  [1315, 0, 263, 167, -130, -36, sheet]  // 【手调】
+}
+template t_G5_tunnel7_b_v2(sheet) {
+  [1578, 0, 263, 167, -119, -35, sheet]  // 【手调】
+}
+template t_G5_tunnel7_over_v0(sheet) {
+  [0, 167, 263, 167, -126, -156, sheet]  // 【手调】overlay 另有 ~120px 偏移（同 TUN-1 / TUN-5 的规律）
+}
+template t_G5_tunnel7_over_v3(sheet) {
+  [789, 167, 263, 167, -131, -156, sheet]  // 【手调】
+}
+template t_G5_tunnel7_over_b_v1(sheet) {
+  [1315, 167, 263, 167, -129, -155, sheet]  // 【手调】
+}
+template t_G5_tunnel7_over_b_v2(sheet) {
+  [1578, 167, 263, 167, -131, -156, sheet]  // 【手调】
 }
 

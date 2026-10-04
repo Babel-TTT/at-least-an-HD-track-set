@@ -65,6 +65,8 @@ node tools/check.mjs                  # ④ 自检，必须 ✔ 全部通过
 | `tools/gen-g1-tunnel.mjs` | `G1_tunnel_stone` / `_stone_over` / `_stone_b` / `_stone_over_b` | **四个模型**：两层 × 两套左右分组 |
 | `tools/gen-g1-slope.mjs` | `G1_rail_slope` / `G1_track_slope` | 坡道；取图顺序 **v0=NE v1=NW v2=SW v3=SE** |
 | `tools/gen-g1-switches.mjs` | `G1_junction3` / `G1_junction4` / `G1_crossing` | 道岔三形状其实是同一模型的四个旋转 |
+| `tools/gen-a12-metro.mjs` | `G4_*`（地铁 A12 组）+ `G4_tunnel5*` | `SAC3`；道床/钢轨/第三轨/矩形洞门 |
+| `tools/gen-a15-narrow.mjs` | `G5_*`（窄轨 A15 组，14 件） | `NACN`；**从 G1 的模型仿射收窄 k=0.70**（不重画），口径见 `docs/建模经验.md` **§4.14** |
 
 ### 4.1 隧道口：为什么是四个模型
 

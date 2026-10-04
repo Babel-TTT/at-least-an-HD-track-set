@@ -109,6 +109,21 @@ export const SHEETS = [
     match: /^G4_/,
   },
   {
+    // A15 组（`NACN` 窄轨）的**洞口**：TUN-7 小断面拱（端墙外形照 TUN-1，
+    // 只把拱洞与洞内轨道按 k = 0.70 收窄；几何由 tools/gen-a15-narrow.mjs 从 TUN-1 收窄而来）。
+    // ⚠ 必须登记在下面的 narrow **之前**：那个表的正则是 /^G5_/，会先把 G5_tunnel7_* 吃掉。
+    key: 'tunnel7',
+    title: '窄轨洞口 TUN-7（小断面拱；NACN）',
+    match: /^G5_tunnel7/,
+  },
+  {
+    // A15 组（`NACN` 窄轨）的轨道：BAL-D 道床 + SLE-1 木枕 + RAI-7 窄轨（米轨 1000mm）。
+    // 单独一张表（同 rail / metro 表的理由：混进去会把已有几十条 rect 顶移位）。
+    key: 'narrow',
+    title: '窄轨（BAL-D + SLE-1 + RAI-7，k=0.70；NACN）',
+    match: /^G5_/,
+  },
+  {
     // 接触网**支柱的样式 / 标牌变体**（人工 2026-10-03：厂矿电气化铁路 `SBEd` 要用
     // 「早期木杆 + 蓝牌」⇒ 新增 `G1_sty_early_blue_a|_b`）。
     // 现有那套方形混凝土柱是 `G1_pylon_a/_b`（在下面的 catenary 表里）；

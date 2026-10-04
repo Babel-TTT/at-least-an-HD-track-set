@@ -35,3 +35,4 @@ STR_RAIL_SCDA                               :Electrified semi-high-speed (25kV A
 STR_RAIL_SBEd                               :Industrial railway (1500V DC)
 STR_RAIL_SBDD                               :Korean electrified railway (3000V DC)
 STR_RAIL_SAC3                               :Metro (third rail, 1969)
+STR_RAIL_NACN                               :Narrow gauge (1900, metre gauge, 80 km/h)

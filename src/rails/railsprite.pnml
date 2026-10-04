@@ -610,3 +610,90 @@ spriteset(probe_catenary_wire, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
     t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png")  // 26 WSO_ENTRANCE_NE  全透明
     t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png")  // 27 WSO_ENTRANCE_SE  全透明
 }
+
+/* ===========================================================================
+   A15 组（`NACN` 窄轨）—— underlay / track_overlay / 洞口 / 道口 / 桥面
+
+   分表：轨道 = `gfx/narrow.png`、洞口 = `gfx/tunnel7.png`（见 tools/sheets.mjs）。
+   模型由 `tools/gen-a15-narrow.mjs`（人工 2026-10-04 批准新建）从 **G1 的模型按
+   k = 0.70 横向收窄**而来 —— 米轨 1000mm：道床宽 / 枕木长 / 轨距一起乘 k
+   （BAL-D + SLE-1 + RAI-7 的定义），另加沿轨探出 OVER = 1/32 格盖接缝。
+   摆位值见 templates.pnml 的 G5_* 那一节（= 本表算法值 + 源模板的手调增量）。
+
+   ★ **槽位顺序、取图顺序与 G1 逐条一样**（引擎那套 RTO_* / 坡道 NE/SE/SW/NW /
+     DiagDirection NE,SE,SW,NW 都不变），所以下面几段是照 G1 那几段抄的。
+   =========================================================================== */
+spriteset(probe_underlay_narrow, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G5_track_x_v0("gfx/narrow.png")         //  0  RTO_X        X
+    t_G5_track_x_v3("gfx/narrow.png")         //  1  RTO_Y        Y
+    t_G5_track_half_v0("gfx/narrow.png")      //  2  RTO_N        UPPER（切 N 角）
+    t_G5_track_half_v2("gfx/narrow.png")      //  3  RTO_S        LOWER
+    t_G5_track_half_v3("gfx/narrow.png")      //  4  RTO_E        RIGHT
+    t_G5_track_half_v1("gfx/narrow.png")      //  5  RTO_W        LEFT
+    t_G5_track_slope_v0("gfx/narrow.png")     //  6  RTO_SLOPE_NE   v0（右上抬）
+    t_G5_track_slope_v3("gfx/narrow.png")     //  7  RTO_SLOPE_SE   v3（右下抬）
+    t_G5_track_slope_v2("gfx/narrow.png")     //  8  RTO_SLOPE_SW   v2（左下抬）
+    t_G5_track_slope_v1("gfx/narrow.png")     //  9  RTO_SLOPE_NW   v1（左上抬）
+    t_G5_crossing_v0("gfx/narrow.png")        // 10  RTO_CROSSING_XY（自带两组钢轨）
+    t_G5_junction3_v0("gfx/narrow.png")       // 11  RTO_JUNCTION_SW（只有道床）
+    t_G5_junction3_v2("gfx/narrow.png")       // 12  RTO_JUNCTION_NE（v2）
+    t_G5_junction3_v1("gfx/narrow.png")       // 13  RTO_JUNCTION_SE（v1）
+    t_G5_junction3_v3("gfx/narrow.png")       // 14  RTO_JUNCTION_NW（v3）
+    t_G5_junction4_v0("gfx/narrow.png")       // 15  RTO_JUNCTION_NSEW（只有道床）
+}
+
+spriteset(probe_overlay_narrow, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G5_rail_straight_v0("gfx/narrow.png")   // 0  RTO_X        纯钢轨层
+    t_G5_rail_straight_v3("gfx/narrow.png")   // 1  RTO_Y
+    t_G5_rail_half_v0("gfx/narrow.png")       // 2  RTO_N
+    t_G5_rail_half_v2("gfx/narrow.png")       // 3  RTO_S
+    t_G5_rail_half_v3("gfx/narrow.png")       // 4  RTO_E
+    t_G5_rail_half_v1("gfx/narrow.png")       // 5  RTO_W
+    t_G5_rail_slope_v0("gfx/narrow.png")      // 6  RTO_SLOPE_NE
+    t_G5_rail_slope_v3("gfx/narrow.png")      // 7  RTO_SLOPE_SE
+    t_G5_rail_slope_v2("gfx/narrow.png")      // 8  RTO_SLOPE_SW
+    t_G5_rail_slope_v1("gfx/narrow.png")      // 9  RTO_SLOPE_NW
+}
+
+/* 洞口 TUN-7（窄轨小断面拱）—— 两层 × A/B 两组 = 8 张
+   槽位 = DiagDirection，顺序 NE / SE / SW / NW ⇒ 喂图 **v0, v3, v2(_b), v1(_b)**
+   （与 TUN-1 / TUN-2 / TUN-5 逐条一样；A/B 分工见 G5_tunnel7.model 的文件头）。
+   ⚠ `tunnel_overlay:` 那层的 yrel 另有 ~120px 偏移（templates.pnml 里已标【手调】）。 */
+spriteset(probe_tunnels_narrow, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G5_tunnel7_v0("gfx/tunnel7.png")          // 0  DiagDir NE ← v0   A 组（远半）
+    t_G5_tunnel7_v3("gfx/tunnel7.png")          // 1  DiagDir SE ← v3   A 组
+    t_G5_tunnel7_b_v2("gfx/tunnel7.png")        // 2  DiagDir SW ← v2   B 组（近半）
+    t_G5_tunnel7_b_v1("gfx/tunnel7.png")        // 3  DiagDir NW ← v1   B 组
+}
+
+spriteset(probe_tunnel_over_narrow, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G5_tunnel7_over_v0("gfx/tunnel7.png")     // 0  DiagDir NE ← v0   A 组（近半 + 洞顶）
+    t_G5_tunnel7_over_v3("gfx/tunnel7.png")     // 1  DiagDir SE ← v3   A 组
+    t_G5_tunnel7_over_b_v2("gfx/tunnel7.png")   // 2  DiagDir SW ← v2   B 组（远半 + 洞顶）
+    t_G5_tunnel7_over_b_v1("gfx/tunnel7.png")   // 3  DiagDir NW ← v1   B 组
+}
+
+// 平交道口 —— 10 格 = 2 方向 × (1 张轨道图 + 4 张道口灯/栏杆)
+//   道口灯与栏杆仍未做（与 G1 一样用空精灵占位，跨表借 levelcrossing 的那一格）。
+spriteset(probe_level_crossing_narrow, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G5_levelcrossing_v0("gfx/narrow.png")              // 0  X 方向：轨道图
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png") // 1  X 方向：道口灯 1（占位）
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png") // 2  X 方向：道口灯 2（占位）
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png") // 3  X 方向：栏杆 1（占位）
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png") // 4  X 方向：栏杆 2（占位）
+    t_G5_levelcrossing_v3("gfx/narrow.png")              // 5  Y 方向：轨道图
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png") // 6  Y 方向：道口灯 1（占位）
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png") // 7  Y 方向：道口灯 2（占位）
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png") // 8  Y 方向：栏杆 1（占位）
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png") // 9  Y 方向：栏杆 2（占位）
+}
+
+// 桥面 —— 6 格（平 X / 平 Y / 坡 NE / SE / SW / NW），顺序同 probe_bridge_surfaces
+spriteset(probe_bridge_surfaces_narrow, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G5_track_x_v0("gfx/narrow.png")         // 0  平 — X
+    t_G5_track_x_v3("gfx/narrow.png")         // 1  平 — Y
+    t_G5_track_slope_v0("gfx/narrow.png")     // 2  坡 NE（x=0 边抬 / 远端高）
+    t_G5_track_slope_v3("gfx/narrow.png")     // 3  坡 SE（y=1 边抬 / 近端高）
+    t_G5_track_slope_v2("gfx/narrow.png")     // 4  坡 SW（x=1 边抬 / 近端高）
+    t_G5_track_slope_v1("gfx/narrow.png")     // 5  坡 NW（y=0 边抬 / 远端高）
+}

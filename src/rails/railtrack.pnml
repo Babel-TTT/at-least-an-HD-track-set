@@ -764,3 +764,67 @@ item(FEAT_RAILTYPES, rail_SAC3, 14) {
         bridge_surfaces: probe_bridge_surfaces_metro;
     }
 }
+
+// NACN —— 窄轨铁路（1900·米轨 1000mm；计划里的 A15 组）
+item(FEAT_RAILTYPES, rail_NACN, 15) {
+    property {
+        label:                  "NACN";
+        introduction_date:      date(1900, 1, 1);
+        name:                   string(STR_RAIL_NACN);
+        toolbar_caption:        string(STR_RAIL_NACN);
+        menu_text:              string(STR_RAIL_NACN);
+        build_window_caption:   string(STR_RAIL_NACN);
+        autoreplace_text:       string(STR_RAIL_NACN);
+        new_engine_text:        string(STR_RAIL_NACN);
+        /* 与 G1 那几种一样把 RAIL / ELRL 与全量 label 铺开 —— 理由见本文件开头
+           「车库里一辆车都列不出来」那一段（docs/踩坑.md D4）。
+           ⚠ 窄轨该不该与准轨互通（本行 | 里塞了全量）**是个待人工裁定的口味问题**：
+             若裁定「窄轨自成一网」，把 N* 那 5 个之外的全部删掉即可 —— 只改这两行。 */
+        compatible_railtype_list: ["RAIL", "ELRL",
+                                    "NACN", "NBCN", "NBCA", "NCCA", "dBCN",
+                                    "SADN", "SBDN", "SCDN", "SDDN", "SEDN", "SFDN", "SGDN",
+                                    "SADA", "SBDA", "SCDA", "SDDA", "SEDA", "SFDA", "SGDA",
+                                    "SADd", "SBDd", "SCDd", "SDDd", "SEDd",
+                                    "SAEd", "SBEd", "SCEd", "SDEd", "SEEd",
+                                    "SADD", "SBDD", "SCDD", "SDDD", "SEDD",
+                                    "DADN", "DBDN", "DADA", "DBDA"];
+        powered_railtype_list:    ["RAIL", "ELRL",
+                                    "NACN", "NBCN", "NBCA", "NCCA", "dBCN",
+                                    "SADN", "SBDN", "SCDN", "SDDN", "SEDN", "SFDN", "SGDN",
+                                    "SADA", "SBDA", "SCDA", "SDDA", "SEDA", "SFDA", "SGDA",
+                                    "SADd", "SBDd", "SCDd", "SDDd", "SEDd",
+                                    "SAEd", "SBEd", "SCEd", "SDEd", "SEEd",
+                                    "SADD", "SBDD", "SCDD", "SDDD", "SEDD",
+                                    "DADN", "DBDN", "DADA", "DBDA"];
+        /* 非电气化（CSV：N/A）⇒ 不设 RAILTYPE_FLAG_CATENARY；
+           **允许平交道口**（人工 2026-10-04 §6 确认门裁定 C8：窄轨乡间线有道口）⇒ 不设 NO_LEVEL_CROSSING。 */
+        railtype_flags:         0;
+        curve_speed_multiplier: 1;
+        station_graphics:       RAILTYPE_STATION_NORMAL;
+        /* 费用系数 = CSV 的 1（同组里最低）⇒ 建设 1 / 维护 1 */
+        construction_cost:      1;
+        maintenance_cost:       1;
+        /* ★ 速度按**标准化编码的字母档**取整（C5 裁定）：N 轨距的 A 档 = 95 km/h。
+           CSV 里的 80km/h 是意图记录，写进名称（STR_RAIL_NACN）。 */
+        speed_limit:            95 km/h;
+        acceleration_model:     ACC_MODEL_RAIL;
+        map_colour:             0x5F;
+        sort_order:             SORT_EARLY;
+    }
+    /* ★ 2026-10-04：A15 组（`NACN` 窄轨）接入。
+       口径（人工 §6 确认门四项全按推荐值裁定）：
+         道床 `BAL-D` · 轨枕 `SLE-1` · 钢轨 `RAI-7` · 洞口 `TUN-7`
+         **横向收窄 k = 0.70（米轨 1000mm）** —— 道床宽 / 枕木长 / 轨距一起乘 k。
+       模型由 `tools/gen-a15-narrow.mjs`（人工批准新建）从 **G1 的模型按 k 收窄**而来
+       （G1 那套几何是实机调了十几轮的结果 ⇒ 不重画；口径与「为什么这么收」见生成器文件头）。
+       分表：轨道 = `gfx/narrow.png`、洞口 = `gfx/tunnel7.png`。
+       另：`level_crossings:` 给了窄轨道口轨（道口灯/栏杆仍与 G1 一样用空精灵占位）。 */
+    graphics {
+        underlay:        probe_underlay_narrow;
+        track_overlay:   probe_overlay_narrow;
+        tunnels:         probe_tunnels_narrow;
+        tunnel_overlay:  probe_tunnel_over_narrow;
+        level_crossings: probe_level_crossing_narrow;
+        bridge_surfaces: probe_bridge_surfaces_narrow;
+    }
+}
