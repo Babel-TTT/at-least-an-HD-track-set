@@ -1550,31 +1550,34 @@ template t_G3_tunnel3_over_b_v3(sheet) {
 //     （`box` + `concrete` → `cyl` + `concrete_pad`），腕臂 / 绝缘子 / 柱顶帽全都不动，
 //     连取景框（263×241）与逐朝向的算法锚点都**完全一致**（已用 openttd.json 核过）。
 //     ⇒ 直接抄 C1 的行，连【手调】增量一起继承（那些增量是实机调出来的）。
+//   ★ 摆位值 = C1 的行，但 **格位 240（不是 241）、yrel +1**
+//     —— 2026-10-05 第二版把柱顶帽从方盒改成圆柱后，取景框顶边下降 1 px
+//     （C1 那 8 条**不受影响**：C1 在 catenary 表，本件在 pyloncyl 表）。
 //   ⚠ C1 那组里 v1/v3 的手调量是 ±(120,64)（= 半格），那是人工按实机画面调的对位，
-//     与"腕臂该指哪"绑定 —— C2 的臂与 C1 逐字相同，所以必须一起继承。
+//     与"腕臂该指哪"绑定 —— C2 的臂与 C1 同向，所以必须一起继承。
 // ---------------------------------------------------------------------------
 template t_G1_sty_cyl_a_v0(sheet) {
-  [0, 0, 263, 241, -131, -113, sheet]  // 【手调】源 t_G1_pylon_a_v0
+  [0, 0, 263, 240, -131, -112, sheet]  // 【手调】源 t_G1_pylon_a_v0
 }
 template t_G1_sty_cyl_a_v1(sheet) {
-  [263, 0, 263, 241, -11, -173, sheet]  // 【手调】源 t_G1_pylon_a_v1
+  [263, 0, 263, 240, -11, -172, sheet]  // 【手调】源 t_G1_pylon_a_v1
 }
 template t_G1_sty_cyl_a_v2(sheet) {
-  [526, 0, 263, 241, -131, -233, sheet]  // 【手调】源 t_G1_pylon_a_v2
+  [526, 0, 263, 240, -131, -232, sheet]  // 【手调】源 t_G1_pylon_a_v2
 }
 template t_G1_sty_cyl_a_v3(sheet) {
-  [789, 0, 263, 241, -251, -173, sheet]  // 【手调】源 t_G1_pylon_a_v3
+  [789, 0, 263, 240, -251, -172, sheet]  // 【手调】源 t_G1_pylon_a_v3
 }
 template t_G1_sty_cyl_b_v0(sheet) {
-  [1052, 0, 263, 241, -131, -113, sheet]  // 【手调】源 t_G1_pylon_b_v0
+  [1052, 0, 263, 240, -131, -112, sheet]  // 【手调】源 t_G1_pylon_b_v0
 }
 template t_G1_sty_cyl_b_v1(sheet) {
-  [1315, 0, 263, 241, -28, -170, sheet]  // 【手调】源 t_G1_pylon_b_v1
+  [1315, 0, 263, 240, -28, -169, sheet]  // 【手调】源 t_G1_pylon_b_v1
 }
 template t_G1_sty_cyl_b_v2(sheet) {
-  [1578, 0, 263, 241, -131, -233, sheet]  // 【手调】源 t_G1_pylon_b_v2
+  [1578, 0, 263, 240, -131, -232, sheet]  // 【手调】源 t_G1_pylon_b_v2
 }
 template t_G1_sty_cyl_b_v3(sheet) {
-  [1841, 0, 263, 241, -225, -173, sheet]  // 【手调】源 t_G1_pylon_b_v3
+  [1841, 0, 263, 240, -225, -172, sheet]  // 【手调】源 t_G1_pylon_b_v3
 }
 
