@@ -217,16 +217,16 @@ template t_G1_rail_halftrack_v3(sheet) {
 //   取图顺序 v0=NE  v1=NW  v2=SW  v3=SE（绕占地中心转模型推出，见 railsprite.pnml）
 // ---------------------------------------------------------------------------
 template t_G1_track_slope_v0(sheet) {
-  [0, 453, 263, 151, -128, -20, sheet]  // → RTO_SLOPE_NE（x=0 边 / 右上抬）  【手调】
+  [0, 453, 263, 151, -125, -20, sheet]  // → RTO_SLOPE_NE（x=0 边 / 右上抬）  【手调】增量 (+6,-1)
 }
 template t_G1_track_slope_v1(sheet) {
-  [263, 453, 263, 151, -131, -19, sheet]  // → RTO_SLOPE_NW（y=0 边 / 左上抬）
+  [263, 453, 263, 151, -131, -20, sheet]  // → RTO_SLOPE_NW（y=0 边 / 左上抬）  【手调】增量 (0,-1)
 }
 template t_G1_track_slope_v2(sheet) {
-  [526, 453, 263, 151, -126, -20, sheet]  // → RTO_SLOPE_SW（x=1 边 / 左下抬）  【手调】
+  [526, 453, 263, 151, -123, -20, sheet]  // → RTO_SLOPE_SW（x=1 边 / 左下抬）  【手调】增量 (+8,-1)
 }
 template t_G1_track_slope_v3(sheet) {
-  [789, 453, 263, 151, -131, -19, sheet]  // → RTO_SLOPE_SE（y=1 边 / 右下抬）
+  [789, 453, 263, 151, -131, -20, sheet]  // → RTO_SLOPE_SE（y=1 边 / 右下抬）  【手调】增量 (0,-1)
 }
 
 // ---------------------------------------------------------------------------
@@ -234,16 +234,16 @@ template t_G1_track_slope_v3(sheet) {
 //   同 G1_track_slope 的 4 个朝向
 // ---------------------------------------------------------------------------
 template t_G1_rail_slope_v0(sheet) {
-  [0, 302, 263, 151, -128, -20, sheet]  // → RTO_SLOPE_NE（x=0 边 / 右上抬）  【手调】
+  [0, 302, 263, 151, -125, -20, sheet]  // → RTO_SLOPE_NE（x=0 边 / 右上抬）  【手调】增量 (+6,-1)
 }
 template t_G1_rail_slope_v1(sheet) {
-  [263, 302, 263, 151, -131, -19, sheet]  // → RTO_SLOPE_NW（y=0 边 / 左上抬）
+  [263, 302, 263, 151, -131, -20, sheet]  // → RTO_SLOPE_NW（y=0 边 / 左上抬）  【手调】增量 (0,-1)
 }
 template t_G1_rail_slope_v2(sheet) {
-  [526, 302, 263, 151, -126, -20, sheet]  // → RTO_SLOPE_SW（x=1 边 / 左下抬）  【手调】
+  [526, 302, 263, 151, -123, -20, sheet]  // → RTO_SLOPE_SW（x=1 边 / 左下抬）  【手调】增量 (+8,-1)
 }
 template t_G1_rail_slope_v3(sheet) {
-  [789, 302, 263, 151, -131, -19, sheet]  // → RTO_SLOPE_SE（y=1 边 / 右下抬）
+  [789, 302, 263, 151, -131, -20, sheet]  // → RTO_SLOPE_SE（y=1 边 / 右下抬）  【手调】增量 (0,-1)
 }
 
 // ---------------------------------------------------------------------------
@@ -436,16 +436,16 @@ template t_G2_track_halftrack_v1(sheet) {
   [1315, 362, 263, 181, -126, -52, sheet]  // 【手调】源 t_probe_half_upper_v1 位移 3,-3
 }
 template t_G2_track_slope_v0(sheet) {
-  [0, 543, 263, 181, -128, -50, sheet]  // 【手调】源 t_G1_track_slope_v0 位移 3,-1
+  [0, 543, 263, 181, -125, -50, sheet]  // 【手调】源 t_G1_track_slope_v0 位移 6,-1
 }
 template t_G2_track_slope_v3(sheet) {
-  [789, 543, 263, 181, -131, -49, sheet]  // 【手调】源 t_G1_track_slope_v3 位移 0,0
+  [789, 543, 263, 181, -131, -50, sheet]  // 【手调】源 t_G1_track_slope_v3 位移 0,-1
 }
 template t_G2_track_slope_v2(sheet) {
-  [526, 543, 263, 181, -126, -50, sheet]  // 【手调】源 t_G1_track_slope_v2 位移 5,-1
+  [526, 543, 263, 181, -123, -50, sheet]  // 【手调】源 t_G1_track_slope_v2 位移 8,-1
 }
 template t_G2_track_slope_v1(sheet) {
-  [263, 543, 263, 181, -131, -49, sheet]  // 【手调】源 t_G1_track_slope_v1 位移 0,0
+  [263, 543, 263, 181, -131, -50, sheet]  // 【手调】源 t_G1_track_slope_v1 位移 0,-1
 }
 template t_G2_track_crossing_v0(sheet) {
   [0, 362, 263, 181, -125, -52, sheet]  // 【手调】源 t_G1_crossing_v0 位移 4,-2
@@ -469,16 +469,16 @@ template t_G2_rail_halftrack_v1(sheet) {
   [1315, 0, 263, 181, -126, -52, sheet]  // 【手调】源 t_G1_rail_halftrack_v1 位移 3,-3
 }
 template t_G2_rail_slope_v0(sheet) {
-  [0, 181, 263, 181, -128, -50, sheet]  // 【手调】源 t_G1_rail_slope_v0 位移 3,-1
+  [0, 181, 263, 181, -125, -50, sheet]  // 【手调】源 t_G1_rail_slope_v0 位移 6,-1
 }
 template t_G2_rail_slope_v3(sheet) {
-  [789, 181, 263, 181, -131, -49, sheet]  // 【手调】源 t_G1_rail_slope_v3 位移 0,0
+  [789, 181, 263, 181, -131, -50, sheet]  // 【手调】源 t_G1_rail_slope_v3 位移 0,-1
 }
 template t_G2_rail_slope_v2(sheet) {
-  [526, 181, 263, 181, -126, -50, sheet]  // 【手调】源 t_G1_rail_slope_v2 位移 5,-1
+  [526, 181, 263, 181, -123, -50, sheet]  // 【手调】源 t_G1_rail_slope_v2 位移 8,-1
 }
 template t_G2_rail_slope_v1(sheet) {
-  [263, 181, 263, 181, -131, -49, sheet]  // 【手调】源 t_G1_rail_slope_v1 位移 0,0
+  [263, 181, 263, 181, -131, -50, sheet]  // 【手调】源 t_G1_rail_slope_v1 位移 0,-1
 }
 
 // ---------------------------------------------------------------------------
@@ -522,16 +522,16 @@ template t_G1_brown_half_upper_v1(sheet) {
   [263, 181, 263, 181, -126, -52, sheet]  // 【手调】源 t_probe_half_upper_v1 位移 3,-3
 }
 template t_G1_brown_track_slope_v0(sheet) {
-  [0, 543, 263, 181, -128, -50, sheet]  // 【手调】源 t_G1_track_slope_v0 位移 3,-1
+  [0, 543, 263, 181, -125, -50, sheet]  // 【手调】源 t_G1_track_slope_v0 位移 6,-1
 }
 template t_G1_brown_track_slope_v3(sheet) {
-  [789, 543, 263, 181, -131, -49, sheet]  // 【手调】源 t_G1_track_slope_v3 位移 0,0
+  [789, 543, 263, 181, -131, -50, sheet]  // 【手调】源 t_G1_track_slope_v3 位移 0,-1
 }
 template t_G1_brown_track_slope_v2(sheet) {
-  [526, 543, 263, 181, -126, -50, sheet]  // 【手调】源 t_G1_track_slope_v2 位移 5,-1
+  [526, 543, 263, 181, -123, -50, sheet]  // 【手调】源 t_G1_track_slope_v2 位移 8,-1
 }
 template t_G1_brown_track_slope_v1(sheet) {
-  [263, 543, 263, 181, -131, -49, sheet]  // 【手调】源 t_G1_track_slope_v1 位移 0,0
+  [263, 543, 263, 181, -131, -50, sheet]  // 【手调】源 t_G1_track_slope_v1 位移 0,-1
 }
 template t_G1_brown_crossing_v0(sheet) {
   [0, 0, 263, 181, -125, -52, sheet]  // 【手调】源 t_G1_crossing_v0 位移 4,-2
@@ -1094,28 +1094,28 @@ template t_G5_rail_half_v3(sheet) {
   [789, 288, 263, 144, -126, -15, sheet]  // 【手调】源 t_G1_rail_halftrack_v3 增量 (+3,-3)
 }
 template t_G5_track_slope_v0(sheet) {
-  [0, 576, 263, 144, -128, -13, sheet]  // 【手调】源 t_G1_track_slope_v0 增量 (+3,-1)
+  [0, 576, 263, 144, -125, -13, sheet]  // 【手调】源 t_G1_track_slope_v0 增量 (+6,-1)
 }
 template t_G5_track_slope_v1(sheet) {
-  [263, 576, 263, 144, -131, -12, sheet]
+  [263, 576, 263, 144, -131, -13, sheet]  // 【手调】源 t_G1_track_slope_v1 增量 (0,-1)
 }
 template t_G5_track_slope_v2(sheet) {
-  [526, 576, 263, 144, -126, -13, sheet]  // 【手调】源 t_G1_track_slope_v2 增量 (+5,-1)
+  [526, 576, 263, 144, -123, -13, sheet]  // 【手调】源 t_G1_track_slope_v2 增量 (+8,-1)
 }
 template t_G5_track_slope_v3(sheet) {
-  [789, 576, 263, 144, -131, -12, sheet]
+  [789, 576, 263, 144, -131, -13, sheet]  // 【手调】源 t_G1_track_slope_v3 增量 (0,-1)
 }
 template t_G5_rail_slope_v0(sheet) {
-  [1052, 288, 263, 144, -128, -13, sheet]  // 【手调】源 t_G1_rail_slope_v0 增量 (+3,-1)
+  [1052, 288, 263, 144, -125, -13, sheet]  // 【手调】源 t_G1_rail_slope_v0 增量 (+6,-1)
 }
 template t_G5_rail_slope_v1(sheet) {
-  [1315, 288, 263, 144, -131, -12, sheet]
+  [1315, 288, 263, 144, -131, -13, sheet]  // 【手调】源 t_G1_rail_slope_v1 增量 (0,-1)
 }
 template t_G5_rail_slope_v2(sheet) {
-  [1578, 288, 263, 144, -126, -13, sheet]  // 【手调】源 t_G1_rail_slope_v2 增量 (+5,-1)
+  [1578, 288, 263, 144, -123, -13, sheet]  // 【手调】源 t_G1_rail_slope_v2 增量 (+8,-1)
 }
 template t_G5_rail_slope_v3(sheet) {
-  [1841, 288, 263, 144, -131, -12, sheet]
+  [1841, 288, 263, 144, -131, -13, sheet]  // 【手调】源 t_G1_rail_slope_v3 增量 (0,-1)
 }
 template t_G5_crossing_v0(sheet) {
   [0, 0, 263, 144, -127, -14, sheet]  // 【手调】源 t_G1_crossing_v0 增量 (+4,-2)
@@ -1232,28 +1232,28 @@ template t_G6_rail_half_v3(sheet) {
   [789, 298, 263, 149, -126, -20, sheet]  // 【手调】源 t_G1_rail_halftrack_v3 增量 (+5,-3)
 }
 template t_G6_track_slope_v0(sheet) {
-  [0, 596, 263, 149, -128, -18, sheet]  // 【手调】源 t_G1_track_slope_v0 增量 (+3,-1)
+  [0, 596, 263, 149, -125, -18, sheet]  // 【手调】源 t_G1_track_slope_v0 增量 (+6,-1)
 }
 template t_G6_track_slope_v1(sheet) {
-  [263, 596, 263, 149, -131, -17, sheet]
+  [263, 596, 263, 149, -131, -18, sheet]  // 【手调】源 t_G1_track_slope_v1 增量 (0,-1)
 }
 template t_G6_track_slope_v2(sheet) {
-  [526, 596, 263, 149, -126, -18, sheet]  // 【手调】源 t_G1_track_slope_v2 增量 (+5,-1)
+  [526, 596, 263, 149, -123, -18, sheet]  // 【手调】源 t_G1_track_slope_v2 增量 (+8,-1)
 }
 template t_G6_track_slope_v3(sheet) {
-  [789, 596, 263, 149, -131, -17, sheet]
+  [789, 596, 263, 149, -131, -18, sheet]  // 【手调】源 t_G1_track_slope_v3 增量 (0,-1)
 }
 template t_G6_rail_slope_v0(sheet) {
-  [1052, 298, 263, 149, -128, -18, sheet]  // 【手调】源 t_G1_rail_slope_v0 增量 (+3,-1)
+  [1052, 298, 263, 149, -125, -18, sheet]  // 【手调】源 t_G1_rail_slope_v0 增量 (+6,-1)
 }
 template t_G6_rail_slope_v1(sheet) {
-  [1315, 298, 263, 149, -131, -17, sheet]
+  [1315, 298, 263, 149, -131, -18, sheet]  // 【手调】源 t_G1_rail_slope_v1 增量 (0,-1)
 }
 template t_G6_rail_slope_v2(sheet) {
-  [1578, 298, 263, 149, -126, -18, sheet]  // 【手调】源 t_G1_rail_slope_v2 增量 (+5,-1)
+  [1578, 298, 263, 149, -123, -18, sheet]  // 【手调】源 t_G1_rail_slope_v2 增量 (+8,-1)
 }
 template t_G6_rail_slope_v3(sheet) {
-  [1841, 298, 263, 149, -131, -17, sheet]
+  [1841, 298, 263, 149, -131, -18, sheet]  // 【手调】源 t_G1_rail_slope_v3 增量 (0,-1)
 }
 template t_G6_crossing_v0(sheet) {
   [0, 0, 263, 149, -125, -20, sheet]  // 【手调】源 t_G1_crossing_v0 增量 (+6,-3)
@@ -1422,28 +1422,28 @@ template t_G3_rail_half_v3(sheet) {
   [789, 296, 263, 148, -126, -19, sheet]  // 【手调】源 t_G1_rail_halftrack_v3 增量 (+5,-3)
 }
 template t_G3_track_slope_v0(sheet) {
-  [0, 592, 263, 148, -128, -17, sheet]  // 【手调】源 t_G1_track_slope_v0 增量 (+3,-1)
+  [0, 592, 263, 148, -125, -17, sheet]  // 【手调】源 t_G1_track_slope_v0 增量 (+6,-1)
 }
 template t_G3_track_slope_v1(sheet) {
-  [263, 592, 263, 148, -131, -16, sheet]
+  [263, 592, 263, 148, -131, -17, sheet]  // 【手调】源 t_G1_track_slope_v1 增量 (0,-1)
 }
 template t_G3_track_slope_v2(sheet) {
-  [526, 592, 263, 148, -126, -17, sheet]  // 【手调】源 t_G1_track_slope_v2 增量 (+5,-1)
+  [526, 592, 263, 148, -123, -17, sheet]  // 【手调】源 t_G1_track_slope_v2 增量 (+8,-1)
 }
 template t_G3_track_slope_v3(sheet) {
-  [789, 592, 263, 148, -131, -16, sheet]
+  [789, 592, 263, 148, -131, -17, sheet]  // 【手调】源 t_G1_track_slope_v3 增量 (0,-1)
 }
 template t_G3_rail_slope_v0(sheet) {
-  [1052, 296, 263, 148, -128, -17, sheet]  // 【手调】源 t_G1_rail_slope_v0 增量 (+3,-1)
+  [1052, 296, 263, 148, -125, -17, sheet]  // 【手调】源 t_G1_rail_slope_v0 增量 (+6,-1)
 }
 template t_G3_rail_slope_v1(sheet) {
-  [1315, 296, 263, 148, -131, -16, sheet]
+  [1315, 296, 263, 148, -131, -17, sheet]  // 【手调】源 t_G1_rail_slope_v1 增量 (0,-1)
 }
 template t_G3_rail_slope_v2(sheet) {
-  [1578, 296, 263, 148, -126, -17, sheet]  // 【手调】源 t_G1_rail_slope_v2 增量 (+5,-1)
+  [1578, 296, 263, 148, -123, -17, sheet]  // 【手调】源 t_G1_rail_slope_v2 增量 (+8,-1)
 }
 template t_G3_rail_slope_v3(sheet) {
-  [1841, 296, 263, 148, -131, -16, sheet]
+  [1841, 296, 263, 148, -131, -17, sheet]  // 【手调】源 t_G1_rail_slope_v3 增量 (0,-1)
 }
 template t_G3_crossing_v0(sheet) {
   [0, 0, 263, 148, -125, -19, sheet]  // 【手调】源 t_G1_crossing_v0 增量 (+6,-3)
