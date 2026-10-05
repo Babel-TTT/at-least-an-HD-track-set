@@ -26,14 +26,14 @@ STR_COST_16_1                               :×16
 
 # ---------------------------------------------------------------- 轨道类型
 
-STR_RAIL_SADN                               :铁路 {GOLD}80km/h
-STR_RAIL_SBDN                               :干线铁路 {GOLD}120km/h
-STR_RAIL_SCDN                               :准高速铁路 {GOLD}160km/h
-STR_RAIL_SBDA                               :{RED}25kVAC{BLACK}电气化铁路 {GOLD}120km/h
-STR_RAIL_SCDA                               :电气化准高速铁路（25kV AC）
-STR_RAIL_SBEd                               :{LTBLUE}1.5kVDC{BLACK}电气化厂矿铁路 {GOLD}100km/h
-STR_RAIL_SBDD                               :朝鲜电气化铁路（3000V DC）
-STR_RAIL_SAC3                               :{GREEN}第三轨{BLACK}地铁轨道 {GOLD}80km/h
-STR_RAIL_NACN                               :窄轨铁路 {GOLD}80km/h
-STR_RAIL_SBEN                               :现代重载铁路 {GOLD}120km/h
-STR_RAIL_SBEA                               :{RED}25kVAC{BLACK}电气化重载铁路 {GOLD}120km/h
+STR_RAIL_SADN                               :铁路
+STR_RAIL_SBDN                               :干线铁路
+STR_RAIL_SCDN                               :准高速铁路
+STR_RAIL_SBDA                               :电气化铁路 {RED}25kVAC
+STR_RAIL_SCDA                               :电气化准高速铁路 {RED}25kVAC
+STR_RAIL_SBEd                               :电气化厂矿铁路 {LTBLUE}1.5kVDC
+STR_RAIL_SBDD                               :朝鲜电气化铁路 {BLUE}3kVDC
+STR_RAIL_SAC3                               :地铁轨道 {GREEN}第三轨
+STR_RAIL_NACN                               :窄轨铁路
+STR_RAIL_SBEN                               :现代重载铁路
+STR_RAIL_SBEA                               :电气化重载铁路 {RED}25kVAC
