@@ -35,7 +35,7 @@ STR_RAIL_SCDA                               :Electrified semi-high-speed
 STR_RAIL_SBEd                               :Industrial electrified railway {LTBLUE}1.5kVDC
 STR_RAIL_SBDD                               :Korean electrified railway {BLUE}3kVDC
 STR_RAIL_SAC3                               :Metro {GREEN}3rd Rail
-STR_RAIL_SBC3                               :Metro floating slab {GREEN}3rd Rail
+STR_RAIL_SBC3                               :Metro light concrete slab {GREEN}3rd Rail
 STR_RAIL_SGCA                               :High-speed unlimited {RED}25kVAC
 STR_RAIL_NACN                               :Narrow gauge
 STR_RAIL_SBEN                               :Heavy haul

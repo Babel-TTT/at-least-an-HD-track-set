@@ -66,35 +66,22 @@ const COVER = { hw: 0.0085, z1: 0.0210 };              // 覆盖板
 const RISE = 0.2041;                                   // 一格坡道的抬升（与 gen-g1-slope 同源）
 const EPS = 0.0008;                                    // 顶面换材质时的微小抬升
 
-// ---------------------------------------------------------------- A13 浮置板（`BAL-I`）
-// 【人工 2026-10-05，A13 确认门（D11）批准：道床 `BAL-I` + C8 四项全按推荐；板面按方案 B】
+// ---------------------------------------------------------------- A13 道床（`BAL-I`）
+// 【人工 2026-10-05，A13 确认门（D11）：道床 `BAL-I` + C8 四项全按推荐】
+// 【人工 2026-10-06，**推翻"浮置板"那一版**】：「`BAL-I` **不要浮置版了**，改成
+//   **浅色混凝土**（**不要暖色**）」⇒ 方案 B：**素面板**。
 //
-//   `BAL-I`（无砟·浮置板）= `BAL-H`（整体道床）**加上两条现实特征**（§1.1）：
-//     ① **板缝**：板体沿轨每 `JOINT_P` 格切一块，缝宽 `JOINT_W`，缝**一直落到减振垫顶面**
-//        （`PAD_Z`）—— 现实里浮置板就是"一块块预制混凝土板坐在一条连续的橡胶垫上"，
-//        所以缝底（= 垫顶）是深色的，那道缝才看得出来。
-//     ② **减振垫边缘线**：板带两侧各一条 `EDGE_W` 宽的顶面条，顶面换成垫的深色
-//        —— 就是"板边露出的那一圈橡胶垫"。
+//   历史（别再走回头路）：2026-10-05 那版把 `BAL-I` 做成 `BAL-H` + 「板缝（0.25 格 /
+//   宽 0.010 / 深 0.0025，缝底 = 减振垫顶面的深灰）+ 减振垫层（0.004 格厚）+
+//   板带两侧各 0.010 宽的减振垫边缘线」。**现在整套删掉**：板缝、减振垫、边缘线一个不留，
+//   只把板体换成**浅色中性混凝土** `concrete_light`（本地增补，见
+//   `tools/flatiso/core/materials.mjs`；基色 (184,191,203) ⇒ 顶面渲出 ≈(185,185,185)）。
+//   旧版几何留在 `git show a0ec626:tools/gen-a12-metro.mjs` 与 `models/G7_*.model`。
 //
-//   ⚠ **只有带板带的四种板有这两样**（直向 / 半格 / 镜像半格 / 坡道）。
-//     **交叉与道岔板保持素面**（板形是多边形：横缝没有物理含义、边缘线还会在 45° 斜切
-//     边上悬空），而且那三件 + overlay 三件 + 洞口四件 + 桥面**逐字复用 A12 的精灵**
-//     ⇒ A13 与 A12 的全部差别都收在本段常量与 `padShapes()` 里。
-//   ⚠ 板缝的**局部 x 跨度由发射器决定**（直向 [0,1]、斜向 [−1,2]、坡道 [0,1]）：
-//     斜向那两种板必须**铺满整格再裁**（见 emitDiag 文件头第 ③ 条弯路），
-//     所以缝要按 JOINT_P 的周期在 [−1,2] 上重复 —— 否则斜向链上会出现一大段没缝的板。
-//   ⚠ **板缝间距必须能整除 1 格（这里取 0.25 ⇒ 一格 4 块板）**，而且**落在瓦片边上那道缝
-//     也必须画**（相邻两格各画自己那一半，拼起来才是一道完整的缝）。两条缺一不可：
-//       · 不整除 1（例如 0.22）：缝位锚在每格局部 x = 0，跨格那一块板就成了
-//         `1 − 0.22×4 + 0.22 = 0.34` 长 ⇒ 板长 0.22 / 0.34 交替，一眼看出节奏不匀。
-//       · 不画边上那道缝：跨格那一块板 = 两倍长（0.5）⇒ 同样是 0.25 / 0.25 / 0.25 / 0.5 的乱节奏。
-//     ⇒ 均匀板长的**充要条件**就是这两条。0.25 格 = 3.47 m，也正对地铁浮置板
-//       （常见板长 3.0 / 3.6 m）的现实口径。
-const PAD_Z = 0.0040;      // 减振垫层厚（= 板侧下缘露出的那 0.004 格）
-const JOINT_P = 0.2500;    // 板缝间距（0.25 格 ≈ 3.47 m 一块板；**必须整除 1 格**，见上）
-const JOINT_W = 0.0100;    // 板缝宽
-const JOINT_D = 0.0025;    // 板缝深（缝底 z = SLAB_Z − JOINT_D，顶面 = 垫的深色）
-const EDGE_W = 0.0100;     // 减振垫边缘线宽（板带两侧各一条）
+//   ⇒ `BAL-I` = **`BAL-H` 的板带 + 另一种板面材质**（几何**逐字相同**，一个数没动）。
+//     ⚠ 由此推出一条必须一起改的账，见本文件 §11 的 ★：**交叉 / 三向 / 四向**那三张
+//       道床板**也要重画**（它们也有板面）—— 上一版能"复用 A12 的 `metro.png`"是因为
+//       那时板面与 A12 同色；现在板面变浅了，再复用就会在岔口露出一块中灰的旧色。
 
 // ---------------------------------------------------------------- 探出边界
 // 【人工 2026-10-04】「把各向铁轨（包括道床）稍微延长出边界一点，以弥补
@@ -128,11 +115,12 @@ const MAT = {
   rail: 'rust', railTop: 'metal',
   third: 'rust', thirdTop: 'metal',
   cover: 'wood_dark', coverTop: 'wood_seam',
-  // A13 浮置板（`BAL-I`）：减振垫 / 板缝底 = 深灰 `panel_seam`(96,96,96)。
-  //   与 TUN-5 洞内压暗用的是同一个色（都在 `_seam` 族 ⇒ GRAIN_RULES 给 0 颗粒，
-  //   橡胶垫本来就该是光的）；对上 `concrete_mid` 渲出的 ≈(160,160,160) 反差约 1.7 倍，
-  //   1.4 px 宽的缝/边线才读得出来。
-  pad: 'panel_seam',
+  // A13 道床（`BAL-I`）：**浅色中性混凝土**（本地新增，2026-10-06 人工：「不要浮置版了，
+  //   改成浅色混凝土（不要暖色）」）。基色 (184,191,203) ⇒ 顶面渲出 ≈(185,185,185)，
+  //   与 A12 的 `concrete_mid`（渲出 ≈(160,160,160)）同族、亮 25 档、同样**不暖**。
+  //   ⚠ 与 `concrete_mid` 一样是相对上游 flatiso 的**本地增补**，同步上游时别丢
+  //     （见 tools/flatiso/VENDORED.md）。
+  slabLight: 'concrete_light',
 };
 
 const fmt = (v) => v.toFixed(4);
@@ -140,19 +128,18 @@ const N = (v) => Number(v.toFixed(6));
 
 // ---------------------------------------------------------------- 形状表
 // 每个形状 = 轴对齐的一"块"：x 沿轨（0…1）、y 横向（绝对坐标）、z 上下、材质
-function trackShapes({ slab = true, rails = true, seats = true, third = true, flip = false, pad = null } = {}) {
+function trackShapes({ slab = true, rails = true, seats = true, third = true, flip = false,
+                       slabMat = MAT.slab } = {}) {
   // flip = 把第三轨/罩挪到板带**另一侧**（关于带中心 y = 0.5 镜像）。
   //   板 / 钢轨 / 扣件座本来就关于 0.5 对称，镜像后逐字不变。
   //   用途见下面第 3b/4b 件：斜向链上 LEFT 与 RIGHT 差 180°，不镜像的话第三轨
   //   会在同一条直线上左右交替（实机截图就是那样）。
   //
-  // pad = A13 浮置板（`BAL-I`）：给了就**不吐整块板**，改吐 `padShapes()` 那套
-  //   （减振垫层 + 切块的板体 + 两条边缘线）。`pad.span` 的取值由**发射器**决定，
-  //   见本文件「A13 浮置板」那段常量的 ⚠。传 null（默认）= A12 的整体道床，逐字不变。
+  // slabMat = 板体材质。默认 `MAT.slab`（A12 的中性中灰 `concrete_mid`）；
+  //   A13 的 `BAL-I` 传 `MAT.slabLight`（浅色中性混凝土）—— **只换材质、几何不动**。
   const S = [];
-  if (slab && pad) S.push(...padShapes(pad.span, pad));
-  else if (slab) {
-    S.push({ long: true, x0: 0, x1: 1, y0: BAND[0], y1: BAND[1], z0: 0, z1: SLAB_Z, mat: MAT.slab });
+  if (slab) {
+    S.push({ long: true, x0: 0, x1: 1, y0: BAND[0], y1: BAND[1], z0: 0, z1: SLAB_Z, mat: slabMat });
   }
   if (rails) for (const c of RAILS) {
     S.push({ long: true, x0: 0, x1: 1, y0: c - RAIL_HW, y1: c + RAIL_HW, z0: RAIL_Z0, z1: RAIL_Z1, mat: MAT.rail, top: MAT.railTop });
@@ -167,63 +154,6 @@ function trackShapes({ slab = true, rails = true, seats = true, third = true, fl
     const c = flip ? 1 - THIRD.c : THIRD.c;
     S.push({ long: true, x0: 0, x1: 1, y0: c - THIRD.hw, y1: c + THIRD.hw, z0: RAIL_Z0, z1: THIRD.z1, mat: MAT.third, top: MAT.thirdTop });
     S.push({ long: true, x0: 0, x1: 1, y0: c - COVER.hw, y1: c + COVER.hw, z0: THIRD.z1, z1: COVER.z1, mat: MAT.cover, top: MAT.coverTop });
-  }
-  return S;
-}
-
-/** A13 浮置板（`BAL-I`）的板带：**减振垫层 + 切块的板体 + 两条减振垫边缘线**
- *
- *  @param span      `{x0, x1}` 局部 x 覆盖范围 —— **必须由发射器决定**：
- *                     直向 `[0,1]`、斜向 `[-1,2]`（铺满整格再裁，配 `clipOver`）、
- *                     坡道 `[0,1]`（坡道本来就不探出，见 emitSheared）。
- *  @param clipOver  给每块板挂 `clip: OVER`（**只给斜向用**：`emitDiag` 认它，
- *                   在不改 `x0/x1` 的前提下保留"探出边界盖接缝"的余量）
- *
- *  造法（三件）：
- *    ① 垫：z 0 → `PAD_Z`，**连续一整条**（板侧因此露出 0.004 格深的垫边）
- *    ② 板：z `PAD_Z` → `SLAB_Z`，缝处只到 `SLAB_Z − JOINT_D`，缝的顶面换 `MAT.pad`
- *       （深色）⇒ 缝底是一道深灰线，两侧的板端面自己成"缝壁"。
- *       **缝在 [X0, X1] 上按 `JOINT_P` 布**，端点上那道只画落在本格里的**一半** ——
- *       相邻两格各一半，拼起来正好是一道完整的缝（这样板长才**均匀**，见常量那段的 ⚠）。
- *    ③ 边线：板带两侧各 `EDGE_W` 宽的**顶面条**（`z SLAB_Z−0.0002 → SLAB_Z+EPS`），
- *       用发射器现成的 `top=` 机制做不到"只换一条"，所以直接抬 `EPS` 压在上面
- *       （`EPS` 是 A12 已有的顶面换材质余量，0.13 px，不会 z-fighting）
- */
-function padShapes({ x0: X0, x1: X1 }, { clipOver = false } = {}) {
-  const [y0, y1] = BAND;
-  const hw = JOINT_W / 2;
-  const S = [];
-
-  // ① 减振垫层：连续整条（`long` 让三种发射器都按各自口径铺满 / 探出）
-  S.push({ long: true, x0: 0, x1: 1, y0, y1, z0: 0, z1: PAD_Z, mat: MAT.pad });
-
-  // ② 板体 / 板缝交替；缝位 = `JOINT_P` 的整数倍（锚在局部 x = 0 ⇒ 直线上相邻两格对得上）
-  const segs = [];
-  let cur = X0;
-  for (let k = Math.ceil(X0 / JOINT_P - 1e-9); k * JOINT_P <= X1 + 1e-9; k++) {
-    const t = k * JOINT_P;
-    const a = N(Math.max(X0, t - hw)), b = N(Math.min(X1, t + hw));
-    if (b <= a + 1e-9) continue;
-    if (a > cur + 1e-9) segs.push({ x0: cur, x1: a, joint: false });
-    segs.push({ x0: a, x1: b, joint: true });
-    cur = b;
-  }
-  if (cur < X1 - 1e-9) segs.push({ x0: cur, x1: X1, joint: false });
-  for (const s of segs) {
-    S.push({
-      clip: clipOver ? OVER : undefined,
-      x0: N(s.x0), x1: N(s.x1), y0, y1,
-      z0: PAD_Z, z1: s.joint ? N(SLAB_Z - JOINT_D) : SLAB_Z,
-      mat: MAT.slab, top: s.joint ? MAT.pad : undefined,
-    });
-  }
-
-  // ③ 减振垫边缘线：板带两侧各一条（`long` ⇒ 三种发射器都按各自口径铺满）
-  for (const a of [y0, N(y1 - EDGE_W)]) {
-    S.push({
-      long: true, x0: 0, x1: 1, y0: a, y1: N(a + EDGE_W),
-      z0: N(SLAB_Z - 0.0002), z1: N(SLAB_Z + EPS), mat: MAT.pad,
-    });
   }
   return S;
 }
@@ -308,10 +238,7 @@ function emitBox(L, b) {
 function emitDiag(L, b) {
   const X0 = b.long ? -1 : b.x0;
   const X1 = b.long ? 2 : b.x1;
-  // `clip` = "探出边界"的余量，默认挂在 `long` 上；A13 的浮置板板体**有自己的 x 分段**
-  //   （不能整块 `long`，否则每段都会被拉到 −1…2、缝就没了），所以允许**显式给** `clip`
-  //   来保留那条余量（见 padShapes 的 `clipOver`）。不传 ⇒ 行为与以前逐字相同。
-  const m = b.clip ?? (b.long ? OVER : 0);
+  const m = b.long ? OVER : 0;
   const poly = clipTile(ccw([
     mapD(X0, b.y0), mapD(X1, b.y0), mapD(X1, b.y1), mapD(X0, b.y1),
   ]), m);
@@ -349,12 +276,14 @@ function emitSheared(L, b) {
 }
 
 // ---------------------------------------------------------------- 道床板（交叉 / 道岔用）
+//   `mat` 参数 = 板体材质（2026-10-06 起要能给 A13 传 `MAT.slabLight`）：
+//   默认 `MAT.slab` ⇒ A12 的输出**逐字不变**。
 /** 交叉（X 带 ∪ Y 带）—— 拆成 3 块互不重叠的轴对齐板 */
-function slabCrossing(z0 = 0, z1 = SLAB_Z) {
+function slabCrossing(z0 = 0, z1 = SLAB_Z, mat = MAT.slab) {
   return [
-    { x0: 0, x1: 1, y0: BAND[0], y1: BAND[1], z0, z1, mat: MAT.slab },                 // X 带
-    { x0: BAND[0], x1: BAND[1], y0: 0, y1: BAND[0], z0, z1, mat: MAT.slab },           // Y 带（北侧）
-    { x0: BAND[0], x1: BAND[1], y0: BAND[1], y1: 1, z0, z1, mat: MAT.slab },           // Y 带（南侧）
+    { x0: 0, x1: 1, y0: BAND[0], y1: BAND[1], z0, z1, mat },                 // X 带
+    { x0: BAND[0], x1: BAND[1], y0: 0, y1: BAND[0], z0, z1, mat },           // Y 带（北侧）
+    { x0: BAND[0], x1: BAND[1], y0: BAND[1], y1: 1, z0, z1, mat },           // Y 带（南侧）
   ];
 }
 
@@ -362,12 +291,11 @@ function slabCrossing(z0 = 0, z1 = SLAB_Z) {
  *   人工 2026-10-03：「三向的做成矩形和梯形的组合」。
  *   形状 = 矩形（x 0.32~0.68 全 y，北/南两臂）+ 东侧梯形（x=0.68 到 x−y=0.68 / x+y=1.68 两条 45° 切边）。
  *   45° 切的进深 0.32 = 对角线板带半宽 0.18 的补（0.5 − 0.18）——与交叉板带同一口径。 */
-function slabJunction3(z0 = 0, z1 = SLAB_Z) {
+function slabJunction3(z0 = 0, z1 = SLAB_Z, mat = MAT.slab) {
   const a = BAND[0], b = BAND[1];
-  const cut = 1 - a;                       // 0.68（东侧两条切边在 x 轴上的截距）
   return [{
     poly: [[a, 0], [b, 0], [1, a], [1, b], [b, 1], [a, 1]],
-    z0, z1, mat: MAT.slab,
+    z0, z1, mat,
   }];
 }
 
@@ -375,13 +303,47 @@ function slabJunction3(z0 = 0, z1 = SLAB_Z) {
  *   人工 2026-10-03：「四向的类似正八边形」。
  *   八条边 = 瓦片四条边（各被切掉 0.5−0.18 = 0.32 的两端）+ 四条 45° 切边；
  *   切边正好是对角线板带（|x+y−0.5| ≤ 0.18 及其镜像）的外沿。 */
-function slabJunction4(z0 = 0, z1 = SLAB_Z) {
+function slabJunction4(z0 = 0, z1 = SLAB_Z, mat = MAT.slab) {
   const a = BAND[0], b = BAND[1];
   return [{
     poly: [[a, 0], [b, 0], [1, a], [1, b], [b, 1], [a, 1], [0, b], [0, a]],
-    z0, z1, mat: MAT.slab,
+    z0, z1, mat,
   }];
 }
+
+/** 交叉瓦片的**全部**形状：道床板（十字，自带两组钢轨）+ 两个方向的钢轨/扣件座
+ *   + 第三轨/罩在对方板带处断开成两段。
+ *
+ *   ★ 单独成函数是为了让 A12（`BAL-H`）与 A13（`BAL-I`）**共用同一份**：
+ *     A13 只要把 `slabMat` 换成浅色混凝土，其余（两组钢轨、断口位置）逐字相同。
+ *     ⇒ 岔口不会出现"板面颜色与直线段不一致"（2026-10-06 那条教训，见 §11 的 ★）。
+ */
+function crossingShapes(slabMat = MAT.slab) {
+  const L = [];
+  for (const b of slabCrossing(0, SLAB_Z, slabMat)) emitBox(L, b);
+  // X 向：钢轨 + 扣件座（整格）
+  for (const b of trackShapes({ slab: false, third: false })) emitBox(L, b);
+  // Y 向：钢轨 + 扣件座（沿 y 走）
+  const yDir = (b) => ({ x0: b.y0, x1: b.y1, y0: b.x0, y1: b.x1, z0: b.z0, z1: b.z1, mat: b.mat, top: b.top });
+  for (const b of trackShapes({ slab: false, third: false })) emitBox(L, yDir(b));
+  // 第三轨 / 罩：**两个方向都在对方轨道占的板带里断开**（人工 2026-10-03 排查）
+  //   现实里接触轨过交叉必须断开，否则钢轨会把它短路；图形上也免得两根钢轨
+  //   压着一条穿过去的第三轨。断口 = 对方的板带 [BAND[0], BAND[1]]（宽 0.36）。
+  //   四段（每方向 2 段 × 第三轨/罩 2 层）互不重叠 —— 别改成整格，会与对方共面相交。
+  for (const [z0, z1, hw, mat, top] of [
+    [RAIL_Z0, THIRD.z1, THIRD.hw, MAT.third, MAT.thirdTop],
+    [THIRD.z1, COVER.z1, COVER.hw, MAT.cover, MAT.coverTop],
+  ]) {
+    for (const [t0, t1] of [[0, BAND[0]], [BAND[1], 1]]) {
+      // X 向那根：沿 x 走，横向在 y = THIRD.c
+      emitBox(L, { x0: t0, x1: t1, y0: THIRD.c - hw, y1: THIRD.c + hw, z0, z1, mat, top });
+      // Y 向那根：沿 y 走，横向在 x = THIRD.c
+      emitBox(L, { x0: THIRD.c - hw, x1: THIRD.c + hw, y0: t0, y1: t1, z0, z1, mat, top });
+    }
+  }
+  return L;
+}
+
 
 /** 发一块水平多边形柱（轴对齐的用 box，三角形用 prism） */
 function emitSlab(L, b) {
@@ -799,30 +761,9 @@ export function generate() {
     }, header('G4_rail_slope', L)));
   }
 
-  // 7) 交叉（X ∪ Y，自带两组钢轨）
+  // 7) 交叉（X ∪ Y，自带两组钢轨）—— 形状见 `crossingShapes()`（A13 的浅色板共用同一份）
   {
-    const L = [];
-    for (const b of slabCrossing()) emitBox(L, b);
-    // X 向：钢轨 + 扣件座（整格）
-    for (const b of trackShapes({ slab: false, third: false })) emitBox(L, b);
-    // Y 向：钢轨 + 扣件座（沿 y 走）
-    const yDir = (b) => ({ x0: b.y0, x1: b.y1, y0: b.x0, y1: b.x1, z0: b.z0, z1: b.z1, mat: b.mat, top: b.top });
-    for (const b of trackShapes({ slab: false, third: false })) emitBox(L, yDir(b));
-    // 第三轨 / 罩：**两个方向都在对方轨道占的板带里断开**（人工 2026-10-03 排查）
-    //   现实里接触轨过交叉必须断开，否则钢轨会把它短路；图形上也免得两根钢轨
-    //   压着一条穿过去的第三轨。断口 = 对方的板带 [BAND[0], BAND[1]]（宽 0.36）。
-    //   四段（每方向 2 段 × 第三轨/罩 2 层）互不重叠 —— 别改成整格，会与对方共面相交。
-    for (const [z0, z1, hw, mat, top] of [
-      [RAIL_Z0, THIRD.z1, THIRD.hw, MAT.third, MAT.thirdTop],
-      [THIRD.z1, COVER.z1, COVER.hw, MAT.cover, MAT.coverTop],
-    ]) {
-      for (const [t0, t1] of [[0, BAND[0]], [BAND[1], 1]]) {
-        // X 向那根：沿 x 走，横向在 y = THIRD.c
-        emitBox(L, { x0: t0, x1: t1, y0: THIRD.c - hw, y1: THIRD.c + hw, z0, z1, mat, top });
-        // Y 向那根：沿 y 走，横向在 x = THIRD.c
-        emitBox(L, { x0: THIRD.c - hw, x1: THIRD.c + hw, y0: t0, y1: t1, z0, z1, mat, top });
-      }
-    }
+    const L = crossingShapes();
     files.push(model('G4_crossing', {
       zmax: fmt(FLAT),
       notes: [
@@ -880,75 +821,77 @@ export function generate() {
   }
 
   // ===========================================================================
-  // 11) A13 组（`SBC3` 第三轨地铁 · **浮置板** `BAL-I`）—— **只吐带板带的四种板**
+  // 11) A13 组（`SBC3` 第三轨地铁 · 道床 `BAL-I`）—— **七件：凡是有板面的都要重画**
   //
   //   人工 2026-10-05 确认门（D11）批准：道床 `BAL-I`、轨枕 `SLE-5`、钢轨 `RAI-4`、
   //   洞口 **复用 TUN-5**、电气化 **无**（第三轨 ⇒ `EL-NONE`，不设 CATENARY flag）。
   //   C8：地图色 **0x62** · `SORT_ELECTRIC` · **禁平交道口** · 曲线限速 1.0 ·
   //        120 km/h · 费用 10 / 5（CSV 第 8 列）。
   //
-  //   ★ **为什么只有四种**：`BAL-I` 与 `BAL-H` 的差别**全部落在板面上**，而
-  //     ① overlay 三件（`G4_rail_*`）、② 交叉 / 三向 / 四向三道床板、③ 洞口四件、
-  //     ④ 桥面 —— 这些**本来就不含板带**（overlay 无道床；交叉与道岔的板我们
-  //     有意保持素面，见本文件「A13 浮置板」那段的 ⚠）
-  //     ⇒ 它们与 A12 **逐字相同**，**直接复用 `gfx/metro.png` 的精灵与既有模板**，
-  //       不重复生成（接线见 src/rails/railsprite.pnml 的 `probe_underlay_floatslab`）。
-  //     ⇒ A13 的新表只装这 4 件（16 张精灵），新模板只有 10 条。
-  //   ⚠ 这 4 件内容只比 G4 多"板缝 + 减振垫边缘线"，**几何外包络一个数没变**
-  //     ⇒ 格位、`rect`、`xrel/yrel` 与 G4 那 4 件**完全相同**（同 `docs/建模经验.md` §4.20
-  //     的"同形变体"：模型名不同、表不同，摆位值照抄）。渲完用 `tools/sprites.mjs` 复核。
+  //   ★ 2026-10-06 人工改口径：「`BAL-I` **不要浮置版了**，改成**浅色混凝土**（不要暖色）」
+  //     ⇒ 方案 B = **素面板**（板缝 / 减振垫 / 边缘线全部不要），只把板体换成
+  //       `concrete_light`。于是 `BAL-I` 与 `BAL-H` 的差别**只剩板面材质**。
+  //
+  //   ★★ **由此必须一起重画的是"有板面的每一件"**（这条是上一版留下的坑，记在这儿）：
+  //       上一版板面与 A12 同色，所以「交叉 / 三向 / 四向」三张道床板 + 桥面可以
+  //       **逐字复用 `gfx/metro.png`**；现在板面变浅了，再复用就会在**岔口**
+  //       （以及桥面）露出一块**中灰的旧板**——直线段是浅色、岔口是中灰，一眼就是错的。
+  //       ⇒ 本组出 **7 件**：
+  //           · 带板带的四件：直向 / 半格 / 镜像半格 / 坡道
+  //           · **交叉 / 三向 / 四向**三张道床板（形状照旧：十字 / 六边形 / 八边形）
+  //         仍然复用 A12 的只有：**overlay 三件**（纯钢轨层，本来就没有道床）、
+  //         **洞口四件**（TUN-5，A12/A13 共用）、桥面以外的其余。
+  //       ⚠ 摆位值（`xrel/yrel`）这七件**全部等于 A12 对应那件**：模型几何逐字相同
+  //         （只差材质名），格位也一样（263×147，与 metro 表同）⇒ `templates.pnml`
+  //         里 `t_G7_*` 的 xrel/yrel 照抄 `t_G4_*`，只有 `rect` 是本表的格位。
   // ===========================================================================
-  const A13 = 'A13 组（`SBC3` 第三轨地铁 · `BAL-I` 浮置板）';
-  const PAD_STRAIGHT = { span: { x0: 0, x1: 1 } };
-  const PAD_DIAG = { span: { x0: -1, x1: 2 }, clipOver: true };
-  const PAD_SLOPE = { span: { x0: 0, x1: 1 } };
-  const PAD_NOTE = [
-    '道床 `BAL-I`（无砟·浮置板）= `BAL-H` 的板带 + **板缝**（间距 0.25 格 / 宽 0.010 / 深 0.0025，',
-    '缝底 = 减振垫顶面，深灰）+ **减振垫边缘线**（板带两侧各 0.010 宽的顶面条）+ 垫层 0.004 格厚。',
-    '口径与理由见本生成器「A13 浮置板（`BAL-I`）」那段常量与 `padShapes()`。',
+  const A13 = 'A13 组（`SBC3` 第三轨地铁 · `BAL-I` 浅色混凝土道床）';
+  const SLAB_LIGHT = MAT.slabLight;
+  const A13_NOTE = [
+    `道床 \`BAL-I\`（无砟·**浅色混凝土**素面板）= \`BAL-H\` 的板带换板面材质 \`${SLAB_LIGHT}\``,
+    '（本地增补；基色 (184,191,203) ⇒ 顶面渲出 ≈(185,185,185)，**中性、不暖**）。',
+    '**没有板缝、没有减振垫、没有边缘线**（人工 2026-10-06 推翻"浮置板"那一版，方案 B）。',
     '',
-    '⚠ 本件与 A12 的 `G4_*` **只差板面**：轨枕 `SLE-5` / 钢轨 / 第三轨 / 扣件座逐字相同，',
-    '  几何外包络不变 ⇒ 格位与摆位值同 G4（`templates.pnml` 里那 10 条照抄 G4 的值）。',
+    '⚠ 本件与 A12 的 `G4_*` **几何逐字相同、只差板面材质**：轨枕 `SLE-5` / 钢轨 / 第三轨 /',
+    '  扣件座 / 板带宽度 / 板顶 0.010 一个数没动 ⇒ 格位与摆位值同 G4（`xrel/yrel` 照抄）。',
   ];
 
   // 11a) 直向板（underlay 槽 0/1）
   {
     const L = [];
-    for (const b of trackShapes({ pad: PAD_STRAIGHT })) emitBox(L, b);
+    for (const b of trackShapes({ slabMat: SLAB_LIGHT })) emitBox(L, b);
     files.push(model('G7_track_x', {
       zmax: fmt(FLAT), group: A13,
       notes: [
-        'underlay 槽 0/1（RTO_X / RTO_Y）：**浮置板**整体画面（板 + 扣件座 + 钢轨 + 第三轨）',
-        ...PAD_NOTE,
+        'underlay 槽 0/1（RTO_X / RTO_Y）：**浅色混凝土地铁道床**完整画面',
+        '（板 + 扣件座 + 钢轨 + 第三轨）',
+        ...A13_NOTE,
       ],
     }, header('G7_track_x', L)));
   }
   // 11b) 半格轨（斜向，切 N 角；underlay 槽 2-5）
   {
     const L = [];
-    for (const b of trackShapes({ pad: PAD_DIAG })) emitDiag(L, b);
+    for (const b of trackShapes({ slabMat: SLAB_LIGHT })) emitDiag(L, b);
     files.push(model('G7_track_half', {
       zmax: fmt(FLAT), group: A13,
       notes: [
-        'underlay 槽 2 / 5（RTO_N / RTO_W）：**浮置板**的切 N 角半格轨',
-        ...PAD_NOTE,
-        '',
-        '⚠ 斜向的板**必须铺满整格再裁**（见 `emitDiag` 文件头第 ③ 条弯路）⇒ 板缝按 0.25 的',
-        '  周期在局部 x ∈ [−1,2] 上重复；每块板挂 `clip: OVER` 保留"探出边界盖接缝"的余量。',
+        'underlay 槽 2 / 5（RTO_N / RTO_W）：浅色道床的切 N 角半格轨',
+        ...A13_NOTE,
       ],
     }, header('G7_track_half', L)));
   }
   // 11c) 半格轨镜像版（第三轨在 −y 侧；underlay 槽 3/4）
   {
     const L = [];
-    for (const b of trackShapes({ pad: PAD_DIAG, flip: true })) emitDiag(L, b);
+    for (const b of trackShapes({ slabMat: SLAB_LIGHT, flip: true })) emitDiag(L, b);
     files.push(model('G7_z_track_half_m', {
       zmax: fmt(FLAT), group: A13,
       notes: [
-        'underlay 槽 3/4（RTO_S / RTO_E）专用：**浮置板**半格轨的**镜像版**（第三轨在 −y 侧）',
-        ...PAD_NOTE,
+        'underlay 槽 3/4（RTO_S / RTO_E）专用：浅色道床半格轨的**镜像版**（第三轨在 −y 侧）',
+        ...A13_NOTE,
         '',
-        '镜像关于板带中心 y = 0.5 做 ⇒ 板（含板缝 / 边缘线）本来就关于 0.5 对称、逐字不变，',
+        '镜像关于板带中心 y = 0.5 做 ⇒ 板 / 钢轨 / 扣件座本来就关于 0.5 对称、逐字不变，',
         '只有第三轨 + 罩换到另一侧。理由与接法见 `G4_z_track_half_m`（A12，逐字同源）。',
       ],
     }, header('G7_z_track_half_m', L)));
@@ -956,16 +899,59 @@ export function generate() {
   // 11d) 坡道（基准 SLOPE_NE；underlay 槽 6-9）
   {
     const L = [];
-    for (const b of trackShapes({ pad: PAD_SLOPE })) emitSheared(L, b);
+    for (const b of trackShapes({ slabMat: SLAB_LIGHT })) emitSheared(L, b);
     files.push(model('G7_track_slope', {
       zmax: fmt(SLOPE), group: A13,
       notes: [
-        'underlay 槽 6-9（RTO_SLOPE_NE / SE / SW / NW）：**浮置板**坡道',
-        ...PAD_NOTE,
+        'underlay 槽 6-9（RTO_SLOPE_NE / SE / SW / NW）：浅色道床坡道',
+        ...A13_NOTE,
         '',
-        '⚠ 坡道**不探出边界**（两端各有硬理由，见 `emitSheared`）⇒ 板缝只按 [0,1] 切。',
+        '⚠ 坡道**不探出边界**（两端各有硬理由，见 `emitSheared`）。',
       ],
     }, header('G7_track_slope', L)));
+  }
+  // 11e) 交叉（underlay 槽 10）—— 形状与 A12 共用 `crossingShapes()`，只换板面材质
+  {
+    const L = crossingShapes(SLAB_LIGHT);
+    files.push(model('G7_crossing', {
+      zmax: fmt(FLAT), group: A13,
+      notes: [
+        'underlay 槽 10（RTO_CROSSING_XY）：浅色道床的交叉，**自带两组钢轨**',
+        ...A13_NOTE,
+        '',
+        '★ 上一版这件**复用 A12 的中灰板**，板面变浅后复用就会在岔口露出一块中灰 —— 见 §11 的 ★★。',
+      ],
+    }, header('G7_crossing', L)));
+  }
+  // 11f) 三向道岔（underlay 槽 11-14）
+  {
+    const L = [];
+    for (const b of slabJunction3(0, SLAB_Z, SLAB_LIGHT)) emitSlab(L, b);
+    files.push(model('G7_junction3', {
+      zmax: fmt(FLAT), group: A13,
+      notes: [
+        'underlay 槽 11-14（RTO_JUNCTION_SW / NE / SE / NW）：浅色道床的**三向道岔板**',
+        ...A13_NOTE,
+        '',
+        '形状（六边形 = 矩形 + 梯形）与 A12 的 `G4_junction3` 逐字相同，只有板面材质不同。',
+        '**只有道床板、没有钢轨**（道岔瓦片由引擎逐段叠 overlay 的钢轨层）。',
+      ],
+    }, header('G7_junction3', L)));
+  }
+  // 11g) 四向道岔（underlay 槽 15）
+  {
+    const L = [];
+    for (const b of slabJunction4(0, SLAB_Z, SLAB_LIGHT)) emitSlab(L, b);
+    files.push(model('G7_junction4', {
+      zmax: fmt(FLAT), group: A13,
+      notes: [
+        'underlay 槽 15（RTO_JUNCTION_NSEW）：浅色道床的**四向道岔板**',
+        ...A13_NOTE,
+        '',
+        '形状（正八边形）与 A12 的 `G4_junction4` 逐字相同，只有板面材质不同。',
+        '**只有道床板、没有钢轨**（同上）。',
+      ],
+    }, header('G7_junction4', L)));
   }
 
   return files;

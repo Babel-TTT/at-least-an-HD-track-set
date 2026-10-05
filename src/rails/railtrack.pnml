@@ -1092,15 +1092,17 @@ item(FEAT_RAILTYPES, rail_SBC3, 18) {
         map_colour:             0x62;
         sort_order:             SORT_ELECTRIC;
     }
-    /* ★ 2026-10-05：A13 组（`BAL-I` 浮置板 + `SLE-5` 无枕 + `RAI-4` 第三轨）接入。
-       `BAL-I` = `BAL-H` + 板缝 + 减振垫边缘线（模型由 `tools/gen-a12-metro.mjs` 的
-       `padShapes()` 吐出，分表 `gfx/floatslab.png`）。
+    /* ★ 2026-10-05：A13 组（`BAL-I` + `SLE-5` 无枕 + `RAI-4` 第三轨）接入。
+       ★ 2026-10-06 人工改口径：「`BAL-I` **不要浮置版了**，改成**浅色混凝土**（不要暖色）」
+         ⇒ 道床 = **浅色混凝土素面板**（`concrete_light`，基色 (184,191,203) ⇒ 渲出 ≈(185,185,185)），
+           上一版的板缝 / 减振垫 / 减振垫边缘线**整套作废**。
+           模型由 `tools/gen-a12-metro.mjs` §11 吐出（7 件），分表 `gfx/floatslab.png`。
 
-       ⚠ **只做减振段该做的那一层**：一个组里只有**带板带的四种板**是新图 ——
-         `track_overlay`（不含道床）、`tunnels` / `tunnel_overlay`（TUN-5）、
-         以及交叉 / 三向 / 四向那三张**保持素面**的道床板，都与 `SAC3`（A12）
-         **逐字相同**，因此**直接复用 A12 的 spriteset 与既有模板**，不重画。
-       桥面单独一套（`probe_bridge_surfaces_floatslab`）—— 桥上也要是浮置板断面。 */
+       ⚠ **凡是有板面的都要重画**：板面一改浅，交叉 / 三向 / 四向那三张道床板
+         也必须跟着换（否则岔口露出一块中灰的 A12 旧板）。
+         ⇒ `underlay` / `bridge_surfaces` 两套**全部**用 `G7_*`（`gfx/floatslab.png`）。
+       仍然复用 A12 的是：`track_overlay`（纯钢轨层、本来就没有道床）、
+       `tunnels` / `tunnel_overlay`（TUN-5 矩形洞门，A12/A13 共用同一套）。 */
     graphics {
         underlay:        probe_underlay_floatslab;
         track_overlay:   probe_overlay_metro;
