@@ -31,6 +31,8 @@
 //      ⇒ 端墙 0.68 → 0.768 格（10.7 m）、洞跨 0.31 → 0.35 格（4.87 m，拱顶高不动 ⇒ 大断面），
 //      再在洞正面加一圈**凸出的加固环框**（亮一档 `concrete_mid`，外凸 0.026 格）。
 //      ⚠ 只对 |y−0.5| ≤ 0.36 的顶点做横向放大 —— 仰面（山体）后沿必须仍然铺满整格。
+//      ★ 2026-10-05 修正：第一版取 `G1_tunnel_stone`（**TUN-1 料石**）却**忘了做材质替换**
+//        ⇒ 产物其实是料石色。现在补上 `recolor: 'tun2'`，与 TUN-2 的配色逐面一致。
 //
 // -----------------------------------------------------------------------------
 // 【为什么是「从 G1 的既有模型派生」而不是重画一套】
@@ -154,14 +156,33 @@ const JOBS = [
   { src: 'G1_levelcrossing', dst: 'G6_levelcrossing', kind: 'y', over: true,
     note: 'level_crossings 的轨道图（v0 → X 槽、v3 → Y 槽）' },
   // ---- 洞口 TUN-6：重载加固端墙（端墙加宽 + 大断面拱 + 洞口加固环框）----
-  { src: 'G1_tunnel_stone', dst: 'G6_tunnel6', kind: 'tunnel', over: true, ring: 'a',
+  //   ★ 2026-10-05 修正：本工具原来取的是 `G1_tunnel_stone`（**TUN-1 料石**）而且
+  //     **没有做材质替换** ⇒ `G6_tunnel6` 实际是**料石色**，与文件头/文档写的
+  //     "以 TUN-2（素混凝土深灰）为底" 不符。现在补上 `recolor: 'tun2'`（见 RECOLOR_TUN2）。
+  { src: 'G1_tunnel_stone', dst: 'G6_tunnel6', kind: 'tunnel', over: true, ring: 'a', recolor: 'tun2',
     note: 'tunnels: 组（A 组：远半 y<0.5）—— 洞内轨道 + 洞门远半 + 环框左柱' },
-  { src: 'G1_tunnel_stone_b', dst: 'G6_tunnel6_b', kind: 'tunnel', over: true, ring: 'b',
+  { src: 'G1_tunnel_stone_b', dst: 'G6_tunnel6_b', kind: 'tunnel', over: true, ring: 'b', recolor: 'tun2',
     note: 'tunnels: 组（B 组：近半 y>0.5）—— 洞内轨道 + 洞门近半 + 环框右柱' },
-  { src: 'G1_tunnel_stone_over', dst: 'G6_tunnel6_over', kind: 'tunnel', over: false, ring: 'lintel',
+  { src: 'G1_tunnel_stone_over', dst: 'G6_tunnel6_over', kind: 'tunnel', over: false, ring: 'lintel', recolor: 'tun2',
     note: 'tunnel_overlay: 组（A 组）—— 洞顶 + 环框横梁' },
-  { src: 'G1_tunnel_stone_over_b', dst: 'G6_tunnel6_over_b', kind: 'tunnel', over: false, ring: 'lintel',
+  { src: 'G1_tunnel_stone_over_b', dst: 'G6_tunnel6_over_b', kind: 'tunnel', over: false, ring: 'lintel', recolor: 'tun2',
     note: 'tunnel_overlay: 组（B 组）—— 洞顶 + 环框横梁' },
+];
+
+/**
+ * 洞口配色替换表 —— 与 `tools/gen-g1-tunnel.mjs` 里 TUN-2 那一套**逐条一致**
+ * （那边是 `s.replace(/\bstone_seam\b/g,'metal_seam').replace(/\bstone_dark\b/g,'panel_seam')
+ *   .replace(/\bstone\b/g,'concrete_dark')`）。
+ *
+ *   ⚠ 必须在**整份 body 都发完之后**再替换（而不是逐面替换）：
+ *     `G1_tunnel_stone` 里有 2 个 `stone_dark` 面会被"坡脚散粒"那条规则先接走
+ *     （`mat==='stone_dark' && kw==='prism' && z1<=0.006`），逐面替换会把它们漏掉，
+ *     而 TUN-2 是整文件替换 ⇒ 两边会差 2 个面的颜色。整份替换才与 TUN-2 逐面一致。
+ */
+const RECOLOR_TUN2 = [
+  [/\bstone_seam\b/g, 'metal_seam'],
+  [/\bstone_dark\b/g, 'panel_seam'],
+  [/\bstone\b/g, 'concrete_dark'],
 ];
 
 // ---------------------------------------------------------------- 小工具
@@ -609,6 +630,15 @@ function processJob(job) {
   }
   if (job.ring) ringLines(job.ring).forEach((l) => body.push(l));
 
+  // ★ 洞口配色替换（整份 body 发完之后再做，见 RECOLOR_TUN2 的注释）
+  let out = body;
+  let nRecolor = 0;
+  if (job.recolor === 'tun2') {
+    for (const [re, to] of RECOLOR_TUN2) {
+      out = out.map((l) => { const r = l.replace(re, to); if (r !== l) nRecolor++; return r; });
+    }
+  }
+
   const hdr = [
     '# =============================================================================',
     `# ${job.dst} —— A5 组（\`SBEN\` / \`SBEA\` 重载）· ${job.note}`,
@@ -616,6 +646,10 @@ function processJob(job) {
     '# 【本文件由 tools/gen-a5-heavy.mjs 生成，请勿手改】',
     `#   源 = models/${job.src}.model；kind=${job.kind}、沿轨探出 OVER=${OVER} 格${job.over ? '' : '（本件**不探出**）'}`,
     '#   口径与"为什么这么改"见 tools/gen-a5-heavy.mjs 的文件头。',
+    job.recolor === 'tun2'
+      ? '#   洞口配色 = **TUN-2 素混凝土深灰**（料石 stone* → concrete_dark / panel_seam / metal_seam，'
+        + `${nRecolor} 处）—— 与 tools/gen-g1-tunnel.mjs 里 TUN-2 那一套逐条一致。`
+      : '#   （洞口材质原样）',
     `#   自检：入 ${stats.lines} 行 → 出 ${stats.out} 行；道床 ${stats.bal} 面、枕木 ${stats.sleep} 件、钢轨 ${stats.rail} 面、洞门 ${stats.portal} 面、原样 ${stats.other} 行`,
     '# =============================================================================',
     '',
@@ -629,8 +663,8 @@ function processJob(job) {
   if (!seenName) outHead.unshift(`name      ${job.dst}`);
 
   const file = path.join(ROOT, 'models', `${job.dst}.model`);
-  fs.writeFileSync(file, hdr + outHead.join('\n') + '\n' + body.join('\n') + '\n', 'utf8');
-  return { file, stats };
+  fs.writeFileSync(file, hdr + outHead.join('\n') + '\n' + out.join('\n') + '\n', 'utf8');
+  return { file, stats: { ...stats, recolor: nRecolor } };
 }
 
 export function generate() {
@@ -641,7 +675,8 @@ export function generate() {
     const { file, stats } = processJob(job);
     files.push(file);
     log(`  → ${rel(file).padEnd(38)} 入 ${String(stats.lines).padStart(4)} → 出 ${String(stats.out).padStart(4)} 行`
-      + `   道床 ${String(stats.bal).padStart(3)} · 枕木 ${String(stats.sleep).padStart(3)} · 钢轨 ${String(stats.rail).padStart(2)} · 洞门 ${String(stats.portal).padStart(3)}`);
+      + `   道床 ${String(stats.bal).padStart(3)} · 枕木 ${String(stats.sleep).padStart(3)} · 钢轨 ${String(stats.rail).padStart(2)} · 洞门 ${String(stats.portal).padStart(3)}`
+      + (stats.recolor ? ` · 洞口配色 ${String(stats.recolor).padStart(3)} 处` : ''));
   }
   return files;
 }

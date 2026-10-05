@@ -141,6 +141,36 @@ export const SHEETS = [
     match: /^G6_/,
   },
   {
+    // A3 组（`SCDN` / `SCDA` 准高速）的**洞口**：TUN-3 现代混凝土端墙拱
+    // （TUN-2 的几何 + 配色提亮统一 + 压顶刻一道顶部截水沟；
+    //  几何由 tools/gen-a3-quasi.mjs 从 `G2_tunnel2_stone` / `G1_tunnel2_stone_over` 派生）。
+    // ⚠ 必须登记在下面的 quasi **之前**：那个表的正则是 /^G3_/，会先把 G3_tunnel3_* 吃掉。
+    key: 'tunnel3',
+    title: '准高速洞口 TUN-3（现代混凝土端墙拱 + 顶部截水沟；SCDN / SCDA）',
+    match: /^G3_tunnel3/,
+  },
+  {
+    // A3 组（`SCDN` / `SCDA` 准高速）的轨道：BAL-A 标准碎石道床 + SLE-2 U 形混凝土枕
+    // + RAI-1 60kg/m 轨。
+    // 单独一张表（同 rail / metro / narrow / heavy 表的理由：混进去会把已有几十条 rect 顶移位）。
+    key: 'quasi',
+    title: '准高速轨道（BAL-A + SLE-2 + RAI-1；SCDN / SCDA）',
+    match: /^G3_/,
+  },
+  {
+    // 接触网支柱 **PYL-C2（灰色混凝土圆柱）**（§1.6.5.6 的规格；`SCDA` 在用）。
+    //
+    // ⚠ **必须单独一张表**（而不是并进下面的 pylonstyle）：
+    //   pylonstyle 现在只有 E1 早期木杆（最高 0.600 格），格位 263×**229**；
+    //   C2 的柱顶帽到 0.676 ⇒ 并进去会把格位撑到 ≈241，**E1 那 8 条模板的 rect 全部顶移位**。
+    //   （catenary 表也不能进：atlas 按模型名排序，`G1_pylon_cyl_*` 会插在
+    //     `G1_pylon_b` 与 `G1_wire_*` 之间，把 12 条导线的 rect 一起顶移位。）
+    //   登记在 pylonstyle **之前**：它的正则是 /^G1_sty_/，会先把 G1_sty_cyl_* 吃掉。
+    key: 'pyloncyl',
+    title: '接触网支柱 PYL-C2（混凝土等径圆柱；SCDA）',
+    match: /^G1_sty_cyl/,
+  },
+  {
     // 接触网**支柱的样式 / 标牌变体**（人工 2026-10-03：厂矿电气化铁路 `SBEd` 要用
     // 「早期木杆 + 蓝牌」⇒ 新增 `G1_sty_early_blue_a|_b`）。
     // 现有那套方形混凝土柱是 `G1_pylon_a/_b`（在下面的 catenary 表里）；

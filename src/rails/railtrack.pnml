@@ -547,12 +547,30 @@ item(FEAT_RAILTYPES, rail_SCDN, 9) {
         map_colour:             0x59;
         sort_order:             SORT_DIESEL;
     }
+    /* ★ 2026-10-05 接入：P2-G3 的几何组（A3 组）。
+       G3 = `BAL-A` 标准碎石 + **U 形混凝土枕 `SLE-2`** + `RAI-1` + **`TUN-3`**
+       现代混凝土端墙拱（TUN-2 的几何 + 配色提亮 + 顶部截水沟）。
+       模型由 `tools/gen-a3-quasi.mjs` 从 G1/G2 的既有模型派生（只写 `models/G3_*`）。
+
+       ⚠ G3 与 G2（`SBDA`）**只差道床与洞口** —— `BAL-A` 与 `BAL-C` 按 §1.1 是
+         **同宽 0.36 格**，差别只在"边缘齐不齐 + 粒径"；所以实机里 `SCDN` 与
+         `SBDA` 在开阔线路上几乎一样，区分靠洞口（TUN-3 vs TUN-2）与地图色。
+       ⚠ 非电（CSV：N/A）⇒ 不设 `catenary_pylons` / `catenary_wire`，
+         也不设 `RAILTYPE_FLAG_CATENARY`；允许平交道口 ⇒ 不设 NO_LEVEL_CROSSING。 */
+    graphics {
+        underlay:        probe_underlay_quasi;
+        track_overlay:   probe_overlay_quasi;
+        tunnels:         probe_tunnels_3;
+        tunnel_overlay:  probe_tunnel_over_3;
+        level_crossings: probe_level_crossing_quasi;
+        bridge_surfaces: probe_bridge_surfaces_quasi;
+    }
 }
 
 /* ---------------------------------------------------------------------------
    电气化
-   ⚠ 本期不提供接触网精灵（catenary_pylons / catenary_wire），
-     杆塔与导线走引擎原版 —— 见 实现计划.md §7。
+   ★ 2026-10 起本包**自己提供**接触网精灵（`catenary_pylons` / `catenary_wire`），
+     见 美术要素方案.md §1.5 / §1.6。原来那句「走引擎原版兜底」已作废。
    --------------------------------------------------------------------------- */
 
 // SBDA —— 电气化铁路（1958，B 档 120km/h，轴重 D，25kV AC）
@@ -640,6 +658,23 @@ item(FEAT_RAILTYPES, rail_SCDA, 11) {
         acceleration_model:     ACC_MODEL_RAIL;
         map_colour:             0x5B;
         sort_order:             SORT_ELECTRIC;
+    }
+    /* ★ 2026-10-05 接入：与 `SCDN` **逐行相同**的 A3 几何 + 接触网。
+       §2 第 13 行给 `SCDA` 的支柱样式是 **`EL-25/C2`**（§1.6.5.1 的落位表）——
+       25kV AC ⇒ **无标牌**，只是"混凝土圆柱"而不是 C1 的"方柱"。
+
+       ⇒ `catenary_pylons:` 挂 `probe_catenary_pylons_cyl`（`PYL-C2`，本轮新建；
+         规格 = §1.6.5.6，模型 = 手写的 `models/G1_sty_cyl_a|_b.model`），
+         导线仍是全世界共用那一套 `probe_catenary_wire`（§1.6.1 的 ★）。 */
+    graphics {
+        underlay:        probe_underlay_quasi;
+        track_overlay:   probe_overlay_quasi;
+        tunnels:         probe_tunnels_3;
+        tunnel_overlay:  probe_tunnel_over_3;
+        level_crossings: probe_level_crossing_quasi;
+        bridge_surfaces: probe_bridge_surfaces_quasi;
+        catenary_pylons: probe_catenary_pylons_cyl;
+        catenary_wire:   probe_catenary_wire;
     }
 }
 
@@ -846,26 +881,14 @@ item(FEAT_RAILTYPES, rail_SBEN, 16) {
         build_window_caption:   string(STR_RAIL_SBEN);
         autoreplace_text:       string(STR_RAIL_SBEN);
         new_engine_text:        string(STR_RAIL_SBEN);
-        compatible_railtype_list: ["RAIL", "ELRL",
-                                    "SADN", "SBDN", "SCDN", "SDDN", "SEDN",  "SFDN", "SGDN",
+        compatible_railtype_list: ["RAIL", "ELRL", 
                                     "SAEN", "SBEN", "SCEN", "SDEN", "SEEN",  "SFEN", "SGEN",
-                                    "SADA", "SBDA", "SCDA", "SDDA", "SEDA",  "SFDA", "SGDA",
-                                    "SAEA", "SBEA", "SCEA", "SDEA", "SEEA",  "SFEA", "SGEA",
-                                    "SADd", "SBDd", "SCDd", "SDDd", "SEDd",
-                                    "SAEd", "SBEd", "SCEd", "SDEd", "SEEd",
-                                    "SADD", "SBDD", "SCDD", "SDDD", "SEDD",
-                                    "DADN", "DBDN",
-                                    "DADA", "DBDA"];
+                                    "SAEA", "SBEA", "SCEA", "SDEA", "SEEA",  "SFEA", "SGEA", 
+                                    "SAEd", "SBEd", "SCEd", "SDEd", "SEEd"];
         powered_railtype_list:    ["RAIL", "ELRL",
-                                    "SADN", "SBDN", "SCDN", "SDDN", "SEDN",  "SFDN", "SGDN",
                                     "SAEN", "SBEN", "SCEN", "SDEN", "SEEN",  "SFEN", "SGEN",
-                                    "SADA", "SBDA", "SCDA", "SDDA", "SEDA",  "SFDA", "SGDA",
                                     "SAEA", "SBEA", "SCEA", "SDEA", "SEEA",  "SFEA", "SGEA",
-                                    "SADd", "SBDd", "SCDd", "SDDd", "SEDd",
-                                    "SAEd", "SBEd", "SCEd", "SDEd", "SEEd",
-                                    "SADD", "SBDD", "SCDD", "SDDD", "SEDD",
-                                    "DADN", "DBDN",
-                                    "DADA", "DBDA"];
+                                    "SAEd", "SBEd", "SCEd", "SDEd", "SEEd"];
         /* 非电（CSV：N/A）⇒ 不设 CATENARY；**允许平交道口**（C8 裁定）⇒ 不设 NO_LEVEL_CROSSING。 */
         railtype_flags:         0;
         curve_speed_multiplier: 1;
@@ -912,20 +935,12 @@ item(FEAT_RAILTYPES, rail_SBEA, 17) {
         build_window_caption:   string(STR_RAIL_SBEA);
         autoreplace_text:       string(STR_RAIL_SBEA);
         new_engine_text:        string(STR_RAIL_SBEA);
-        compatible_railtype_list: ["RAIL", "ELRL",
-                                    "SADN", "SBDN", "SCDN", "SDDN", "SEDN",  "SFDN", "SGDN",
+        compatible_railtype_list: ["RAIL", "ELRL", 
                                     "SAEN", "SBEN", "SCEN", "SDEN", "SEEN",  "SFEN", "SGEN",
-                                    "SADA", "SBDA", "SCDA", "SDDA", "SEDA",  "SFDA", "SGDA",
-                                    "SAEA", "SBEA", "SCEA", "SDEA", "SEEA",  "SFEA", "SGEA",
-                                    "SADd", "SBDd", "SCDd", "SDDd", "SEDd",
-                                    "SAEd", "SBEd", "SCEd", "SDEd", "SEEd",
-                                    "SADD", "SBDD", "SCDD", "SDDD", "SEDD",
-                                    "DADN", "DBDN",
-                                    "DADA", "DBDA"];
-        powered_railtype_list:    ["ELRL",
-                                    "SADA", "SBDA", "SCDA", "SDDA", "SEDA",  "SFDA", "SGDA",
-                                    "SAEA", "SBEA", "SCEA", "SDEA", "SEEA",  "SFEA", "SGEA",
-                                    "DACA", "DADA", "DBDA"];
+                                    "SAEA", "SBEA", "SCEA", "SDEA", "SEEA",  "SFEA", "SGEA", 
+                                    "SAEd", "SBEd", "SCEd", "SDEd", "SEEd"];
+        powered_railtype_list:    [ "ELRL",
+                                    "SAEA", "SBEA", "SCEA", "SDEA", "SEEA",  "SFEA", "SGEA"];
         railtype_flags:         bitmask(RAILTYPE_FLAG_CATENARY);
         curve_speed_multiplier: 1;
         station_graphics:       RAILTYPE_STATION_NORMAL;

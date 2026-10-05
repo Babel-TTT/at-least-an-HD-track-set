@@ -1352,3 +1352,229 @@ template t_G6_tunnel6_over_b_v3(sheet) {
   [1841, 167, 263, 167, -131, -35, sheet]
 }
 
+// ===========================================================================
+// A3 组（`SCDN` / `SCDA` 准高速）—— 分表 gfx/quasi.png（263×148）· gfx/tunnel3.png（263×167）
+//   ＋ 接触网支柱 PYL-C2 —— 分表 gfx/pyloncyl.png（263×241）
+//
+//   模型由 `tools/gen-a3-quasi.mjs`（人工 2026-10-05 批准新建）从**既有模型派生**：
+//     · `BAL-A` 标准碎石 —— 与 BAL-C **同宽 0.36 格**（§1.1 的「肩宽 0.09」），
+//       只把道床外缘的 ±0.012 格毛边**拉直**、高度场台阶 0.0005 → 0.0011 格
+//     · `SLE-2` 混凝土枕 Ⅱ型 —— **U 形承轨槽**，完全照已装机的 G2
+//       （底板顶 0.0075 / 槽底垫板 0.0087 / 中间体 0.0095 / 挡肩 0.0100，槽宽 0.036 格）
+//     · `RAI-1` 60kg/m —— **一字未改**（宽 0.0080、轨顶 z 0.0230），只沿轨探出 1/32 格
+//     · `TUN-3` 现代混凝土端墙拱 —— TUN-2 的几何 + 配色提亮统一 + 压顶刻一道截水沟
+//
+//   ⚠ 摆位值 = **本表算法值 + 源模板的【手调】增量**（与 G5_* / G6_* 那些节同一套换算）：
+//     本表的格位与 rail 表不同（148 / 167），**不能照抄源模板的行**。
+//     源模板名（及缺失朝向）写在每行末尾的注释里：**源里没有的朝向一律填算法值**
+//     —— 那些朝向引擎不会取（隧道口只取 v0/v3/_b_v2/_b_v1），留着只为"表里有这一格"。
+//
+//   槽位对照与 G1 逐条同名（见 railsprite.pnml 的 probe_underlay_quasi 等）：
+//     underlay  0/1 直向 · 2-5 半格轨(N/S/E/W) · 6-9 坡道 · 10 交叉 · 11-14 三向 · 15 四向
+//     overlay   0/1 直向 · 2-5 半格轨 · 6-9 坡道
+//   ---------------------------------------------------------------------------
+template t_G3_track_x_v0(sheet) {
+  [1052, 592, 263, 148, -124, -18, sheet]  // 【手调】源 t_probe_track_x_v0 增量 (+7,-2)
+}
+template t_G3_track_x_v1(sheet) {
+  [1315, 592, 263, 148, -130, -17, sheet]  // 【手调】源 t_probe_track_x_v1 增量 (+1,-1)
+}
+template t_G3_track_x_v2(sheet) {
+  [1578, 592, 263, 148, -131, -16, sheet]
+}
+template t_G3_track_x_v3(sheet) {
+  [1841, 592, 263, 148, -130, -17, sheet]  // 【手调】源 t_probe_track_x_v3 增量 (+1,-1)
+}
+template t_G3_rail_straight_v0(sheet) {
+  [0, 444, 263, 148, -126, -17, sheet]  // 【手调】源 t_G1_rail_straight_v0 增量 (+5,-1)
+}
+template t_G3_rail_straight_v1(sheet) {
+  [263, 444, 263, 148, -130, -17, sheet]  // 【手调】源 t_G1_rail_straight_v1 增量 (+1,-1)
+}
+template t_G3_rail_straight_v2(sheet) {
+  [526, 444, 263, 148, -131, -16, sheet]
+}
+template t_G3_rail_straight_v3(sheet) {
+  [789, 444, 263, 148, -130, -17, sheet]  // 【手调】源 t_G1_rail_straight_v3 增量 (+1,-1)
+}
+template t_G3_track_half_v0(sheet) {
+  [1052, 444, 263, 148, -128, -18, sheet]  // 【手调】源 t_probe_half_upper_v0 增量 (+3,-2)
+}
+template t_G3_track_half_v1(sheet) {
+  [1315, 444, 263, 148, -126, -19, sheet]  // 【手调】源 t_probe_half_upper_v1 增量 (+5,-3)
+}
+template t_G3_track_half_v2(sheet) {
+  [1578, 444, 263, 148, -129, -18, sheet]  // 【手调】源 t_probe_half_upper_v2 增量 (+2,-2)
+}
+template t_G3_track_half_v3(sheet) {
+  [1841, 444, 263, 148, -126, -19, sheet]  // 【手调】源 t_probe_half_upper_v3 增量 (+5,-3)
+}
+template t_G3_rail_half_v0(sheet) {
+  [0, 296, 263, 148, -128, -18, sheet]  // 【手调】源 t_G1_rail_halftrack_v0 增量 (+3,-2)
+}
+template t_G3_rail_half_v1(sheet) {
+  [263, 296, 263, 148, -126, -19, sheet]  // 【手调】源 t_G1_rail_halftrack_v1 增量 (+5,-3)
+}
+template t_G3_rail_half_v2(sheet) {
+  [526, 296, 263, 148, -129, -18, sheet]  // 【手调】源 t_G1_rail_halftrack_v2 增量 (+2,-2)
+}
+template t_G3_rail_half_v3(sheet) {
+  [789, 296, 263, 148, -126, -19, sheet]  // 【手调】源 t_G1_rail_halftrack_v3 增量 (+5,-3)
+}
+template t_G3_track_slope_v0(sheet) {
+  [0, 592, 263, 148, -128, -17, sheet]  // 【手调】源 t_G1_track_slope_v0 增量 (+3,-1)
+}
+template t_G3_track_slope_v1(sheet) {
+  [263, 592, 263, 148, -131, -16, sheet]
+}
+template t_G3_track_slope_v2(sheet) {
+  [526, 592, 263, 148, -126, -17, sheet]  // 【手调】源 t_G1_track_slope_v2 增量 (+5,-1)
+}
+template t_G3_track_slope_v3(sheet) {
+  [789, 592, 263, 148, -131, -16, sheet]
+}
+template t_G3_rail_slope_v0(sheet) {
+  [1052, 296, 263, 148, -128, -17, sheet]  // 【手调】源 t_G1_rail_slope_v0 增量 (+3,-1)
+}
+template t_G3_rail_slope_v1(sheet) {
+  [1315, 296, 263, 148, -131, -16, sheet]
+}
+template t_G3_rail_slope_v2(sheet) {
+  [1578, 296, 263, 148, -126, -17, sheet]  // 【手调】源 t_G1_rail_slope_v2 增量 (+5,-1)
+}
+template t_G3_rail_slope_v3(sheet) {
+  [1841, 296, 263, 148, -131, -16, sheet]
+}
+template t_G3_crossing_v0(sheet) {
+  [0, 0, 263, 148, -125, -19, sheet]  // 【手调】源 t_G1_crossing_v0 增量 (+6,-3)
+}
+template t_G3_crossing_v1(sheet) {
+  [263, 0, 263, 148, -131, -16, sheet]
+}
+template t_G3_crossing_v2(sheet) {
+  [526, 0, 263, 148, -131, -16, sheet]
+}
+template t_G3_crossing_v3(sheet) {
+  [789, 0, 263, 148, -131, -16, sheet]
+}
+template t_G3_junction3_v0(sheet) {
+  [1052, 0, 263, 148, -129, -18, sheet]  // 【手调】源 t_G1_junction3_v0 增量 (+2,-2)
+}
+template t_G3_junction3_v1(sheet) {
+  [1315, 0, 263, 148, -125, -19, sheet]  // 【手调】源 t_G1_junction3_v1 增量 (+6,-3)
+}
+template t_G3_junction3_v2(sheet) {
+  [1578, 0, 263, 148, -128, -18, sheet]  // 【手调】源 t_G1_junction3_v2 增量 (+3,-2)
+}
+template t_G3_junction3_v3(sheet) {
+  [1841, 0, 263, 148, -129, -18, sheet]  // 【手调】源 t_G1_junction3_v3 增量 (+2,-2)
+}
+template t_G3_junction4_v0(sheet) {
+  [0, 148, 263, 148, -129, -19, sheet]  // 【手调】源 t_G1_junction4_v0 增量 (+2,-3)
+}
+template t_G3_junction4_v1(sheet) {
+  [263, 148, 263, 148, -131, -16, sheet]
+}
+template t_G3_junction4_v2(sheet) {
+  [526, 148, 263, 148, -131, -16, sheet]
+}
+template t_G3_junction4_v3(sheet) {
+  [789, 148, 263, 148, -131, -16, sheet]
+}
+template t_G3_levelcrossing_v0(sheet) {
+  [1052, 148, 263, 148, -126, -17, sheet]  // 【手调】源 t_G1_levelcrossing_v0 增量 (+5,-1)
+}
+template t_G3_levelcrossing_v1(sheet) {
+  [1315, 148, 263, 148, -234, -69, sheet]  // 【手调】源 t_G1_levelcrossing_v1 增量 (-103,-53)
+}
+template t_G3_levelcrossing_v2(sheet) {
+  [1578, 148, 263, 148, -126, -17, sheet]  // 【手调】源 t_G1_levelcrossing_v2 增量 (+5,-1)
+}
+template t_G3_levelcrossing_v3(sheet) {
+  [1841, 148, 263, 148, -234, -69, sheet]  // 【手调】源 t_G1_levelcrossing_v3 增量 (-103,-53)
+}
+// 洞口 TUN-3 —— 槽位 = DiagDirection，NE / SE / SW / NW ⇒ 喂图 v0, v3, _b_v2, _b_v1
+//   （与 TUN-1 / TUN-2 / TUN-5 / TUN-6 / TUN-7 逐条一样；其余朝向引擎不取）
+template t_G3_tunnel3_v0(sheet) {
+  [0, 0, 263, 167, -126, -36, sheet]  // 【手调】源 t_G2_tunnel2_stone_v0 增量 (+5,-1)
+}
+template t_G3_tunnel3_v1(sheet) {
+  [263, 0, 263, 167, -131, -35, sheet]  // 源里没有这一朝向 ⇒ 算法值
+}
+template t_G3_tunnel3_v2(sheet) {
+  [526, 0, 263, 167, -131, -35, sheet]  // 源里没有这一朝向 ⇒ 算法值
+}
+template t_G3_tunnel3_v3(sheet) {
+  [789, 0, 263, 167, -126, -36, sheet]  // 【手调】源 t_G2_tunnel2_stone_v3 增量 (+5,-1)
+}
+template t_G3_tunnel3_b_v0(sheet) {
+  [1052, 0, 263, 167, -131, -35, sheet]  // 源里没有这一朝向 ⇒ 算法值
+}
+template t_G3_tunnel3_b_v1(sheet) {
+  [1315, 0, 263, 167, -130, -36, sheet]  // 【手调】源 t_G2_tunnel2_stone_b_v1 增量 (+1,-1)
+}
+template t_G3_tunnel3_b_v2(sheet) {
+  [1578, 0, 263, 167, -119, -35, sheet]  // 【手调】源 t_G2_tunnel2_stone_b_v2 增量 (+12,+0)
+}
+template t_G3_tunnel3_b_v3(sheet) {
+  [1841, 0, 263, 167, -131, -35, sheet]  // 源里没有这一朝向 ⇒ 算法值
+}
+template t_G3_tunnel3_over_v0(sheet) {
+  [0, 167, 263, 167, -126, -156, sheet]  // 【手调】源 t_G1_tunnel2_stone_over_v0 增量 (+5,-121)
+}
+template t_G3_tunnel3_over_v1(sheet) {
+  [263, 167, 263, 167, -131, -35, sheet]  // 源里没有这一朝向 ⇒ 算法值
+}
+template t_G3_tunnel3_over_v2(sheet) {
+  [526, 167, 263, 167, -131, -35, sheet]  // 源里没有这一朝向 ⇒ 算法值
+}
+template t_G3_tunnel3_over_v3(sheet) {
+  [789, 167, 263, 167, -131, -156, sheet]  // 【手调】源 t_G1_tunnel2_stone_over_v3 增量 (+0,-121)
+}
+template t_G3_tunnel3_over_b_v0(sheet) {
+  [1052, 167, 263, 167, -131, -35, sheet]  // 源里没有这一朝向 ⇒ 算法值
+}
+template t_G3_tunnel3_over_b_v1(sheet) {
+  [1315, 167, 263, 167, -129, -155, sheet]  // 【手调】源 t_G1_tunnel2_stone_over_b_v1 增量 (+2,-120)
+}
+template t_G3_tunnel3_over_b_v2(sheet) {
+  [1578, 167, 263, 167, -131, -156, sheet]  // 【手调】源 t_G1_tunnel2_stone_over_b_v2 增量 (+0,-121)
+}
+template t_G3_tunnel3_over_b_v3(sheet) {
+  [1841, 167, 263, 167, -131, -35, sheet]  // 源里没有这一朝向 ⇒ 算法值
+}
+// ---------------------------------------------------------------------------
+// 接触网支柱 PYL-C2（灰色混凝土圆柱；`SCDA` 在用）—— 分表 gfx/pyloncyl.png（263×241）
+//
+//   ★ 摆位值**逐字照抄 C1**（`G1_pylon_a|_b`）：C2 与 C1 只差柱基/柱身两行
+//     （`box` + `concrete` → `cyl` + `concrete_pad`），腕臂 / 绝缘子 / 柱顶帽全都不动，
+//     连取景框（263×241）与逐朝向的算法锚点都**完全一致**（已用 openttd.json 核过）。
+//     ⇒ 直接抄 C1 的行，连【手调】增量一起继承（那些增量是实机调出来的）。
+//   ⚠ C1 那组里 v1/v3 的手调量是 ±(120,64)（= 半格），那是人工按实机画面调的对位，
+//     与"腕臂该指哪"绑定 —— C2 的臂与 C1 逐字相同，所以必须一起继承。
+// ---------------------------------------------------------------------------
+template t_G1_sty_cyl_a_v0(sheet) {
+  [0, 0, 263, 241, -131, -113, sheet]  // 【手调】源 t_G1_pylon_a_v0
+}
+template t_G1_sty_cyl_a_v1(sheet) {
+  [263, 0, 263, 241, -11, -173, sheet]  // 【手调】源 t_G1_pylon_a_v1
+}
+template t_G1_sty_cyl_a_v2(sheet) {
+  [526, 0, 263, 241, -131, -233, sheet]  // 【手调】源 t_G1_pylon_a_v2
+}
+template t_G1_sty_cyl_a_v3(sheet) {
+  [789, 0, 263, 241, -251, -173, sheet]  // 【手调】源 t_G1_pylon_a_v3
+}
+template t_G1_sty_cyl_b_v0(sheet) {
+  [1052, 0, 263, 241, -131, -113, sheet]  // 【手调】源 t_G1_pylon_b_v0
+}
+template t_G1_sty_cyl_b_v1(sheet) {
+  [1315, 0, 263, 241, -28, -170, sheet]  // 【手调】源 t_G1_pylon_b_v1
+}
+template t_G1_sty_cyl_b_v2(sheet) {
+  [1578, 0, 263, 241, -131, -233, sheet]  // 【手调】源 t_G1_pylon_b_v2
+}
+template t_G1_sty_cyl_b_v3(sheet) {
+  [1841, 0, 263, 241, -225, -173, sheet]  // 【手调】源 t_G1_pylon_b_v3
+}
+

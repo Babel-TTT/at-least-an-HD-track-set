@@ -784,3 +784,118 @@ spriteset(probe_bridge_surfaces_heavy, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
     t_G6_track_slope_v2("gfx/heavy.png")      // 4  坡 SW（x=1 边抬 / 近端高）
     t_G6_track_slope_v1("gfx/heavy.png")      // 5  坡 NW（y=0 边抬 / 远端高）
 }
+
+/* ===========================================================================
+   A3 组（`SCDN` / `SCDA` 准高速）—— underlay / track_overlay / 洞口 / 道口 / 桥面
+   ＋ 接触网支柱 PYL-C2
+
+   分表：轨道 = `gfx/quasi.png`、洞口 = `gfx/tunnel3.png`、
+         支柱 = `gfx/pyloncyl.png`（见 tools/sheets.mjs）。
+   模型由 `tools/gen-a3-quasi.mjs`（人工 2026-10-05 批准新建）从**既有模型派生**：
+     `BAL-A` 标准碎石（同宽 0.36 格，只把道床外缘的毛边拉直 + 粒径规整）
+     `SLE-2` 混凝土枕 Ⅱ型（**U 形承轨槽**，完全照已装机的 G2）
+     `RAI-1` 60kg/m（**一字未改**，只沿轨探出 1/32 格盖接缝）
+     `TUN-3` 现代混凝土端墙拱（TUN-2 的几何 + 配色提亮统一 + 压顶刻一道截水沟）
+   摆位值见 templates.pnml 的 G3_* / G1_sty_cyl_* 那两节。
+
+   ★ **槽位顺序、取图顺序与 G1 / G5 / G6 逐条一样**（RTO_* / 坡道 NE,SE,SW,NW /
+     DiagDirection NE,SE,SW,NW 都不变），所以下面几段是照 G1 那几段抄的。
+   ⚠ `probe_tunnels_3` / `probe_tunnel_over_3` 的名字里那个 3 是 **TUN-3**，
+     不是"第三组"。
+   =========================================================================== */
+spriteset(probe_underlay_quasi, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G3_track_x_v0("gfx/quasi.png")          //  0  RTO_X        X
+    t_G3_track_x_v3("gfx/quasi.png")          //  1  RTO_Y        Y
+    t_G3_track_half_v0("gfx/quasi.png")       //  2  RTO_N        UPPER（切 N 角）
+    t_G3_track_half_v2("gfx/quasi.png")       //  3  RTO_S        LOWER
+    t_G3_track_half_v3("gfx/quasi.png")       //  4  RTO_E        RIGHT
+    t_G3_track_half_v1("gfx/quasi.png")       //  5  RTO_W        LEFT
+    t_G3_track_slope_v0("gfx/quasi.png")      //  6  RTO_SLOPE_NE   v0（右上抬）
+    t_G3_track_slope_v3("gfx/quasi.png")      //  7  RTO_SLOPE_SE   v3（右下抬）
+    t_G3_track_slope_v2("gfx/quasi.png")      //  8  RTO_SLOPE_SW   v2（左下抬）
+    t_G3_track_slope_v1("gfx/quasi.png")      //  9  RTO_SLOPE_NW   v1（左上抬）
+    t_G3_crossing_v0("gfx/quasi.png")         // 10  RTO_CROSSING_XY（自带两组钢轨）
+    t_G3_junction3_v0("gfx/quasi.png")        // 11  RTO_JUNCTION_SW（只有道床）
+    t_G3_junction3_v2("gfx/quasi.png")        // 12  RTO_JUNCTION_NE（v2）
+    t_G3_junction3_v1("gfx/quasi.png")        // 13  RTO_JUNCTION_SE（v1）
+    t_G3_junction3_v3("gfx/quasi.png")        // 14  RTO_JUNCTION_NW（v3）
+    t_G3_junction4_v0("gfx/quasi.png")        // 15  RTO_JUNCTION_NSEW（只有道床）
+}
+
+spriteset(probe_overlay_quasi, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G3_rail_straight_v0("gfx/quasi.png")    // 0  RTO_X        纯钢轨层
+    t_G3_rail_straight_v3("gfx/quasi.png")    // 1  RTO_Y
+    t_G3_rail_half_v0("gfx/quasi.png")        // 2  RTO_N
+    t_G3_rail_half_v2("gfx/quasi.png")        // 3  RTO_S
+    t_G3_rail_half_v3("gfx/quasi.png")        // 4  RTO_E
+    t_G3_rail_half_v1("gfx/quasi.png")        // 5  RTO_W
+    t_G3_rail_slope_v0("gfx/quasi.png")       // 6  RTO_SLOPE_NE
+    t_G3_rail_slope_v3("gfx/quasi.png")       // 7  RTO_SLOPE_SE
+    t_G3_rail_slope_v2("gfx/quasi.png")       // 8  RTO_SLOPE_SW
+    t_G3_rail_slope_v1("gfx/quasi.png")       // 9  RTO_SLOPE_NW
+}
+
+/* 洞口 TUN-3（现代混凝土端墙拱 + 顶部截水沟）—— 两层 × A/B 两组 = 8 张
+   槽位 = DiagDirection，顺序 NE / SE / SW / NW ⇒ 喂图 **v0, v3, v2(_b), v1(_b)**
+   （与 TUN-1 / TUN-2 / TUN-5 / TUN-6 / TUN-7 逐条一样）。 */
+spriteset(probe_tunnels_3, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G3_tunnel3_v0("gfx/tunnel3.png")          // 0  DiagDir NE ← v0   A 组（远半）
+    t_G3_tunnel3_v3("gfx/tunnel3.png")          // 1  DiagDir SE ← v3   A 组
+    t_G3_tunnel3_b_v2("gfx/tunnel3.png")        // 2  DiagDir SW ← v2   B 组（近半）
+    t_G3_tunnel3_b_v1("gfx/tunnel3.png")        // 3  DiagDir NW ← v1   B 组
+}
+
+spriteset(probe_tunnel_over_3, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G3_tunnel3_over_v0("gfx/tunnel3.png")     // 0  DiagDir NE ← v0   A 组（近半 + 洞顶 + 截水沟）
+    t_G3_tunnel3_over_v3("gfx/tunnel3.png")     // 1  DiagDir SE ← v3   A 组
+    t_G3_tunnel3_over_b_v2("gfx/tunnel3.png")   // 2  DiagDir SW ← v2   B 组（远半 + 洞顶 + 截水沟）
+    t_G3_tunnel3_over_b_v1("gfx/tunnel3.png")   // 3  DiagDir NW ← v1   B 组
+}
+
+// 平交道口 —— 10 格 = 2 方向 × (1 张轨道图 + 4 张道口灯/栏杆)；占位同 G1 / G5 / G6
+spriteset(probe_level_crossing_quasi, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G3_levelcrossing_v0("gfx/quasi.png")               // 0  X 方向：轨道图
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png") // 1  X 方向：道口灯 1（占位）
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png") // 2  X 方向：道口灯 2（占位）
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png") // 3  X 方向：栏杆 1（占位）
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png") // 4  X 方向：栏杆 2（占位）
+    t_G3_levelcrossing_v3("gfx/quasi.png")               // 5  Y 方向：轨道图
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png") // 6  Y 方向：道口灯 1（占位）
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png") // 7  Y 方向：道口灯 2（占位）
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png") // 8  Y 方向：栏杆 1（占位）
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png") // 9  Y 方向：栏杆 2（占位）
+}
+
+// 桥面 —— 6 格（平 X / 平 Y / 坡 NE / SE / SW / NW），顺序同 probe_bridge_surfaces
+spriteset(probe_bridge_surfaces_quasi, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G3_track_x_v0("gfx/quasi.png")          // 0  平 — X
+    t_G3_track_x_v3("gfx/quasi.png")          // 1  平 — Y
+    t_G3_track_slope_v0("gfx/quasi.png")      // 2  坡 NE（x=0 边抬 / 远端高）
+    t_G3_track_slope_v3("gfx/quasi.png")      // 3  坡 SE（y=1 边抬 / 近端高）
+    t_G3_track_slope_v2("gfx/quasi.png")      // 4  坡 SW（x=1 边抬 / 近端高）
+    t_G3_track_slope_v1("gfx/quasi.png")      // 5  坡 NW（y=0 边抬 / 远端高）
+}
+
+/* ===========================================================================
+   接触网支柱 —— **PYL-C2 灰色混凝土圆柱**（`SCDA` 在用；8 格；分表 gfx/pyloncyl.png）
+
+   规格见 美术要素方案.md §1.6.5.6；模型是手写的
+   `models/G1_sty_cyl_a|_b.model`（a 直向 / b 斜向 45°）——
+   与 `PYL-C1`（`G1_pylon_a|_b`）**只差柱基 / 柱身两行**（`box`+`concrete` →
+   `cyl`+`concrete_pad`），腕臂 / 绝缘子 / 柱顶帽 / 轴心 / **承力索挂点 0.58** 全不动。
+
+   槽位映射与 C1 / E1 **完全一样**（同一个引擎枚举、同一套几何朝向）：
+       直向 a：v0→槽 0 / v2→槽 1 / v1→槽 2 / v3→槽 3
+       斜向 b：v0→槽 4 / v2→槽 5 / v1→槽 6 / v3→槽 7
+   ⚠ 斜向那 4 个（槽 4~7）**还没实机核过**（与 C1 / E1 同样的未验证项）。
+   =========================================================================== */
+spriteset(probe_catenary_pylons_cyl, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G1_sty_cyl_a_v0("gfx/pyloncyl.png")   // 0  PSO_Y_NE   Y 向，柱在 N 边中点
+    t_G1_sty_cyl_a_v2("gfx/pyloncyl.png")   // 1  PSO_Y_SW   Y 向，柱在 S 边中点
+    t_G1_sty_cyl_a_v1("gfx/pyloncyl.png")   // 2  PSO_X_NW   X 向，柱在 W 边中点
+    t_G1_sty_cyl_a_v3("gfx/pyloncyl.png")   // 3  PSO_X_SE   X 向，柱在 E 边中点
+    t_G1_sty_cyl_b_v0("gfx/pyloncyl.png")   // 4  PSO_EW_N   斜半轨，柱在 N 边中点
+    t_G1_sty_cyl_b_v2("gfx/pyloncyl.png")   // 5  PSO_EW_S   斜半轨，柱在 S 边中点
+    t_G1_sty_cyl_b_v1("gfx/pyloncyl.png")   // 6  PSO_NS_W   斜半轨，柱在 W 边中点
+    t_G1_sty_cyl_b_v3("gfx/pyloncyl.png")   // 7  PSO_NS_E   斜半轨，柱在 E 边中点
+}
