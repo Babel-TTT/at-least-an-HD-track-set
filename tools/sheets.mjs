@@ -124,6 +124,23 @@ export const SHEETS = [
     match: /^G5_/,
   },
   {
+    // A5 组（`SBEN` / `SBEA` 重载）的**洞口**：TUN-6 重载加固端墙
+    // （端墙加宽 0.68 → 0.768 格、洞跨 0.31 → 0.35 格、洞口一圈凸出的加固环框；
+    //  几何由 tools/gen-a5-heavy.mjs 从 TUN-2 的模型派生 + 追加环框）。
+    // ⚠ 必须登记在下面的 heavy **之前**：那个表的正则是 /^G6_/，会先把 G6_tunnel6_* 吃掉。
+    key: 'tunnel6',
+    title: '重载洞口 TUN-6（加固端墙；SBEN / SBEA）',
+    match: /^G6_tunnel6/,
+  },
+  {
+    // A5 组（`SBEN` / `SBEA` 重载）的轨道：BAL-B 厚道床 + SLE-3 混凝土宽枕（U 形槽）
+    // + RAI-2 75kg/m 重轨。
+    // 单独一张表（同 rail / metro / narrow 表的理由：混进去会把已有几十条 rect 顶移位）。
+    key: 'heavy',
+    title: '重载轨道（BAL-B + SLE-3 + RAI-2；SBEN / SBEA）',
+    match: /^G6_/,
+  },
+  {
     // 接触网**支柱的样式 / 标牌变体**（人工 2026-10-03：厂矿电气化铁路 `SBEd` 要用
     // 「早期木杆 + 蓝牌」⇒ 新增 `G1_sty_early_blue_a|_b`）。
     // 现有那套方形混凝土柱是 `G1_pylon_a/_b`（在下面的 catenary 表里）；

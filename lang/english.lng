@@ -36,3 +36,5 @@ STR_RAIL_SBEd                               :{LTBLUE}1.5kVDC{BLACK} Industrial e
 STR_RAIL_SBDD                               :Korean electrified railway (3000V DC)
 STR_RAIL_SAC3                               :{GREEN}3rd Rail{BLACK}Metro {GOLD}80km/h
 STR_RAIL_NACN                               :Narrow gauge {GOLD}80km/h
+STR_RAIL_SBEN                               :Heavy haul {GOLD}120km/h
+STR_RAIL_SBEA                               :{RED}25kVAC{BLACK} Electrified heavy haul {GOLD}120km/h

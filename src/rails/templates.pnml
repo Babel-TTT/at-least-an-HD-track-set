@@ -1166,3 +1166,189 @@ template t_G5_tunnel7_over_b_v2(sheet) {
   [1578, 167, 263, 167, -131, -156, sheet]  // 【手调】
 }
 
+// ===========================================================================
+// A5 组（`SBEN` / `SBEA` 重载）—— 分表 gfx/heavy.png（263×149）· gfx/tunnel6.png（263×167）
+//
+//   模型由 `tools/gen-a5-heavy.mjs`（人工 2026-10-05 批准新建）从 **G1 的模型派生**：
+//     · `BAL-B` 厚道床 —— 横向 ×1.1111（0.36 → 0.40 格）、顶面抬厚 + 颗粒粗化
+//     · `SLE-3` 混凝土宽枕 —— **U 形承轨槽**（仿 G2 的两层构造），厚 0.0215 / 长 0.19 格
+//     · `RAI-2` 75kg/m 重轨 —— 加宽 ×1.30、轨底往下 0.0015（**轨顶 z 0.0230 不动**）
+//     · `TUN-6` 重载加固端墙 —— 洞口横向 ×1.129 + 洞正面一圈凸出的加固环框
+//
+//   ⚠ 摆位值 = **本表算法值 + 源模板的【手调】增量**（与 G5_* 那一节同一套换算）：
+//     本表的格位与 rail 表不同（149 / 167），**不能照抄源模板的行**。
+//     源模板名写在每行末尾的注释里。
+//
+//   槽位对照与 G1 逐条同名（见 railsprite.pnml 的 probe_underlay_heavy 等）：
+//     underlay  0/1 直向 · 2-5 半格轨(N/S/E/W) · 6-9 坡道 · 10 交叉 · 11-14 三向 · 15 四向
+//     overlay   0/1 直向 · 2-5 半格轨 · 6-9 坡道
+//   ---------------------------------------------------------------------------
+template t_G6_track_x_v0(sheet) {
+  [1052, 596, 263, 149, -124, -19, sheet]  // 【手调】源 t_probe_track_x_v0 增量 (+7,-2)
+}
+template t_G6_track_x_v1(sheet) {
+  [1315, 596, 263, 149, -130, -18, sheet]  // 【手调】源 t_probe_track_x_v1 增量 (+1,-1)
+}
+template t_G6_track_x_v2(sheet) {
+  [1578, 596, 263, 149, -131, -17, sheet]
+}
+template t_G6_track_x_v3(sheet) {
+  [1841, 596, 263, 149, -130, -18, sheet]  // 【手调】源 t_probe_track_x_v3 增量 (+1,-1)
+}
+template t_G6_rail_straight_v0(sheet) {
+  [0, 447, 263, 149, -126, -18, sheet]  // 【手调】源 t_G1_rail_straight_v0 增量 (+5,-1)
+}
+template t_G6_rail_straight_v1(sheet) {
+  [263, 447, 263, 149, -130, -18, sheet]  // 【手调】源 t_G1_rail_straight_v1 增量 (+1,-1)
+}
+template t_G6_rail_straight_v2(sheet) {
+  [526, 447, 263, 149, -131, -17, sheet]
+}
+template t_G6_rail_straight_v3(sheet) {
+  [789, 447, 263, 149, -130, -18, sheet]  // 【手调】源 t_G1_rail_straight_v3 增量 (+1,-1)
+}
+template t_G6_track_half_v0(sheet) {
+  [1052, 447, 263, 149, -128, -19, sheet]  // 【手调】源 t_probe_half_upper_v0 增量 (+3,-2)
+}
+template t_G6_track_half_v1(sheet) {
+  [1315, 447, 263, 149, -126, -20, sheet]  // 【手调】源 t_probe_half_upper_v1 增量 (+5,-3)
+}
+template t_G6_track_half_v2(sheet) {
+  [1578, 447, 263, 149, -129, -19, sheet]  // 【手调】源 t_probe_half_upper_v2 增量 (+2,-2)
+}
+template t_G6_track_half_v3(sheet) {
+  [1841, 447, 263, 149, -126, -20, sheet]  // 【手调】源 t_probe_half_upper_v3 增量 (+5,-3)
+}
+template t_G6_rail_half_v0(sheet) {
+  [0, 298, 263, 149, -128, -19, sheet]  // 【手调】源 t_G1_rail_halftrack_v0 增量 (+3,-2)
+}
+template t_G6_rail_half_v1(sheet) {
+  [263, 298, 263, 149, -126, -20, sheet]  // 【手调】源 t_G1_rail_halftrack_v1 增量 (+5,-3)
+}
+template t_G6_rail_half_v2(sheet) {
+  [526, 298, 263, 149, -129, -19, sheet]  // 【手调】源 t_G1_rail_halftrack_v2 增量 (+2,-2)
+}
+template t_G6_rail_half_v3(sheet) {
+  [789, 298, 263, 149, -126, -20, sheet]  // 【手调】源 t_G1_rail_halftrack_v3 增量 (+5,-3)
+}
+template t_G6_track_slope_v0(sheet) {
+  [0, 596, 263, 149, -128, -18, sheet]  // 【手调】源 t_G1_track_slope_v0 增量 (+3,-1)
+}
+template t_G6_track_slope_v1(sheet) {
+  [263, 596, 263, 149, -131, -17, sheet]
+}
+template t_G6_track_slope_v2(sheet) {
+  [526, 596, 263, 149, -126, -18, sheet]  // 【手调】源 t_G1_track_slope_v2 增量 (+5,-1)
+}
+template t_G6_track_slope_v3(sheet) {
+  [789, 596, 263, 149, -131, -17, sheet]
+}
+template t_G6_rail_slope_v0(sheet) {
+  [1052, 298, 263, 149, -128, -18, sheet]  // 【手调】源 t_G1_rail_slope_v0 增量 (+3,-1)
+}
+template t_G6_rail_slope_v1(sheet) {
+  [1315, 298, 263, 149, -131, -17, sheet]
+}
+template t_G6_rail_slope_v2(sheet) {
+  [1578, 298, 263, 149, -126, -18, sheet]  // 【手调】源 t_G1_rail_slope_v2 增量 (+5,-1)
+}
+template t_G6_rail_slope_v3(sheet) {
+  [1841, 298, 263, 149, -131, -17, sheet]
+}
+template t_G6_crossing_v0(sheet) {
+  [0, 0, 263, 149, -125, -20, sheet]  // 【手调】源 t_G1_crossing_v0 增量 (+6,-3)
+}
+template t_G6_crossing_v1(sheet) {
+  [263, 0, 263, 149, -131, -17, sheet]
+}
+template t_G6_crossing_v2(sheet) {
+  [526, 0, 263, 149, -131, -17, sheet]
+}
+template t_G6_crossing_v3(sheet) {
+  [789, 0, 263, 149, -131, -17, sheet]
+}
+template t_G6_junction3_v0(sheet) {
+  [1052, 0, 263, 149, -129, -19, sheet]  // 【手调】源 t_G1_junction3_v0 增量 (+2,-2)
+}
+template t_G6_junction3_v1(sheet) {
+  [1315, 0, 263, 149, -125, -20, sheet]  // 【手调】源 t_G1_junction3_v1 增量 (+6,-3)
+}
+template t_G6_junction3_v2(sheet) {
+  [1578, 0, 263, 149, -128, -19, sheet]  // 【手调】源 t_G1_junction3_v2 增量 (+3,-2)
+}
+template t_G6_junction3_v3(sheet) {
+  [1841, 0, 263, 149, -129, -19, sheet]  // 【手调】源 t_G1_junction3_v3 增量 (+2,-2)
+}
+template t_G6_junction4_v0(sheet) {
+  [0, 149, 263, 149, -129, -20, sheet]  // 【手调】源 t_G1_junction4_v0 增量 (+2,-3)
+}
+template t_G6_junction4_v1(sheet) {
+  [263, 149, 263, 149, -131, -17, sheet]
+}
+template t_G6_junction4_v2(sheet) {
+  [526, 149, 263, 149, -131, -17, sheet]
+}
+template t_G6_junction4_v3(sheet) {
+  [789, 149, 263, 149, -131, -17, sheet]
+}
+template t_G6_levelcrossing_v0(sheet) {
+  [1052, 149, 263, 149, -126, -18, sheet]  // 【手调】源 t_G1_levelcrossing_v0 增量 (+5,-1)
+}
+template t_G6_levelcrossing_v1(sheet) {
+  [1315, 149, 263, 149, -234, -70, sheet]  // 【手调】源 t_G1_levelcrossing_v1 增量 (-103,-53)
+}
+template t_G6_levelcrossing_v2(sheet) {
+  [1578, 149, 263, 149, -126, -18, sheet]  // 【手调】源 t_G1_levelcrossing_v2 增量 (+5,-1)
+}
+template t_G6_levelcrossing_v3(sheet) {
+  [1841, 149, 263, 149, -234, -70, sheet]  // 【手调】源 t_G1_levelcrossing_v3 增量 (-103,-53)
+}
+template t_G6_tunnel6_v0(sheet) {
+  [0, 0, 263, 167, -126, -36, sheet]  // 【手调】源 t_G1_tunnel2_stone_v0 增量 (+5,-1)
+}
+template t_G6_tunnel6_v1(sheet) {
+  [263, 0, 263, 167, -131, -35, sheet]
+}
+template t_G6_tunnel6_v2(sheet) {
+  [526, 0, 263, 167, -131, -35, sheet]
+}
+template t_G6_tunnel6_v3(sheet) {
+  [789, 0, 263, 167, -126, -36, sheet]  // 【手调】源 t_G1_tunnel2_stone_v3 增量 (+5,-1)
+}
+template t_G6_tunnel6_b_v0(sheet) {
+  [1052, 0, 263, 167, -131, -35, sheet]
+}
+template t_G6_tunnel6_b_v1(sheet) {
+  [1315, 0, 263, 167, -130, -36, sheet]  // 【手调】源 t_G1_tunnel2_stone_b_v1 增量 (+1,-1)
+}
+template t_G6_tunnel6_b_v2(sheet) {
+  [1578, 0, 263, 167, -119, -35, sheet]  // 【手调】源 t_G1_tunnel2_stone_b_v2 增量 (+12,+0)
+}
+template t_G6_tunnel6_b_v3(sheet) {
+  [1841, 0, 263, 167, -131, -35, sheet]
+}
+template t_G6_tunnel6_over_v0(sheet) {
+  [0, 167, 263, 167, -126, -156, sheet]  // 【手调】源 t_G1_tunnel2_stone_over_v0 增量 (+5,-121)
+}
+template t_G6_tunnel6_over_v1(sheet) {
+  [263, 167, 263, 167, -131, -35, sheet]
+}
+template t_G6_tunnel6_over_v2(sheet) {
+  [526, 167, 263, 167, -131, -35, sheet]
+}
+template t_G6_tunnel6_over_v3(sheet) {
+  [789, 167, 263, 167, -131, -156, sheet]  // 【手调】源 t_G1_tunnel2_stone_over_v3 增量 (+0,-121)
+}
+template t_G6_tunnel6_over_b_v0(sheet) {
+  [1052, 167, 263, 167, -131, -35, sheet]
+}
+template t_G6_tunnel6_over_b_v1(sheet) {
+  [1315, 167, 263, 167, -129, -155, sheet]  // 【手调】源 t_G1_tunnel2_stone_over_b_v1 增量 (+2,-120)
+}
+template t_G6_tunnel6_over_b_v2(sheet) {
+  [1578, 167, 263, 167, -131, -156, sheet]  // 【手调】源 t_G1_tunnel2_stone_over_b_v2 增量 (+0,-121)
+}
+template t_G6_tunnel6_over_b_v3(sheet) {
+  [1841, 167, 263, 167, -131, -35, sheet]
+}
+

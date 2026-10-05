@@ -35,3 +35,5 @@ STR_RAIL_SBEd                               :{LTBLUE}1.5kVDC{BLACK}电气化厂�
 STR_RAIL_SBDD                               :朝鲜电气化铁路（3000V DC）
 STR_RAIL_SAC3                               :{GREEN}第三轨{BLACK}地铁轨道 {GOLD}80km/h
 STR_RAIL_NACN                               :窄轨铁路 {GOLD}80km/h
+STR_RAIL_SBEN                               :现代重载铁路 {GOLD}120km/h
+STR_RAIL_SBEA                               :{RED}25kVAC{BLACK}电气化重载铁路 {GOLD}120km/h
