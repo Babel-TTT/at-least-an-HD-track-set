@@ -882,7 +882,8 @@ spriteset(probe_bridge_surfaces_quasi, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
    规格见 美术要素方案.md §1.6.5.6；模型是手写的
    `models/G1_sty_cyl_a|_b.model`（a 直向 / b 斜向 45°）——
    与 `PYL-C1`（`G1_pylon_a|_b`）**只差柱基 / 柱身两行**（`box`+`concrete` →
-   `cyl`+`concrete_pad`），腕臂 / 绝缘子 / 柱顶帽 / 轴心 / **承力索挂点 0.58** 全不动。
+   `cyl`+`concrete_mid`）＋ C2 自己多一根下臂 / 斜撑；腕臂 / 绝缘子 / 柱顶帽 / 轴心 /
+   **承力索挂点（现行 0.40，2026-10-05 由 0.58 整体改矮）** 与 C1 逐字同高。
 
    槽位映射与 C1 / E1 **完全一样**（同一个引擎枚举、同一套几何朝向）：
        直向 a：v0→槽 0 / v2→槽 1 / v1→槽 2 / v3→槽 3

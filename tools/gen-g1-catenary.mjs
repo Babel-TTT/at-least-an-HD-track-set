@@ -39,13 +39,14 @@
 //           shape(q) = 4q(1−q)
 //       ⇒ z = z杆位 − D·shape(q)
 //   D：接触线 0.0000（人工：拉平，现实里接触线就是靠张力拉平的）
-//      承力索 0.1500
+//      承力索 0.0700（现行 C 套；A 套 0.0300 / B 套 0.0900 —— 见下面「口径」）
 //   ⚠ **两根线的 D 必须各用各的**。早先版本把 DC 直接喂进形状函数，
 //     LINES[] 里承力索自己的 D 从来没被读到 ⇒ 两根线永远同深
 //     （DC 改成 0 之后就是两条笔直的线，改 DM 只动高度不动弧度）。
 //   `z杆位` 是「相对引擎给定原点」的 —— 引擎另外抬
-//   `ELRAIL_ELEVATION = 10` 单位 = **0.2552 格**（elrail.cpp:1281），所以模型里
-//   写 HC = 0.1448 / HM = 0.3248，游戏里才是 **0.40 / 0.58 格**。
+//   `ELRAIL_ELEVATION = 10` 单位 = **0.2552 格**（elrail.cpp:1281）。所以下面
+//   **口径里直接写"游戏高度"**，再减 `GAME_LIFT` 得到模型 z：
+//   现行 C 套 = HC 0.0448 / HM 0.1448（游戏里 **0.30 / 0.40 格**）。
 //
 // -----------------------------------------------------------------------------
 // 【绕序】`quad` 不带法线，flatiso 用 Newell 按顶点序算法线，反了会被背面剔除。
@@ -69,10 +70,44 @@ import { ROOT, log, rel, isMain } from './util.mjs';
 const N = (v) => v.toFixed(4);
 
 // ---- 口径：改这里就行 -------------------------------------------------------
-const HC = 0.1448;                 // 接触线：一步不动（游戏里 0.40）—— **人工：不要弧度**
-const HM = 0.3248;                 // 承力索挂点（游戏里 0.58；腕臂跟着抬到 0.58）
-const DC = 0.0000;                 // 接触线下垂 = 0（直线，张力拉平）
-const DM = 0.1500;                 // 承力索下垂（游戏里跨中降到 0.43，仍高于接触线 0.03）
+// ★ **2026-10-05 整体改矮**（人工：「把接触网支柱和接触网全部弄矮一点，
+//   降到比 JP+ 轨道略微低一点的高度」）。游戏高度 = 模型 z + GAME_LIFT。
+//
+//   依据 = 直接量 JP+ 参考包的像素（`JpPlusTracks/gfx/catenary/poles.png` 的 8 个槽位、
+//   `wire.png` 的 28 个槽位，逐个求 rect 内的不透明行范围，再用各自 yrel 换算）：
+//     支柱顶 **0.485~0.536 格**（中位 0.510）
+//     导线带 **0.31~0.41**（承力索在上 ≈0.41、接触线在下 ≈0.31；两条线只差 2~4 px @1x）
+//   ⇒ 我们取"**比它再低一点**"：支柱顶 **0.48**（见各 `G1_pylon_*.model`）。
+//
+//   ⚠ 挂点从 0.58 降下来不是独立决定，是**柱顶变矮的连带**：柱顶只有 0.48，
+//     0.58 的腕臂会顶穿柱顶。挂点一降，承力索与接触线的间距就跟着变小：
+//         A（接触线仍贴着 JP+ 的上沿）：挂点 0.44 · 接触线 0.38 · 下垂 0.03（弧 4.7 px @4x）
+//         B（弧明显版）                ：挂点 0.44 · 接触线 0.32 · 下垂 0.09（弧 14 px）
+//         C（**整条落到 JP+ 之下**）    ：挂点 0.40 · 接触线 0.30 · 下垂 0.07（弧 11 px）
+//     三套都满足"跨中净空 = 接触线 + 0.03"。切换 = 改下面三个数 + 重跑本脚本；
+//     ⚠ 选 C 还要把六根支柱的腕臂 / 绝缘子（C2 外加下臂 / 斜撑）**整体 −0.04**
+//       —— 挂点是三套支柱**共用**的一个数，导线降了柱子的臂必须跟着降。
+const GAME_LIFT   = 0.2552;        // 引擎给导线额外抬的 ELRAIL_ELEVATION（格）
+// const WIRE_GAME_Z = 0.3800;     // A：接触线在**游戏里**的高度（JP+ 实测 0.408）
+// const SAG_A       = 0.0300;     // A：承力索下垂（跨中 0.41 = 接触线 + 0.03）
+// const WIRE_GAME_Z = 0.3200;     // B：接触线更低 ⇒ 弧明显（配 SAG_A = 0.0900）
+const WIRE_GAME_Z = 0.3000;        // C（现行）：接触线整条落到 JP+ 之下（配 SAG_A = 0.0700）
+const SAG_A       = 0.0700;        // C：承力索下垂（跨中 0.33 = 接触线 + 0.03）
+// const MESS_GAME_Z = 0.4400;     // A/B：承力索挂点 = 三套支柱的腕臂中心高（**全制式共用**）
+const MESS_GAME_Z = 0.4000;        // C（现行）
+
+const HC = WIRE_GAME_Z - GAME_LIFT;   // 接触线（模型里）：A 0.1248 / B 0.0648 / C 0.0448
+const HM = MESS_GAME_Z - GAME_LIFT;   // 承力索挂点（模型里）：A/B 0.1848 · C 0.1448
+const DC = 0.0000;                 // 接触线下垂 = 0（人工：直线，张力拉平）
+const DM = SAG_A;                  // 承力索下垂（跨中仍高于接触线 0.03）
+
+// ★ **zmax 钉在旧值**（= 改矮前的 HM + WM = 0.3293）：flatiso 的取景框 =
+//   内容 bbox ∪ 占地菱形 ∪ 显式 zmax（`core/bake.mjs:56`）⇒ zmax 是**下限**，
+//   钉住它 ⇒ 每个导线模型的格位与 centerAnchor **一格不变** ⇒ `src/rails/templates.pnml`
+//   里那 28 条导线的 `rect` / `yrel` **一个字都不用改**。
+//   ⚠ 改矮内容时把 zmax 也顺手改小 ⇒ 12 个模型的格位全部缩水、28 条模板逐个重算
+//     （`docs/建模经验.md` §9.9 与 §4.18 ④）。**这不是笔误。**
+const ZMAX = 0.3293;
 const WC = 0.0030;                 // 接触线竖直半厚（人工：再细点）
 const WM = 0.0045;                 // 承力索竖直半厚
 const WY = 0.0045;                 // 直向：横向半宽（y 方向 ±）
@@ -161,7 +196,7 @@ function straight(name, why, shape, drops, lines = LINES) {
     out.push('box ' + N(p - DROP_W) + ' ' + N(0.5 - DROP_W) + ' ' + N(zc) + '  '
       + N(p + DROP_W) + ' ' + N(0.5 + DROP_W) + ' ' + N(zm) + '   ' + C.m + ' top=' + C.m);
   }
-  return { name, text: HDR(name, why, dz) + 'name      ' + name + '\ngroup     misc\nfootprint 1 1\nzmax      ' + N(HM + WM) + '\n\n' + out.join('\n') + '\n' };
+  return { name, text: HDR(name, why, dz) + 'name      ' + name + '\ngroup     misc\nfootprint 1 1\nzmax      ' + N(ZMAX) + '\n\n' + out.join('\n') + '\n' };
 }
 
 /**
@@ -207,7 +242,7 @@ function diagonal(name, why, shape, drops) {
     out.push('box ' + N(cx - DROP_W) + ' ' + N(cy - DROP_W) + ' ' + N(zc) + '  '
       + N(cx + DROP_W) + ' ' + N(cy + DROP_W) + ' ' + N(zm) + '   ' + C.m + ' top=' + C.m);
   }
-  return { name, text: HDR(name, why, () => 0) + 'name      ' + name + '\ngroup     misc\nfootprint 1 1\nzmax      ' + N(HM + WM) + '\n\n' + out.join('\n') + '\n' };
+  return { name, text: HDR(name, why, () => 0) + 'name      ' + name + '\ngroup     misc\nfootprint 1 1\nzmax      ' + N(ZMAX) + '\n\n' + out.join('\n') + '\n' };
 }
 
 export function generateCatenary() {
