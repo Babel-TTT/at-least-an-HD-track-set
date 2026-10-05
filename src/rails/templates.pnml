@@ -891,22 +891,22 @@ template t_G1_levelcrossing_blank_v0(sheet) {
 //     overlay   0/1 直向 · 2-5 半格轨 · 6-9 坡道
 // ---------------------------------------------------------------------------
 template t_G4_track_x_v0(sheet) {
-  [0, 596, 263, 149, -128, -18, sheet]
+  [0, 596, 263, 149, -126, -18, sheet]
 }
 template t_G4_track_x_v3(sheet) {
-  [789, 596, 263, 149, -129, -19, sheet]
+  [789, 596, 263, 149, -127, -19, sheet]
 }
 template t_G4_track_half_v0(sheet) {
-  [0, 447, 263, 149, -129, -19, sheet]
+  [0, 447, 263, 149, -127, -19, sheet]
 }
 template t_G4_track_half_v1(sheet) {
-  [263, 447, 263, 149, -128, -19, sheet]
+  [263, 447, 263, 149, -126, -19, sheet]
 }
 template t_G4_track_half_v2(sheet) {
-  [526, 447, 263, 149, -129, -19, sheet]
+  [526, 447, 263, 149, -127, -19, sheet]
 }
 template t_G4_track_half_v3(sheet) {
-  [789, 447, 263, 149, -127, -19, sheet]
+  [789, 447, 263, 149, -125, -19, sheet]
 }
 
 // ---------------------------------------------------------------------------
@@ -921,76 +921,76 @@ template t_G4_track_half_v3(sheet) {
 //     格子尺寸没变 ⇒ ca 仍是 [131, 81] ⇒ xrel/yrel 与 G4_track_half 相同。
 // ---------------------------------------------------------------------------
 template t_G4_z_track_half_m_v0(sheet) {
-  [1052, 596, 263, 149, -130, -19, sheet]
+  [1052, 596, 263, 149, -128, -19, sheet]
 }
 template t_G4_z_track_half_m_v1(sheet) {
-  [1315, 596, 263, 149, -128, -19, sheet]
+  [1315, 596, 263, 149, -126, -19, sheet]
 }
 template t_G4_z_track_half_m_v2(sheet) {
-  [1578, 596, 263, 149, -130, -19, sheet]
+  [1578, 596, 263, 149, -128, -19, sheet]
 }
 template t_G4_z_track_half_m_v3(sheet) {
-  [1841, 596, 263, 149, -128, -19, sheet]
+  [1841, 596, 263, 149, -126, -19, sheet]
 }
 template t_G4_track_slope_v0(sheet) {
-  [1052, 447, 263, 149, -127, -19, sheet]
+  [1052, 447, 263, 149, -125, -19, sheet]
 }
 template t_G4_track_slope_v1(sheet) {
-  [1315, 447, 263, 149, -128, -19, sheet]
+  [1315, 447, 263, 149, -126, -19, sheet]
 }
 template t_G4_track_slope_v2(sheet) {
-  [1578, 447, 263, 149, -130, -19, sheet]
+  [1578, 447, 263, 149, -128, -19, sheet]
 }
 template t_G4_track_slope_v3(sheet) {
-  [1841, 447, 263, 149, -130, -19, sheet]
+  [1841, 447, 263, 149, -128, -19, sheet]
 }
 template t_G4_crossing_v0(sheet) {
-  [0, 0, 263, 149, -127, -19, sheet]
+  [0, 0, 263, 149, -125, -19, sheet]
 }
 template t_G4_junction3_v0(sheet) {
-  [1052, 0, 263, 149, -130, -19, sheet]
+  [1052, 0, 263, 149, -128, -19, sheet]
 }
 template t_G4_junction3_v1(sheet) {
-  [1315, 0, 263, 149, -130, -19, sheet]
+  [1315, 0, 263, 149, -128, -19, sheet]
 }
 template t_G4_junction3_v2(sheet) {
-  [1578, 0, 263, 149, -130, -19, sheet]
+  [1578, 0, 263, 149, -128, -19, sheet]
 }
 template t_G4_junction3_v3(sheet) {
-  [1841, 0, 263, 149, -130, -19, sheet]
+  [1841, 0, 263, 149, -128, -19, sheet]
 }
 template t_G4_junction4_v0(sheet) {
-  [0, 149, 263, 149, -130, -19, sheet]
+  [0, 149, 263, 149, -128, -19, sheet]
 }
 template t_G4_rail_straight_v0(sheet) {
-  [1052, 298, 263, 149, -129, -18, sheet]
+  [1052, 298, 263, 149, -127, -18, sheet]
 }
 template t_G4_rail_straight_v3(sheet) {
-  [1841, 298, 263, 149, -130, -19, sheet]
+  [1841, 298, 263, 149, -128, -19, sheet]
 }
 template t_G4_rail_half_v0(sheet) {
-  [1052, 149, 263, 149, -130, -19, sheet]
+  [1052, 149, 263, 149, -128, -19, sheet]
 }
 template t_G4_rail_half_v1(sheet) {
-  [1315, 149, 263, 149, -128, -19, sheet]
+  [1315, 149, 263, 149, -125, -19, sheet]
 }
 template t_G4_rail_half_v2(sheet) {
-  [1578, 149, 263, 149, -130, -19, sheet]
+  [1578, 149, 263, 149, -128, -19, sheet]
 }
 template t_G4_rail_half_v3(sheet) {
-  [1841, 149, 263, 149, -128, -19, sheet]
+  [1841, 149, 263, 149, -126, -19, sheet]
 }
 template t_G4_rail_slope_v0(sheet) {
-  [0, 298, 263, 149, -127, -19, sheet]
+  [0, 298, 263, 149, -125, -19, sheet]
 }
 template t_G4_rail_slope_v1(sheet) {
-  [263, 298, 263, 149, -128, -19, sheet]
+  [263, 298, 263, 149, -126, -19, sheet]
 }
 template t_G4_rail_slope_v2(sheet) {
-  [526, 298, 263, 149, -130, -19, sheet]
+  [526, 298, 263, 149, -128, -19, sheet]
 }
 template t_G4_rail_slope_v3(sheet) {
-  [789, 298, 263, 149, -130, -19, sheet]
+  [789, 298, 263, 149, -128, -19, sheet]
 }
 
 // ---------------------------------------------------------------------------
