@@ -502,11 +502,15 @@ spriteset(probe_catenary_pylons, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
 }
 
 /* ===========================================================================
-   接触网支柱 —— **早期木杆 + 蓝牌**（`PYL-E1`，8 格；分表 gfx/pylonstyle.png）
+   接触网支柱 —— **早期木杆 + 浅蓝牌**（`PYL-E1`，8 格；分表 gfx/pylonstyle.png）
 
    人工 2026-10-03：厂矿电气化铁路 `SBEd`（1500V DC · 1920）用这一套
-   —— 样式见 美术要素方案.md §1.6.5.2，蓝牌见 §1.6.3 方案 A；
+   —— 样式见 美术要素方案.md §1.6.5.2，标牌见 §1.6.3 方案 A；
    模型是手写的 `models/G1_sty_early_blue_a|_b.model`（a 直向 / b 斜向 45°）。
+
+   ★ **2026-10-05 起这块牌子是浅蓝**（`awning_ltblue` = 1500V DC）——「蓝牌 / 红牌」
+     那套叫法作废：制式牌定案**同族两档蓝**，深蓝 = 3000V DC 在下面那套
+     （`probe_catenary_pylons_early_dkblue`，`SBDD` 在用）。
 
    槽位映射与上面那套（C1）**完全一样**（同一个引擎枚举、同一套几何朝向）：
        直向 a：v0→槽 0 / v2→槽 1 / v1→槽 2 / v3→槽 3
@@ -525,29 +529,32 @@ spriteset(probe_catenary_pylons_early_blue, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
 }
 
 /* ===========================================================================
-   接触网支柱 —— **早期木杆 + 红牌**（`PYL-E1` + 红牌，8 格；分表 gfx/pylonred.png）
+   接触网支柱 —— **早期木杆 + 深蓝牌**（`PYL-E1` + 深蓝牌，8 格；分表 gfx/pylondkblue.png）
 
    人工 2026-10-05：「推进朝鲜电气化铁路」⇒ `SBDD`（朝鲜电气化 · 3000V DC · 1955）
-   按 美术要素方案.md §1.6.5.1 落位表用 `PYL-E1`，标牌按 §1.6.5.4 第二批用**红牌**。
+   按 美术要素方案.md §1.6.5.1 落位表用 `PYL-E1`；**同日改色**（「把 1.5kv 的架空线
+   支柱的颜色标识改为浅蓝，3kv 的改成深蓝」）⇒ 制式牌定案**同族两档蓝**：
+   浅蓝 `awning_ltblue` = 1500V DC（上面那套，`SBEd` 在用）、
+   深蓝 `awning_dkblue` = 3000V DC（本套，`SBDD` 在用）。**红牌那套作废**。
 
-   ★ 与上面那套（蓝牌）**只差标牌材质**：`awning_blue` → `awning_red`
-     （模型 `models/G1_sty_early_red_a|_b.model`），几何、格位、摆位值**一字不差**
-     —— 所以这里 8 格的槽位映射与蓝牌逐行相同，唯一差别是表名。
+   ★ 与上面那套（浅蓝）**只差标牌材质**：`awning_ltblue` → `awning_dkblue`
+     （模型 `models/G1_sty_early_dkblue_a|_b.model`），几何、格位、摆位值**一字不差**
+     —— 所以这里 8 格的槽位映射与浅蓝那套逐行相同，唯一差别是表名。
 
    槽位映射（同一套引擎枚举）：
        直向 a：v0→槽 0 / v2→槽 1 / v1→槽 2 / v3→槽 3
        斜向 b：v0→槽 4 / v2→槽 5 / v1→槽 6 / v3→槽 7
-   ⚠ 斜向那 4 个（槽 4~7）**还没实机核过**（与 C1 / 蓝牌同样的未验证项）。
+   ⚠ 斜向那 4 个（槽 4~7）**还没实机核过**（与 C1 / 浅蓝同样的未验证项）。
    =========================================================================== */
-spriteset(probe_catenary_pylons_early_red, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
-    t_G1_sty_early_red_a_v0("gfx/pylonred.png")   // 0  PSO_Y_NE   Y 向，柱在 N 边中点
-    t_G1_sty_early_red_a_v2("gfx/pylonred.png")   // 1  PSO_Y_SW   Y 向，柱在 S 边中点
-    t_G1_sty_early_red_a_v1("gfx/pylonred.png")   // 2  PSO_X_NW   X 向，柱在 W 边中点
-    t_G1_sty_early_red_a_v3("gfx/pylonred.png")   // 3  PSO_X_SE   X 向，柱在 E 边中点
-    t_G1_sty_early_red_b_v0("gfx/pylonred.png")   // 4  PSO_EW_N   斜半轨，柱在 N 边中点
-    t_G1_sty_early_red_b_v2("gfx/pylonred.png")   // 5  PSO_EW_S   斜半轨，柱在 S 边中点
-    t_G1_sty_early_red_b_v1("gfx/pylonred.png")   // 6  PSO_NS_W   斜半轨，柱在 W 边中点
-    t_G1_sty_early_red_b_v3("gfx/pylonred.png")   // 7  PSO_NS_E   斜半轨，柱在 E 边中点
+spriteset(probe_catenary_pylons_early_dkblue, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G1_sty_early_dkblue_a_v0("gfx/pylondkblue.png")   // 0  PSO_Y_NE   Y 向，柱在 N 边中点
+    t_G1_sty_early_dkblue_a_v2("gfx/pylondkblue.png")   // 1  PSO_Y_SW   Y 向，柱在 S 边中点
+    t_G1_sty_early_dkblue_a_v1("gfx/pylondkblue.png")   // 2  PSO_X_NW   X 向，柱在 W 边中点
+    t_G1_sty_early_dkblue_a_v3("gfx/pylondkblue.png")   // 3  PSO_X_SE   X 向，柱在 E 边中点
+    t_G1_sty_early_dkblue_b_v0("gfx/pylondkblue.png")   // 4  PSO_EW_N   斜半轨，柱在 N 边中点
+    t_G1_sty_early_dkblue_b_v2("gfx/pylondkblue.png")   // 5  PSO_EW_S   斜半轨，柱在 S 边中点
+    t_G1_sty_early_dkblue_b_v1("gfx/pylondkblue.png")   // 6  PSO_NS_W   斜半轨，柱在 W 边中点
+    t_G1_sty_early_dkblue_b_v3("gfx/pylondkblue.png")   // 7  PSO_NS_E   斜半轨，柱在 E 边中点
 }
 
 /* ===========================================================================

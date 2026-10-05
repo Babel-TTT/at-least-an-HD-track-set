@@ -742,8 +742,9 @@ item(FEAT_RAILTYPES, rail_SBEd, 12) {
        再挂**我们自己的接触网**（`SBEd` 是 1500V DC 电气化线）——
        这是 §1.6.4「把已经带 flag 的类型补齐接触网 graphics」清单里的第一条。
 
-       ⚠ **支柱样式 = `EL-1500/E1`（早期木杆 + 蓝牌）**：按 §2 / §1.6.5.1 厂矿线就该用这个
-         ⇒ 2026-10-03 建了 `G1_sty_early_blue_a|_b`（早期木杆 + 蓝环箍牌，
+       ⚠ **支柱样式 = `EL-1500/E1`（早期木杆 + 浅蓝牌）**：按 §2 / §1.6.5.1 厂矿线就该用这个
+         ⇒ 2026-10-03 建了 `G1_sty_early_blue_a|_b`（早期木杆 + 绕柱环箍牌，材质 2026-10-05 定为 **浅蓝**
+         `awning_ltblue` = 1500V DC 那一档；3000V DC 的深蓝见 `SBDD`）
          分表 gfx/pylonstyle.png）并接在这里。
          导线（`catenary_wire`）全制式共用一套，不用换。
 
@@ -788,14 +789,15 @@ item(FEAT_RAILTYPES, rail_SBDD, 13) {
        因为 `SBDD` 与 `SADN`/`SBDN`/`SBEd` 共用同一套几何（美术要素方案.md §3.2 的一期范围）。
 
        ★ 接触网按 §1.6.5.1 落位表用 **`EL-3000/E1`** —— 支柱样式取 `PYL-E1` 早期木杆
-         （1955 < 1958，与厂矿线 `SBEd` 同档），标牌按 §1.6.5.4 第二批取**红牌**（3000V DC）。
-         ⇒ `catenary_pylons: probe_catenary_pylons_early_red`
-           （2026-10-05 新建：`models/G1_sty_early_red_a|_b.model` + 分表 gfx/pylonred.png，
-            与蓝牌那一套只差标牌材质）。导线（`catenary_wire`）全制式共用一套，不换。
+         （1955 < 1958，与厂矿线 `SBEd` 同档），制式牌按 §1.6.3 方案 A 取 **3000V DC 那一档
+         = 深蓝**（2026-10-05 人工定案：「1.5kv 改浅蓝、3kv 改深蓝」，红牌作废）。
+         ⇒ `catenary_pylons: probe_catenary_pylons_early_dkblue`
+           （`models/G1_sty_early_dkblue_a|_b.model` + 分表 gfx/pylondkblue.png，
+            与浅蓝那一套只差标牌材质）。导线（`catenary_wire`）全制式共用一套，不换。
        ⇒ 至此**所有带 `RAILTYPE_FLAG_CATENARY` 的轨道都有我们自己的图**，
          不再有回落原版画风的类型（§1.6.4 第 1 条收口）。
 
-       ⚠ 斜向那 4 格（槽 4~7）的视图→槽位映射**还没实机核对**（与 C1 / E1 蓝牌相同的未验证项）。 */
+       ⚠ 斜向那 4 格（槽 4~7）的视图→槽位映射**还没实机核对**（与 C1 / E1 浅蓝相同的未验证项）。 */
     graphics {
         underlay:        probe_underlay;
         track_overlay:   probe_overlay;
@@ -803,7 +805,7 @@ item(FEAT_RAILTYPES, rail_SBDD, 13) {
         tunnel_overlay:  probe_tunnel_over_2;
         level_crossings: probe_level_crossing;
         bridge_surfaces: probe_bridge_surfaces;
-        catenary_pylons: probe_catenary_pylons_early_red;
+        catenary_pylons: probe_catenary_pylons_early_dkblue;
         catenary_wire:   probe_catenary_wire;
     }
 }
