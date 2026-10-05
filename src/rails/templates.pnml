@@ -647,28 +647,67 @@ template t_G1_pylon_b_v3(sheet) {
 //     ⚠ 2026-10-05 改矮：格位 229 → **207**、yrel 全部 **+22**（算法值 −97 → −75）。
 // ---------------------------------------------------------------------------
 template t_G1_sty_early_blue_a_v0(sheet) {
-  [0, 0, 263, 207, -131, -79, sheet]
+  [0, 0, 263, 207, -131, -79, sheet]  // 【手调】C1 增量 0,-4（蓝 / 红两族同值）
 }
 template t_G1_sty_early_blue_a_v1(sheet) {
-  [263, 0, 263, 207, -11, -139, sheet]
+  [263, 0, 263, 207, -11, -139, sheet]  // 【手调】C1 增量 -8,0
 }
 template t_G1_sty_early_blue_a_v2(sheet) {
-  [526, 0, 263, 207, -131, -199, sheet]
+  [526, 0, 263, 207, -131, -199, sheet]  // 【手调】C1 增量 0,+4
 }
 template t_G1_sty_early_blue_a_v3(sheet) {
-  [789, 0, 263, 207, -251, -139, sheet]
+  [789, 0, 263, 207, -251, -139, sheet]  // 【手调】C1 增量 +8,0
 }
 template t_G1_sty_early_blue_b_v0(sheet) {
-  [1052, 0, 263, 207, -131, -79, sheet]
+  [1052, 0, 263, 207, -131, -79, sheet]  // 【手调】C1 增量 0,-4
 }
 template t_G1_sty_early_blue_b_v1(sheet) {
-  [1315, 0, 263, 207, -28, -136, sheet]
+  [1315, 0, 263, 207, -28, -136, sheet]  // 【手调】C1 增量 -25,+3（半格量）
 }
 template t_G1_sty_early_blue_b_v2(sheet) {
-  [1578, 0, 263, 207, -131, -199, sheet]
+  [1578, 0, 263, 207, -131, -199, sheet]  // 【手调】C1 增量 0,+4
 }
 template t_G1_sty_early_blue_b_v3(sheet) {
-  [1841, 0, 263, 207, -225, -139, sheet]
+  [1841, 0, 263, 207, -225, -139, sheet]  // 【手调】C1 增量 +34,0（半格量）
+}
+
+// ---------------------------------------------------------------------------
+// G1_sty_early_red_* —— **早期木杆 + 红牌**支柱（分表 gfx/pylonred.png）
+//
+//   人工 2026-10-05：「推进朝鲜电气化铁路」⇒ `SBDD`（3000V DC · 1955）按 §1.6.5.1
+//   落位表用 `PYL-E1` ＋ §1.6.5.4 第二批的红牌（标牌三选一见 §1.6.3 方案 A）。
+//   模型是手写的 `models/G1_sty_early_red_a|_b.model`，与蓝牌那两件**逐字相同、
+//   只换标牌材质**（`awning_blue` → `awning_red`；同一个"招牌 / 布篷"族）。
+//
+//   ★ 因此**取值与蓝牌那一套一字不差**（同格位 263×207、同一套 C1 手调增量）——
+//     引擎的 (x_offset,y_offset) 漂移只跟**用哪几个槽位**有关（a → 0~3 直向、
+//     b → 4~7 斜向），跟柱子长什么样、标牌什么颜色都无关。
+//     唯一的差别是**表名**（`pylonred.png`，理由见 tools/sheets.mjs 那条注释）。
+//   ⚠ 摆位值必须**随蓝牌一起改**：两族同格位，蓝牌改矮 / 改形状时这 8 行要同步。
+// ---------------------------------------------------------------------------
+template t_G1_sty_early_red_a_v0(sheet) {
+  [0, 0, 263, 207, -131, -79, sheet]  // 【手调】同 t_G1_sty_early_blue_a_v0
+}
+template t_G1_sty_early_red_a_v1(sheet) {
+  [263, 0, 263, 207, -11, -139, sheet]  // 【手调】同 t_G1_sty_early_blue_a_v1
+}
+template t_G1_sty_early_red_a_v2(sheet) {
+  [526, 0, 263, 207, -131, -199, sheet]  // 【手调】同 t_G1_sty_early_blue_a_v2
+}
+template t_G1_sty_early_red_a_v3(sheet) {
+  [789, 0, 263, 207, -251, -139, sheet]  // 【手调】同 t_G1_sty_early_blue_a_v3
+}
+template t_G1_sty_early_red_b_v0(sheet) {
+  [1052, 0, 263, 207, -131, -79, sheet]  // 【手调】同 t_G1_sty_early_blue_b_v0
+}
+template t_G1_sty_early_red_b_v1(sheet) {
+  [1315, 0, 263, 207, -28, -136, sheet]  // 【手调】同 t_G1_sty_early_blue_b_v1
+}
+template t_G1_sty_early_red_b_v2(sheet) {
+  [1578, 0, 263, 207, -131, -199, sheet]  // 【手调】同 t_G1_sty_early_blue_b_v2
+}
+template t_G1_sty_early_red_b_v3(sheet) {
+  [1841, 0, 263, 207, -225, -139, sheet]  // 【手调】同 t_G1_sty_early_blue_b_v3
 }
 
 // ---------------------------------------------------------------------------

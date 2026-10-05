@@ -173,6 +173,21 @@ export const SHEETS = [
     match: /^G1_sty_cyl/,
   },
   {
+    // 接触网支柱 **PYL-E1 早期木杆 + 红牌**（人工 2026-10-05：「推进朝鲜电气化铁路」⇒
+    // `SBDD`（3000V DC · 1955）按 §1.6.5.1 落位表用 E1 ＋ §1.6.5.4 第二批的**红牌**）。
+    //
+    // 模型 `models/G1_sty_early_red_a|_b.model` 与蓝牌那两件**逐字相同、只换标牌材质**
+    // （`awning_blue` → `awning_red`）⇒ 格位同样是 263×207，**不是**因为格位不同才分表。
+    // 分表的理由只有一条：**atlas 按模型名排序打包**，若并进 pylonstyle，
+    // `G1_sty_early_red_*` 会插在 `G1_sty_early_blue_b`（"b" < "r"）之后 ——
+    // 这一族只有 2 个模型、插在末尾其实不会顶移位，但**下次再改形状就会**
+    // （同 pyloncyl 那条注释的教训）。一表一类，谁也别赖谁。
+    // 登记在 pylonstyle **之前**：它的正则是 /^G1_sty_/，会先把 G1_sty_early_red_* 吃掉。
+    key: 'pylonred',
+    title: '接触网支柱 PYL-E1 早期木杆 + 红牌（朝鲜电气化 SBDD）',
+    match: /^G1_sty_early_red/,
+  },
+  {
     // 接触网**支柱的样式 / 标牌变体**（人工 2026-10-03：厂矿电气化铁路 `SBEd` 要用
     // 「早期木杆 + 蓝牌」⇒ 新增 `G1_sty_early_blue_a|_b`）。
     // 现有那套方形混凝土柱是 `G1_pylon_a/_b`（在下面的 catenary 表里）；
