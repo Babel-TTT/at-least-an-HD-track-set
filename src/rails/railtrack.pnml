@@ -1023,3 +1023,51 @@ item(FEAT_RAILTYPES, rail_SBEA, 17) {
         catenary_wire:   probe_catenary_wire;
     }
 }
+
+// SBC3 —— 地铁轨道（第三轨·减振段）（2000，C 档 120km/h，轴重 23t，**第三轨**）
+item(FEAT_RAILTYPES, rail_SBC3, 18) {
+    property {
+        label:                  "SBC3";
+        introduction_date:      date(2000, 1, 1);
+        name:                   string(STR_RAIL_SBC3);
+        toolbar_caption:        string(STR_RAIL_SBC3);
+        menu_text:              string(STR_RAIL_SBC3);
+        build_window_caption:   string(STR_RAIL_SBC3);
+        autoreplace_text:       string(STR_RAIL_SBC3);
+        new_engine_text:        string(STR_RAIL_SBC3);
+        /* 兼容 / powered 与 `SAC3`（A12）逐条相同 —— 同一条地铁第三轨族的两个年代档。 */
+        compatible_railtype_list: ["RAIL", "ELRL",
+                                    "SADN", "SBDN", "SCDN",
+                                    "SACd", "SBCd", "SAC3", "SBC3", "SACZ", "SACL",
+                                    "SBEd", "SBDD"];
+        powered_railtype_list:    ["ELRL", "SAC3", "SBC3", "SACZ", "SACL"];
+        /* ⚠ 第三轨供电但**不架接触网**（§1.6.6 / §2 第 20 行）⇒ **不设** CATENARY；
+           `NO_LEVEL_CROSSING` 是 C8 项（地铁不设平交道口）⇒ 也不提供 `level_crossings:`。 */
+        railtype_flags:         bitmask(RAILTYPE_FLAG_NO_LEVEL_CROSSING);
+        curve_speed_multiplier: 1;
+        station_graphics:       RAILTYPE_STATION_NORMAL;
+        /* 费用系数 = CSV 的 10 ⇒ 建设 10 / 维护 5（与 `SBDD` 同口径） */
+        construction_cost:      10;
+        maintenance_cost:       5;
+        speed_limit:            120 km/h;
+        acceleration_model:     ACC_MODEL_RAIL;
+        map_colour:             0x62;
+        sort_order:             SORT_ELECTRIC;
+    }
+    /* ★ 2026-10-05：A13 组（`BAL-I` 浮置板 + `SLE-5` 无枕 + `RAI-4` 第三轨）接入。
+       `BAL-I` = `BAL-H` + 板缝 + 减振垫边缘线（模型由 `tools/gen-a12-metro.mjs` 的
+       `padShapes()` 吐出，分表 `gfx/floatslab.png`）。
+
+       ⚠ **只做减振段该做的那一层**：一个组里只有**带板带的四种板**是新图 ——
+         `track_overlay`（不含道床）、`tunnels` / `tunnel_overlay`（TUN-5）、
+         以及交叉 / 三向 / 四向那三张**保持素面**的道床板，都与 `SAC3`（A12）
+         **逐字相同**，因此**直接复用 A12 的 spriteset 与既有模板**，不重画。
+       桥面单独一套（`probe_bridge_surfaces_floatslab`）—— 桥上也要是浮置板断面。 */
+    graphics {
+        underlay:        probe_underlay_floatslab;
+        track_overlay:   probe_overlay_metro;
+        tunnels:         probe_tunnels_metro;
+        tunnel_overlay:  probe_tunnel_over_metro;
+        bridge_surfaces: probe_bridge_surfaces_floatslab;
+    }
+}

@@ -1051,6 +1051,69 @@ template t_G4_rail_slope_v3(sheet) {
 }
 
 // ---------------------------------------------------------------------------
+// G7_* —— **A13 组（`SBC3` 第三轨地铁 · `BAL-I` 浮置板）**（分表 gfx/floatslab.png）
+//
+//   模型由 `tools/gen-a12-metro.mjs` 生成（**既有生成器扩了一个 `padShapes()`**，
+//   人工 2026-10-05 在 A13 确认门批准；只**追加** `G7_*`，A12 的 `G4_*` 逐字节未变）。
+//
+//   `BAL-I` = `BAL-H`（A12 的整体道床）**加上两条现实特征**（§1.1）：
+//     ① 板缝（间距 0.22 格 / 宽 0.010 / 缝底落到减振垫顶面，深灰）
+//     ② 减振垫边缘线（板带两侧各 0.010 宽的顶面条）+ 垫层 0.004 格厚
+//   ⇒ 一个组里**只有带板带的四种板**变了，于是本表**只有 4 个模型 / 14 条模板**；
+//     交叉 / 三向 / 四向那三张道床板（有意保持素面）+ overlay 三件 + 洞口四件 + 桥面
+//     在 `gfx/metro.png` 里**逐字复用**（见 railsprite.pnml 的 `probe_underlay_floatslab`）。
+//
+//   ★ **取值 = 照抄 G4 的对应行**（同 `docs/建模经验.md` §4.20 的"同形变体"）：
+//     两族的板带 / 钢轨 / 第三轨几何逐字相同、几何外包络一个数没变 ⇒ 渲完从
+//     `gfx/openttd.json` 复核，**格位同为 263×149、每一条 `xrel/yrel` 与 G4 完全相同**
+//     （4 个模型 × 4 朝向逐条对上）。所以这里**不是**算出来的 centerAnchor 值
+//     （本表算法值 = −131,−17），而是 `t_G4_*` 那些**实机调出来的值** —— 也因此标【手调】。
+//     ⚠ 必须与 G4 一致，否则同一个瓦片上 underlay（G7）与 overlay（G4）的钢轨会错开。
+// ---------------------------------------------------------------------------
+template t_G7_track_x_v0(sheet) {
+  [0, 149, 263, 149, -126, -18, sheet]  // 【手调】同 t_G4_track_x_v0
+}
+template t_G7_track_x_v3(sheet) {
+  [789, 149, 263, 149, -127, -19, sheet]  // 【手调】同 t_G4_track_x_v3
+}
+template t_G7_track_half_v0(sheet) {
+  [0, 0, 263, 149, -127, -19, sheet]  // 【手调】同 t_G4_track_half_v0
+}
+template t_G7_track_half_v1(sheet) {
+  [263, 0, 263, 149, -126, -19, sheet]  // 【手调】同 t_G4_track_half_v1
+}
+template t_G7_track_half_v2(sheet) {
+  [526, 0, 263, 149, -127, -19, sheet]  // 【手调】同 t_G4_track_half_v2（RTO_S 用镜像件，本行仅备查）
+}
+template t_G7_track_half_v3(sheet) {
+  [789, 0, 263, 149, -125, -19, sheet]  // 【手调】同 t_G4_track_half_v3（同上）
+}
+template t_G7_z_track_half_m_v0(sheet) {
+  [1052, 149, 263, 149, -128, -19, sheet]  // 【手调】同 t_G4_z_track_half_m_v0（本行仅备查）
+}
+template t_G7_z_track_half_m_v1(sheet) {
+  [1315, 149, 263, 149, -126, -19, sheet]  // 【手调】同上
+}
+template t_G7_z_track_half_m_v2(sheet) {
+  [1578, 149, 263, 149, -128, -19, sheet]  // 【手调】同 t_G4_z_track_half_m_v2 ← RTO_S 用这张
+}
+template t_G7_z_track_half_m_v3(sheet) {
+  [1841, 149, 263, 149, -126, -19, sheet]  // 【手调】同 t_G4_z_track_half_m_v3 ← RTO_E 用这张
+}
+template t_G7_track_slope_v0(sheet) {
+  [1052, 0, 263, 149, -125, -19, sheet]  // 【手调】同 t_G4_track_slope_v0
+}
+template t_G7_track_slope_v1(sheet) {
+  [1315, 0, 263, 149, -126, -19, sheet]  // 【手调】同 t_G4_track_slope_v1
+}
+template t_G7_track_slope_v2(sheet) {
+  [1578, 0, 263, 149, -128, -19, sheet]  // 【手调】同 t_G4_track_slope_v2
+}
+template t_G7_track_slope_v3(sheet) {
+  [1841, 0, 263, 149, -128, -19, sheet]  // 【手调】同 t_G4_track_slope_v3
+}
+
+// ---------------------------------------------------------------------------
 // G4_tunnel5_* —— **A12 组（`SAC3`）地铁矩形洞口 TUN-5**（分表 gfx/tunnel5.png）
 //
 //   模型由 `tools/gen-a12-metro.mjs` 生成；端墙尺寸与盖土几何与 TUN-1 同源。

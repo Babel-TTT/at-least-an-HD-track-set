@@ -158,6 +158,55 @@ spriteset(probe_bridge_surfaces_metro, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
 }
 
 /* ===========================================================================
+   A13 组 —— `SBC3` 第三轨地铁 · **`BAL-I` 浮置板**（分表 gfx/floatslab.png）
+
+   `BAL-I` = A12 的 `BAL-H` 整体道床 **+ 板缝 + 减振垫边缘线**
+   （人工 2026-10-05 A13 确认门批准，板面按方案 B；口径见
+     tools/gen-a12-metro.mjs 的「A13 浮置板」段与 `padShapes()`）。
+
+   ★ **A13 与 A12 的差别全在板面** ⇒ 一个组里只有四种板是新模型：
+       · 直向 / 半格 / 镜像半格 / 坡道 → 本表前 10 格（`gfx/floatslab.png`）
+       · **交叉 / 三向 / 四向三道床板**（有意保持素面）、**overlay 三件**、
+         **洞口四件**、**桥面以外的其余** → 逐字复用 A12 的 `gfx/metro.png`
+     ⇒ 本 spriteset 是**混表**的（NML 允许每条目各指一个文件）：
+       0-9 指 floatslab.png（新），10-15 指 metro.png（A12 既有精灵 + 既有模板）。
+     ⚠ 别为了"整齐"把 10-15 也画一套 —— 那正是"同一块板两份图"，以后改一处会漏一处。
+
+   ⚠ 槽位顺序、以及半格轨 S/E 用**镜像模型**的理由，与 `probe_underlay_metro`
+     逐条相同（引擎给斜向链的 LEFT 取 v1、RIGHT 取 v3，差 180° ⇒ 第三轨会左右交错）。
+   =========================================================================== */
+spriteset(probe_underlay_floatslab, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G7_track_x_v0("gfx/floatslab.png")             //  0  RTO_X          X
+    t_G7_track_x_v3("gfx/floatslab.png")             //  1  RTO_Y          Y
+    t_G7_track_half_v0("gfx/floatslab.png")          //  2  RTO_N          UPPER（切 N 角）
+    t_G7_z_track_half_m_v2("gfx/floatslab.png")      //  3  RTO_S          LOWER ← **镜像版**（第三轨同侧）
+    t_G7_z_track_half_m_v3("gfx/floatslab.png")      //  4  RTO_E          RIGHT ← **镜像版**
+    t_G7_track_half_v1("gfx/floatslab.png")          //  5  RTO_W          LEFT
+    t_G7_track_slope_v0("gfx/floatslab.png")         //  6  RTO_SLOPE_NE   v0（右上抬）
+    t_G7_track_slope_v3("gfx/floatslab.png")         //  7  RTO_SLOPE_SE   v3（右下抬）
+    t_G7_track_slope_v2("gfx/floatslab.png")         //  8  RTO_SLOPE_SW   v2（左下抬）
+    t_G7_track_slope_v1("gfx/floatslab.png")         //  9  RTO_SLOPE_NW   v1（左上抬）
+    // ↓ 以下 6 格**复用 A12 的精灵**（gfx/metro.png）—— 浮置板与整体道床只差板面，
+    //   交叉 / 道岔那三张板有意保持素面，所以不再画第二套。行值与上面那 6 条逐字相同。
+    t_G4_crossing_v0("gfx/metro.png")                // 10  RTO_CROSSING_XY（自带两组钢轨）
+    t_G4_junction3_v0("gfx/metro.png")               // 11  RTO_JUNCTION_SW（只有道床板）
+    t_G4_junction3_v2("gfx/metro.png")               // 12  RTO_JUNCTION_NE（v2）
+    t_G4_junction3_v1("gfx/metro.png")               // 13  RTO_JUNCTION_SE（v1）
+    t_G4_junction3_v3("gfx/metro.png")               // 14  RTO_JUNCTION_NW（v3）
+    t_G4_junction4_v0("gfx/metro.png")               // 15  RTO_JUNCTION_NSEW（只有道床板）
+}
+
+// 桥面（6 格）—— **用浮置板那四种板**（桥上也是减振地段的断面 ⇒ 不能沿用 metro 的板）
+spriteset(probe_bridge_surfaces_floatslab, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G7_track_x_v0("gfx/floatslab.png")             // 0  平 — X
+    t_G7_track_x_v3("gfx/floatslab.png")             // 1  平 — Y
+    t_G7_track_slope_v0("gfx/floatslab.png")         // 2  坡 NE
+    t_G7_track_slope_v3("gfx/floatslab.png")         // 3  坡 SE
+    t_G7_track_slope_v2("gfx/floatslab.png")         // 4  坡 SW
+    t_G7_track_slope_v1("gfx/floatslab.png")         // 5  坡 NW
+}
+
+/* ===========================================================================
    A12 组洞口 —— **TUN-5 地铁矩形洞门**（分表 gfx/tunnel5.png）
 
    两个 spriteset 对应 NML 的 `tunnels:`（地面层，4 张）与 `tunnel_overlay:`
