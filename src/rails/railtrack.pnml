@@ -821,11 +821,30 @@ item(FEAT_RAILTYPES, rail_SAC3, 14) {
         build_window_caption:   string(STR_RAIL_SAC3);
         autoreplace_text:       string(STR_RAIL_SAC3);
         new_engine_text:        string(STR_RAIL_SAC3);
-        compatible_railtype_list: ["RAIL", "ELRL",
-                                    "SADN", "SBDN", "SCDN",
-                                    "SACd", "SBCd", "SAC3", "SBC3", "SACZ", "SACL",
-                                    "SBEd", "SBDD"];
-        powered_railtype_list:    ["ELRL", "SAC3", "SBC3", "SACZ", "SACL"];
+        compatible_railtype_list: ["RAIL", "ELRL", 
+                                    "SACN", "SBCN", "SCCN", "SDCN", "SECN",  "SFCN", "SGDN",
+                                    "SADN", "SBDN", "SCDN", "SDDN", "SEDN",  "SFDN", "SGDN",
+                                    "SAEN", "SBEN", "SCEN", "SDEN", "SEEN",  "SFEN", "SGEN",
+                                    "SACA", "SBCA", "SCCA", "SDCA", "SECA",  "SFCA", "SGCA",
+                                    "SADA", "SBDA", "SCDA", "SDDA", "SEDA",  "SFDA", "SGDA", 
+                                    "SAEA", "SBEA", "SCEA", "SDEA", "SEEA",  "SFEA", "SGEA",
+                                    "SACd", "SBCd", "SCCd", "SDCd", "SECd",
+                                    "SADd", "SBDd", "SCDd", "SDDd", "SEDd",
+                                    "SAEd", "SBEd", "SCEd", "SDEd", "SEEd",  
+                                    "SACD", "SBCD", "SCCD", "SDCD", "SECD", 
+                                    "SADD", "SBDD", "SCDD", "SDDD", "SEDD",   
+                                    "SAC3", "SBC3", "SCC3", "SDC3",
+                                    "SACZ", "SBCZ", "SCCZ", "SDCZ",    
+                                    "SACL", "SBCL", "SCCL", "SDCL",
+                                    "DACN", 
+                                    "DADN", "DBDN",
+                                    "DACA", 
+                                    "DADA", "DBDA",
+                                    "dACN", "dBCN"];
+        powered_railtype_list:    [ "ELRL", 
+                                    "SAC3", "SBC3", "SCC3", "SDC3",
+                                    "SACZ", "SBCZ", "SCCZ", "SDCZ",    
+                                    "SACL", "SBCL", "SCCL", "SDCL"];
         /* ⚠ 第三轨供电但**不架接触网**（美术要素方案.md §1.6.6 / §2 第 19 行）：
            所以**不设** RAILTYPE_FLAG_CATENARY；
            `NO_LEVEL_CROSSING` 是 §6 确认门里定下的 C8 项（地铁不设平交道口）⇒
@@ -1036,11 +1055,30 @@ item(FEAT_RAILTYPES, rail_SBC3, 18) {
         autoreplace_text:       string(STR_RAIL_SBC3);
         new_engine_text:        string(STR_RAIL_SBC3);
         /* 兼容 / powered 与 `SAC3`（A12）逐条相同 —— 同一条地铁第三轨族的两个年代档。 */
-        compatible_railtype_list: ["RAIL", "ELRL",
-                                    "SADN", "SBDN", "SCDN",
-                                    "SACd", "SBCd", "SAC3", "SBC3", "SACZ", "SACL",
-                                    "SBEd", "SBDD"];
-        powered_railtype_list:    ["ELRL", "SAC3", "SBC3", "SACZ", "SACL"];
+        compatible_railtype_list: ["RAIL", "ELRL", 
+                                    "SACN", "SBCN", "SCCN", "SDCN", "SECN",  "SFCN", "SGDN",
+                                    "SADN", "SBDN", "SCDN", "SDDN", "SEDN",  "SFDN", "SGDN",
+                                    "SAEN", "SBEN", "SCEN", "SDEN", "SEEN",  "SFEN", "SGEN",
+                                    "SACA", "SBCA", "SCCA", "SDCA", "SECA",  "SFCA", "SGCA",
+                                    "SADA", "SBDA", "SCDA", "SDDA", "SEDA",  "SFDA", "SGDA", 
+                                    "SAEA", "SBEA", "SCEA", "SDEA", "SEEA",  "SFEA", "SGEA",
+                                    "SACd", "SBCd", "SCCd", "SDCd", "SECd",
+                                    "SADd", "SBDd", "SCDd", "SDDd", "SEDd",
+                                    "SAEd", "SBEd", "SCEd", "SDEd", "SEEd",  
+                                    "SACD", "SBCD", "SCCD", "SDCD", "SECD", 
+                                    "SADD", "SBDD", "SCDD", "SDDD", "SEDD",   
+                                    "SAC3", "SBC3", "SCC3", "SDC3",
+                                    "SACZ", "SBCZ", "SCCZ", "SDCZ",    
+                                    "SACL", "SBCL", "SCCL", "SDCL",
+                                    "DACN", 
+                                    "DADN", "DBDN",
+                                    "DACA", 
+                                    "DADA", "DBDA",
+                                    "dACN", "dBCN"];
+        powered_railtype_list:    [ "ELRL", 
+                                    "SAC3", "SBC3", "SCC3", "SDC3",
+                                    "SACZ", "SBCZ", "SCCZ", "SDCZ",    
+                                    "SACL", "SBCL", "SCCL", "SDCL"];
         /* ⚠ 第三轨供电但**不架接触网**（§1.6.6 / §2 第 20 行）⇒ **不设** CATENARY；
            `NO_LEVEL_CROSSING` 是 C8 项（地铁不设平交道口）⇒ 也不提供 `level_crossings:`。 */
         railtype_flags:         bitmask(RAILTYPE_FLAG_NO_LEVEL_CROSSING);
