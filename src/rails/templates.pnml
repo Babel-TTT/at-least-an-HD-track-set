@@ -718,6 +718,51 @@ template t_G1_sty_early_dkblue_b_v3(sheet) {
 }
 
 // ---------------------------------------------------------------------------
+// G1_sty_steel_* —— 接触网支柱 **PYL-S1 H 型钢**（分表 gfx/pylonsteel.png）
+//
+//   模型 `models/G1_sty_steel_a|_b.model`（**手写**：a 直向 / b 斜向 45°）。
+//   规格见 `美术要素方案.md` §1.6.5.2 的 S1 列（⚠ 那列 0.700 / 0.580 是规划旧数，
+//   现行口径 = 柱顶 0.48 / 挂点 0.40）。2026-10-05 与 `SGCA`（A10）同批做，
+//   **只接 `SGCA` 一条** —— 落位表里另外 5 条（`SDCA` `SCCA` `NCCA` `SECA` `SFCA`）
+//   还没有自己的轨道图，现在挂 S1 会变成"我们的柱子 + 引擎原版 8bpp 轨道"。
+//
+//   ★ 取值 = **E1 那族（`t_G1_sty_early_blue/dkblue`）的摆位值 `yrel` −2**：
+//     两族的 view-0 锚点差 2 px（`pylonstyle` / `pylondkblue` 的 ca = [131, 139] ⇒ yrel −75；
+//     本表 ca = [131, **141**] ⇒ yrel **−77**），`xrel` 一字不动、`rect` 的列也一样。
+//     ⚠ **为什么本表比 E1 高 2 px**：本族的**下斜撑**在屏幕上比 E1 的斜弯臂高 ≈1.5 px
+//       （斜撑高端 `x 0.248 / z 0.395` ⇒ 屏幕 y = 0.265·64 − 0.395·156.77 = −45.0，
+//         E1 的臂端 `x 0.300 / z 0.408` ⇒ ≈ −43.5）⇒ 取景框高 209（E1 是 207）。
+//       这就是"内容一变、格位就变"的老规律（`docs/建模经验.md` §9.9）——
+//       所以这 8 条**不能照抄** E1 的，必须 `yrel` 统一 −2。
+//   ⚠ 增量来源同样是 **C1 的手调增量**（0,−4 / −8,0 / 0,+4 / +8,0 / −25,+3 / +34,0）——
+//     支柱摆位的手调量**只跟用哪几个槽位有关**，与柱形无关（§4.20）。
+// ---------------------------------------------------------------------------
+template t_G1_sty_steel_a_v0(sheet) {
+  [0, 0, 263, 209, -131, -81, sheet]  // 【手调】C1 增量 0,-4（= E1 族同值 yrel −2）
+}
+template t_G1_sty_steel_a_v1(sheet) {
+  [263, 0, 263, 209, -11, -141, sheet]  // 【手调】C1 增量 -8,0
+}
+template t_G1_sty_steel_a_v2(sheet) {
+  [526, 0, 263, 209, -131, -201, sheet]  // 【手调】C1 增量 0,+4
+}
+template t_G1_sty_steel_a_v3(sheet) {
+  [789, 0, 263, 209, -251, -141, sheet]  // 【手调】C1 增量 +8,0
+}
+template t_G1_sty_steel_b_v0(sheet) {
+  [1052, 0, 263, 209, -131, -81, sheet]  // 【手调】C1 增量 0,-4
+}
+template t_G1_sty_steel_b_v1(sheet) {
+  [1315, 0, 263, 209, -28, -138, sheet]  // 【手调】C1 增量 -25,+3（半格量）
+}
+template t_G1_sty_steel_b_v2(sheet) {
+  [1578, 0, 263, 209, -131, -201, sheet]  // 【手调】C1 增量 0,+4
+}
+template t_G1_sty_steel_b_v3(sheet) {
+  [1841, 0, 263, 209, -225, -141, sheet]  // 【手调】C1 增量 +34,0（半格量）
+}
+
+// ---------------------------------------------------------------------------
 // G1_wire_* —— 接触网**导线**（分表仍是 gfx/catenary.png）
 //
 // ★★ 2026-10-02 **读码后重做**（人工批准，只读了与接触网相关的段落）：
@@ -1111,6 +1156,152 @@ template t_G7_track_slope_v2(sheet) {
 }
 template t_G7_track_slope_v3(sheet) {
   [1841, 0, 263, 149, -128, -19, sheet]  // 【手调】同 t_G4_track_slope_v3
+}
+
+// ---------------------------------------------------------------------------
+// G8_* —— **A10 组（`SGCA` 高速无砟 CRTS III）**（分表 gfx/crts3.png）
+//
+//   模型由 `tools/gen-a10-slab.mjs` 生成（人工 2026-10-05 批准新建）。
+//   口径：道床 `BAL-G` 无砟·CRTS III（**两条承轨台 + 三条低带**）· 轨枕 `SLE-4` 双块式 ·
+//   钢轨 `RAI-3` 长轨（几何 = `RAI-1`，只换材质）· 洞口 `TUN-4`。
+//
+//   ★ **取值规则：照抄 `t_G4_*` 的摆位值、`yrel` 一律 +2**（不是重算）。
+//     两条依据：
+//       ① A12 那 10 件**四个朝向共用同一个锚点** —— 模型绕瓦片中心转，锚点本来就不动
+//          （flatiso 逐朝向算出来的值不同，是它的**格位原点**转了，不是内容转了；
+//            A12 当年在实机里已经把这批值调成了"共用锚点"，所以照抄才是对的）；
+//       ② 两表的 view-0 锚点只差 **2 px**：`metro` 的 ca = [131, 81] ⇒ yrel −17；
+//          `crts3` 的 ca = [131, 79] ⇒ yrel −15 ⇒ **Δyrel = +2**（`xrel` 一字不动）。
+//     与 A12 同形的理由同 §4.20/§4.21：板带 / 钢轨 / 扣件位置逐字相同（只差板面条带
+//     与块/轨的材质），引擎的逐槽位原点漂移自然也一样。
+//   ⚠ **`rect` 必须换成 `crts3.png` 的**（本表 263×**147**、两行一组共 5 行）——
+//     照抄 metro 的 rect 会读错格子。
+// ---------------------------------------------------------------------------
+template t_G8_track_x_v0(sheet) {
+  [0, 588, 263, 147, -126, -16, sheet]  // 【手调】同 t_G4_track_x_v0（yrel +2）
+}
+template t_G8_track_x_v3(sheet) {
+  [789, 588, 263, 147, -127, -17, sheet]  // 【手调】同 t_G4_track_x_v3
+}
+template t_G8_track_half_v0(sheet) {
+  [0, 441, 263, 147, -127, -17, sheet]  // 【手调】同 t_G4_track_half_v0
+}
+template t_G8_track_half_v1(sheet) {
+  [263, 441, 263, 147, -126, -17, sheet]  // 【手调】同 t_G4_track_half_v1
+}
+template t_G8_track_half_v2(sheet) {
+  [526, 441, 263, 147, -127, -17, sheet]  // 【手调】同 t_G4_track_half_v2（RTO_S 用镜像件，本行仅备查）
+}
+template t_G8_track_half_v3(sheet) {
+  [789, 441, 263, 147, -125, -17, sheet]  // 【手调】同 t_G4_track_half_v3（同上）
+}
+template t_G8_z_track_half_m_v0(sheet) {
+  [1052, 588, 263, 147, -128, -17, sheet]  // 【手调】同 t_G4_z_track_half_m_v0（本行仅备查）
+}
+template t_G8_z_track_half_m_v1(sheet) {
+  [1315, 588, 263, 147, -126, -17, sheet]  // 【手调】同上
+}
+template t_G8_z_track_half_m_v2(sheet) {
+  [1578, 588, 263, 147, -128, -17, sheet]  // 【手调】同 t_G4_z_track_half_m_v2 ← RTO_S 用这张
+}
+template t_G8_z_track_half_m_v3(sheet) {
+  [1841, 588, 263, 147, -126, -17, sheet]  // 【手调】同 t_G4_z_track_half_m_v3 ← RTO_E 用这张
+}
+template t_G8_track_slope_v0(sheet) {
+  [1052, 441, 263, 147, -125, -17, sheet]  // 【手调】同 t_G4_track_slope_v0
+}
+template t_G8_track_slope_v1(sheet) {
+  [1315, 441, 263, 147, -126, -17, sheet]  // 【手调】同 t_G4_track_slope_v1
+}
+template t_G8_track_slope_v2(sheet) {
+  [1578, 441, 263, 147, -128, -17, sheet]  // 【手调】同 t_G4_track_slope_v2
+}
+template t_G8_track_slope_v3(sheet) {
+  [1841, 441, 263, 147, -128, -17, sheet]  // 【手调】同 t_G4_track_slope_v3
+}
+template t_G8_crossing_v0(sheet) {
+  [0, 0, 263, 147, -125, -17, sheet]  // 【手调】同 t_G4_crossing_v0
+}
+template t_G8_junction3_v0(sheet) {
+  [1052, 0, 263, 147, -128, -17, sheet]  // 【手调】同 t_G4_junction3_v0
+}
+template t_G8_junction3_v1(sheet) {
+  [1315, 0, 263, 147, -128, -17, sheet]  // 【手调】同 t_G4_junction3_v1
+}
+template t_G8_junction3_v2(sheet) {
+  [1578, 0, 263, 147, -128, -17, sheet]  // 【手调】同 t_G4_junction3_v2
+}
+template t_G8_junction3_v3(sheet) {
+  [1841, 0, 263, 147, -128, -17, sheet]  // 【手调】同 t_G4_junction3_v3
+}
+template t_G8_junction4_v0(sheet) {
+  [0, 147, 263, 147, -128, -17, sheet]  // 【手调】同 t_G4_junction4_v0
+}
+template t_G8_rail_straight_v0(sheet) {
+  [1052, 294, 263, 147, -127, -16, sheet]  // 【手调】同 t_G4_rail_straight_v0
+}
+template t_G8_rail_straight_v3(sheet) {
+  [1841, 294, 263, 147, -128, -17, sheet]  // 【手调】同 t_G4_rail_straight_v3
+}
+template t_G8_rail_half_v0(sheet) {
+  [1052, 147, 263, 147, -128, -17, sheet]  // 【手调】同 t_G4_rail_half_v0
+}
+template t_G8_rail_half_v1(sheet) {
+  [1315, 147, 263, 147, -125, -17, sheet]  // 【手调】同 t_G4_rail_half_v1
+}
+template t_G8_rail_half_v2(sheet) {
+  [1578, 147, 263, 147, -128, -17, sheet]  // 【手调】同 t_G4_rail_half_v2
+}
+template t_G8_rail_half_v3(sheet) {
+  [1841, 147, 263, 147, -126, -17, sheet]  // 【手调】同 t_G4_rail_half_v3
+}
+template t_G8_rail_slope_v0(sheet) {
+  [0, 294, 263, 147, -125, -17, sheet]  // 【手调】同 t_G4_rail_slope_v0
+}
+template t_G8_rail_slope_v1(sheet) {
+  [263, 294, 263, 147, -126, -17, sheet]  // 【手调】同 t_G4_rail_slope_v1
+}
+template t_G8_rail_slope_v2(sheet) {
+  [526, 294, 263, 147, -128, -17, sheet]  // 【手调】同 t_G4_rail_slope_v2
+}
+template t_G8_rail_slope_v3(sheet) {
+  [789, 294, 263, 147, -128, -17, sheet]  // 【手调】同 t_G4_rail_slope_v3
+}
+
+// ---------------------------------------------------------------------------
+// G8_tunnel4_* —— **A10 组（`SGCA`）高速洞口 TUN-4**（分表 gfx/tunnel4.png）
+//
+//   模型由 `tools/gen-a10-slab.mjs` 从 `G3_tunnel3*` 派生（端墙加宽到 0.80 格、
+//   洞跨加宽到 0.40 格、拱顶抬到 0.215，洞口正面加一圈挑出的帽檐）。
+//   ★ **8 条与 `t_G3_tunnel3*` 逐字相同**（连 `rect` 也一样）：渲完从 `gfx/openttd.json`
+//     逐条复核，两族**格位同为 263×167、ca 同为 [131, 99]**，四个朝向的
+//     `xrel/yrel` 完全相同 ⇒ 同 §4.20 的"同形变体"，**一个数都不用重算**。
+//   ⚠ 这 8 条在 TUN-3 那轮就是实机调出来的（`overlay` 另有 ≈ −120 px 的继承偏移），
+//     别照 centerAnchor 重算。
+// ---------------------------------------------------------------------------
+template t_G8_tunnel4_v0(sheet) {
+  [0, 0, 263, 167, -126, -36, sheet]  // 【手调】同 t_G3_tunnel3_v0（DiagDir NE，A 组远半）
+}
+template t_G8_tunnel4_v3(sheet) {
+  [789, 0, 263, 167, -126, -36, sheet]  // 【手调】同 t_G3_tunnel3_v3（DiagDir SE）
+}
+template t_G8_tunnel4_b_v2(sheet) {
+  [1578, 0, 263, 167, -119, -35, sheet]  // 【手调】同 t_G3_tunnel3_b_v2（DiagDir SW，B 组近半）
+}
+template t_G8_tunnel4_b_v1(sheet) {
+  [1315, 0, 263, 167, -130, -36, sheet]  // 【手调】同 t_G3_tunnel3_b_v1（DiagDir NW）
+}
+template t_G8_tunnel4_over_v0(sheet) {
+  [0, 167, 263, 167, -126, -156, sheet]  // 【手调】同 t_G3_tunnel3_over_v0（overlay 另有 −120 px）
+}
+template t_G8_tunnel4_over_v3(sheet) {
+  [789, 167, 263, 167, -131, -156, sheet]  // 【手调】同 t_G3_tunnel3_over_v3
+}
+template t_G8_tunnel4_over_b_v2(sheet) {
+  [1578, 167, 263, 167, -131, -156, sheet]  // 【手调】同 t_G3_tunnel3_over_b_v2
+}
+template t_G8_tunnel4_over_b_v1(sheet) {
+  [1315, 167, 263, 167, -129, -155, sheet]  // 【手调】同 t_G3_tunnel3_over_b_v1
 }
 
 // ---------------------------------------------------------------------------

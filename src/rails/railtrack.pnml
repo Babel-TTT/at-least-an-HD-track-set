@@ -1109,3 +1109,67 @@ item(FEAT_RAILTYPES, rail_SBC3, 18) {
         bridge_surfaces: probe_bridge_surfaces_floatslab;
     }
 }
+
+// SGCA —— 高速铁路（2005，G 档 **无限制**，轴重 23t，25kV AC；CRTS III 型板）
+item(FEAT_RAILTYPES, rail_SGCA, 19) {
+    property {
+        label:                  "SGCA";
+        introduction_date:      date(2005, 1, 1);
+        name:                   string(STR_RAIL_SGCA);
+        toolbar_caption:        string(STR_RAIL_SGCA);
+        menu_text:              string(STR_RAIL_SGCA);
+        build_window_caption:   string(STR_RAIL_SGCA);
+        autoreplace_text:       string(STR_RAIL_SGCA);
+        new_engine_text:        string(STR_RAIL_SGCA);
+        /* 兼容 / powered 与 `SCDA`（A3）那套 25kV 电气化列表逐条相同。 */
+        compatible_railtype_list: ["RAIL", "ELRL", 
+                                    "SADN", "SBDN", "SCDN", "SDDN", "SEDN",  "SFDN", "SGDN",
+                                    "SAEN", "SBEN", "SCEN", "SDEN", "SEEN",  "SFEN", "SGEN",
+                                    "SADA", "SBDA", "SCDA", "SDDA", "SEDA",  "SFDA", "SGDA", 
+                                    "SAEA", "SBEA", "SCEA", "SDEA", "SEEA",  "SFEA", "SGEA", 
+                                    "SADd", "SBDd", "SCDd", "SDDd", "SEDd", 
+                                    "SAEd", "SBEd", "SCEd", "SDEd", "SEEd",  
+                                    "SADD", "SBDD", "SCDD", "SDDD", "SEDD",   
+                                    "DADN", "DBDN",
+                                    "DADA", "DBDA"];
+        powered_railtype_list:    [ "ELRL", 
+                                    "SADA", "SBDA", "SCDA", "SDDA", "SEDA",  "SFDA", "SGDA", 
+                                    "SAEA", "SBEA", "SCEA", "SDEA", "SEEA",  "SFEA", "SGEA",
+                                    "DACA", "DADA", "DBDA"];
+        /* `CATENARY`：25kV 架空接触网（本包自己出支柱 + 导线）。
+           `NO_LEVEL_CROSSING`：高铁不设平交道口（C8 项）⇒ 也不提供 `level_crossings:`。 */
+        railtype_flags:         bitmask(RAILTYPE_FLAG_CATENARY, RAILTYPE_FLAG_NO_LEVEL_CROSSING);
+        curve_speed_multiplier: 1;
+        station_graphics:       RAILTYPE_STATION_NORMAL;
+        /* 费用系数 = CSV 的 40 ⇒ 建设 40 / 维护 20（本包最贵的一条） */
+        construction_cost:      40;
+        maintenance_cost:       20;
+        /* ★ **速度 = 0 km/h 就是"无限制"**（官方 wiki `NML:Railtypes` 的 `speed_limit` 属性：
+           "A speed limit of 0 means unlimited speed"）—— CSV 里 `SGCA` 写的就是"无限制"，
+           不用编一个大数。 */
+        speed_limit:            0 km/h;
+        acceleration_model:     ACC_MODEL_RAIL;
+        map_colour:             0x63;
+        sort_order:             SORT_ELECTRIC;
+    }
+    /* ★ 2026-10-05：A10 组（`BAL-G` 无砟·CRTS III + `SLE-4` 双块式 + `RAI-3` 长轨）接入。
+       `BAL-G` = A12 的整体道床**在板面上分出两条承轨台 + 三条低带**（自密实层一侧），
+       模型由 `tools/gen-a10-slab.mjs` 从 `G4_*` 派生（分表 `gfx/crts3.png`）；
+       洞口 `TUN-4` = 从 `G3_tunnel3*` 派生的**大跨度环框拱 + 帽檐**（分表 `gfx/tunnel4.png`）。
+
+       ★ 接触网：制式 `EL-25`，支柱样式按 §1.6.5.1 的落位表用 **`PYL-S1` H 型钢**
+         （2005 年客专 / 高铁档）⇒ `probe_catenary_pylons_steel`（`gfx/pylonsteel.png`）；
+         25kV ⇒ **无标牌**。导线仍是全世界共用那一套 `probe_catenary_wire`。
+       ⚠ **本包至今只有 `SGCA` 一条挂了 S1**：落位表里另外 5 条（`SDCA` `SCCA` `NCCA`
+         `SECA` `SFCA`）还没有自己的轨道图 —— 先挂 S1 会变成"我们的柱子 + 原版轨道"。
+       ⚠ `NO_LEVEL_CROSSING` ⇒ 本类型**不提供** `level_crossings:` 精灵。 */
+    graphics {
+        underlay:        probe_underlay_crts3;
+        track_overlay:   probe_overlay_crts3;
+        tunnels:         probe_tunnels_4;
+        tunnel_overlay:  probe_tunnel_over_4;
+        bridge_surfaces: probe_bridge_surfaces_crts3;
+        catenary_pylons: probe_catenary_pylons_steel;
+        catenary_wire:   probe_catenary_wire;
+    }
+}

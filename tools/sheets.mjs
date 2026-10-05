@@ -126,6 +126,23 @@ export const SHEETS = [
     match: /^G7_/,
   },
   {
+    // A10 组（`SGCA` 高速无砟 CRTS III）的**洞口**：TUN-4 高速大跨度环框拱（帽檐）
+    // （几何由 tools/gen-a10-slab.mjs 从 `G3_tunnel3*` 派生：端墙加宽到 0.80 格、
+    //  洞跨加宽到 0.40 格、拱顶抬到 0.215，再在洞口正面加一圈挑出的帽檐）。
+    // ⚠ 必须登记在下面的 crts3 **之前**：那个表的正则是 /^G8_/，会先把 G8_tunnel4_* 吃掉。
+    key: 'tunnel4',
+    title: '高速洞口 TUN-4（大跨度环框拱 + 帽檐；SGCA）',
+    match: /^G8_tunnel4/,
+  },
+  {
+    // A10 组（`SGCA` 高速无砟 CRTS III）的轨道：BAL-G 无砟板（两条承轨台 + 三条低带）
+    // + SLE-4 双块式 + RAI-3 长轨。
+    // 单独一张表（同 rail / metro / floatslab 表的理由：混进去会把已有几十条 rect 顶移位）。
+    key: 'crts3',
+    title: '高速无砟 CRTS III（BAL-G + SLE-4 + RAI-3；SGCA）',
+    match: /^G8_/,
+  },
+  {
     // A15 组（`NACN` 窄轨）的**洞口**：TUN-7 小断面拱（端墙外形照 TUN-1，
     // 只把拱洞与洞内轨道按 k = 0.70 收窄；几何由 tools/gen-a15-narrow.mjs 从 TUN-1 收窄而来）。
     // ⚠ 必须登记在下面的 narrow **之前**：那个表的正则是 /^G5_/，会先把 G5_tunnel7_* 吃掉。
@@ -188,6 +205,19 @@ export const SHEETS = [
     key: 'pyloncyl',
     title: '接触网支柱 PYL-C2（混凝土等径圆柱；SCDA）',
     match: /^G1_sty_cyl/,
+  },
+  {
+    // 接触网支柱 **PYL-S1 H 型钢**（人工 2026-10-05 批准：A10 确认门里与 `SGCA` 同批；
+    // 1999+ 客专 / 高铁档）。规格见 `美术要素方案.md` §1.6.5.2 的 S1 列
+    // （⚠ 那列的 0.700 / 0.580 是规划旧数，现行口径 = 柱顶 0.48 / 挂点 0.40）。
+    //
+    // 模型 `models/G1_sty_steel_a|_b.model`（**手写**，a 直向 / b 斜向 45°）。
+    // ⚠ 必须单独一张表、且**登记在 pylonstyle 之前**（它的正则是 /^G1_sty_/，会把本族吃掉）：
+    //   本族与 E1 那两族**同格位**（`zmax` 都钉 0.6100 ⇒ 263×207），所以分表**不是**为了格位，
+    //   而是守"一表一类"这条纪律（同 pyloncyl / pylondkblue 两条注释的教训）。
+    key: 'pylonsteel',
+    title: '接触网支柱 PYL-S1（H 型钢；SGCA 客专/高铁）',
+    match: /^G1_sty_steel/,
   },
   {
     // 接触网支柱 **PYL-E1 早期木杆 + 深蓝牌**（人工 2026-10-05：「推进朝鲜电气化铁路」⇒

@@ -35,6 +35,7 @@ STR_RAIL_SBEd                               :电气化厂矿铁路 {LTBLUE}1.5kV
 STR_RAIL_SBDD                               :朝鲜电气化铁路 {BLUE}3kVDC
 STR_RAIL_SAC3                               :地铁轨道 {GREEN}第三轨
 STR_RAIL_SBC3                               :地铁轨道（浮置板）{GREEN}第三轨
+STR_RAIL_SGCA                               :高速铁路 无限制 {RED}25kVAC
 STR_RAIL_NACN                               :窄轨铁路
 STR_RAIL_SBEN                               :现代重载铁路
 STR_RAIL_SBEA                               :电气化重载铁路 {RED}25kVAC

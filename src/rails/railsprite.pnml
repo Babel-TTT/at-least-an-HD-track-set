@@ -229,6 +229,77 @@ spriteset(probe_tunnel_over_metro, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
 }
 
 /* ===========================================================================
+   A10 组 —— `SGCA` 高速无砟 CRTS III（分表 gfx/crts3.png + gfx/tunnel4.png）
+
+   口径（A10 确认门）：道床 `BAL-G` 无砟·CRTS III（**两条承轨台 + 三条低带** = 板面上的
+   自密实层台阶）· 轨枕 `SLE-4` 双块式（两块一对，凸出板面 +0.0075 格）·
+   钢轨 `RAI-3`（几何 = `RAI-1`，只把 `rust`/`metal` 换成 `metal_dark`/`metal_pale`）·
+   洞口 `TUN-4` 大跨度环框拱（帽檐）· `EL-25` + `PYL-S1`（25kV ⇒ **无标牌**）。
+
+   模型由 `tools/gen-a10-slab.mjs` 从 **`G4_*`（A12 的无砟板）** 与 **`G3_tunnel3*`** 派生：
+   槽位顺序、镜像件的理由、以及"道岔只给道床板"的规矩都与 A12 逐条相同。
+   ⚠ 本组**没有第三轨**（`SGCA` 走 25kV 架空接触网）—— 生成器按横向带宽把那一族删掉了。
+   =========================================================================== */
+spriteset(probe_underlay_crts3, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G8_track_x_v0("gfx/crts3.png")          //  0  RTO_X          X
+    t_G8_track_x_v3("gfx/crts3.png")          //  1  RTO_Y          Y
+    t_G8_track_half_v0("gfx/crts3.png")       //  2  RTO_N          UPPER（切 N 角）
+    t_G8_z_track_half_m_v2("gfx/crts3.png")   //  3  RTO_S          LOWER ← 镜像（同 A12 的槽位口径）
+    t_G8_z_track_half_m_v3("gfx/crts3.png")   //  4  RTO_E          RIGHT ← 镜像
+    t_G8_track_half_v1("gfx/crts3.png")       //  5  RTO_W          LEFT
+    t_G8_track_slope_v0("gfx/crts3.png")      //  6  RTO_SLOPE_NE   v0（右上抬）
+    t_G8_track_slope_v3("gfx/crts3.png")      //  7  RTO_SLOPE_SE   v3（右下抬）
+    t_G8_track_slope_v2("gfx/crts3.png")      //  8  RTO_SLOPE_SW   v2（左下抬）
+    t_G8_track_slope_v1("gfx/crts3.png")      //  9  RTO_SLOPE_NW   v1（左上抬）
+    t_G8_crossing_v0("gfx/crts3.png")         // 10  RTO_CROSSING_XY（自带两组钢轨）
+    t_G8_junction3_v0("gfx/crts3.png")        // 11  RTO_JUNCTION_SW（只有道床板）
+    t_G8_junction3_v2("gfx/crts3.png")        // 12  RTO_JUNCTION_NE（v2）
+    t_G8_junction3_v1("gfx/crts3.png")        // 13  RTO_JUNCTION_SE（v1）
+    t_G8_junction3_v3("gfx/crts3.png")        // 14  RTO_JUNCTION_NW（v3）
+    t_G8_junction4_v0("gfx/crts3.png")        // 15  RTO_JUNCTION_NSEW（只有道床板）
+}
+
+spriteset(probe_overlay_crts3, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G8_rail_straight_v0("gfx/crts3.png")    // 0  RTO_X
+    t_G8_rail_straight_v3("gfx/crts3.png")    // 1  RTO_Y
+    t_G8_rail_half_v0("gfx/crts3.png")        // 2  RTO_N
+    t_G8_rail_half_v2("gfx/crts3.png")        // 3  RTO_S
+    t_G8_rail_half_v3("gfx/crts3.png")        // 4  RTO_E
+    t_G8_rail_half_v1("gfx/crts3.png")        // 5  RTO_W
+    t_G8_rail_slope_v0("gfx/crts3.png")       // 6  RTO_SLOPE_NE
+    t_G8_rail_slope_v3("gfx/crts3.png")       // 7  RTO_SLOPE_SE
+    t_G8_rail_slope_v2("gfx/crts3.png")       // 8  RTO_SLOPE_SW
+    t_G8_rail_slope_v1("gfx/crts3.png")       // 9  RTO_SLOPE_NW
+}
+
+// 桥面（6 格）—— 桥上也要 CRTS III 的断面
+spriteset(probe_bridge_surfaces_crts3, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G8_track_x_v0("gfx/crts3.png")          // 0  平 — X
+    t_G8_track_x_v3("gfx/crts3.png")          // 1  平 — Y
+    t_G8_track_slope_v0("gfx/crts3.png")      // 2  坡 NE
+    t_G8_track_slope_v3("gfx/crts3.png")      // 3  坡 SE
+    t_G8_track_slope_v2("gfx/crts3.png")      // 4  坡 SW
+    t_G8_track_slope_v1("gfx/crts3.png")      // 5  坡 NW
+}
+
+/* A10 洞口 —— **TUN-4 高速大跨度环框拱（帽檐）**（分表 gfx/tunnel4.png）
+   两个 spriteset 对应 `tunnels:`（地面层 4 张）与 `tunnel_overlay:`（立体层 4 张，画在车之上）；
+   槽位 = DiagDirection 顺序 NE, SE, SW, NW，喂图 **v0, v3, v2, v1**（与 TUN-1 / TUN-3 / TUN-5 逐条一样）。 */
+spriteset(probe_tunnels_4, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G8_tunnel4_v0("gfx/tunnel4.png")          // 0  DiagDir NE ← v0   A 组（远半）
+    t_G8_tunnel4_v3("gfx/tunnel4.png")          // 1  DiagDir SE ← v3   A 组
+    t_G8_tunnel4_b_v2("gfx/tunnel4.png")        // 2  DiagDir SW ← v2   B 组（近半）
+    t_G8_tunnel4_b_v1("gfx/tunnel4.png")        // 3  DiagDir NW ← v1   B 组
+}
+
+spriteset(probe_tunnel_over_4, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G8_tunnel4_over_v0("gfx/tunnel4.png")     // 0  DiagDir NE ← v0   A 组（近半 + 帽檐）
+    t_G8_tunnel4_over_v3("gfx/tunnel4.png")     // 1  DiagDir SE ← v3   A 组
+    t_G8_tunnel4_over_b_v2("gfx/tunnel4.png")   // 2  DiagDir SW ← v2   B 组（远半 + 帽檐）
+    t_G8_tunnel4_over_b_v1("gfx/tunnel4.png")   // 3  DiagDir NW ← v1   B 组
+}
+
+/* ===========================================================================
    隧道口 —— TUN-1「料石端墙拱」（分表：gfx/tunnel.png）
 
    两个组，对应 NML 的 `tunnels:` 与 `tunnel_overlay:`（核自官方 wiki
@@ -604,6 +675,32 @@ spriteset(probe_catenary_pylons_early_dkblue, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP)
     t_G1_sty_early_dkblue_b_v2("gfx/pylondkblue.png")   // 5  PSO_EW_S   斜半轨，柱在 S 边中点
     t_G1_sty_early_dkblue_b_v1("gfx/pylondkblue.png")   // 6  PSO_NS_W   斜半轨，柱在 W 边中点
     t_G1_sty_early_dkblue_b_v3("gfx/pylondkblue.png")   // 7  PSO_NS_E   斜半轨，柱在 E 边中点
+}
+
+/* ===========================================================================
+   接触网支柱 **PYL-S1 H 型钢**（分表 gfx/pylonsteel.png）—— 1999+ 客专 / 高铁档
+
+   模型 `models/G1_sty_steel_a|_b.model`（**手写**；a 直向 / b 斜向 45°）。
+   规格见 `美术要素方案.md` §1.6.5.2 的 S1 列（⚠ 那列 0.700 / 0.580 是**规划旧数**，
+   现行口径 = 柱顶 0.48 / 挂点 0.40 —— 2026-10-05 整条接触网改矮）。
+   25kV AC ⇒ **无标牌**（§1.5 的标牌配色表：只有 1500V / 3000V DC 才带浅蓝 / 深蓝牌）。
+
+   槽位映射与 C1 / C2 / E1 **逐条一样**（同一个 `enum PylonSpriteOffset`）：
+       直向 a：v0→槽 0 / v2→槽 1 / v1→槽 2 / v3→槽 3
+       斜向 b：v0→槽 4 / v2→槽 5 / v1→槽 6 / v3→槽 7
+   ⚠ 斜向那 4 格**还没实机核过**（与 C1 / C2 / E1 同样的未验证项，见 §9.8）。
+   ⚠ **本表只接 `SGCA` 一条**：落位表里另外 5 条（`SDCA` `SCCA` `NCCA` `SECA` `SFCA`）
+     都还没有自己的轨道图，挂上 S1 只会变成"我们的柱子 + 引擎原版 8bpp 轨道"。
+   =========================================================================== */
+spriteset(probe_catenary_pylons_steel, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G1_sty_steel_a_v0("gfx/pylonsteel.png")   // 0  PSO_Y_NE   Y 向，柱在 N 边中点
+    t_G1_sty_steel_a_v2("gfx/pylonsteel.png")   // 1  PSO_Y_SW   Y 向，柱在 S 边中点
+    t_G1_sty_steel_a_v1("gfx/pylonsteel.png")   // 2  PSO_X_NW   X 向，柱在 W 边中点
+    t_G1_sty_steel_a_v3("gfx/pylonsteel.png")   // 3  PSO_X_SE   X 向，柱在 E 边中点
+    t_G1_sty_steel_b_v0("gfx/pylonsteel.png")   // 4  PSO_EW_N   斜半轨，柱在 N 边中点
+    t_G1_sty_steel_b_v2("gfx/pylonsteel.png")   // 5  PSO_EW_S   斜半轨，柱在 S 边中点
+    t_G1_sty_steel_b_v1("gfx/pylonsteel.png")   // 6  PSO_NS_W   斜半轨，柱在 W 边中点
+    t_G1_sty_steel_b_v3("gfx/pylonsteel.png")   // 7  PSO_NS_E   斜半轨，柱在 E 边中点
 }
 
 /* ===========================================================================
