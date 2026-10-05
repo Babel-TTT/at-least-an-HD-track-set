@@ -72,13 +72,13 @@ template t_probe_half_upper_v0(sheet) {
   [1052, 453, 263, 151, -128, -21, sheet]  // az   0  TRACK_UPPER  【手调】
 }
 template t_probe_half_upper_v1(sheet) {
-  [1315, 453, 263, 151, -128, -22, sheet]  // az  90  TRACK_LEFT  【手调】
+  [1315, 453, 263, 151, -126, -22, sheet]  // az  90  TRACK_LEFT  【手调】
 }
 template t_probe_half_upper_v2(sheet) {
   [1578, 453, 263, 151, -129, -21, sheet]  // az 180  TRACK_LOWER  【手调】
 }
 template t_probe_half_upper_v3(sheet) {
-  [1841, 453, 263, 151, -128, -22, sheet]  // az 270  TRACK_RIGHT  【手调】
+  [1841, 453, 263, 151, -126, -22, sheet]  // az 270  TRACK_RIGHT  【手调】
 }
 
 // ---------------------------------------------------------------------------
@@ -201,13 +201,13 @@ template t_G1_rail_halftrack_v0(sheet) {
   [1052, 151, 263, 151, -128, -21, sheet]  // 与 probe_half_upper_v0 一致  // → RTO_N  【手调】
 }
 template t_G1_rail_halftrack_v1(sheet) {
-  [1315, 151, 263, 151, -128, -22, sheet]  // 与 probe_half_upper_v1 一致  // → RTO_W  【手调】
+  [1315, 151, 263, 151, -126, -22, sheet]  // 与 probe_half_upper_v1 一致  // → RTO_W  【手调】
 }
 template t_G1_rail_halftrack_v2(sheet) {
   [1578, 151, 263, 151, -129, -21, sheet]  // 与 probe_half_upper_v2 一致  // → RTO_S  【手调】
 }
 template t_G1_rail_halftrack_v3(sheet) {
-  [1841, 151, 263, 151, -128, -22, sheet]  // 与 probe_half_upper_v3 一致  // → RTO_E  【手调】
+  [1841, 151, 263, 151, -126, -22, sheet]  // 与 probe_half_upper_v3 一致  // → RTO_E  【手调】
 }
 
 // ---------------------------------------------------------------------------
@@ -430,10 +430,10 @@ template t_G2_track_halftrack_v2(sheet) {
   [1578, 362, 263, 181, -129, -51, sheet]  // 【手调】源 t_probe_half_upper_v2 位移 2,-2
 }
 template t_G2_track_halftrack_v3(sheet) {
-  [1841, 362, 263, 181, -128, -52, sheet]  // 【手调】源 t_probe_half_upper_v3 位移 3,-3
+  [1841, 362, 263, 181, -126, -52, sheet]  // 【手调】源 t_probe_half_upper_v3 位移 3,-3
 }
 template t_G2_track_halftrack_v1(sheet) {
-  [1315, 362, 263, 181, -128, -52, sheet]  // 【手调】源 t_probe_half_upper_v1 位移 3,-3
+  [1315, 362, 263, 181, -126, -52, sheet]  // 【手调】源 t_probe_half_upper_v1 位移 3,-3
 }
 template t_G2_track_slope_v0(sheet) {
   [0, 543, 263, 181, -128, -50, sheet]  // 【手调】源 t_G1_track_slope_v0 位移 3,-1
@@ -463,10 +463,10 @@ template t_G2_rail_halftrack_v2(sheet) {
   [1578, 0, 263, 181, -129, -51, sheet]  // 【手调】源 t_G1_rail_halftrack_v2 位移 2,-2
 }
 template t_G2_rail_halftrack_v3(sheet) {
-  [1841, 0, 263, 181, -128, -52, sheet]  // 【手调】源 t_G1_rail_halftrack_v3 位移 3,-3
+  [1841, 0, 263, 181, -126, -52, sheet]  // 【手调】源 t_G1_rail_halftrack_v3 位移 3,-3
 }
 template t_G2_rail_halftrack_v1(sheet) {
-  [1315, 0, 263, 181, -128, -52, sheet]  // 【手调】源 t_G1_rail_halftrack_v1 位移 3,-3
+  [1315, 0, 263, 181, -126, -52, sheet]  // 【手调】源 t_G1_rail_halftrack_v1 位移 3,-3
 }
 template t_G2_rail_slope_v0(sheet) {
   [0, 181, 263, 181, -128, -50, sheet]  // 【手调】源 t_G1_rail_slope_v0 位移 3,-1
@@ -516,10 +516,10 @@ template t_G1_brown_half_upper_v2(sheet) {
   [526, 181, 263, 181, -129, -51, sheet]  // 【手调】源 t_probe_half_upper_v2 位移 2,-2
 }
 template t_G1_brown_half_upper_v3(sheet) {
-  [789, 181, 263, 181, -128, -52, sheet]  // 【手调】源 t_probe_half_upper_v3 位移 3,-3
+  [789, 181, 263, 181, -126, -52, sheet]  // 【手调】源 t_probe_half_upper_v3 位移 3,-3
 }
 template t_G1_brown_half_upper_v1(sheet) {
-  [263, 181, 263, 181, -128, -52, sheet]  // 【手调】源 t_probe_half_upper_v1 位移 3,-3
+  [263, 181, 263, 181, -126, -52, sheet]  // 【手调】源 t_probe_half_upper_v1 位移 3,-3
 }
 template t_G1_brown_track_slope_v0(sheet) {
   [0, 543, 263, 181, -128, -50, sheet]  // 【手调】源 t_G1_track_slope_v0 位移 3,-1
@@ -900,13 +900,13 @@ template t_G4_track_half_v0(sheet) {
   [0, 447, 263, 149, -129, -19, sheet]
 }
 template t_G4_track_half_v1(sheet) {
-  [263, 447, 263, 149, -130, -19, sheet]
+  [263, 447, 263, 149, -128, -19, sheet]
 }
 template t_G4_track_half_v2(sheet) {
   [526, 447, 263, 149, -129, -19, sheet]
 }
 template t_G4_track_half_v3(sheet) {
-  [789, 447, 263, 149, -129, -19, sheet]
+  [789, 447, 263, 149, -127, -19, sheet]
 }
 
 // ---------------------------------------------------------------------------
@@ -924,13 +924,13 @@ template t_G4_z_track_half_m_v0(sheet) {
   [1052, 596, 263, 149, -130, -19, sheet]
 }
 template t_G4_z_track_half_m_v1(sheet) {
-  [1315, 596, 263, 149, -130, -19, sheet]
+  [1315, 596, 263, 149, -128, -19, sheet]
 }
 template t_G4_z_track_half_m_v2(sheet) {
   [1578, 596, 263, 149, -130, -19, sheet]
 }
 template t_G4_z_track_half_m_v3(sheet) {
-  [1841, 596, 263, 149, -130, -19, sheet]
+  [1841, 596, 263, 149, -128, -19, sheet]
 }
 template t_G4_track_slope_v0(sheet) {
   [1052, 447, 263, 149, -127, -19, sheet]
@@ -972,13 +972,13 @@ template t_G4_rail_half_v0(sheet) {
   [1052, 149, 263, 149, -130, -19, sheet]
 }
 template t_G4_rail_half_v1(sheet) {
-  [1315, 149, 263, 149, -130, -19, sheet]
+  [1315, 149, 263, 149, -128, -19, sheet]
 }
 template t_G4_rail_half_v2(sheet) {
   [1578, 149, 263, 149, -130, -19, sheet]
 }
 template t_G4_rail_half_v3(sheet) {
-  [1841, 149, 263, 149, -130, -19, sheet]
+  [1841, 149, 263, 149, -128, -19, sheet]
 }
 template t_G4_rail_slope_v0(sheet) {
   [0, 298, 263, 149, -127, -19, sheet]
@@ -1073,25 +1073,25 @@ template t_G5_track_half_v0(sheet) {
   [1052, 432, 263, 144, -128, -14, sheet]  // 【手调】源 t_probe_half_upper_v0 增量 (+3,-2)
 }
 template t_G5_track_half_v1(sheet) {
-  [1315, 432, 263, 144, -128, -15, sheet]  // 【手调】源 t_probe_half_upper_v1 增量 (+3,-3)
+  [1315, 432, 263, 144, -126, -15, sheet]  // 【手调】源 t_probe_half_upper_v1 增量 (+3,-3)
 }
 template t_G5_track_half_v2(sheet) {
   [1578, 432, 263, 144, -129, -14, sheet]  // 【手调】源 t_probe_half_upper_v2 增量 (+2,-2)
 }
 template t_G5_track_half_v3(sheet) {
-  [1841, 432, 263, 144, -128, -15, sheet]  // 【手调】源 t_probe_half_upper_v3 增量 (+3,-3)
+  [1841, 432, 263, 144, -126, -15, sheet]  // 【手调】源 t_probe_half_upper_v3 增量 (+3,-3)
 }
 template t_G5_rail_half_v0(sheet) {
   [0, 288, 263, 144, -128, -14, sheet]  // 【手调】源 t_G1_rail_halftrack_v0 增量 (+3,-2)
 }
 template t_G5_rail_half_v1(sheet) {
-  [263, 288, 263, 144, -128, -15, sheet]  // 【手调】源 t_G1_rail_halftrack_v1 增量 (+3,-3)
+  [263, 288, 263, 144, -126, -15, sheet]  // 【手调】源 t_G1_rail_halftrack_v1 增量 (+3,-3)
 }
 template t_G5_rail_half_v2(sheet) {
   [526, 288, 263, 144, -129, -14, sheet]  // 【手调】源 t_G1_rail_halftrack_v2 增量 (+2,-2)
 }
 template t_G5_rail_half_v3(sheet) {
-  [789, 288, 263, 144, -128, -15, sheet]  // 【手调】源 t_G1_rail_halftrack_v3 增量 (+3,-3)
+  [789, 288, 263, 144, -126, -15, sheet]  // 【手调】源 t_G1_rail_halftrack_v3 增量 (+3,-3)
 }
 template t_G5_track_slope_v0(sheet) {
   [0, 576, 263, 144, -128, -13, sheet]  // 【手调】源 t_G1_track_slope_v0 增量 (+3,-1)
