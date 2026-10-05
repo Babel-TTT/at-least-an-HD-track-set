@@ -30,6 +30,8 @@
 //   ④ `TUN-6` 重载加固端墙：以 TUN-2（素混凝土深灰）为底，**洞口区横向 ×1.129**
 //      ⇒ 端墙 0.68 → 0.768 格（10.7 m）、洞跨 0.31 → 0.35 格（4.87 m，拱顶高不动 ⇒ 大断面），
 //      再在洞正面加一圈**凸出的加固环框**（亮一档 `concrete_mid`，外凸 0.026 格）。
+//      ★ 环框的立柱必须**一整根**跟着它所属的那一半走（口径见 `ringLines()` 的注释）——
+//        按 z 切成两截分头塞进 A/B 两组的底图会**每组各缺一根柱子的下半**（2026-10-05 已修）。
 //      ⚠ 只对 |y−0.5| ≤ 0.36 的顶点做横向放大 —— 仰面（山体）后沿必须仍然铺满整格。
 //      ★ 2026-10-05 修正：第一版取 `G1_tunnel_stone`（**TUN-1 料石**）却**忘了做材质替换**
 //        ⇒ 产物其实是料石色。现在补上 `recolor: 'tun2'`，与 TUN-2 的配色逐面一致。
@@ -114,7 +116,6 @@ const PORTAL_S = 0.35 / 0.31;      // 洞口区横向放大 1.1290（端墙 0.68
 const PORTAL_EDGE = 0.36;          // 只放大 |y−0.5| ≤ 这个范围的顶点（仰面后沿必须铺满整格）
 const RING_X0 = 0.8000;            // 端墙正面
 const RING_X1 = 0.8260;            // 加固环框外凸到 x
-const RING_Z0 = 0.1900;            // 环框柱身在底图里的上端（= TUN-1 的分层线「起拱线」）
 const ARCH_CROWN = 0.2000;         // 拱顶高（TUN-1/TUN-2 的常量，不动）
 const ARCH_R = 0.1550;             // 拱半径（TUN-1/TUN-2 的常量）
 const RING_W = 0.0200;             // 环框宽度
@@ -127,7 +128,7 @@ const WOOD_MAT = /^wood/;
  * 作业表：源模型 → 产物模型。
  *   kind  横向口径（见文件头）
  *   over  沿轨探出边界（坡道 false）
- *   ring  隧道口要追加的加固环框件：'a' | 'b' | 'lintel'
+ *   ring  隧道口要追加的加固环框件（数组）：'far' | 'near' | 'beam'（见 ringLines 的分层口径）
  */
 const JOBS = [
   // ---- 轨道：underlay（自带道砟 + 轨枕 + 钢轨）----
@@ -159,14 +160,14 @@ const JOBS = [
   //   ★ 2026-10-05 修正：本工具原来取的是 `G1_tunnel_stone`（**TUN-1 料石**）而且
   //     **没有做材质替换** ⇒ `G6_tunnel6` 实际是**料石色**，与文件头/文档写的
   //     "以 TUN-2（素混凝土深灰）为底" 不符。现在补上 `recolor: 'tun2'`（见 RECOLOR_TUN2）。
-  { src: 'G1_tunnel_stone', dst: 'G6_tunnel6', kind: 'tunnel', over: true, ring: 'a', recolor: 'tun2',
-    note: 'tunnels: 组（A 组：远半 y<0.5）—— 洞内轨道 + 洞门远半 + 环框左柱' },
-  { src: 'G1_tunnel_stone_b', dst: 'G6_tunnel6_b', kind: 'tunnel', over: true, ring: 'b', recolor: 'tun2',
-    note: 'tunnels: 组（B 组：近半 y>0.5）—— 洞内轨道 + 洞门近半 + 环框右柱' },
-  { src: 'G1_tunnel_stone_over', dst: 'G6_tunnel6_over', kind: 'tunnel', over: false, ring: 'lintel', recolor: 'tun2',
-    note: 'tunnel_overlay: 组（A 组）—— 洞顶 + 环框横梁' },
-  { src: 'G1_tunnel_stone_over_b', dst: 'G6_tunnel6_over_b', kind: 'tunnel', over: false, ring: 'lintel', recolor: 'tun2',
-    note: 'tunnel_overlay: 组（B 组）—— 洞顶 + 环框横梁' },
+  { src: 'G1_tunnel_stone', dst: 'G6_tunnel6', kind: 'tunnel', over: true, ring: ['far'], recolor: 'tun2',
+    note: 'tunnels: 组（A 组：远半 y<0.5）—— 洞内轨道 + 洞门远半 + 环框远柱' },
+  { src: 'G1_tunnel_stone_b', dst: 'G6_tunnel6_b', kind: 'tunnel', over: true, ring: ['near'], recolor: 'tun2',
+    note: 'tunnels: 组（B 组：近半 y>0.5）—— 洞内轨道 + 洞门近半 + 环框近柱' },
+  { src: 'G1_tunnel_stone_over', dst: 'G6_tunnel6_over', kind: 'tunnel', over: false, ring: ['near', 'beam'], recolor: 'tun2',
+    note: 'tunnel_overlay: 组（A 组）—— 洞顶 + 环框近柱 + 横梁' },
+  { src: 'G1_tunnel_stone_over_b', dst: 'G6_tunnel6_over_b', kind: 'tunnel', over: false, ring: ['far', 'beam'], recolor: 'tun2',
+    note: 'tunnel_overlay: 组（B 组）—— 洞顶 + 环框远柱 + 横梁' },
 ];
 
 /**
@@ -525,17 +526,27 @@ function quadSleeperGroup(kind, group) {
 }
 
 // ---------------------------------------------------------------- 隧道：加固环框
+//
+//   分层口径**照抄洞门正面墙**（gen-g1-tunnel.mjs 的 splitByY，按 y = 0.5 切）：
+//     `G1_tunnel_stone`        = 正面墙**远半**（y < 0.5）      `*_b` = 近半
+//     `G1_tunnel_stone_over`   = 正面墙**近半**（y ≥ 0.5）      `*_over_b` = 远半
+//   ⇒ 立柱必须**一整根跟着它所属的那一半走**，不能按 z 切成两截分别塞进两组的底图：
+//       远柱（y 0.305~0.325）→ `G6_tunnel6`（A 组底图）+ `G6_tunnel6_over_b`（B 组遮车层）
+//       近柱（y 0.675~0.695）→ `G6_tunnel6_over`（A 组遮车层）+ `G6_tunnel6_b`（B 组底图）
+//     横梁在拱顶(0.20)之上 —— 同 archBeam() 那条"拱顶以上整块归 overlay"的裁定，
+//     不参与左右切分 ⇒ 两个 overlay 各来一份整根。
+//
+//   ⚠ 2026-10-05 修：原来把立柱按 z=0.19 切成上下两截，下半 `'a'`/`'b'` 分头塞进
+//     A/B 两组的**底图**、上半再往两个 overlay 各塞一份 ⇒ 每组都缺一根柱子的下半：
+//     实机里洞口只剩**一根完整柱 + 一根悬空的小方块**（人工 2026-10-05 报
+//     「混凝土加固框缺少右边柱子的部分」）。现在改成一整根跟半走。
 function ringLines(which) {
   const inner = ARCH_R * PORTAL_S;             // 放大后的拱洞半宽（0.1748）
   const a0 = 0.5 - inner, a1 = 0.5 + inner;
   const o0 = a0 - RING_W, o1 = a1 + RING_W;
-  if (which === 'a') return [emitBox([RING_X0, o0, 0, RING_X1, a0, RING_Z0], M_BODY)];
-  if (which === 'b') return [emitBox([RING_X0, a1, 0, RING_X1, o1, RING_Z0], M_BODY)];
-  if (which === 'lintel') return [
-    emitBox([RING_X0, o0, RING_Z0, RING_X1, a0, RING_TOP], M_BODY),
-    emitBox([RING_X0, a1, RING_Z0, RING_X1, o1, RING_TOP], M_BODY),
-    emitBox([RING_X0, a0, ARCH_CROWN, RING_X1, a1, RING_TOP], M_BODY),
-  ];
+  if (which === 'far')  return [emitBox([RING_X0, o0, 0, RING_X1, a0, RING_TOP], M_BODY)];
+  if (which === 'near') return [emitBox([RING_X0, a1, 0, RING_X1, o1, RING_TOP], M_BODY)];
+  if (which === 'beam') return [emitBox([RING_X0, a0, ARCH_CROWN, RING_X1, a1, RING_TOP], M_BODY)];
   return [];
 }
 
@@ -628,7 +639,7 @@ function processJob(job) {
     body.push(raw.trimEnd());
     stats.other++; stats.out++;
   }
-  if (job.ring) ringLines(job.ring).forEach((l) => body.push(l));
+  if (job.ring) for (const w of [].concat(job.ring)) ringLines(w).forEach((l) => body.push(l));
 
   // ★ 洞口配色替换（整份 body 发完之后再做，见 RECOLOR_TUN2 的注释）
   let out = body;
