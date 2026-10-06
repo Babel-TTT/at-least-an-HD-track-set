@@ -1,0 +1,103 @@
+# =============================================================================
+# G9_levelcrossing —— A8 组（`SCCA` / `SDCA` 城际·客运专线）· level_crossings 的轨道图（v0 → X 槽、v3 → Y 槽）：素面板（挡台会从道面里戳出来）
+#
+# 【本文件由 tools/gen-a8-crts1.mjs 生成（**整件重写**），请勿手改；改口径改生成器】
+#   源 = models/G1_levelcrossing.model；kind=y、沿轨探出 OVER=0.03125 格
+#   道床 = `BAL-E` 无砟·CRTS I 单元板（素面板 + 板缝 1/3 格 / 宽 0.0100 / 深 0.0028 + 凸形挡台 0.036 格）
+#   轨枕 = `SLE-3` 混凝土宽枕（U 形承轨槽，与 A5 重载组**同一批模型口径**）
+#   钢轨 = `RAI-3` 长轨（几何 = `RAI-1` 一字不动，只换 metal_dark / metal_pale）
+#   轨顶 0.0230 与板顶 0.0078 的理由见生成器文件头。
+#   自检：入 115 行 → 出 66 行；**删掉道砟 70 面**、新出板件 1 面、枕木 18 件、钢轨 2 面、原样 25 行
+# =============================================================================
+name      G9_levelcrossing
+group     misc
+footprint 1 1
+zmax      0.028
+# =============================================================================
+# G1_levelcrossing —— G1 几何组：公路 × 铁路平交道口（level_crossings 的轨道图）
+#
+# 【本文件由 tools/gen-g1-switches.mjs 生成，请勿手改】
+#   改道砟形状/方向偏移 → 改那个工具的 DIR_DELTA / BANDS 表后重跑 make switches
+#
+# 【这张是给公路走的】引擎 level_crossings 每组 = 2 方向 × (1 张轨道图 + 4 张道口灯)，共 10 张。
+#   wiki NML:Roadtypes §5.1 的精灵组里**没有** level_crossings ⇒ 公路包没有道口
+#   专用的图案，道口上的轨道/道床完全由这一张决定，且画在公路路面**之上**。
+#
+# ★ 人工裁定 2026-10：道床只在**两侧各留约 0.1 格**（切在网格上 = 0.09375）；
+#   中间约 0.8125 格是公路区域 —— 不画道床、不画枕木，
+#   只有两根钢轨通长穿过去，让公路路面透出来。
+#
+# 基准朝向：轨道沿 x、公路沿 y。取图 v0（沿 x → 引擎 X 槽）× v3（沿 y → Y 槽），
+#   与 probe_track_x 的约定一致（见 src/rails/templates.pnml）。
+#
+# =============================================================================
+# --- 道床：两侧各 0.09375 格（x∈[0,0.09375] ∪ [0.9063,1]），y 用 X 带 ---
+# --- 轨枕：只在两侧道床内，按道床边界裁齐 ---
+box 0.0013 0.4050 0.0000  0.0227 0.4683 0.0075  concrete_mid top=concrete_seam
+box 0.0013 0.4050 0.0075  0.0227 0.4300 0.0100  concrete_mid top=metal_pale
+box 0.0013 0.4300 0.0075  0.0227 0.4660 0.0087  panel_seam top=panel_seam
+box 0.0013 0.4660 0.0075  0.0227 0.4683 0.0095  concrete_mid top=concrete_mid
+box 0.0013 0.4683 0.0000  0.0227 0.5317 0.0075  concrete_mid top=concrete_seam
+box 0.0013 0.4683 0.0075  0.0227 0.5317 0.0095  concrete_mid top=concrete_mid
+box 0.0013 0.5317 0.0000  0.0227 0.5950 0.0075  concrete_mid top=concrete_seam
+box 0.0013 0.5317 0.0075  0.0227 0.5340 0.0095  concrete_mid top=concrete_mid
+box 0.0013 0.5340 0.0075  0.0227 0.5700 0.0087  panel_seam top=panel_seam
+box 0.0013 0.5700 0.0075  0.0227 0.5950 0.0100  concrete_mid top=metal_pale
+box 0.0420 0.4050 0.0000  0.0634 0.4683 0.0075  concrete_mid top=concrete_seam
+box 0.0420 0.4050 0.0075  0.0634 0.4300 0.0100  concrete_mid top=metal_pale
+box 0.0420 0.4300 0.0075  0.0634 0.4660 0.0087  panel_seam top=panel_seam
+box 0.0420 0.4660 0.0075  0.0634 0.4683 0.0095  concrete_mid top=concrete_mid
+box 0.0420 0.4683 0.0000  0.0634 0.5317 0.0075  concrete_mid top=concrete_seam
+box 0.0420 0.4683 0.0075  0.0634 0.5317 0.0095  concrete_mid top=concrete_mid
+box 0.0420 0.5317 0.0000  0.0634 0.5950 0.0075  concrete_mid top=concrete_seam
+box 0.0420 0.5317 0.0075  0.0634 0.5340 0.0095  concrete_mid top=concrete_mid
+box 0.0420 0.5340 0.0075  0.0634 0.5700 0.0087  panel_seam top=panel_seam
+box 0.0420 0.5700 0.0075  0.0634 0.5950 0.0100  concrete_mid top=metal_pale
+box 0.0838 0.4050 0.0000  0.0953 0.4683 0.0075  concrete_mid top=concrete_seam
+box 0.0838 0.4050 0.0075  0.0953 0.4300 0.0100  concrete_mid top=metal_pale
+box 0.0838 0.4300 0.0075  0.0953 0.4660 0.0087  panel_seam top=panel_seam
+box 0.0838 0.4660 0.0075  0.0953 0.4683 0.0095  concrete_mid top=concrete_mid
+box 0.0838 0.4683 0.0000  0.0953 0.5317 0.0075  concrete_mid top=concrete_seam
+box 0.0838 0.4683 0.0075  0.0953 0.5317 0.0095  concrete_mid top=concrete_mid
+box 0.0838 0.5317 0.0000  0.0953 0.5950 0.0075  concrete_mid top=concrete_seam
+box 0.0838 0.5317 0.0075  0.0953 0.5340 0.0095  concrete_mid top=concrete_mid
+box 0.0838 0.5340 0.0075  0.0953 0.5700 0.0087  panel_seam top=panel_seam
+box 0.0838 0.5700 0.0075  0.0953 0.5950 0.0100  concrete_mid top=metal_pale
+box 0.9049 0.4050 0.0000  0.9161 0.4683 0.0075  concrete_mid top=concrete_seam
+box 0.9049 0.4050 0.0075  0.9161 0.4300 0.0100  concrete_mid top=metal_pale
+box 0.9049 0.4300 0.0075  0.9161 0.4660 0.0087  panel_seam top=panel_seam
+box 0.9049 0.4660 0.0075  0.9161 0.4683 0.0095  concrete_mid top=concrete_mid
+box 0.9049 0.4683 0.0000  0.9161 0.5317 0.0075  concrete_mid top=concrete_seam
+box 0.9049 0.4683 0.0075  0.9161 0.5317 0.0095  concrete_mid top=concrete_mid
+box 0.9049 0.5317 0.0000  0.9161 0.5950 0.0075  concrete_mid top=concrete_seam
+box 0.9049 0.5317 0.0075  0.9161 0.5340 0.0095  concrete_mid top=concrete_mid
+box 0.9049 0.5340 0.0075  0.9161 0.5700 0.0087  panel_seam top=panel_seam
+box 0.9049 0.5700 0.0075  0.9161 0.5950 0.0100  concrete_mid top=metal_pale
+box 0.9365 0.4050 0.0000  0.9581 0.4683 0.0075  concrete_mid top=concrete_seam
+box 0.9365 0.4050 0.0075  0.9581 0.4300 0.0100  concrete_mid top=metal_pale
+box 0.9365 0.4300 0.0075  0.9581 0.4660 0.0087  panel_seam top=panel_seam
+box 0.9365 0.4660 0.0075  0.9581 0.4683 0.0095  concrete_mid top=concrete_mid
+box 0.9365 0.4683 0.0000  0.9581 0.5317 0.0075  concrete_mid top=concrete_seam
+box 0.9365 0.4683 0.0075  0.9581 0.5317 0.0095  concrete_mid top=concrete_mid
+box 0.9365 0.5317 0.0000  0.9581 0.5950 0.0075  concrete_mid top=concrete_seam
+box 0.9365 0.5317 0.0075  0.9581 0.5340 0.0095  concrete_mid top=concrete_mid
+box 0.9365 0.5340 0.0075  0.9581 0.5700 0.0087  panel_seam top=panel_seam
+box 0.9365 0.5700 0.0075  0.9581 0.5950 0.0100  concrete_mid top=metal_pale
+box 0.9772 0.4050 0.0000  0.9988 0.4683 0.0075  concrete_mid top=concrete_seam
+box 0.9772 0.4050 0.0075  0.9988 0.4300 0.0100  concrete_mid top=metal_pale
+box 0.9772 0.4300 0.0075  0.9988 0.4660 0.0087  panel_seam top=panel_seam
+box 0.9772 0.4660 0.0075  0.9988 0.4683 0.0095  concrete_mid top=concrete_mid
+box 0.9772 0.4683 0.0000  0.9988 0.5317 0.0075  concrete_mid top=concrete_seam
+box 0.9772 0.4683 0.0075  0.9988 0.5317 0.0095  concrete_mid top=concrete_mid
+box 0.9772 0.5317 0.0000  0.9988 0.5950 0.0075  concrete_mid top=concrete_seam
+box 0.9772 0.5317 0.0075  0.9988 0.5340 0.0095  concrete_mid top=concrete_mid
+box 0.9772 0.5340 0.0075  0.9988 0.5700 0.0087  panel_seam top=panel_seam
+box 0.9772 0.5700 0.0075  0.9988 0.5950 0.0100  concrete_mid top=metal_pale
+# --- 钢轨：2 根，通长 0→1 不断 ---
+box -0.0313 0.5476 0.0100  1.0313 0.5556 0.0230   metal_dark top=metal_pale
+box -0.0313 0.4444 0.0100  1.0313 0.4524 0.0230   metal_dark top=metal_pale
+# --- 护轨板：3 条纵向板（两轨之间 + 两轨外侧），只铺公路区域那一段 ---
+box 0.0938 0.4524 0.0000  0.9063 0.5476 0.0140  stone_dark top=stone_seam
+box 0.0938 0.4100 0.0000  0.9063 0.4444 0.0140  stone_dark top=stone_seam
+box 0.0938 0.5556 0.0000  0.9063 0.5900 0.0140  stone_dark top=stone_seam
+box -0.0313 0.3200 0.0000  1.0313 0.6800 0.0078   concrete_mid

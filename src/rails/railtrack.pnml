@@ -1175,3 +1175,120 @@ item(FEAT_RAILTYPES, rail_SGCA, 19) {
         catenary_wire:   probe_catenary_wire;
     }
 }
+
+// SCCA —— 城际铁路（1999，C 档 160km/h，轴重 23t，25kV AC；CRTS I 单元板）
+item(FEAT_RAILTYPES, rail_SCCA, 20) {
+    property {
+        label:                  "SCCA";
+        introduction_date:      date(1999, 1, 1);
+        name:                   string(STR_RAIL_SCCA);
+        toolbar_caption:        string(STR_RAIL_SCCA);
+        menu_text:              string(STR_RAIL_SCCA);
+        build_window_caption:   string(STR_RAIL_SCCA);
+        autoreplace_text:       string(STR_RAIL_SCCA);
+        new_engine_text:        string(STR_RAIL_SCCA);
+        /* 兼容 / powered 与 `SGCA`（A10）/ `SCDA`（A3）那套 **25kV 电气化列表逐条相同**
+           —— 三条都是同一个供电制式（架空接触网 25kV AC），互相之间必须能跑通。 */
+        compatible_railtype_list: ["RAIL", "ELRL", 
+                                    "SADN", "SBDN", "SCDN", "SDDN", "SEDN",  "SFDN", "SGDN",
+                                    "SAEN", "SBEN", "SCEN", "SDEN", "SEEN",  "SFEN", "SGEN",
+                                    "SADA", "SBDA", "SCDA", "SDDA", "SEDA",  "SFDA", "SGDA", 
+                                    "SAEA", "SBEA", "SCEA", "SDEA", "SEEA",  "SFEA", "SGEA", 
+                                    "SADd", "SBDd", "SCDd", "SDDd", "SEDd", 
+                                    "SAEd", "SBEd", "SCEd", "SDEd", "SEEd",  
+                                    "SADD", "SBDD", "SCDD", "SDDD", "SEDD",   
+                                    "DADN", "DBDN",
+                                    "DADA", "DBDA"];
+        powered_railtype_list:    [ "ELRL", 
+                                    "SADA", "SBDA", "SCDA", "SDDA", "SEDA",  "SFDA", "SGDA", 
+                                    "SAEA", "SBEA", "SCEA", "SDEA", "SEEA",  "SFEA", "SGEA",
+                                    "DACA", "DADA", "DBDA"];
+        /* `CATENARY`：25kV 架空接触网（本包自己出支柱 + 导线）。
+           ⚠ **不设** `NO_LEVEL_CROSSING` —— 城际铁路现实里有平交道口
+             （只有高铁 `SGCA` 与地铁 `SBC3` 禁），所以下面提供 `level_crossings:`。 */
+        railtype_flags:         bitmask(RAILTYPE_FLAG_CATENARY);
+        curve_speed_multiplier: 1;
+        station_graphics:       RAILTYPE_STATION_NORMAL;
+        /* 费用系数 = CSV 的 12 ⇒ 建设 12 / 维护 6 */
+        construction_cost:      12;
+        maintenance_cost:       6;
+        speed_limit:            160 km/h;
+        acceleration_model:     ACC_MODEL_RAIL;
+        map_colour:             0x64;
+        sort_order:             SORT_ELECTRIC;
+    }
+    /* ★ 2026-10-06：A8 组（`BAL-E` 无砟·**CRTS I 单元板** + `SLE-3` 混凝土宽枕 +
+       `RAI-3` 长轨）接入。模型由 `tools/gen-a8-crts1.mjs` 从 `G1_*` 派生
+       （删道砟 → 换 `BAL-E` 板；钢轨只换材质），分表 `gfx/crts1.png`。
+
+       ★ **洞口复用 A10 的 `TUN-4`**（`probe_tunnels_4` / `probe_tunnel_over_4`，
+         `gfx/tunnel4.png`）—— 本组一件洞口模型都没出。
+       ★ 接触网：制式 `EL-25`，支柱样式按 §1.6.5.1 的落位表用 **`PYL-S1` H 型钢**
+         （1999 年客专 / 城际档）⇒ `probe_catenary_pylons_steel`；25kV ⇒ **无标牌**。
+         导线仍是全世界共用那一套 `probe_catenary_wire`。
+       ★ 平交道口：`SCCA` **允许**（与 `SGCA` / `SBC3` 相反）⇒ `probe_level_crossing_crts1`
+         （道口那张轨道图也是本组的 `BAL-E` 素面板，不加挡台 —— 挡台会从道面里戳出来）。 */
+    graphics {
+        underlay:        probe_underlay_crts1;
+        track_overlay:   probe_overlay_crts1;
+        tunnels:         probe_tunnels_4;
+        tunnel_overlay:  probe_tunnel_over_4;
+        level_crossings: probe_level_crossing_crts1;
+        bridge_surfaces: probe_bridge_surfaces_crts1;
+        catenary_pylons: probe_catenary_pylons_steel;
+        catenary_wire:   probe_catenary_wire;
+    }
+}
+
+// SDCA —— 客运专线（1999，D 档 210km/h，轴重 23t，25kV AC；CRTS I 单元板）
+item(FEAT_RAILTYPES, rail_SDCA, 21) {
+    property {
+        label:                  "SDCA";
+        introduction_date:      date(1999, 1, 1);
+        name:                   string(STR_RAIL_SDCA);
+        toolbar_caption:        string(STR_RAIL_SDCA);
+        menu_text:              string(STR_RAIL_SDCA);
+        build_window_caption:   string(STR_RAIL_SDCA);
+        autoreplace_text:       string(STR_RAIL_SDCA);
+        new_engine_text:        string(STR_RAIL_SDCA);
+        /* 与 `SCCA` 逐条相同（同制式同几何，只有 C8 的档位不同） */
+        compatible_railtype_list: ["RAIL", "ELRL", 
+                                    "SADN", "SBDN", "SCDN", "SDDN", "SEDN",  "SFDN", "SGDN",
+                                    "SAEN", "SBEN", "SCEN", "SDEN", "SEEN",  "SFEN", "SGEN",
+                                    "SADA", "SBDA", "SCDA", "SDDA", "SEDA",  "SFDA", "SGDA", 
+                                    "SAEA", "SBEA", "SCEA", "SDEA", "SEEA",  "SFEA", "SGEA", 
+                                    "SADd", "SBDd", "SCDd", "SDDd", "SEDd", 
+                                    "SAEd", "SBEd", "SCEd", "SDEd", "SEEd",  
+                                    "SADD", "SBDD", "SCDD", "SDDD", "SEDD",   
+                                    "DADN", "DBDN",
+                                    "DADA", "DBDA"];
+        powered_railtype_list:    [ "ELRL", 
+                                    "SADA", "SBDA", "SCDA", "SDDA", "SEDA",  "SFDA", "SGDA", 
+                                    "SAEA", "SBEA", "SCEA", "SDEA", "SEEA",  "SFEA", "SGEA",
+                                    "DACA", "DADA", "DBDA"];
+        railtype_flags:         bitmask(RAILTYPE_FLAG_CATENARY);
+        curve_speed_multiplier: 1;
+        station_graphics:       RAILTYPE_STATION_NORMAL;
+        /* 费用系数 = CSV 的 20 ⇒ 建设 20 / 维护 10 */
+        construction_cost:      20;
+        maintenance_cost:       10;
+        speed_limit:            210 km/h;
+        acceleration_model:     ACC_MODEL_RAIL;
+        map_colour:             0x65;
+        sort_order:             SORT_ELECTRIC;
+    }
+    /* ★ 2026-10-06：与 `SCCA` **同一套模型**（`A8` 组：`BAL-E` + `SLE-3` + `RAI-3` +
+       复用的 `TUN-4` + `PYL-S1`），差别只有 C8 —— 210 km/h / 费用 20·10 / 地图色 0x65
+       （`美术要素方案.md` §3.1 第 24 行的落位表：`SDCA` = `BAL-E` + `SLE-3` + `RAI-3`）。
+       现实对应：秦沈 / 胶济客专。 */
+    graphics {
+        underlay:        probe_underlay_crts1;
+        track_overlay:   probe_overlay_crts1;
+        tunnels:         probe_tunnels_4;
+        tunnel_overlay:  probe_tunnel_over_4;
+        level_crossings: probe_level_crossing_crts1;
+        bridge_surfaces: probe_bridge_surfaces_crts1;
+        catenary_pylons: probe_catenary_pylons_steel;
+        catenary_wire:   probe_catenary_wire;
+    }
+}
