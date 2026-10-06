@@ -1162,8 +1162,9 @@ item(FEAT_RAILTYPES, rail_SGCA, 19) {
        ★ 接触网：制式 `EL-25`，支柱样式按 §1.6.5.1 的落位表用 **`PYL-S1` H 型钢**
          （2005 年客专 / 高铁档）⇒ `probe_catenary_pylons_steel`（`gfx/pylonsteel.png`）；
          25kV ⇒ **无标牌**。导线仍是全世界共用那一套 `probe_catenary_wire`。
-       ⚠ **本包至今只有 `SGCA` 一条挂了 S1**：落位表里另外 5 条（`SDCA` `SCCA` `NCCA`
-         `SECA` `SFCA`）还没有自己的轨道图 —— 先挂 S1 会变成"我们的柱子 + 原版轨道"。
+       ⚠ **`PYL-S1` 的落位进度**（§1.6.5.1 落位表里另有 `SDCA` `SCCA` `SECA` `SFCA`
+         `NCCA` 五条）：2026-10-06 起 `SGCA` `SCCA` `SDCA` `SECA` **四条都已挂 S1**，
+         只剩 **`SFCA`（A9，还等 `BAL-F`）与 `NCCA`（A17 高速窄轨，还等 `BAL-D` 那套）**。
        ⚠ `NO_LEVEL_CROSSING` ⇒ 本类型**不提供** `level_crossings:` 精灵。 */
     graphics {
         underlay:        probe_underlay_crts3;
@@ -1190,16 +1191,27 @@ item(FEAT_RAILTYPES, rail_SCCA, 20) {
         /* 兼容 / powered 与 `SGCA`（A10）/ `SCDA`（A3）那套 **25kV 电气化列表逐条相同**
            —— 三条都是同一个供电制式（架空接触网 25kV AC），互相之间必须能跑通。 */
         compatible_railtype_list: ["RAIL", "ELRL", 
+                                    "SACN", "SBCN", "SCCN", "SDCN", "SECN",  "SFCN", "SGDN",
                                     "SADN", "SBDN", "SCDN", "SDDN", "SEDN",  "SFDN", "SGDN",
                                     "SAEN", "SBEN", "SCEN", "SDEN", "SEEN",  "SFEN", "SGEN",
+                                    "SACA", "SBCA", "SCCA", "SDCA", "SECA",  "SFCA", "SGCA",
                                     "SADA", "SBDA", "SCDA", "SDDA", "SEDA",  "SFDA", "SGDA", 
-                                    "SAEA", "SBEA", "SCEA", "SDEA", "SEEA",  "SFEA", "SGEA", 
-                                    "SADd", "SBDd", "SCDd", "SDDd", "SEDd", 
+                                    "SAEA", "SBEA", "SCEA", "SDEA", "SEEA",  "SFEA", "SGEA",
+                                    "SACd", "SBCd", "SCCd", "SDCd", "SECd",
+                                    "SADd", "SBDd", "SCDd", "SDDd", "SEDd",
                                     "SAEd", "SBEd", "SCEd", "SDEd", "SEEd",  
+                                    "SACD", "SBCD", "SCCD", "SDCD", "SECD", 
                                     "SADD", "SBDD", "SCDD", "SDDD", "SEDD",   
+                                    "SAC3", "SBC3", "SCC3", "SDC3",
+                                    "SACZ", "SBCZ", "SCCZ", "SDCZ",    
+                                    "SACL", "SBCL", "SCCL", "SDCL",
+                                    "DACN", 
                                     "DADN", "DBDN",
-                                    "DADA", "DBDA"];
+                                    "DACA", 
+                                    "DADA", "DBDA",
+                                    "dACN", "dBCN"];
         powered_railtype_list:    [ "ELRL", 
+                                    "SACA", "SBCA", "SCCA", "SDCA", "SECA",  "SFCA", "SGCA",
                                     "SADA", "SBDA", "SCDA", "SDDA", "SEDA",  "SFDA", "SGDA", 
                                     "SAEA", "SBEA", "SCEA", "SDEA", "SEEA",  "SFEA", "SGEA",
                                     "DACA", "DADA", "DBDA"];
@@ -1253,16 +1265,27 @@ item(FEAT_RAILTYPES, rail_SDCA, 21) {
         new_engine_text:        string(STR_RAIL_SDCA);
         /* 与 `SCCA` 逐条相同（同制式同几何，只有 C8 的档位不同） */
         compatible_railtype_list: ["RAIL", "ELRL", 
+                                    "SACN", "SBCN", "SCCN", "SDCN", "SECN",  "SFCN", "SGDN",
                                     "SADN", "SBDN", "SCDN", "SDDN", "SEDN",  "SFDN", "SGDN",
                                     "SAEN", "SBEN", "SCEN", "SDEN", "SEEN",  "SFEN", "SGEN",
+                                    "SACA", "SBCA", "SCCA", "SDCA", "SECA",  "SFCA", "SGCA",
                                     "SADA", "SBDA", "SCDA", "SDDA", "SEDA",  "SFDA", "SGDA", 
-                                    "SAEA", "SBEA", "SCEA", "SDEA", "SEEA",  "SFEA", "SGEA", 
-                                    "SADd", "SBDd", "SCDd", "SDDd", "SEDd", 
+                                    "SAEA", "SBEA", "SCEA", "SDEA", "SEEA",  "SFEA", "SGEA",
+                                    "SACd", "SBCd", "SCCd", "SDCd", "SECd",
+                                    "SADd", "SBDd", "SCDd", "SDDd", "SEDd",
                                     "SAEd", "SBEd", "SCEd", "SDEd", "SEEd",  
+                                    "SACD", "SBCD", "SCCD", "SDCD", "SECD", 
                                     "SADD", "SBDD", "SCDD", "SDDD", "SEDD",   
+                                    "SAC3", "SBC3", "SCC3", "SDC3",
+                                    "SACZ", "SBCZ", "SCCZ", "SDCZ",    
+                                    "SACL", "SBCL", "SCCL", "SDCL",
+                                    "DACN", 
                                     "DADN", "DBDN",
-                                    "DADA", "DBDA"];
+                                    "DACA", 
+                                    "DADA", "DBDA",
+                                    "dACN", "dBCN"];
         powered_railtype_list:    [ "ELRL", 
+                                    "SACA", "SBCA", "SCCA", "SDCA", "SECA",  "SFCA", "SGCA",
                                     "SADA", "SBDA", "SCDA", "SDDA", "SEDA",  "SFDA", "SGDA", 
                                     "SAEA", "SBEA", "SCEA", "SDEA", "SEEA",  "SFEA", "SGEA",
                                     "DACA", "DADA", "DBDA"];
@@ -1288,6 +1311,74 @@ item(FEAT_RAILTYPES, rail_SDCA, 21) {
         tunnel_overlay:  probe_tunnel_over_4;
         level_crossings: probe_level_crossing_crts1;
         bridge_surfaces: probe_bridge_surfaces_crts1;
+        catenary_pylons: probe_catenary_pylons_steel;
+        catenary_wire:   probe_catenary_wire;
+    }
+}
+
+// SECA —— 高速铁路（2003，250km/h，轴重 23t，25kV AC；BAL-N 高速有砟）
+item(FEAT_RAILTYPES, rail_SECA, 22) {
+    property {
+        label:                  "SECA";
+        introduction_date:      date(2003, 1, 1);
+        name:                   string(STR_RAIL_SECA);
+        toolbar_caption:        string(STR_RAIL_SECA);
+        menu_text:              string(STR_RAIL_SECA);
+        build_window_caption:   string(STR_RAIL_SECA);
+        autoreplace_text:       string(STR_RAIL_SECA);
+        new_engine_text:        string(STR_RAIL_SECA);
+        /* 兼容 / powered 与 `SGCA`（A10）/ `SCCA`·`SDCA`（A8）那套 **25kV 电气化列表
+           逐条相同** —— 四条都是同一个供电制式（架空接触网 25kV AC），必须互相跑得通。 */
+        compatible_railtype_list: ["RAIL", "ELRL", 
+                                    "SADN", "SBDN", "SCDN", "SDDN", "SEDN",  "SFDN", "SGDN",
+                                    "SAEN", "SBEN", "SCEN", "SDEN", "SEEN",  "SFEN", "SGEN",
+                                    "SADA", "SBDA", "SCDA", "SDDA", "SEDA",  "SFDA", "SGDA", 
+                                    "SAEA", "SBEA", "SCEA", "SDEA", "SEEA",  "SFEA", "SGEA", 
+                                    "SADd", "SBDd", "SCDd", "SDDd", "SEDd", 
+                                    "SAEd", "SBEd", "SCEd", "SDEd", "SEEd",  
+                                    "SADD", "SBDD", "SCDD", "SDDD", "SEDD",   
+                                    "DADN", "DBDN",
+                                    "DADA", "DBDA"];
+        powered_railtype_list:    [ "ELRL", 
+                                    "SADA", "SBDA", "SCDA", "SDDA", "SEDA",  "SFDA", "SGDA", 
+                                    "SAEA", "SBEA", "SCEA", "SDEA", "SEEA",  "SFEA", "SGEA",
+                                    "DACA", "DADA", "DBDA"];
+        /* `CATENARY`：25kV 架空接触网（本包自己出支柱 + 导线）。
+           `NO_LEVEL_CROSSING`：高铁不设平交道口（C8 项）⇒ 也不提供 `level_crossings:`。
+           ⚠ **与 A8（`SCCA` / `SDCA`）的差别就在这一条**：那两条是城际 / 客专，
+             允许道口；`SECA` 与 `SGCA` 同为**高铁**，禁（人工 2026-10-06 裁定）。 */
+        railtype_flags:         bitmask(RAILTYPE_FLAG_CATENARY, RAILTYPE_FLAG_NO_LEVEL_CROSSING);
+        curve_speed_multiplier: 1;
+        station_graphics:       RAILTYPE_STATION_NORMAL;
+        /* 费用系数 = CSV 的 24 ⇒ 建设 24 / 维护 12 */
+        construction_cost:      24;
+        maintenance_cost:       12;
+        speed_limit:            250 km/h;
+        acceleration_model:     ACC_MODEL_RAIL;
+        map_colour:             0x66;
+        sort_order:             SORT_ELECTRIC;
+    }
+    /* ★ 2026-10-06：A25 组（`BAL-N` 有砟·**高速砟肩堆高** + `SLE-3` 混凝土宽枕 +
+       `RAI-3` 长轨）接入。模型由 `tools/gen-a9-hsballast.mjs` 从 `G1_*` 派生
+       （删道砟 → 按 `BAL-N` 断面重铺高度场；钢轨只换材质），分表 `gfx/hsballast.png`。
+
+       ★ **洞口复用 A10 的 `TUN-4`**（`probe_tunnels_4` / `probe_tunnel_over_4`，
+         `gfx/tunnel4.png`）—— 本组一件洞口模型都没出。
+       ★ 接触网：制式 `EL-25`，支柱样式按 §1.6.5.1 的落位表用 **`PYL-S1` H 型钢**
+         （2003 年高铁档）⇒ `probe_catenary_pylons_steel`；25kV ⇒ **无标牌**。
+         导线仍是全世界共用那一套 `probe_catenary_wire`。
+       ★ 平交道口：**不设**（与 `SGCA` 一致）⇒ **不给 `level_crossings:`**。
+       ★ 现实对应：250km/h **有砟**客运专线（石太 / 合武 / 甬台温）—— 数字规格见
+         `美术要素方案.md` §1.1 的 `BAL-N` 那一节（规范：道床顶宽 3.6 m · 砟肩宽
+         0.5 m · **砟肩堆高 0.15 m** · 边坡 1:1.75 · 特级碎石道砟、上道前清洗）。
+       ⚠ `SECA` 原先按 `BAL-F`（无砟 CRTS II）排在 A9 组，人工 2026-10-06 改口径：
+         它改用新道床 `BAL-N` ⇒ **A9 缩为只剩 `SFCA`**（仍等 `BAL-F`）。 */
+    graphics {
+        underlay:        probe_underlay_hsballast;
+        track_overlay:   probe_overlay_hsballast;
+        tunnels:         probe_tunnels_4;
+        tunnel_overlay:  probe_tunnel_over_4;
+        bridge_surfaces: probe_bridge_surfaces_hsballast;
         catenary_pylons: probe_catenary_pylons_steel;
         catenary_wire:   probe_catenary_wire;
     }

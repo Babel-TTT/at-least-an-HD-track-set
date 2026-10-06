@@ -160,6 +160,21 @@ export const SHEETS = [
     match: /^G9_/,
   },
   {
+    // A25 组（`SECA` 高速铁路 250km/h，25kV AC）的轨道：**`BAL-N` 有砟·高速道床**
+    //   —— 砟肩堆高 0.15 m（砟肩顶 0.0188）· 砟肩宽 0.5 m · 边坡 1:1.75 · 坡脚 0.1644
+    //   · 特级道砟 `granite_grey`；轨枕 `SLE-3` 混凝土宽枕（U 形承轨槽，与 A5 / A8 共用
+    //   同一批模型口径）+ 钢轨 `RAI-3` 长轨。
+    // 几何由 tools/gen-a9-hsballast.mjs 从 `G1_*` 派生（删道砟 → 按断面重铺高度场；
+    // 钢轨只换材质），规格见 `美术要素方案.md` §1.1 的 `BAL-N` 那一节。
+    //
+    // ⚠ **洞口不在这张表里**：`TUN-4` 直接复用 A10 的 `gfx/tunnel4.png`，一件模型都不重出。
+    // ⚠ **本组没有平交道口**：`SECA` 带 `RAILTYPE_FLAG_NO_LEVEL_CROSSING`（人工 2026-10-06 裁定）。
+    // ⚠ 单独一张表（同 rail / metro / crts3 / crts1 表的理由：混进去会把已有几十条 rect 顶移位）。
+    key: 'hsballast',
+    title: '高速有砟 BAL-N（砟肩堆高 + SLE-3 宽枕 + RAI-3 长轨；SECA）',
+    match: /^G10_/,
+  },
+  {
     // A15 组（`NACN` 窄轨）的**洞口**：TUN-7 小断面拱（端墙外形照 TUN-1，
     // 只把拱洞与洞内轨道按 k = 0.70 收窄；几何由 tools/gen-a15-narrow.mjs 从 TUN-1 收窄而来）。
     // ⚠ 必须登记在下面的 narrow **之前**：那个表的正则是 /^G5_/，会先把 G5_tunnel7_* 吃掉。
