@@ -413,6 +413,14 @@ function buildTrack(job) {
 //     ② 洞内道床改无砟、钢轨按 RAI-3 换色
 //     ③ 洞口正面上方**新增帽檐**（两个 overlay 模型各一份）
 //
+//   ★★ ④ 洞内道床 / 钢轨**横向一律不动**（人工 2026-10-07 实机：「所有 S_CA 的
+//      隧道铁轨比普通轨道宽一点」）。根因：`mapPortal` 的 ×1.2903 是**给洞跨**用的
+//      （0.31 → 0.40 格），而它当年是**逐面**无条件施加的 ⇒ 连洞内的轨道也一起被撑开
+//      1.29 倍：轨距由 0.1032 格变成 0.1331 格，轨顶面由 8 px 变成 10.3 px 宽。
+//      TUN-4 又是 `SGCA` / `SCCA` / `SDCA` / `SECA` **四条 S_CA 共用的唯一洞口**
+//      （见 docs/建模标准.md 台账），所以四条一起中招 —— 与你看到的完全一致。
+//      ⇒ 现在按 `z_max ≤ PORTAL_ZMIN` 分成两类：道床/钢轨保持源值，只有洞门结构参与 `mapPortal`。
+//
 //   `mapPortal` 的横向映射是**分段线性**的（`ay = |y − 0.5|`）：
 //        ay ≤ 0.155（= 洞跨半宽 0.31/2）      ⇒ ×(0.40/0.31) = ×1.2903  ⇒ 洞跨 0.40 ✓
 //        0.155 < ay ≤ 0.345（= 端墙半宽 0.68/2）⇒ 线性接上：0.20 + (ay−0.155)×1.0526
@@ -481,10 +489,17 @@ function buildTunnel(job) {
     if (/^name\s/.test(line)) { head.push(`name      ${job.name}`); continue; }
     if (!/^quad /.test(line)) { head.push(line); continue; }
     const t = line.split(/\s+/);
+    // ★ 洞内道床 / 钢轨（`z_max ≤ PORTAL_ZMIN`）**整件横向不动** ——
+    //   `mapPortal` 的 ×1.2903 是**给洞跨用的**（0.31 → 0.40 格），它没有理由
+    //   作用到轨道上。判据与 `retintTunnel()` 逐字同一把尺（见上面那段 ★）。
+    //   ⚠ 判据必须按**面**取 z_max，不能按顶点：墙脚侧面从 z=0 起，按顶点判会把它切开。
+    let zmax = 0;
+    for (let i = 0; i < 4; i++) zmax = Math.max(zmax, Number(t[3 + i * 3]));
+    const keep = zmax <= PORTAL_ZMIN;
     const v = [];
     for (let i = 0; i < 4; i++) {
       const x = Number(t[1 + i * 3]), y = Number(t[2 + i * 3]), z = Number(t[3 + i * 3]);
-      v.push(...mapPortal(x, y, z));
+      v.push(...(keep ? [x, y, z] : mapPortal(x, y, z)));
     }
     const out = `quad ${v.map(fmt).join(' ')}  ${t[13] === 'gravel' ? MAT.bore : t[13]}`;
     body.push(retintTunnel(out));
