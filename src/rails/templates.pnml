@@ -1554,7 +1554,7 @@ template t_G8_tunnel4_b_v2(sheet) {
   [1578, 0, 263, 167, -119, -35, sheet]  // 【手调】同 t_G3_tunnel3_b_v2（DiagDir SW，B 组近半）
 }
 template t_G8_tunnel4_b_v1(sheet) {
-  [1315, 0, 263, 167, -130, -36, sheet]  // 【手调】同 t_G3_tunnel3_b_v1（DiagDir NW）
+  [1315, 0, 263, 167, -125, -36, sheet]  // 【手调】同 t_G3_tunnel3_b_v1（DiagDir NW）
 }
 template t_G8_tunnel4_over_v0(sheet) {
   [0, 167, 263, 167, -126, -156, sheet]  // 【手调】同 t_G3_tunnel3_over_v0（overlay 另有 −120 px）
