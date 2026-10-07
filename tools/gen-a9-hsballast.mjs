@@ -148,6 +148,24 @@ const RISE = 0.2041;                  // 一格坡道抬高（与 gen-g1-slope /
 const OVER = 0.03125;                 // 沿轨探出 1/32 格（见文件头）
 const TOL = 0.001;                    // 钢轨"到头"容差（必须 > clipBox 的 0.0005）
 
+// ---------------------------------------------------------------- 交叉：Y 向轨道再叠一份
+// ★ 人工 2026-10-06：「把 SCCA 和 SECA 的交叉轨道模型中的 y 方向轨道应用（-2 1）的偏移」
+//   —— A8（SCCA）与 A25（SECA）两个生成器各改一处，口径**逐字相同**。
+//   口径与 2026-10-05 给 G1 那次的 `CROSS_Y_EXTRA` 一致：**在现值上叠加**
+//   （见 docs/建模标准.md 2026-10-05 那条、docs/建模经验.md §4.10）。
+//   屏幕 (−2,+1) px ⇒ 世界**纯 +x 1/64 格**；Y 轨沿 y 跑 ⇒ 对它是
+//   **横移 1.79px ＋ 沿轨 1.34px** ⇒ 钢轨与枕木**整组平移**，X 向与道床一个数不动。
+//   ⚠ 本组从 `G1_crossing` 派生，源里**已经**含 G1 那份 (−2,+1)
+//     （Y 组钢轨 x 0.4796 / 0.5828，与 G1_crossing.model 逐字节相同）
+//     ⇒ 这一份是在它之上**再叠一次**；人工点名的"应用"就是这个增量。
+//   范围：**只有交叉那一件**；`levelcrossing` / `junction3` / `junction4` 一律不动
+//     （与 G1 那次的范围逐条相同）。
+const CY_PX = [-2, 1];                                // 屏幕增量（px；正 = 右 / 下）
+const CY_DX = (CY_PX[1] / 64 - CY_PX[0] / 128) / 2;   // ⇒ 世界 +x 0.015625 格
+const CY_DY = (CY_PX[1] / 64 + CY_PX[0] / 128) / 2;   // ⇒ 世界 y 0
+/** 只有交叉那一件吃这份增量（A8 的作业表用 `plate:`、A25 用 `bed:`） */
+const isCrossing = (job) => job.bed === 'crossing' || job.plate === 'crossing';
+
 // ---------------------------------------------------------------- 材质
 const MAT = {
   bed: 'granite_grey',                // 特级道砟（146,144,140 中性偏冷；颗粒 0.040 < gravel 的 0.060）
@@ -547,12 +565,18 @@ function boxSleeper(rec, ctx) {
   if (thinX) { const m = (b[0] + b[3]) / 2, h = (b[3] - b[0]) * K_SLEEP_T / 2; b[0] = m - h; b[3] = m + h; }
   else { const m = (b[1] + b[4]) / 2, h = (b[4] - b[1]) * K_SLEEP_T / 2; b[1] = m - h; b[4] = m + h; }
 
+  // ★ 交叉那一件：Y 向枕木（横向轴 = x）**整体平移** `ctx.crossDx`。
+  //   ⚠ 必须"先按 `c` 缩放、再平移"，**不能把 `crossDx` 加进 `sh`** —— `sh` 是
+  //   **缩放中心**，加进去会把加长量按比例摊回去（枕木中心只挪 0.0009 格），
+  //   承轨槽就与钢轨错位 0.0156 格 ≈ 2px（本轮踩到并修掉）。
+  const dx = axis === 'x' ? (ctx.crossDx ?? 0) : 0;
+  if (dx) { b[0] += dx; b[3] += dx; }
   const lo = axis === 'y' ? b[1] : b[0];
   const hi = axis === 'y' ? b[4] : b[3];
-  const cuts = CUT.map((v) => v + sh);
+  const cuts = CUT.map((v) => v + sh + dx);
   const out = [emitBoxRaw([b[0], b[1], 0, b[3], b[4], Z_BASE], M_BODY, ['top=' + M_BASE])];
   for (const [p, q] of splitByCuts(lo, hi, cuts)) {
-    const z = zoneOf((p + q) / 2 - sh);
+    const z = zoneOf((p + q) / 2 - sh - dx);
     const bb = [...b];
     if (axis === 'y') { bb[1] = p; bb[4] = q; } else { bb[0] = p; bb[3] = q; }
     out.push(emitBoxRaw([bb[0], bb[1], Z_BASE, bb[3], bb[4], z.z], z.mat, ['top=' + z.top]));
@@ -645,6 +669,11 @@ function railFaces(job, rec) {
       if (b[1] <= TOL) b[1] = -OVER;
       if (b[4] >= 1 - TOL) b[4] = 1 + OVER;
     }
+    // ★ 交叉那一件：**沿 y 跑的钢轨**（薄的那一维是 x）跟着 Y 向轨道整组平移；
+    //   枕木在 `boxSleeper()` 里按同一个 `ctx.shift.x` 同步挪，X 向钢轨一个数不动。
+    if (isCrossing(job) && (b[3] - b[0]) < (b[4] - b[1])) {
+      b[0] += CY_DX; b[3] += CY_DX; b[1] += CY_DY; b[4] += CY_DY;
+    }
     const t = railMat('box', [null, null, null, null, null, null, null, rec.mat, ...rec.mods]);
     return [`box ${fmt(b[0])} ${fmt(b[1])} ${fmt(b[2])}  ${fmt(b[3])} ${fmt(b[4])} ${fmt(b[5])}   ${t.slice(7).join(' ')}`];
   }
@@ -695,6 +724,10 @@ function processJob(job) {
   }
   const recs = geo.map((g) => g.rec);
   const ctx = analyse(job.kind, recs);
+  // ★ 交叉那一件：Y 向枕木再吃一份「交叉专用」平移（钢轨在 `railFaces()` 里同步；
+  //   X 向枕木 / 道床板 / 其余所有件一个数不动）。**是平移量，不是缩放中心** ——
+  //   见 `boxSleeper()` 里那条警告。
+  if (isCrossing(job)) ctx.crossDx = CY_DX;
 
   // quad 枕木分组（按 (x0,x1,y0,y1) 包围盒）
   const groupKey = (r) => {
