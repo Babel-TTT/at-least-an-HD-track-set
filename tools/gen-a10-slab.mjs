@@ -94,7 +94,11 @@ const N = (v) => Number(Number(v).toFixed(6));
 //   探出 `OVER` 盖接缝），分家之后各自演进更安全；这里只抄**当前**这一版的口径，
 //   并在下面注明来源。改口径时两个文件要一起改。
 // =============================================================================
-const OVER = 0.03125;                 // 1/32 格：沿轨两端探出，盖住瓦片接缝（同 A12）
+const OVER = 0.03125;                 // 1/32 格：**斜向 / 岔口**沿用（见文件头）
+// ★★ 人工 2026-10-08：「这几种铁路铁的**水平轨超出边界太多**，但是**道床伸出量不够**，
+//    以及**上下坡铁轨的铁轨长度不够**」⇒ 把"钢轨"与"道床"两个探出量**分开**（原来是同一个 OVER）：
+const OVER_RAIL = 0.015625;           // 钢轨沿轨探出 **1/64 格**（原 1/32；坡道原来 0 ⇒ 这里同时是**加长**）
+const OVER_BED  = 0.0625;             // **直向**道床板沿轨探出 **1/16 格**（原 1/32；坡道板不动，见文件头）
 
 /** 有向面积 */
 function area2(p) {
@@ -143,7 +147,9 @@ function clipTile(p, m = 0) {
 const mapD = (x, y) => [(y + (x - 0.5)) / 2, (y - (x - 0.5)) / 2];
 
 function emitBox(L, b) {
-  const o = b.long ? OVER : 0;
+  // ★ 人工 2026-10-08：`long`（= 直向的 BAL-G 板）的沿轨探出 1/32 → `OVER_BED`（"道床伸出量不够"）。
+  //   斜向板走 `emitDiag`（自己的 `OVER`）、坡道板走 `emitSheared`（两端都不探）—— 都不受影响。
+  const o = b.long ? OVER_BED : 0;
   L.push(`box ${fmt(b.x0 - o)} ${fmt(b.y0)} ${fmt(b.z0)}  ${fmt(b.x1 + o)} ${fmt(b.y1)} ${fmt(b.z1)}   `
     + `${b.mat}${b.top ? ` top=${b.top}` : ''}`);
 }
@@ -382,6 +388,34 @@ const TRACK_JOBS = [
   { src: 'G4_rail_slope', name: 'G8_rail_slope', slab: null, note: 'overlay 槽 6-9：坡道的钢轨层' },
 ];
 
+/** ★★ 人工 2026-10-08：「这几种铁路铁的**水平轨超出边界太多**」，且「**上下坡铁轨的铁轨
+ *  长度不够**」—— 源 `G4_*` 里钢轨的探出是 **A12 那一轮按 `OVER = 1/32` 烘进坐标**的，
+ *  这里逐坐标改：**贴到 −1/32 或 0 的端 → −OVER_RAIL；贴到 1 或 1+1/32 的端 → 1+OVER_RAIL**
+ *  （`z` 一个数不动 —— 坡道两端各自邻着**平轨**，保持 z 正好与邻格平轨重合，偏差 ≤ 0.5px）。
+ *  只认 `rust` / `metal`（源里的钢轨材质）；枕木 / 扣件座 / 板一个数不碰。
+ *  ⚠ 生效范围 = 本组**所有含钢轨的模型**（直向 / 坡道 / **交叉** 四件 —— 交叉的 X 向钢轨
+ *    也烘在坐标里；A8 / A25 的 `railFaces()` 是通用的，三条口径因此一致）。
+ *    斜向半格（`G4_track_half` / `G4_z_track_half_m` / `G4_rail_half`）**不在范围**：
+ *    它们的探出走"沿 45° 外扩"另一条路径（`kind === 'diag'`，仍 `OVER`），人工只点了
+ *    "x 方向与 y 方向的水平轨 + 上下坡"。 */
+const RAIL_JOBS = /^(G4_track_x|G4_rail_straight|G4_track_slope|G4_rail_slope|G4_crossing)$/;
+function railRewrite(kw, t) {
+  const mi = kw === 'box' ? 7 : kw === 'quad' ? 13 : -1;
+  if (mi < 0 || !/^(rust|metal)$/.test(t[mi])) return null;
+  const s = [...t];
+  if (kw === 'box') {
+    if (+s[1] <= 1e-4) s[1] = fmt(-OVER_RAIL);
+    if (+s[4] >= 1 - 1e-4) s[4] = fmt(1 + OVER_RAIL);
+  } else {
+    for (let i = 0; i < 4; i++) {
+      const xi = 1 + i * 3;
+      if (+s[xi] <= 1e-4) s[xi] = fmt(-OVER_RAIL);
+      else if (+s[xi] >= 1 - 1e-4) s[xi] = fmt(1 + OVER_RAIL);
+    }
+  }
+  return s.join(' ');
+}
+
 function buildTrack(job) {
   const src = readSrc(job.src);
   const head = [];
@@ -395,6 +429,10 @@ function buildTrack(job) {
     if ((t[0] === 'prism' || t[0] === 'poly') && t[t[0] === 'prism' ? 3 : 2] === 'concrete_mid'
         && job.slab !== null) continue;                       // ②b 删旧板（prism 版；道岔的板要留）
     if (t[0] === 'quad' && t[13] === 'concrete_mid') continue; // ②c 删旧板（坡道 6 面）
+    if (RAIL_JOBS.test(job.src)) {                             // ⑤ 钢轨探出量单独收（人工 2026-10-08）
+      const r = railRewrite(t[0], t);
+      if (r) { body.push(retint(r)); continue; }
+    }
     body.push(retint(line));                                  // ③④ 换材质
   }
   // ②d 把删掉的旧板换成 BAL-G 的条带（道岔那两件 `slab === null`，保持素面）

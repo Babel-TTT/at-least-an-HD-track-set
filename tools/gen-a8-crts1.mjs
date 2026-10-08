@@ -98,6 +98,13 @@
 //   ⚠ 直向 / 半格 / 交叉的**板缝**靠"缝各向外多伸半个缝宽"就够（见上 ②），
 //     板体本身**不再整块 `long`**（那样会把两端的缝吃掉 —— A13 第一版就是这么错的）；
 //     钢轨仍按 A5 的口径用 `railExt` 探出。**坡道不探出**。
+// ★★ 2026-10-08 人工：「水平轨超出边界太多，但是道床伸出量不够，以及上下坡铁轨的
+//     铁轨长度不够」⇒ 这版把探出量**拆成三个**（原来是同一个 `OVER`）：
+//       · 钢轨（直向 + 坡道）：`OVER_RAIL = 1/64`（原来 1/32）—— 直向的收一半，坡道的从
+//         **0 变成 1/64**（原来一点不探 ⇒ 坡道两端的轨端面正好压在瓦片边上、看着"短一截"）；
+//       · 道床板：`OVER_BED = 1/16`（原来只有半条缝 0.005）—— 用 **apron**（缝外侧再接一条
+//         素板），缝宽 / 缝位一个数不动；
+//       · 枕木 / 挡台 / 岔口板 / 斜向板：**仍用 `OVER = 1/32`**（人工没点，不动）。
 // =============================================================================
 
 import fs from 'node:fs';
@@ -116,7 +123,11 @@ const BOSS_Z1 = 0.0218;               // 挡台顶（高出板面 0.0140，低�
 
 const RISE = 0.2041;                  // 一格坡道抬高（与 gen-g1-slope / A12 / A10 同源）
 const EPS = 0.0008;                   // 顶面换材质时的微小抬升（prism + poly 的两片做法）
-const OVER = 0.03125;                 // 沿轨探出 1/32 格（见文件头）
+const OVER = 0.03125;                 // 沿轨探出 1/32 格（**枕木 / 挡台 / 岔口板**沿用；见文件头）
+// ★★ 人工 2026-10-08：「这几种铁路铁的**水平轨超出边界太多**，但是**道床伸出量不够**，
+//    以及**上下坡铁轨的铁轨长度不够**」⇒ 本组把"钢轨"与"道床"两个探出量**分开**（原来是同一个 OVER）：
+const OVER_RAIL = 0.015625;           // 钢轨沿轨探出 **1/64 格**（原 1/32 —— 收到一半）
+const OVER_BED  = 0.0625;             // 道床板沿轨探出 **1/16 格**（原 ±0.005 —— 见 emitPlate 的 apron）
 const TOL = 0.001;                    // 钢轨"到头"容差（必须 > clipBox 的 0.0005）
 
 // ---------------------------------------------------------------- 交叉：Y 向轨道再挪一份
@@ -200,8 +211,9 @@ const JOBS = [
 
   { src: 'G1_track_slope', dst: 'G9_track_slope', kind: 'slope', over: false, plate: 'sheared',
     note: 'underlay 槽 6-9（RTO_SLOPE_NE / SE / SW / NW）：坡道（**不探出**）' },
-  { src: 'G1_rail_slope', dst: 'G9_rail_slope', kind: 'slope', over: false, plate: null,
-    note: 'overlay 槽 6-9：坡道的宽枕 + 钢轨层' },
+  { src: 'G1_rail_slope', dst: 'G9_rail_slope', kind: 'slope', over: true, plate: null,
+    note: 'overlay 槽 6-9：坡道的宽枕 + 钢轨层（★ 人工 2026-10-08：钢轨**要**探出 —— 沿轨 1/64，'
+      + 'z 不动；道床那条坡道板仍 `over: false`，两端探出会穿地 / 顶格位）' },
 
   { src: 'G1_crossing', dst: 'G9_crossing', kind: 'cross', over: true, plate: 'crossing',
     note: 'underlay 槽 10（RTO_CROSSING_XY）：交叉（十字素面板 + 两个方向的宽枕 / 钢轨）' },
@@ -234,10 +246,13 @@ function ext(v) {
   if (near1(v)) return OVER;
   return 0;
 }
-/** 钢轨专用（见 A5 文件头那条 0.0005 的教训：源里钢轨被 clipBox 钳在 0.0005） */
+/** 钢轨专用（见 A5 文件头那条 0.0005 的教训：源里钢轨被 clipBox 钳在 0.0005）
+ *  ⚠ 用 `OVER_RAIL`（1/64），不用 `OVER` —— 人工 2026-10-08：钢轨超出边界太多。
+ *  ⚠ 坡道钢轨也走这里：只在 x 上探、**z 一个数不动** —— 坡道两端各自邻着**平轨**
+ *    （低端同层、高端上一层），保持 z 正好与邻格平轨重合（偏差 ≤ 0.5px）。 */
 function railExt(v) {
-  if (v <= TOL) return -OVER;
-  if (v >= 1 - TOL) return OVER;
+  if (v <= TOL) return -OVER_RAIL;
+  if (v >= 1 - TOL) return OVER_RAIL;
   return 0;
 }
 
@@ -589,6 +604,17 @@ function emitPlate(job, L, stats) {
   if (!K) return;
   if (K === 'box') {
     for (const b of plateSegs(0, 1, { edgeFull: true })) { emitBox(L, b); stats.plate++; }
+    // ★★ 人工 2026-10-08「**道床伸出量不够**」：板的沿轨探出从 ±(JOINT_W/2) = ±0.005 放到 `OVER_BED`。
+    //   ⚠ **不能把最外侧那段缝往外拉** —— 那会把瓦片边那条板缝拉宽，而缝位是 1/3 格网格的一员、
+    //     缝宽必须恒为 `JOINT_W`（板缝节奏是这一档的身份）。做法 = **在缝的外侧再接一条
+    //     板面高度的素板**（apron）：缝的宽度与位置一个数不动，只是"板再往外铺一段"。
+    //   ⚠ 无砟组（本组）用 apron；有砟组（A25）是高度场直接外伸 —— 两种改法，别互抄。
+    //   ⚠ 世界坐标恰过界 `OVER_BED` = 1/16 == flatiso 的 `OVERFLOW_ALLOW` 上限（不超 ⇒ 不刷警告）。
+    const hw = JOINT_W / 2;
+    for (const [a, b] of [[-OVER_BED, -hw], [1 + hw, 1 + OVER_BED]]) {
+      emitBox(L, { x0: a, x1: b, y0: BAND[0], y1: BAND[1], z0: 0, z1: PLATE_Z, mat: MAT.plate });
+      stats.plate++;
+    }
     for (const t of jointTs(0, 1)) { bossBox(L, t); stats.plate++; }
   } else if (K === 'boxplain') {
     emitBox(L, { long: true, x0: 0, x1: 1, y0: BAND[0], y1: BAND[1], z0: 0, z1: PLATE_Z, mat: MAT.plate });
@@ -724,10 +750,10 @@ function railFaces(job, rec) {
   if (rec.kw === 'box') {
     const b = [...rec.box];
     if (over) {
-      if (b[0] <= TOL) b[0] = -OVER;
-      if (b[3] >= 1 - TOL) b[3] = 1 + OVER;
-      if (b[1] <= TOL) b[1] = -OVER;
-      if (b[4] >= 1 - TOL) b[4] = 1 + OVER;
+      if (b[0] <= TOL) b[0] = -OVER_RAIL;
+      if (b[3] >= 1 - TOL) b[3] = 1 + OVER_RAIL;
+      if (b[1] <= TOL) b[1] = -OVER_RAIL;
+      if (b[4] >= 1 - TOL) b[4] = 1 + OVER_RAIL;
     }
     // ★ 交叉那一件：**沿 y 跑的钢轨**（薄的那一维是 x）跟着 Y 向轨道整组平移；
     //   枕木在 `boxSleeper()` 里按同一个 `ctx.shift.x` 同步挪，X 向钢轨一个数不动。

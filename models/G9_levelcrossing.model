@@ -94,8 +94,8 @@ box 0.9772 0.5317 0.0075  0.9988 0.5340 0.0095  concrete_mid top=concrete_mid
 box 0.9772 0.5340 0.0075  0.9988 0.5700 0.0087  panel_seam top=panel_seam
 box 0.9772 0.5700 0.0075  0.9988 0.5950 0.0100  concrete_mid top=metal_pale
 # --- 钢轨：2 根，通长 0→1 不断 ---
-box -0.0313 0.5476 0.0100  1.0313 0.5556 0.0230   metal_dark top=metal_pale
-box -0.0313 0.4444 0.0100  1.0313 0.4524 0.0230   metal_dark top=metal_pale
+box -0.0156 0.5476 0.0100  1.0156 0.5556 0.0230   metal_dark top=metal_pale
+box -0.0156 0.4444 0.0100  1.0156 0.4524 0.0230   metal_dark top=metal_pale
 # --- 护轨板：3 条纵向板（两轨之间 + 两轨外侧），只铺公路区域那一段 ---
 box 0.0938 0.4524 0.0000  0.9063 0.5476 0.0140  stone_dark top=stone_seam
 box 0.0938 0.4100 0.0000  0.9063 0.4444 0.0140  stone_dark top=stone_seam

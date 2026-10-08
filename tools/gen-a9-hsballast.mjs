@@ -113,6 +113,12 @@
 //     直向把首末两列推到 `−OVER / 1+OVER`（同时保持 32 列的 1 周期抖动 ⇒ 交界处
 //     两格给出逐字相同的几何），斜向把每一行的**沿轨两端**各外伸 `OVER`（世界坐标）。
 //   ⚠ **坡道不探出**（`over: false`）：高端探出去会顶格位、低端探出去 `z < 0` 直接穿地。
+// ★★ 2026-10-08 人工：「水平轨超出边界太多，但是道床伸出量不够，以及上下坡铁轨的
+//     铁轨长度不够」⇒ 这一版把探出量**拆成三个**（原来都是同一个 `OVER`）：
+//       · 钢轨（直向 + 坡道）：`OVER_RAIL = 1/64`（原来 1/32）—— 直向的收一半；坡道的从
+//         **0 变成 1/64**（原来一点不探 ⇒ 坡道两端的轨端面正好压在瓦片边上、看着"短一截"）；
+//       · **直向**道床高度场：`OVER_BED = 1/16`（原来 1/32）—— 有砟组直接把首末两列推开；
+//       · 枕木 / 挡台 / 岔口板 / **坡道道床**：仍用 `OVER = 1/32`（坡道那两条硬理由见上）。
 // =============================================================================
 
 import fs from 'node:fs';
@@ -145,7 +151,11 @@ const JZ = 0.0015;                   // 高度场抖动上限（只往上抖 ⇒
 const JT = 0.0050;                   // 坡脚横向抖动幅度（毛边；必须 < 坡脚那两行的间距）
 
 const RISE = 0.2041;                  // 一格坡道抬高（与 gen-g1-slope / A5 / A8 同源）
-const OVER = 0.03125;                 // 沿轨探出 1/32 格（见文件头）
+const OVER = 0.03125;                 // 沿轨探出 1/32 格（**枕木 / 挡台 / 岔口板 / 坡道道床**沿用）
+// ★★ 人工 2026-10-08：「这几种铁路铁的**水平轨超出边界太多**，但是**道床伸出量不够**，
+//    以及**上下坡铁轨的铁轨长度不够**」⇒ 把"钢轨"与"道床"两个探出量**分开**（原来是同一个 OVER）：
+const OVER_RAIL = 0.015625;           // 钢轨沿轨探出 **1/64 格**（原 1/32 —— 收到一半）
+const OVER_BED  = 0.0625;             // **直向**道床高度场沿轨探出 **1/16 格**（原 1/32；坡道不动）
 const TOL = 0.001;                    // 钢轨"到头"容差（必须 > clipBox 的 0.0005）
 
 // ---------------------------------------------------------------- 交叉：Y 向轨道再挪一份
@@ -224,8 +234,9 @@ const JOBS = [
 
   { src: 'G1_track_slope', dst: 'G10_track_slope', kind: 'slope', over: false, bed: 'ridge',
     note: 'underlay 槽 6-9（RTO_SLOPE_NE / SE / SW / NW）：坡道（**不探出**）' },
-  { src: 'G1_rail_slope', dst: 'G10_rail_slope', kind: 'slope', over: false, bed: null,
-    note: 'overlay 槽 6-9：坡道的宽枕 + 钢轨层' },
+  { src: 'G1_rail_slope', dst: 'G10_rail_slope', kind: 'slope', over: true, bed: null,
+    note: 'overlay 槽 6-9：坡道的宽枕 + 钢轨层（★ 人工 2026-10-08：钢轨**要**探出 —— 沿轨 1/64，'
+      + 'z 不动；道床那条坡道高度场仍不放大，低端探出去会 z<0 穿地）' },
 
   { src: 'G1_crossing', dst: 'G10_crossing', kind: 'cross', over: true, bed: 'crossing',
     note: 'underlay 槽 10（RTO_CROSSING_XY）：交叉（十字素面道床 + 两个方向的宽枕 / 钢轨）' },
@@ -257,10 +268,13 @@ function ext(v) {
   return 0;
 }
 
-/** 钢轨专用（见 A5 文件头那条 0.0005 的教训：源里钢轨被 clipBox 钳在 0.0005） */
+/** 钢轨专用（见 A5 文件头那条 0.0005 的教训：源里钢轨被 clipBox 钳在 0.0005）
+ *  ⚠ 用 `OVER_RAIL`（1/64），不用 `OVER` —— 人工 2026-10-08：钢轨超出边界太多。
+ *  ⚠ 坡道钢轨也走这里：只在 x 上探、**z 一个数不动** —— 坡道两端各自邻着**平轨**
+ *    （低端同层、高端上一层），保持 z 正好与邻格平轨重合（偏差 ≤ 0.5px）。 */
 function railExt(v) {
-  if (v <= TOL) return -OVER;
-  if (v >= 1 - TOL) return OVER;
+  if (v <= TOL) return -OVER_RAIL;
+  if (v >= 1 - TOL) return OVER_RAIL;
   return 0;
 }
 
@@ -473,7 +487,13 @@ function emitBedY(job, L, stats) {
   const R = rows.length, lastR = R - 1;
   const slope = job.kind === 'slope';
   const X = [];
-  for (let c = 0; c <= NROW; c++) X.push(c === 0 ? -OVER : c === NROW ? 1 + OVER : N(c / NROW));
+  for (let c = 0; c <= NROW; c++) {
+    // ★ 人工 2026-10-08「道床伸出量不够」：**直向**道床的沿轨探出 1/32 → `OVER_BED`（1/16）。
+    //   ⚠ **坡道仍用 `OVER`** —— 坡道低端 `base = RISE·(1−X) < 0`，再往外探就是 z<0 穿地
+    //     （文件头 ② 的硬理由），不能跟着放大。
+    const o = slope ? OVER : OVER_BED;
+    X.push(c === 0 ? -o : c === NROW ? 1 + o : N(c / NROW));
+  }
   const Y = [], Z = [];
   for (let c = 0; c <= NROW; c++) {
     const yy = [], zz = [];
@@ -669,10 +689,10 @@ function railFaces(job, rec) {
   if (rec.kw === 'box') {
     const b = [...rec.box];
     if (over) {
-      if (b[0] <= TOL) b[0] = -OVER;
-      if (b[3] >= 1 - TOL) b[3] = 1 + OVER;
-      if (b[1] <= TOL) b[1] = -OVER;
-      if (b[4] >= 1 - TOL) b[4] = 1 + OVER;
+      if (b[0] <= TOL) b[0] = -OVER_RAIL;
+      if (b[3] >= 1 - TOL) b[3] = 1 + OVER_RAIL;
+      if (b[1] <= TOL) b[1] = -OVER_RAIL;
+      if (b[4] >= 1 - TOL) b[4] = 1 + OVER_RAIL;
     }
     // ★ 交叉那一件：**沿 y 跑的钢轨**（薄的那一维是 x）跟着 Y 向轨道整组平移；
     //   枕木在 `boxSleeper()` 里按同一个 `ctx.shift.x` 同步挪，X 向钢轨一个数不动。

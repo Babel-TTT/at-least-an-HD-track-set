@@ -1210,7 +1210,7 @@ template t_G7_junction4_v0(sheet) {
 //     照抄 metro 的 rect 会读错格子。
 // ---------------------------------------------------------------------------
 template t_G8_track_x_v0(sheet) {
-  [0, 588, 263, 147, -127, -14, sheet]  // 【手调】同 t_G4_track_x_v0（yrel +2）＋人工 2026-10-08 (−1,+2)
+  [0, 588, 263, 147, -129, -14, sheet]  // 【手调】同 t_G4_track_x_v0（yrel +2）＋人工 2026-10-08 (−1,+2) 与 X 向平移 (−2,0)
 }
 template t_G8_track_x_v3(sheet) {
   [789, 588, 263, 147, -128, -15, sheet]  // 【手调】同 t_G4_track_x_v3 ＋人工 2026-10-08 (−1,+2)
@@ -1270,7 +1270,7 @@ template t_G8_junction4_v0(sheet) {
   [0, 147, 263, 147, -128, -17, sheet]  // 【手调】同 t_G4_junction4_v0
 }
 template t_G8_rail_straight_v0(sheet) {
-  [1052, 294, 263, 147, -128, -14, sheet]  // 【手调】同 t_G4_rail_straight_v0 ＋人工 2026-10-08 (−1,+2)
+  [1052, 294, 263, 147, -130, -14, sheet]  // 【手调】同 t_G4_rail_straight_v0 ＋人工 2026-10-08 (−1,+2) 与 X 向平移 (−2,0)
 }
 template t_G8_rail_straight_v3(sheet) {
   [1841, 294, 263, 147, -129, -15, sheet]  // 【手调】同 t_G4_rail_straight_v3 ＋人工 2026-10-08 (−1,+2)
@@ -1323,7 +1323,7 @@ template t_G8_rail_slope_v3(sheet) {
 //     这与 `t_G5_` / `t_G6_` / `t_G3_` 的 levelcrossing 三条逐条同源。
 // ---------------------------------------------------------------------------
 template t_G9_track_x_v0(sheet) {
-  [1052, 592, 263, 148, -127, -15, sheet]  // 【手调】同 t_G8_track_x_v0（yrel −1）＋人工 2026-10-08 (−1,+2)
+  [1052, 592, 263, 148, -129, -15, sheet]  // 【手调】同 t_G8_track_x_v0（yrel −1）＋人工 2026-10-08 (−1,+2) 与 X 向平移 (−2,0)
 }
 template t_G9_track_x_v3(sheet) {
   [1841, 592, 263, 148, -128, -16, sheet]  // 【手调】同 t_G8_track_x_v3（yrel −1）＋人工 2026-10-08 (−1,+2)
@@ -1383,7 +1383,7 @@ template t_G9_junction4_v0(sheet) {
   [0, 148, 263, 148, -128, -18, sheet]  // 【手调】同 t_G8_junction4_v0
 }
 template t_G9_rail_straight_v0(sheet) {
-  [0, 444, 263, 148, -128, -15, sheet]  // 【手调】同 t_G8_rail_straight_v0 ＋人工 2026-10-08 (−1,+2)
+  [0, 444, 263, 148, -130, -15, sheet]  // 【手调】同 t_G8_rail_straight_v0 ＋人工 2026-10-08 (−1,+2) 与 X 向平移 (−2,0)
 }
 template t_G9_rail_straight_v3(sheet) {
   [789, 444, 263, 148, -128, -16, sheet]  // 【手调】同 t_G8_rail_straight_v3 ＋人工 2026-10-08 (−1,+2)
@@ -1438,99 +1438,106 @@ template t_G9_levelcrossing_v3(sheet) {
 //     道床不会移动轨道），引擎的逐槽位原点漂移自然也一样 —— 而那个漂移是
 //     **实机调出来的**，不能重算。
 //     ⚠ 复核方式（渲完必做）：`node -e` 读 `gfx/openttd.json`，确认 G10 全部条目
-//       `centerAnchor` 都是 `[131,83]`、且本表 `rect` 的 y 起点与 `1x1.png` 的
-//       行距（**151**）对得上。本表 263×**151**、8 个一行共 5 行。
+//       `centerAnchor` 都是 `[131,82]`、且本表 `rect` 的 y 起点与 `1x1.png` 的
+//       行距（**150**）对得上。本表 263×**150**、8 个一行共 5 行。
 //   ⚠ **`rect` 必须换成 `hsballast.png` 的**（照抄 crts1 的 rect 会读错格子）。
+// ★★ **2026-10-08 本表格位 263×151 → 263×150（`ca.y` 83 → 82）：这一节 30 条的 `rect` 与
+//     `yrel` 全部重抄**（`yrel` 一律 **+1**、`rect.y` 按行距 151→150 重排、`h` 151→150）。
+//     原因不在本轮的人工指令，而在**两轮前登记的那笔坡道 N-2 残留**：`models/G10_track_slope`
+//     一直是 2026-10-06 宽度 A/B 的 **N-2 宽版**（坡脚半宽 0.1848 vs 直线 `G10_track_x` 的
+//     0.1644），而重跑 `tools/gen-a9-hsballast.mjs` 必然把它一并改回 N-1 ⇒ 坡脚那一行在屏幕上
+//     低了 ≈1.3px ⇒ 整张表的取景框矮 1px。这一步**无法只做一半**（要么不重跑生成器 = 坡道钢轨
+//     加长也做不了），所以本轮一并结清；`xrel` 一个数没动。
 // ---------------------------------------------------------------------------
 template t_G10_track_x_v0(sheet) {
-  [0, 604, 263, 151, -127, -18, sheet]  // 【手调】同 t_G9_track_x_v0（yrel −3）＋人工 2026-10-08 (−1,+2)
+  [0, 600, 263, 150, -129, -17, sheet]  // 【手调】同 t_G9_track_x_v0（yrel −3）＋人工 2026-10-08 (−1,+2) 与 X 向平移 (−2,0)；格位 151→150
 }
 template t_G10_track_x_v3(sheet) {
-  [789, 604, 263, 151, -128, -19, sheet]  // 【手调】同 t_G9_track_x_v3（yrel −3）＋人工 2026-10-08 (−1,+2)
+  [789, 600, 263, 150, -128, -18, sheet]  // 【手调】同 t_G9_track_x_v3（yrel −3）＋人工 2026-10-08 (−1,+2)；格位 151→150
 }
 template t_G10_track_half_v0(sheet) {
-  [0, 453, 263, 151, -127, -21, sheet]  // 【手调】同 t_G9_track_half_v0
+  [0, 450, 263, 150, -127, -20, sheet]  // 【手调】同 t_G9_track_half_v0；格位 151→150
 }
 template t_G10_track_half_v1(sheet) {
-  [263, 453, 263, 151, -126, -21, sheet]  // 【手调】同 t_G9_track_half_v1
+  [263, 450, 263, 150, -126, -20, sheet]  // 【手调】同 t_G9_track_half_v1；格位 151→150
 }
 template t_G10_track_half_v2(sheet) {
-  [526, 453, 263, 151, -127, -21, sheet]  // 【手调】同 t_G9_track_half_v2（RTO_S 用镜像件，本行仅备查）
+  [526, 450, 263, 150, -127, -20, sheet]  // 【手调】同 t_G9_track_half_v2（RTO_S 用镜像件，本行仅备查）；格位 151→150
 }
 template t_G10_track_half_v3(sheet) {
-  [789, 453, 263, 151, -125, -21, sheet]  // 【手调】同 t_G9_track_half_v3（同上）
+  [789, 450, 263, 150, -125, -20, sheet]  // 【手调】同 t_G9_track_half_v3（同上）；格位 151→150
 }
 template t_G10_z_track_half_m_v0(sheet) {
-  [1052, 604, 263, 151, -128, -21, sheet]  // 【手调】同 t_G9_z_track_half_m_v0（本行仅备查）
+  [1052, 600, 263, 150, -128, -20, sheet]  // 【手调】同 t_G9_z_track_half_m_v0（本行仅备查）；格位 151→150
 }
 template t_G10_z_track_half_m_v1(sheet) {
-  [1315, 604, 263, 151, -126, -21, sheet]  // 【手调】同上
+  [1315, 600, 263, 150, -126, -20, sheet]  // 【手调】同上；格位 151→150
 }
 template t_G10_z_track_half_m_v2(sheet) {
-  [1578, 604, 263, 151, -128, -21, sheet]  // 【手调】同 t_G9_z_track_half_m_v2 ← RTO_S 用这张
+  [1578, 600, 263, 150, -128, -20, sheet]  // 【手调】同 t_G9_z_track_half_m_v2 ← RTO_S 用这张；格位 151→150
 }
 template t_G10_z_track_half_m_v3(sheet) {
-  [1841, 604, 263, 151, -126, -21, sheet]  // 【手调】同 t_G9_z_track_half_m_v3 ← RTO_E 用这张
+  [1841, 600, 263, 150, -126, -20, sheet]  // 【手调】同 t_G9_z_track_half_m_v3 ← RTO_E 用这张；格位 151→150
 }
 template t_G10_track_slope_v0(sheet) {
-  [1052, 453, 263, 151, -126, -19, sheet]  // 【手调】同 t_G9_track_slope_v0 ＋人工 2026-10-08 (−1,+2)
+  [1052, 450, 263, 150, -126, -18, sheet]  // 【手调】同 t_G9_track_slope_v0 ＋人工 2026-10-08 (−1,+2)；格位 151→150
 }
 template t_G10_track_slope_v1(sheet) {
-  [1315, 453, 263, 151, -127, -19, sheet]  // 【手调】同 t_G9_track_slope_v1 ＋人工 2026-10-08 (−1,+2)
+  [1315, 450, 263, 150, -127, -18, sheet]  // 【手调】同 t_G9_track_slope_v1 ＋人工 2026-10-08 (−1,+2)；格位 151→150
 }
 template t_G10_track_slope_v2(sheet) {
-  [1578, 453, 263, 151, -129, -19, sheet]  // 【手调】同 t_G9_track_slope_v2 ＋人工 2026-10-08 (−1,+2)
+  [1578, 450, 263, 150, -129, -18, sheet]  // 【手调】同 t_G9_track_slope_v2 ＋人工 2026-10-08 (−1,+2)；格位 151→150
 }
 template t_G10_track_slope_v3(sheet) {
-  [1841, 453, 263, 151, -129, -19, sheet]  // 【手调】同 t_G9_track_slope_v3 ＋人工 2026-10-08 (−1,+2)
+  [1841, 450, 263, 150, -129, -18, sheet]  // 【手调】同 t_G9_track_slope_v3 ＋人工 2026-10-08 (−1,+2)；格位 151→150
 }
 template t_G10_crossing_v0(sheet) {
-  [0, 0, 263, 151, -127, -21, sheet]  // 【手调】同 t_G9_crossing_v0
+  [0, 0, 263, 150, -127, -20, sheet]  // 【手调】同 t_G9_crossing_v0；格位 151→150
 }
 template t_G10_junction3_v0(sheet) {
-  [1052, 0, 263, 151, -128, -21, sheet]  // 【手调】同 t_G9_junction3_v0
+  [1052, 0, 263, 150, -128, -20, sheet]  // 【手调】同 t_G9_junction3_v0；格位 151→150
 }
 template t_G10_junction3_v1(sheet) {
-  [1315, 0, 263, 151, -128, -21, sheet]  // 【手调】同 t_G9_junction3_v1
+  [1315, 0, 263, 150, -128, -20, sheet]  // 【手调】同 t_G9_junction3_v1；格位 151→150
 }
 template t_G10_junction3_v2(sheet) {
-  [1578, 0, 263, 151, -128, -21, sheet]  // 【手调】同 t_G9_junction3_v2
+  [1578, 0, 263, 150, -128, -20, sheet]  // 【手调】同 t_G9_junction3_v2；格位 151→150
 }
 template t_G10_junction3_v3(sheet) {
-  [1841, 0, 263, 151, -128, -21, sheet]  // 【手调】同 t_G9_junction3_v3
+  [1841, 0, 263, 150, -128, -20, sheet]  // 【手调】同 t_G9_junction3_v3；格位 151→150
 }
 template t_G10_junction4_v0(sheet) {
-  [0, 151, 263, 151, -128, -21, sheet]  // 【手调】同 t_G9_junction4_v0
+  [0, 150, 263, 150, -128, -20, sheet]  // 【手调】同 t_G9_junction4_v0；格位 151→150
 }
 template t_G10_rail_straight_v0(sheet) {
-  [1052, 302, 263, 151, -128, -18, sheet]  // 【手调】同 t_G9_rail_straight_v0 ＋人工 2026-10-08 (−1,+2)
+  [1052, 300, 263, 150, -130, -17, sheet]  // 【手调】同 t_G9_rail_straight_v0 ＋人工 2026-10-08 (−1,+2) 与 X 向平移 (−2,0)；格位 151→150
 }
 template t_G10_rail_straight_v3(sheet) {
-  [1841, 302, 263, 151, -128, -19, sheet]  // 【手调】同 t_G9_rail_straight_v3 ＋人工 2026-10-08 (−1,+2)
+  [1841, 300, 263, 150, -128, -18, sheet]  // 【手调】同 t_G9_rail_straight_v3 ＋人工 2026-10-08 (−1,+2)；格位 151→150
 }
 template t_G10_rail_half_v0(sheet) {
-  [1052, 151, 263, 151, -127, -21, sheet]  // 【手调】同 t_G9_rail_half_v0
+  [1052, 150, 263, 150, -127, -20, sheet]  // 【手调】同 t_G9_rail_half_v0；格位 151→150
 }
 template t_G10_rail_half_v1(sheet) {
-  [1315, 151, 263, 151, -126, -21, sheet]  // 【手调】同 t_G9_rail_half_v1
+  [1315, 150, 263, 150, -126, -20, sheet]  // 【手调】同 t_G9_rail_half_v1；格位 151→150
 }
 template t_G10_rail_half_v2(sheet) {
-  [1578, 151, 263, 151, -128, -21, sheet]  // 【手调】同 t_G9_rail_half_v2
+  [1578, 150, 263, 150, -128, -20, sheet]  // 【手调】同 t_G9_rail_half_v2；格位 151→150
 }
 template t_G10_rail_half_v3(sheet) {
-  [1841, 151, 263, 151, -126, -21, sheet]  // 【手调】同 t_G9_rail_half_v3
+  [1841, 150, 263, 150, -126, -20, sheet]  // 【手调】同 t_G9_rail_half_v3；格位 151→150
 }
 template t_G10_rail_slope_v0(sheet) {
-  [0, 302, 263, 151, -126, -19, sheet]  // 【手调】同 t_G9_rail_slope_v0 ＋人工 2026-10-08 (−1,+2)
+  [0, 300, 263, 150, -126, -18, sheet]  // 【手调】同 t_G9_rail_slope_v0 ＋人工 2026-10-08 (−1,+2)；格位 151→150
 }
 template t_G10_rail_slope_v1(sheet) {
-  [263, 302, 263, 151, -127, -19, sheet]  // 【手调】同 t_G9_rail_slope_v1 ＋人工 2026-10-08 (−1,+2)
+  [263, 300, 263, 150, -127, -18, sheet]  // 【手调】同 t_G9_rail_slope_v1 ＋人工 2026-10-08 (−1,+2)；格位 151→150
 }
 template t_G10_rail_slope_v2(sheet) {
-  [526, 302, 263, 151, -129, -19, sheet]  // 【手调】同 t_G9_rail_slope_v2 ＋人工 2026-10-08 (−1,+2)
+  [526, 300, 263, 150, -129, -18, sheet]  // 【手调】同 t_G9_rail_slope_v2 ＋人工 2026-10-08 (−1,+2)；格位 151→150
 }
 template t_G10_rail_slope_v3(sheet) {
-  [789, 302, 263, 151, -129, -19, sheet]  // 【手调】同 t_G9_rail_slope_v3 ＋人工 2026-10-08 (−1,+2)
+  [789, 300, 263, 150, -129, -18, sheet]  // 【手调】同 t_G9_rail_slope_v3 ＋人工 2026-10-08 (−1,+2)；格位 151→150
 }
 
 // ---------------------------------------------------------------------------
