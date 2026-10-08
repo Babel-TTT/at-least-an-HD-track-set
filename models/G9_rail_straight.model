@@ -275,5 +275,5 @@ box 0.9692 0.5317 0.0000  0.9908 0.5950 0.0075  concrete_mid top=concrete_seam
 box 0.9692 0.5317 0.0075  0.9908 0.5340 0.0095  concrete_mid top=concrete_mid
 box 0.9692 0.5340 0.0075  0.9908 0.5700 0.0087  panel_seam top=panel_seam
 box 0.9692 0.5700 0.0075  0.9908 0.5950 0.0100  concrete_mid top=metal_pale
-box -0.0156 0.4444 0.0100  1.0156 0.4524 0.0230   metal_dark top=metal_pale
-box -0.0156 0.5476 0.0100  1.0156 0.5556 0.0230   metal_dark top=metal_pale
+box -0.0234 0.4444 0.0100  1.0234 0.4524 0.0230   metal_dark top=metal_pale
+box -0.0234 0.5476 0.0100  1.0234 0.5556 0.0230   metal_dark top=metal_pale
