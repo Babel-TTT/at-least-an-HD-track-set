@@ -1252,7 +1252,7 @@ template t_G8_track_slope_v3(sheet) {
   [1841, 441, 263, 147, -129, -15, sheet]  // 【手调】同 t_G4_track_slope_v3 ＋人工 2026-10-08 (−1,+2)
 }
 template t_G8_crossing_v0(sheet) {
-  [0, 0, 263, 147, -125, -17, sheet]  // 【手调】同 t_G4_crossing_v0
+  [0, 0, 263, 147, -126, -19, sheet]  // 【手调】同 t_G4_crossing_v0
 }
 template t_G8_junction3_v0(sheet) {
   [1052, 0, 263, 147, -128, -17, sheet]  // 【手调】同 t_G4_junction3_v0
@@ -1365,7 +1365,7 @@ template t_G9_track_slope_v3(sheet) {
   [789, 592, 263, 148, -129, -16, sheet]  // 【手调】同 t_G8_track_slope_v3 ＋人工 2026-10-08 (−1,+2)
 }
 template t_G9_crossing_v0(sheet) {
-  [0, 0, 263, 148, -123, -19, sheet]  // 【手调】同 t_G8_crossing_v0
+  [0, 0, 263, 148, -127, -18, sheet]  // 【手调】同 t_G8_crossing_v0
 }
 template t_G9_junction3_v0(sheet) {
   [1052, 0, 263, 148, -128, -18, sheet]  // 【手调】同 t_G8_junction3_v0
@@ -1485,7 +1485,7 @@ template t_G10_track_slope_v3(sheet) {
   [1841, 453, 263, 151, -129, -19, sheet]  // 【手调】同 t_G9_track_slope_v3 ＋人工 2026-10-08 (−1,+2)
 }
 template t_G10_crossing_v0(sheet) {
-  [0, 0, 263, 151, -123, -22, sheet]  // 【手调】同 t_G9_crossing_v0
+  [0, 0, 263, 151, -127, -21, sheet]  // 【手调】同 t_G9_crossing_v0
 }
 template t_G10_junction3_v0(sheet) {
   [1052, 0, 263, 151, -128, -21, sheet]  // 【手调】同 t_G9_junction3_v0
