@@ -1,0 +1,300 @@
+# =============================================================================
+# G11_track_x —— A9 组（`SFCA` 高速铁路 310 km/h）· underlay 槽 0/1（RTO_X / RTO_Y）：BAL-F 纵连板 + SLE-3 宽枕 + RAI-3 长轨（完整画面）
+#
+# 【本文件由 tools/gen-a11-crts2.mjs 生成（**整件重写**），请勿手改；改口径改生成器】
+#   源 = models/probe_track_x.model；kind=y、沿轨探出 OVER=0.03125 格
+#   道床 = `BAL-F` 无砟·CRTS II **纵连板**（板顶 0.0078 · 横向宽接缝**每 1 格** 宽 0.0100 深 0.0028 · **板面正中一条沿轨纵缝**同规格 · **不放凸形挡台**）
+#   轨枕 = `SLE-3` 混凝土宽枕（U 形承轨槽，与 A5 / A8 / A25 **同一批模型口径**）
+#   钢轨 = `RAI-3` 长轨（几何 = `RAI-1` 一字不动，只换 metal_dark / metal_pale）
+#   轨顶 0.0230 与板顶 0.0078 的理由见生成器文件头。
+#   自检：入 267 行 → 出 263 行；**删掉道砟 168 面**、新出板件 11 面、枕木 75 件、钢轨 2 面、原样 22 行
+# =============================================================================
+name      G11_track_x
+group     misc
+footprint 1 1
+zmax      0.027
+# =============================================================================
+# probe_track_x —— P1 定标探针 (2)：TRACK_X（整瓦片直线，沿 x 轴）
+#
+# 几何口径：docs/定标.md 2（轨道线 y = 0.5）与 2.5（道砟板带 y in [0.32, 0.68]）
+#
+# 【人工裁定 2026-09】
+#   1 不抬高地基 —— 道床贴地饰面，最高 0.007 格（约 1.1 px @4x）
+#   2 钢轨、枕木做扁；轨枕宽 0.016 格（0.22 m），间距 0.04 格（0.56 m）
+#   3 钢轨顶面 metal / 侧面 rust（黄锈）
+#   4 轨枕沿长度切 3 段，材质 wood_dark / wood_seam（几乎同色，不刺眼）
+#   5 道床 32x5 = 160 个倾斜小面，幅度 0.002~0.007；色差交给 grain
+#   6 **道床边缘是微微折线** —— 外围两行（y=0.320 / 0.680）的 y 逐列扰动
+#      ±0.012 格（约 1.9 px），所以边缘是一条短折线而不是直线
+#   7 坡脚散粒：小而暗（0.014 见方、高 0.005），只用 gravel / stone_dark
+#
+# 真实尺寸（1 格 = 13.9 m）：轨枕 2.50 x 0.22 x 0.14 m；钢轨高 0.18 m
+#
+# =============================================================================
+# --- 道床：32x5 倾斜小面高度场（160 面），外围两行坐标带扰动 ---------------
+# --- 轨枕 25 根（间距 0.04 = 0.56 m）：沿长度切 3 段，同色系 -------------------
+box 0.0099 0.4050 0.0000  0.0261 0.4683 0.0075  concrete_mid top=concrete_seam
+box 0.0099 0.4050 0.0075  0.0261 0.4300 0.0100  concrete_mid top=metal_pale
+box 0.0099 0.4300 0.0075  0.0261 0.4660 0.0087  panel_seam top=panel_seam
+box 0.0099 0.4660 0.0075  0.0261 0.4683 0.0095  concrete_mid top=concrete_mid
+box 0.0099 0.4683 0.0000  0.0261 0.5317 0.0075  concrete_mid top=concrete_seam
+box 0.0099 0.4683 0.0075  0.0261 0.5317 0.0095  concrete_mid top=concrete_mid
+box 0.0099 0.5317 0.0000  0.0261 0.5950 0.0075  concrete_mid top=concrete_seam
+box 0.0099 0.5317 0.0075  0.0261 0.5340 0.0095  concrete_mid top=concrete_mid
+box 0.0099 0.5340 0.0075  0.0261 0.5700 0.0087  panel_seam top=panel_seam
+box 0.0099 0.5700 0.0075  0.0261 0.5950 0.0100  concrete_mid top=metal_pale
+box 0.0492 0.4050 0.0000  0.0708 0.4683 0.0075  concrete_mid top=concrete_seam
+box 0.0492 0.4050 0.0075  0.0708 0.4300 0.0100  concrete_mid top=metal_pale
+box 0.0492 0.4300 0.0075  0.0708 0.4660 0.0087  panel_seam top=panel_seam
+box 0.0492 0.4660 0.0075  0.0708 0.4683 0.0095  concrete_mid top=concrete_mid
+box 0.0492 0.4683 0.0000  0.0708 0.5317 0.0075  concrete_mid top=concrete_seam
+box 0.0492 0.4683 0.0075  0.0708 0.5317 0.0095  concrete_mid top=concrete_mid
+box 0.0492 0.5317 0.0000  0.0708 0.5950 0.0075  concrete_mid top=concrete_seam
+box 0.0492 0.5317 0.0075  0.0708 0.5340 0.0095  concrete_mid top=concrete_mid
+box 0.0492 0.5340 0.0075  0.0708 0.5700 0.0087  panel_seam top=panel_seam
+box 0.0492 0.5700 0.0075  0.0708 0.5950 0.0100  concrete_mid top=metal_pale
+box 0.0893 0.4050 0.0000  0.1108 0.4683 0.0075  concrete_mid top=concrete_seam
+box 0.0893 0.4050 0.0075  0.1108 0.4300 0.0100  concrete_mid top=metal_pale
+box 0.0893 0.4300 0.0075  0.1108 0.4660 0.0087  panel_seam top=panel_seam
+box 0.0893 0.4660 0.0075  0.1108 0.4683 0.0095  concrete_mid top=concrete_mid
+box 0.0893 0.4683 0.0000  0.1108 0.5317 0.0075  concrete_mid top=concrete_seam
+box 0.0893 0.4683 0.0075  0.1108 0.5317 0.0095  concrete_mid top=concrete_mid
+box 0.0893 0.5317 0.0000  0.1108 0.5950 0.0075  concrete_mid top=concrete_seam
+box 0.0893 0.5317 0.0075  0.1108 0.5340 0.0095  concrete_mid top=concrete_mid
+box 0.0893 0.5340 0.0075  0.1108 0.5700 0.0087  panel_seam top=panel_seam
+box 0.0893 0.5700 0.0075  0.1108 0.5950 0.0100  concrete_mid top=metal_pale
+box 0.1293 0.4050 0.0000  0.1507 0.4683 0.0075  concrete_mid top=concrete_seam
+box 0.1293 0.4050 0.0075  0.1507 0.4300 0.0100  concrete_mid top=metal_pale
+box 0.1293 0.4300 0.0075  0.1507 0.4660 0.0087  panel_seam top=panel_seam
+box 0.1293 0.4660 0.0075  0.1507 0.4683 0.0095  concrete_mid top=concrete_mid
+box 0.1293 0.4683 0.0000  0.1507 0.5317 0.0075  concrete_mid top=concrete_seam
+box 0.1293 0.4683 0.0075  0.1507 0.5317 0.0095  concrete_mid top=concrete_mid
+box 0.1293 0.5317 0.0000  0.1507 0.5950 0.0075  concrete_mid top=concrete_seam
+box 0.1293 0.5317 0.0075  0.1507 0.5340 0.0095  concrete_mid top=concrete_mid
+box 0.1293 0.5340 0.0075  0.1507 0.5700 0.0087  panel_seam top=panel_seam
+box 0.1293 0.5700 0.0075  0.1507 0.5950 0.0100  concrete_mid top=metal_pale
+box 0.1692 0.4050 0.0000  0.1908 0.4683 0.0075  concrete_mid top=concrete_seam
+box 0.1692 0.4050 0.0075  0.1908 0.4300 0.0100  concrete_mid top=metal_pale
+box 0.1692 0.4300 0.0075  0.1908 0.4660 0.0087  panel_seam top=panel_seam
+box 0.1692 0.4660 0.0075  0.1908 0.4683 0.0095  concrete_mid top=concrete_mid
+box 0.1692 0.4683 0.0000  0.1908 0.5317 0.0075  concrete_mid top=concrete_seam
+box 0.1692 0.4683 0.0075  0.1908 0.5317 0.0095  concrete_mid top=concrete_mid
+box 0.1692 0.5317 0.0000  0.1908 0.5950 0.0075  concrete_mid top=concrete_seam
+box 0.1692 0.5317 0.0075  0.1908 0.5340 0.0095  concrete_mid top=concrete_mid
+box 0.1692 0.5340 0.0075  0.1908 0.5700 0.0087  panel_seam top=panel_seam
+box 0.1692 0.5700 0.0075  0.1908 0.5950 0.0100  concrete_mid top=metal_pale
+box 0.2092 0.4050 0.0000  0.2308 0.4683 0.0075  concrete_mid top=concrete_seam
+box 0.2092 0.4050 0.0075  0.2308 0.4300 0.0100  concrete_mid top=metal_pale
+box 0.2092 0.4300 0.0075  0.2308 0.4660 0.0087  panel_seam top=panel_seam
+box 0.2092 0.4660 0.0075  0.2308 0.4683 0.0095  concrete_mid top=concrete_mid
+box 0.2092 0.4683 0.0000  0.2308 0.5317 0.0075  concrete_mid top=concrete_seam
+box 0.2092 0.4683 0.0075  0.2308 0.5317 0.0095  concrete_mid top=concrete_mid
+box 0.2092 0.5317 0.0000  0.2308 0.5950 0.0075  concrete_mid top=concrete_seam
+box 0.2092 0.5317 0.0075  0.2308 0.5340 0.0095  concrete_mid top=concrete_mid
+box 0.2092 0.5340 0.0075  0.2308 0.5700 0.0087  panel_seam top=panel_seam
+box 0.2092 0.5700 0.0075  0.2308 0.5950 0.0100  concrete_mid top=metal_pale
+box 0.2492 0.4050 0.0000  0.2707 0.4683 0.0075  concrete_mid top=concrete_seam
+box 0.2492 0.4050 0.0075  0.2707 0.4300 0.0100  concrete_mid top=metal_pale
+box 0.2492 0.4300 0.0075  0.2707 0.4660 0.0087  panel_seam top=panel_seam
+box 0.2492 0.4660 0.0075  0.2707 0.4683 0.0095  concrete_mid top=concrete_mid
+box 0.2492 0.4683 0.0000  0.2707 0.5317 0.0075  concrete_mid top=concrete_seam
+box 0.2492 0.4683 0.0075  0.2707 0.5317 0.0095  concrete_mid top=concrete_mid
+box 0.2492 0.5317 0.0000  0.2707 0.5950 0.0075  concrete_mid top=concrete_seam
+box 0.2492 0.5317 0.0075  0.2707 0.5340 0.0095  concrete_mid top=concrete_mid
+box 0.2492 0.5340 0.0075  0.2707 0.5700 0.0087  panel_seam top=panel_seam
+box 0.2492 0.5700 0.0075  0.2707 0.5950 0.0100  concrete_mid top=metal_pale
+box 0.2893 0.4050 0.0000  0.3107 0.4683 0.0075  concrete_mid top=concrete_seam
+box 0.2893 0.4050 0.0075  0.3107 0.4300 0.0100  concrete_mid top=metal_pale
+box 0.2893 0.4300 0.0075  0.3107 0.4660 0.0087  panel_seam top=panel_seam
+box 0.2893 0.4660 0.0075  0.3107 0.4683 0.0095  concrete_mid top=concrete_mid
+box 0.2893 0.4683 0.0000  0.3107 0.5317 0.0075  concrete_mid top=concrete_seam
+box 0.2893 0.4683 0.0075  0.3107 0.5317 0.0095  concrete_mid top=concrete_mid
+box 0.2893 0.5317 0.0000  0.3107 0.5950 0.0075  concrete_mid top=concrete_seam
+box 0.2893 0.5317 0.0075  0.3107 0.5340 0.0095  concrete_mid top=concrete_mid
+box 0.2893 0.5340 0.0075  0.3107 0.5700 0.0087  panel_seam top=panel_seam
+box 0.2893 0.5700 0.0075  0.3107 0.5950 0.0100  concrete_mid top=metal_pale
+box 0.3292 0.4050 0.0000  0.3507 0.4683 0.0075  concrete_mid top=concrete_seam
+box 0.3292 0.4050 0.0075  0.3507 0.4300 0.0100  concrete_mid top=metal_pale
+box 0.3292 0.4300 0.0075  0.3507 0.4660 0.0087  panel_seam top=panel_seam
+box 0.3292 0.4660 0.0075  0.3507 0.4683 0.0095  concrete_mid top=concrete_mid
+box 0.3292 0.4683 0.0000  0.3507 0.5317 0.0075  concrete_mid top=concrete_seam
+box 0.3292 0.4683 0.0075  0.3507 0.5317 0.0095  concrete_mid top=concrete_mid
+box 0.3292 0.5317 0.0000  0.3507 0.5950 0.0075  concrete_mid top=concrete_seam
+box 0.3292 0.5317 0.0075  0.3507 0.5340 0.0095  concrete_mid top=concrete_mid
+box 0.3292 0.5340 0.0075  0.3507 0.5700 0.0087  panel_seam top=panel_seam
+box 0.3292 0.5700 0.0075  0.3507 0.5950 0.0100  concrete_mid top=metal_pale
+box 0.3693 0.4050 0.0000  0.3907 0.4683 0.0075  concrete_mid top=concrete_seam
+box 0.3693 0.4050 0.0075  0.3907 0.4300 0.0100  concrete_mid top=metal_pale
+box 0.3693 0.4300 0.0075  0.3907 0.4660 0.0087  panel_seam top=panel_seam
+box 0.3693 0.4660 0.0075  0.3907 0.4683 0.0095  concrete_mid top=concrete_mid
+box 0.3693 0.4683 0.0000  0.3907 0.5317 0.0075  concrete_mid top=concrete_seam
+box 0.3693 0.4683 0.0075  0.3907 0.5317 0.0095  concrete_mid top=concrete_mid
+box 0.3693 0.5317 0.0000  0.3907 0.5950 0.0075  concrete_mid top=concrete_seam
+box 0.3693 0.5317 0.0075  0.3907 0.5340 0.0095  concrete_mid top=concrete_mid
+box 0.3693 0.5340 0.0075  0.3907 0.5700 0.0087  panel_seam top=panel_seam
+box 0.3693 0.5700 0.0075  0.3907 0.5950 0.0100  concrete_mid top=metal_pale
+box 0.4093 0.4050 0.0000  0.4307 0.4683 0.0075  concrete_mid top=concrete_seam
+box 0.4093 0.4050 0.0075  0.4307 0.4300 0.0100  concrete_mid top=metal_pale
+box 0.4093 0.4300 0.0075  0.4307 0.4660 0.0087  panel_seam top=panel_seam
+box 0.4093 0.4660 0.0075  0.4307 0.4683 0.0095  concrete_mid top=concrete_mid
+box 0.4093 0.4683 0.0000  0.4307 0.5317 0.0075  concrete_mid top=concrete_seam
+box 0.4093 0.4683 0.0075  0.4307 0.5317 0.0095  concrete_mid top=concrete_mid
+box 0.4093 0.5317 0.0000  0.4307 0.5950 0.0075  concrete_mid top=concrete_seam
+box 0.4093 0.5317 0.0075  0.4307 0.5340 0.0095  concrete_mid top=concrete_mid
+box 0.4093 0.5340 0.0075  0.4307 0.5700 0.0087  panel_seam top=panel_seam
+box 0.4093 0.5700 0.0075  0.4307 0.5950 0.0100  concrete_mid top=metal_pale
+box 0.4493 0.4050 0.0000  0.4708 0.4683 0.0075  concrete_mid top=concrete_seam
+box 0.4493 0.4050 0.0075  0.4708 0.4300 0.0100  concrete_mid top=metal_pale
+box 0.4493 0.4300 0.0075  0.4708 0.4660 0.0087  panel_seam top=panel_seam
+box 0.4493 0.4660 0.0075  0.4708 0.4683 0.0095  concrete_mid top=concrete_mid
+box 0.4493 0.4683 0.0000  0.4708 0.5317 0.0075  concrete_mid top=concrete_seam
+box 0.4493 0.4683 0.0075  0.4708 0.5317 0.0095  concrete_mid top=concrete_mid
+box 0.4493 0.5317 0.0000  0.4708 0.5950 0.0075  concrete_mid top=concrete_seam
+box 0.4493 0.5317 0.0075  0.4708 0.5340 0.0095  concrete_mid top=concrete_mid
+box 0.4493 0.5340 0.0075  0.4708 0.5700 0.0087  panel_seam top=panel_seam
+box 0.4493 0.5700 0.0075  0.4708 0.5950 0.0100  concrete_mid top=metal_pale
+box 0.4893 0.4050 0.0000  0.5108 0.4683 0.0075  concrete_mid top=concrete_seam
+box 0.4893 0.4050 0.0075  0.5108 0.4300 0.0100  concrete_mid top=metal_pale
+box 0.4893 0.4300 0.0075  0.5108 0.4660 0.0087  panel_seam top=panel_seam
+box 0.4893 0.4660 0.0075  0.5108 0.4683 0.0095  concrete_mid top=concrete_mid
+box 0.4893 0.4683 0.0000  0.5108 0.5317 0.0075  concrete_mid top=concrete_seam
+box 0.4893 0.4683 0.0075  0.5108 0.5317 0.0095  concrete_mid top=concrete_mid
+box 0.4893 0.5317 0.0000  0.5108 0.5950 0.0075  concrete_mid top=concrete_seam
+box 0.4893 0.5317 0.0075  0.5108 0.5340 0.0095  concrete_mid top=concrete_mid
+box 0.4893 0.5340 0.0075  0.5108 0.5700 0.0087  panel_seam top=panel_seam
+box 0.4893 0.5700 0.0075  0.5108 0.5950 0.0100  concrete_mid top=metal_pale
+box 0.5292 0.4050 0.0000  0.5508 0.4683 0.0075  concrete_mid top=concrete_seam
+box 0.5292 0.4050 0.0075  0.5508 0.4300 0.0100  concrete_mid top=metal_pale
+box 0.5292 0.4300 0.0075  0.5508 0.4660 0.0087  panel_seam top=panel_seam
+box 0.5292 0.4660 0.0075  0.5508 0.4683 0.0095  concrete_mid top=concrete_mid
+box 0.5292 0.4683 0.0000  0.5508 0.5317 0.0075  concrete_mid top=concrete_seam
+box 0.5292 0.4683 0.0075  0.5508 0.5317 0.0095  concrete_mid top=concrete_mid
+box 0.5292 0.5317 0.0000  0.5508 0.5950 0.0075  concrete_mid top=concrete_seam
+box 0.5292 0.5317 0.0075  0.5508 0.5340 0.0095  concrete_mid top=concrete_mid
+box 0.5292 0.5340 0.0075  0.5508 0.5700 0.0087  panel_seam top=panel_seam
+box 0.5292 0.5700 0.0075  0.5508 0.5950 0.0100  concrete_mid top=metal_pale
+box 0.5692 0.4050 0.0000  0.5907 0.4683 0.0075  concrete_mid top=concrete_seam
+box 0.5692 0.4050 0.0075  0.5907 0.4300 0.0100  concrete_mid top=metal_pale
+box 0.5692 0.4300 0.0075  0.5907 0.4660 0.0087  panel_seam top=panel_seam
+box 0.5692 0.4660 0.0075  0.5907 0.4683 0.0095  concrete_mid top=concrete_mid
+box 0.5692 0.4683 0.0000  0.5907 0.5317 0.0075  concrete_mid top=concrete_seam
+box 0.5692 0.4683 0.0075  0.5907 0.5317 0.0095  concrete_mid top=concrete_mid
+box 0.5692 0.5317 0.0000  0.5907 0.5950 0.0075  concrete_mid top=concrete_seam
+box 0.5692 0.5317 0.0075  0.5907 0.5340 0.0095  concrete_mid top=concrete_mid
+box 0.5692 0.5340 0.0075  0.5907 0.5700 0.0087  panel_seam top=panel_seam
+box 0.5692 0.5700 0.0075  0.5907 0.5950 0.0100  concrete_mid top=metal_pale
+box 0.6092 0.4050 0.0000  0.6308 0.4683 0.0075  concrete_mid top=concrete_seam
+box 0.6092 0.4050 0.0075  0.6308 0.4300 0.0100  concrete_mid top=metal_pale
+box 0.6092 0.4300 0.0075  0.6308 0.4660 0.0087  panel_seam top=panel_seam
+box 0.6092 0.4660 0.0075  0.6308 0.4683 0.0095  concrete_mid top=concrete_mid
+box 0.6092 0.4683 0.0000  0.6308 0.5317 0.0075  concrete_mid top=concrete_seam
+box 0.6092 0.4683 0.0075  0.6308 0.5317 0.0095  concrete_mid top=concrete_mid
+box 0.6092 0.5317 0.0000  0.6308 0.5950 0.0075  concrete_mid top=concrete_seam
+box 0.6092 0.5317 0.0075  0.6308 0.5340 0.0095  concrete_mid top=concrete_mid
+box 0.6092 0.5340 0.0075  0.6308 0.5700 0.0087  panel_seam top=panel_seam
+box 0.6092 0.5700 0.0075  0.6308 0.5950 0.0100  concrete_mid top=metal_pale
+box 0.6492 0.4050 0.0000  0.6708 0.4683 0.0075  concrete_mid top=concrete_seam
+box 0.6492 0.4050 0.0075  0.6708 0.4300 0.0100  concrete_mid top=metal_pale
+box 0.6492 0.4300 0.0075  0.6708 0.4660 0.0087  panel_seam top=panel_seam
+box 0.6492 0.4660 0.0075  0.6708 0.4683 0.0095  concrete_mid top=concrete_mid
+box 0.6492 0.4683 0.0000  0.6708 0.5317 0.0075  concrete_mid top=concrete_seam
+box 0.6492 0.4683 0.0075  0.6708 0.5317 0.0095  concrete_mid top=concrete_mid
+box 0.6492 0.5317 0.0000  0.6708 0.5950 0.0075  concrete_mid top=concrete_seam
+box 0.6492 0.5317 0.0075  0.6708 0.5340 0.0095  concrete_mid top=concrete_mid
+box 0.6492 0.5340 0.0075  0.6708 0.5700 0.0087  panel_seam top=panel_seam
+box 0.6492 0.5700 0.0075  0.6708 0.5950 0.0100  concrete_mid top=metal_pale
+box 0.6892 0.4050 0.0000  0.7107 0.4683 0.0075  concrete_mid top=concrete_seam
+box 0.6892 0.4050 0.0075  0.7107 0.4300 0.0100  concrete_mid top=metal_pale
+box 0.6892 0.4300 0.0075  0.7107 0.4660 0.0087  panel_seam top=panel_seam
+box 0.6892 0.4660 0.0075  0.7107 0.4683 0.0095  concrete_mid top=concrete_mid
+box 0.6892 0.4683 0.0000  0.7107 0.5317 0.0075  concrete_mid top=concrete_seam
+box 0.6892 0.4683 0.0075  0.7107 0.5317 0.0095  concrete_mid top=concrete_mid
+box 0.6892 0.5317 0.0000  0.7107 0.5950 0.0075  concrete_mid top=concrete_seam
+box 0.6892 0.5317 0.0075  0.7107 0.5340 0.0095  concrete_mid top=concrete_mid
+box 0.6892 0.5340 0.0075  0.7107 0.5700 0.0087  panel_seam top=panel_seam
+box 0.6892 0.5700 0.0075  0.7107 0.5950 0.0100  concrete_mid top=metal_pale
+box 0.7292 0.4050 0.0000  0.7508 0.4683 0.0075  concrete_mid top=concrete_seam
+box 0.7292 0.4050 0.0075  0.7508 0.4300 0.0100  concrete_mid top=metal_pale
+box 0.7292 0.4300 0.0075  0.7508 0.4660 0.0087  panel_seam top=panel_seam
+box 0.7292 0.4660 0.0075  0.7508 0.4683 0.0095  concrete_mid top=concrete_mid
+box 0.7292 0.4683 0.0000  0.7508 0.5317 0.0075  concrete_mid top=concrete_seam
+box 0.7292 0.4683 0.0075  0.7508 0.5317 0.0095  concrete_mid top=concrete_mid
+box 0.7292 0.5317 0.0000  0.7508 0.5950 0.0075  concrete_mid top=concrete_seam
+box 0.7292 0.5317 0.0075  0.7508 0.5340 0.0095  concrete_mid top=concrete_mid
+box 0.7292 0.5340 0.0075  0.7508 0.5700 0.0087  panel_seam top=panel_seam
+box 0.7292 0.5700 0.0075  0.7508 0.5950 0.0100  concrete_mid top=metal_pale
+box 0.7692 0.4050 0.0000  0.7908 0.4683 0.0075  concrete_mid top=concrete_seam
+box 0.7692 0.4050 0.0075  0.7908 0.4300 0.0100  concrete_mid top=metal_pale
+box 0.7692 0.4300 0.0075  0.7908 0.4660 0.0087  panel_seam top=panel_seam
+box 0.7692 0.4660 0.0075  0.7908 0.4683 0.0095  concrete_mid top=concrete_mid
+box 0.7692 0.4683 0.0000  0.7908 0.5317 0.0075  concrete_mid top=concrete_seam
+box 0.7692 0.4683 0.0075  0.7908 0.5317 0.0095  concrete_mid top=concrete_mid
+box 0.7692 0.5317 0.0000  0.7908 0.5950 0.0075  concrete_mid top=concrete_seam
+box 0.7692 0.5317 0.0075  0.7908 0.5340 0.0095  concrete_mid top=concrete_mid
+box 0.7692 0.5340 0.0075  0.7908 0.5700 0.0087  panel_seam top=panel_seam
+box 0.7692 0.5700 0.0075  0.7908 0.5950 0.0100  concrete_mid top=metal_pale
+box 0.8093 0.4050 0.0000  0.8307 0.4683 0.0075  concrete_mid top=concrete_seam
+box 0.8093 0.4050 0.0075  0.8307 0.4300 0.0100  concrete_mid top=metal_pale
+box 0.8093 0.4300 0.0075  0.8307 0.4660 0.0087  panel_seam top=panel_seam
+box 0.8093 0.4660 0.0075  0.8307 0.4683 0.0095  concrete_mid top=concrete_mid
+box 0.8093 0.4683 0.0000  0.8307 0.5317 0.0075  concrete_mid top=concrete_seam
+box 0.8093 0.4683 0.0075  0.8307 0.5317 0.0095  concrete_mid top=concrete_mid
+box 0.8093 0.5317 0.0000  0.8307 0.5950 0.0075  concrete_mid top=concrete_seam
+box 0.8093 0.5317 0.0075  0.8307 0.5340 0.0095  concrete_mid top=concrete_mid
+box 0.8093 0.5340 0.0075  0.8307 0.5700 0.0087  panel_seam top=panel_seam
+box 0.8093 0.5700 0.0075  0.8307 0.5950 0.0100  concrete_mid top=metal_pale
+box 0.8492 0.4050 0.0000  0.8708 0.4683 0.0075  concrete_mid top=concrete_seam
+box 0.8492 0.4050 0.0075  0.8708 0.4300 0.0100  concrete_mid top=metal_pale
+box 0.8492 0.4300 0.0075  0.8708 0.4660 0.0087  panel_seam top=panel_seam
+box 0.8492 0.4660 0.0075  0.8708 0.4683 0.0095  concrete_mid top=concrete_mid
+box 0.8492 0.4683 0.0000  0.8708 0.5317 0.0075  concrete_mid top=concrete_seam
+box 0.8492 0.4683 0.0075  0.8708 0.5317 0.0095  concrete_mid top=concrete_mid
+box 0.8492 0.5317 0.0000  0.8708 0.5950 0.0075  concrete_mid top=concrete_seam
+box 0.8492 0.5317 0.0075  0.8708 0.5340 0.0095  concrete_mid top=concrete_mid
+box 0.8492 0.5340 0.0075  0.8708 0.5700 0.0087  panel_seam top=panel_seam
+box 0.8492 0.5700 0.0075  0.8708 0.5950 0.0100  concrete_mid top=metal_pale
+box 0.8892 0.4050 0.0000  0.9108 0.4683 0.0075  concrete_mid top=concrete_seam
+box 0.8892 0.4050 0.0075  0.9108 0.4300 0.0100  concrete_mid top=metal_pale
+box 0.8892 0.4300 0.0075  0.9108 0.4660 0.0087  panel_seam top=panel_seam
+box 0.8892 0.4660 0.0075  0.9108 0.4683 0.0095  concrete_mid top=concrete_mid
+box 0.8892 0.4683 0.0000  0.9108 0.5317 0.0075  concrete_mid top=concrete_seam
+box 0.8892 0.4683 0.0075  0.9108 0.5317 0.0095  concrete_mid top=concrete_mid
+box 0.8892 0.5317 0.0000  0.9108 0.5950 0.0075  concrete_mid top=concrete_seam
+box 0.8892 0.5317 0.0075  0.9108 0.5340 0.0095  concrete_mid top=concrete_mid
+box 0.8892 0.5340 0.0075  0.9108 0.5700 0.0087  panel_seam top=panel_seam
+box 0.8892 0.5700 0.0075  0.9108 0.5950 0.0100  concrete_mid top=metal_pale
+box 0.9293 0.4050 0.0000  0.9507 0.4683 0.0075  concrete_mid top=concrete_seam
+box 0.9293 0.4050 0.0075  0.9507 0.4300 0.0100  concrete_mid top=metal_pale
+box 0.9293 0.4300 0.0075  0.9507 0.4660 0.0087  panel_seam top=panel_seam
+box 0.9293 0.4660 0.0075  0.9507 0.4683 0.0095  concrete_mid top=concrete_mid
+box 0.9293 0.4683 0.0000  0.9507 0.5317 0.0075  concrete_mid top=concrete_seam
+box 0.9293 0.4683 0.0075  0.9507 0.5317 0.0095  concrete_mid top=concrete_mid
+box 0.9293 0.5317 0.0000  0.9507 0.5950 0.0075  concrete_mid top=concrete_seam
+box 0.9293 0.5317 0.0075  0.9507 0.5340 0.0095  concrete_mid top=concrete_mid
+box 0.9293 0.5340 0.0075  0.9507 0.5700 0.0087  panel_seam top=panel_seam
+box 0.9293 0.5700 0.0075  0.9507 0.5950 0.0100  concrete_mid top=metal_pale
+box 0.9692 0.4050 0.0000  0.9908 0.4683 0.0075  concrete_mid top=concrete_seam
+box 0.9692 0.4050 0.0075  0.9908 0.4300 0.0100  concrete_mid top=metal_pale
+box 0.9692 0.4300 0.0075  0.9908 0.4660 0.0087  panel_seam top=panel_seam
+box 0.9692 0.4660 0.0075  0.9908 0.4683 0.0095  concrete_mid top=concrete_mid
+box 0.9692 0.4683 0.0000  0.9908 0.5317 0.0075  concrete_mid top=concrete_seam
+box 0.9692 0.4683 0.0075  0.9908 0.5317 0.0095  concrete_mid top=concrete_mid
+box 0.9692 0.5317 0.0000  0.9908 0.5950 0.0075  concrete_mid top=concrete_seam
+box 0.9692 0.5317 0.0075  0.9908 0.5340 0.0095  concrete_mid top=concrete_mid
+box 0.9692 0.5340 0.0075  0.9908 0.5700 0.0087  panel_seam top=panel_seam
+box 0.9692 0.5700 0.0075  0.9908 0.5950 0.0100  concrete_mid top=metal_pale
+# --- 钢轨 2 根（高 0.013 = 0.18 m；顶面 metal / 侧面黄锈 rust）--------------
+box -0.0234 0.4444 0.0100  1.0234 0.4524 0.0230   metal_dark top=metal_pale
+box -0.0234 0.5476 0.0100  1.0234 0.5556 0.0230   metal_dark top=metal_pale
+# --- 道床坡脚散粒：小而暗 ---------------------------------------------------
+box -0.0050 0.3200 0.0000  0.0050 0.6800 0.0050   concrete_mid top=panel_seam
+box 0.0050 0.3200 0.0000  0.9950 0.4950 0.0078   concrete_mid
+box 0.0050 0.4950 0.0000  0.9950 0.5050 0.0050   concrete_mid top=panel_seam
+box 0.0050 0.5050 0.0000  0.9950 0.6800 0.0078   concrete_mid
+box 0.9950 0.3200 0.0000  1.0050 0.6800 0.0050   concrete_mid top=panel_seam
+box -0.0313 0.3200 0.0000  -0.0050 0.4950 0.0078   concrete_mid
+box -0.0313 0.4950 0.0000  -0.0050 0.5050 0.0050   concrete_mid top=panel_seam
+box -0.0313 0.5050 0.0000  -0.0050 0.6800 0.0078   concrete_mid
+box 1.0050 0.3200 0.0000  1.0313 0.4950 0.0078   concrete_mid
+box 1.0050 0.4950 0.0000  1.0313 0.5050 0.0050   concrete_mid top=panel_seam
+box 1.0050 0.5050 0.0000  1.0313 0.6800 0.0078   concrete_mid

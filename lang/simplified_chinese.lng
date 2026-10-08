@@ -39,6 +39,7 @@ STR_RAIL_SGCA                               :高速铁路 {RED}25kVAC
 STR_RAIL_SCCA                               :城际铁路 {RED}25kVAC
 STR_RAIL_SDCA                               :客运专线 {RED}25kVAC
 STR_RAIL_SECA                               :高速铁路 {RED}25kVAC
+STR_RAIL_SFCA                               :高速铁路 310 {RED}25kVAC
 STR_RAIL_NACN                               :窄轨铁路
 STR_RAIL_SBEN                               :现代重载铁路
 STR_RAIL_SBEA                               :电气化重载铁路 {RED}25kVAC

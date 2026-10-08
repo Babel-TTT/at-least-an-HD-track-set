@@ -378,6 +378,68 @@ spriteset(probe_bridge_surfaces_crts1, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
 }
 
 /* ===========================================================================
+   A9 组（`SFCA` 高速铁路 310km/h，25kV AC）—— underlay / track_overlay / 桥面
+   （**洞口不在这里** —— 复用 A10 的 `TUN-4`；**也没有道口** —— 310 高铁禁平交道口）
+
+   分表：轨道 = `gfx/crts2.png`（见 tools/sheets.mjs；10 件 / 40 张精灵，格位 263×148）。
+   模型由 `tools/gen-a11-crts2.mjs`（人工 2026-10-08 按 L3 批准新建，= `gen-a8-crts1.mjs`
+   的同源副本）从 **G1 的模型派生**：
+     `BAL-F` 无砟·**CRTS II 纵连板**（素面板 `concrete_mid` · 板顶 0.0078 ·
+              **横向宽接缝每 1 格**：宽 0.0100 / 深 0.0028 / 缝内 `panel_seam` ·
+              ★ **板面正中一条沿轨纵缝**（同规格）· **不放凸形挡台**）
+     `SLE-3` 混凝土宽枕（**U 形承轨槽**，与 A5 / A8 / A25 共用同一批模型口径）
+     `RAI-3` 长轨（几何 = `RAI-1` 一字不动，只换 `metal_dark` / `metal_pale`）
+   摆位值见 templates.pnml 的 G11_* 那一节（= **逐条照抄 G9_***：两张表同格位 263×148、
+   锚点同为 (131,80) ⇒ 算法值逐条相同；只有 `rect` 按本表自己的按名排序格位写）。
+
+   ★ **洞口直接复用 A10 的 `TUN-4`**（`probe_tunnels_4` / `probe_tunnel_over_4`，
+     分表 `gfx/tunnel4.png`）—— 本组一件洞口模型都没出。
+   ★ **槽位顺序、取图顺序与 G1 / G4 / G5 / G6 / G9 / G10 逐条一样**
+     （RTO_* / 坡道 NE,SE,SW,NW 都不变）；本组**没有** `level_crossings:` 这一项。
+   =========================================================================== */
+spriteset(probe_underlay_crts2, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G11_track_x_v0("gfx/crts2.png")          //  0  RTO_X        X
+    t_G11_track_x_v3("gfx/crts2.png")          //  1  RTO_Y        Y
+    t_G11_track_half_v0("gfx/crts2.png")       //  2  RTO_N        UPPER（切 N 角）
+    t_G11_z_track_half_m_v2("gfx/crts2.png")   //  3  RTO_S        LOWER ← 镜像件（本组无第三轨，只为槽位对齐）
+    t_G11_z_track_half_m_v3("gfx/crts2.png")   //  4  RTO_E        RIGHT ← 镜像件
+    t_G11_track_half_v1("gfx/crts2.png")       //  5  RTO_W        LEFT
+    t_G11_track_slope_v0("gfx/crts2.png")      //  6  RTO_SLOPE_NE   v0（右上抬）
+    t_G11_track_slope_v3("gfx/crts2.png")      //  7  RTO_SLOPE_SE   v3（右下抬）
+    t_G11_track_slope_v2("gfx/crts2.png")      //  8  RTO_SLOPE_SW   v2（左下抬）
+    t_G11_track_slope_v1("gfx/crts2.png")      //  9  RTO_SLOPE_NW   v1（左上抬）
+    t_G11_crossing_v0("gfx/crts2.png")         // 10  RTO_CROSSING_XY（自带两组钢轨）
+    t_G11_junction3_v0("gfx/crts2.png")        // 11  RTO_JUNCTION_SW（只有道床板）
+    t_G11_junction3_v2("gfx/crts2.png")        // 12  RTO_JUNCTION_NE（v2）
+    t_G11_junction3_v1("gfx/crts2.png")        // 13  RTO_JUNCTION_SE（v1）
+    t_G11_junction3_v3("gfx/crts2.png")        // 14  RTO_JUNCTION_NW（v3）
+    t_G11_junction4_v0("gfx/crts2.png")        // 15  RTO_JUNCTION_NSEW（只有道床板）
+}
+
+spriteset(probe_overlay_crts2, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G11_rail_straight_v0("gfx/crts2.png")    // 0  RTO_X        宽枕 + 钢轨层（透明底）
+    t_G11_rail_straight_v3("gfx/crts2.png")    // 1  RTO_Y
+    t_G11_rail_half_v0("gfx/crts2.png")        // 2  RTO_N
+    t_G11_rail_half_v2("gfx/crts2.png")        // 3  RTO_S
+    t_G11_rail_half_v3("gfx/crts2.png")        // 4  RTO_E
+    t_G11_rail_half_v1("gfx/crts2.png")        // 5  RTO_W
+    t_G11_rail_slope_v0("gfx/crts2.png")       // 6  RTO_SLOPE_NE
+    t_G11_rail_slope_v3("gfx/crts2.png")       // 7  RTO_SLOPE_SE
+    t_G11_rail_slope_v2("gfx/crts2.png")       // 8  RTO_SLOPE_SW
+    t_G11_rail_slope_v1("gfx/crts2.png")       // 9  RTO_SLOPE_NW
+}
+
+// 桥面 —— 6 格（平 X / 平 Y / 坡 NE / SE / SW / NW），顺序同 probe_bridge_surfaces
+spriteset(probe_bridge_surfaces_crts2, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G11_track_x_v0("gfx/crts2.png")          // 0  平 — X
+    t_G11_track_x_v3("gfx/crts2.png")          // 1  平 — Y
+    t_G11_track_slope_v0("gfx/crts2.png")      // 2  坡 NE（x=0 边抬 / 远端高）
+    t_G11_track_slope_v3("gfx/crts2.png")      // 3  坡 SE（y=1 边抬 / 近端高）
+    t_G11_track_slope_v2("gfx/crts2.png")      // 4  坡 SW（x=1 边抬 / 近端高）
+    t_G11_track_slope_v1("gfx/crts2.png")      // 5  坡 NW（y=0 边抬 / 远端高）
+}
+
+/* ===========================================================================
    A25 组（`SECA` 高速铁路 250km/h，25kV AC）—— underlay / track_overlay / 桥面
    （**洞口不在这里** —— 复用 A10 的；**也没有道口** —— 高铁禁平交道口）
 

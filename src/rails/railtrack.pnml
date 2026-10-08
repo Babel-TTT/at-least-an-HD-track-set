@@ -1383,3 +1383,74 @@ item(FEAT_RAILTYPES, rail_SECA, 22) {
         catenary_wire:   probe_catenary_wire;
     }
 }
+
+// SFCA —— 高速铁路（2005，310km/h，轴重 23t，25kV AC；BAL-F 无砟·CRTS II 纵连板）
+item(FEAT_RAILTYPES, rail_SFCA, 23) {
+    property {
+        label:                  "SFCA";
+        introduction_date:      date(2005, 1, 1);
+        name:                   string(STR_RAIL_SFCA);
+        toolbar_caption:        string(STR_RAIL_SFCA);
+        menu_text:              string(STR_RAIL_SFCA);
+        build_window_caption:   string(STR_RAIL_SFCA);
+        autoreplace_text:       string(STR_RAIL_SFCA);
+        new_engine_text:        string(STR_RAIL_SFCA);
+        /* 兼容 / powered 与 `SGCA`（A10，同为高铁 + 25kV）那套列表**逐条相同** ——
+           本包所有 25kV 电气化类型必须互相跑得通。 */
+        compatible_railtype_list: ["RAIL", "ELRL", 
+                                    "SADN", "SBDN", "SCDN", "SDDN", "SEDN",  "SFDN", "SGDN",
+                                    "SAEN", "SBEN", "SCEN", "SDEN", "SEEN",  "SFEN", "SGEN",
+                                    "SADA", "SBDA", "SCDA", "SDDA", "SEDA",  "SFDA", "SGDA", 
+                                    "SAEA", "SBEA", "SCEA", "SDEA", "SEEA",  "SFEA", "SGEA", 
+                                    "SADd", "SBDd", "SCDd", "SDDd", "SEDd", 
+                                    "SAEd", "SBEd", "SCEd", "SDEd", "SEEd",  
+                                    "SADD", "SBDD", "SCDD", "SDDD", "SEDD",   
+                                    "DADN", "DBDN",
+                                    "DADA", "DBDA"];
+        powered_railtype_list:    [ "ELRL", 
+                                    "SADA", "SBDA", "SCDA", "SDDA", "SEDA",  "SFDA", "SGDA", 
+                                    "SAEA", "SBEA", "SCEA", "SDEA", "SEEA",  "SFEA", "SGEA",
+                                    "DACA", "DADA", "DBDA"];
+        /* `CATENARY`：25kV 架空接触网（本包自己出支柱 + 导线）。
+           `NO_LEVEL_CROSSING`：310km/h 高铁全封闭（人工 2026-10-08 口径）
+           ⇒ **不提供** `level_crossings:` 精灵（与 `SGCA` / `SECA` 一致）。 */
+        railtype_flags:         bitmask(RAILTYPE_FLAG_CATENARY, RAILTYPE_FLAG_NO_LEVEL_CROSSING);
+        curve_speed_multiplier: 1;
+        station_graphics:       RAILTYPE_STATION_NORMAL;
+        /* 费用：按 C8 的档位往上排（`SDCA` 20/10 · `SECA` 24/12 · `SGCA` 40/20）⇒ 310km/h 取 **30/15** */
+        construction_cost:      30;
+        maintenance_cost:       15;
+        speed_limit:            310 km/h;
+        acceleration_model:     ACC_MODEL_RAIL;
+        map_colour:             0x67;
+        sort_order:             SORT_ELECTRIC;
+    }
+    /* ★ 2026-10-08：A9 组（`BAL-F` 无砟·**CRTS II 纵连板** + `SLE-3` 混凝土宽枕 +
+       `RAI-3` 长轨）接入 —— **优先级 3 的最后一条**。模型由 `tools/gen-a11-crts2.mjs`
+       （人工 2026-10-08 按 L3 批准新建，是 `gen-a8-crts1.mjs` 的同源副本）从 `G1_*` 派生
+       （删道砟 → 铺 `BAL-F` 板；钢轨只换材质），分表 `gfx/crts2.png`（10 件 / 40 张精灵，
+       格位 263×148 —— 与 A8 的 `crts1.png` 同格位一族）。
+
+       ★ `BAL-F` 与 A8 `BAL-E` 的**三条差别全在板面**（人工 2026-10-08 确认门裁定）：
+         ① **横向宽接缝每 1 格**（`BAL-E` 是 1/3 格 ⇒ 节奏差 3 倍）；
+         ② ★ **板面正中一条沿轨的纵缝**（CRTS II 的纵向施工缝，宽 / 深 / 缝内材质与横缝同值）
+            —— 本档的身份；
+         ③ **不放凸形挡台**（CRTS II 没有这一构件）。
+         板顶仍 **0.0078**（与 A5 `BAL-B` / A8 `BAL-E` / A25 `BAL-N` 同一个数 ⇒ 同一批
+         `SLE-3` 在四组上露出的高度完全一致）。
+       ★ **洞口复用 A10 的 `TUN-4`**（`probe_tunnels_4` / `probe_tunnel_over_4`，
+         `gfx/tunnel4.png`）—— 本组一件洞口模型都没出，`TUN-4` 是四条 `S_CA` 共用的。
+       ★ 接触网：制式 `EL-25`，支柱样式按 §1.6.5.1 的落位表用 **`PYL-S1` H 型钢**
+         （2005 年高铁档）⇒ `probe_catenary_pylons_steel`；25kV ⇒ **无标牌**。
+         ⚠ **至此 §1.6.5.1 的落位表里 `SFCA` 这一格补上**（只剩 `NCCA` 等 `BAL-D` 那套）。
+       ★ 平交道口：**不设**（310km/h 高铁全封闭）⇒ **不给 `level_crossings:`**。 */
+    graphics {
+        underlay:        probe_underlay_crts2;
+        track_overlay:   probe_overlay_crts2;
+        tunnels:         probe_tunnels_4;
+        tunnel_overlay:  probe_tunnel_over_4;
+        bridge_surfaces: probe_bridge_surfaces_crts2;
+        catenary_pylons: probe_catenary_pylons_steel;
+        catenary_wire:   probe_catenary_wire;
+    }
+}

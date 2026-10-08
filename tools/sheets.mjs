@@ -175,6 +175,26 @@ export const SHEETS = [
     match: /^G10_/,
   },
   {
+    // A9 组（`SFCA` 高速铁路 310km/h，25kV AC）的轨道：**`BAL-F` 无砟·CRTS II 纵连板**
+    //   —— 板顶 **0.0078**（与 A5 `BAL-B` / A8 `BAL-E` / A25 `BAL-N` 同一个数）·
+    //   **横向宽接缝每 1 格**（宽 0.0100 / 深 0.0028 / 缝内 `panel_seam`）·
+    //   ★ **板面正中一条沿轨纵缝**（CRTS II 的纵向施工缝，同规格）· **不放凸形挡台**；
+    //   轨枕 `SLE-3` 混凝土宽枕（U 形承轨槽，与 A5 / A8 / A25 共用同一批模型口径）
+    //   + 钢轨 `RAI-3` 长轨。
+    // 几何由 tools/gen-a11-crts2.mjs 从 `G1_*` 派生（删道砟 → 铺 `BAL-F` 板；钢轨只换材质），
+    // 规格见 `美术要素方案.md` §1.1 的 `BAL-F` 那一节。
+    //
+    // ⚠ **洞口不在这张表里**：`TUN-4` 直接复用 A10 的 `gfx/tunnel4.png`，一件模型都不重出
+    //   （`TUN-4` 是四条 `S_CA` 共用的洞口）。
+    // ⚠ **本组没有平交道口**：`SFCA` 带 `RAILTYPE_FLAG_NO_LEVEL_CROSSING`（310 高铁全封闭，
+    //   人工 2026-10-08 口径；与 `SGCA` / `SECA` 一致）⇒ 表里只有 10 件（比 A8 少一件）。
+    // ⚠ 单独一张表（同 rail / metro / crts3 / crts1 / hsballast 表的理由：混进去会把已有
+    //   几十条 `rect` 顶移位）。
+    key: 'crts2',
+    title: '高速无砟 CRTS II 纵连板（BAL-F + SLE-3 宽枕 + RAI-3 长轨；SFCA）',
+    match: /^G11_/,
+  },
+  {
     // A15 组（`NACN` 窄轨）的**洞口**：TUN-7 小断面拱（端墙外形照 TUN-1，
     // 只把拱洞与洞内轨道按 k = 0.70 收窄；几何由 tools/gen-a15-narrow.mjs 从 TUN-1 收窄而来）。
     // ⚠ 必须登记在下面的 narrow **之前**：那个表的正则是 /^G5_/，会先把 G5_tunnel7_* 吃掉。

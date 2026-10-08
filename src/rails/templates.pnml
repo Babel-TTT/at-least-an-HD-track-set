@@ -1540,6 +1540,104 @@ template t_G10_rail_slope_v3(sheet) {
   [789, 300, 263, 150, -129, -18, sheet]  // 【手调】同 t_G9_rail_slope_v3 ＋人工 2026-10-08 (−1,+2)；格位 151→150
 }
 
+// ============================================================================
+// A9 组 —— `SFCA` 高速铁路 310km/h（`BAL-F` 无砟·**CRTS II 纵连板** + `SLE-3` 宽枕 +
+//   `RAI-3` 长轨）。分表 `gfx/crts2.png`（10 件 / 40 张精灵，**格位 263×148**、
+//   `centerAnchor` = (131,80) —— 与 A8 的 `crts1.png` **同一格位一族**）。
+//
+// ★ **摆位口径 = 逐条照抄 `t_G9_*`**（同格位 / 同锚点 ⇒ 算法值逐条相同；A8 那轮已经
+//   把 A9 该有的手调增量调好了 —— 两组都是同族的 25kV 无砟板，摆位没有自由度）。
+//   ⚠ **只有 `rect` 必须按本表自己的格位写**：图集按**模型名排序**装格，
+//     `crts2` 比 `crts1` **少一件**（`SFCA` 不做平交道口 ⇒ 没有 `G11_levelcrossing`）
+//     ⇒ 从 `G11_rail_half` 往后每件都**比 G9 前移一格**（不能照抄 rect）。
+//   ⚠ **本组没有 `levelcrossing`**：`SFCA` 带 `RAILTYPE_FLAG_NO_LEVEL_CROSSING`。
+//   模型由 `tools/gen-a11-crts2.mjs` 生成；板面规格见 `美术要素方案.md` §1.1 的 `BAL-F` 块。
+// ============================================================================
+template t_G11_track_x_v0(sheet) {
+  [0, 592, 263, 148, -129, -15, sheet]  // 【手调】逐条照抄 t_G9_track_x_v0（同格位 263×148 / 同锚点 ⇒ 算法值相同）＋人工 2026-10-08 (−1,+2) 与 X 向平移 (−2,0)
+}
+template t_G11_track_x_v3(sheet) {
+  [789, 592, 263, 148, -128, -16, sheet]  // 【手调】逐条照抄 t_G9_track_x_v3（同格位 263×148 / 同锚点 ⇒ 算法值相同）
+}
+template t_G11_track_half_v0(sheet) {
+  [0, 444, 263, 148, -127, -18, sheet]  // 【手调】逐条照抄 t_G9_track_half_v0（同格位 263×148 / 同锚点 ⇒ 算法值相同）
+}
+template t_G11_track_half_v1(sheet) {
+  [263, 444, 263, 148, -126, -18, sheet]  // 【手调】逐条照抄 t_G9_track_half_v1（同格位 263×148 / 同锚点 ⇒ 算法值相同）
+}
+template t_G11_track_half_v2(sheet) {
+  [526, 444, 263, 148, -127, -18, sheet]  // 【手调】逐条照抄 t_G9_track_half_v2（同格位 263×148 / 同锚点 ⇒ 算法值相同）
+}
+template t_G11_track_half_v3(sheet) {
+  [789, 444, 263, 148, -125, -18, sheet]  // 【手调】逐条照抄 t_G9_track_half_v3（同格位 263×148 / 同锚点 ⇒ 算法值相同）
+}
+template t_G11_z_track_half_m_v2(sheet) {
+  [1578, 592, 263, 148, -128, -18, sheet]  // 【手调】逐条照抄 t_G9_z_track_half_m_v2（同格位 263×148 / 同锚点 ⇒ 算法值相同）
+}
+template t_G11_z_track_half_m_v3(sheet) {
+  [1841, 592, 263, 148, -126, -18, sheet]  // 【手调】逐条照抄 t_G9_z_track_half_m_v3（同格位 263×148 / 同锚点 ⇒ 算法值相同）
+}
+template t_G11_track_slope_v0(sheet) {
+  [1052, 444, 263, 148, -126, -16, sheet]  // 【手调】逐条照抄 t_G9_track_slope_v0（同格位 263×148 / 同锚点 ⇒ 算法值相同）
+}
+template t_G11_track_slope_v1(sheet) {
+  [1315, 444, 263, 148, -126, -16, sheet]  // 【手调】逐条照抄 t_G9_track_slope_v1（同格位 263×148 / 同锚点 ⇒ 算法值相同）
+}
+template t_G11_track_slope_v2(sheet) {
+  [1578, 444, 263, 148, -128, -16, sheet]  // 【手调】逐条照抄 t_G9_track_slope_v2（同格位 263×148 / 同锚点 ⇒ 算法值相同）
+}
+template t_G11_track_slope_v3(sheet) {
+  [1841, 444, 263, 148, -129, -16, sheet]  // 【手调】逐条照抄 t_G9_track_slope_v3（同格位 263×148 / 同锚点 ⇒ 算法值相同）
+}
+template t_G11_crossing_v0(sheet) {
+  [0, 0, 263, 148, -129, -15, sheet]  // 【手调】逐条照抄 t_G9_crossing_v0（同格位 263×148 / 同锚点 ⇒ 算法值相同）
+}
+template t_G11_junction3_v0(sheet) {
+  [1052, 0, 263, 148, -128, -17, sheet]  // 【手调】逐条照抄 t_G9_junction3_v0（同格位 263×148 / 同锚点 ⇒ 算法值相同）
+}
+template t_G11_junction3_v1(sheet) {
+  [1315, 0, 263, 148, -127, -17, sheet]  // 【手调】逐条照抄 t_G9_junction3_v1（同格位 263×148 / 同锚点 ⇒ 算法值相同）
+}
+template t_G11_junction3_v2(sheet) {
+  [1578, 0, 263, 148, -129, -17, sheet]  // 【手调】逐条照抄 t_G9_junction3_v2（同格位 263×148 / 同锚点 ⇒ 算法值相同）
+}
+template t_G11_junction3_v3(sheet) {
+  [1841, 0, 263, 148, -126, -17, sheet]  // 【手调】逐条照抄 t_G9_junction3_v3（同格位 263×148 / 同锚点 ⇒ 算法值相同）
+}
+template t_G11_junction4_v0(sheet) {
+  [0, 148, 263, 148, -128, -16, sheet]  // 【手调】逐条照抄 t_G9_junction4_v0（同格位 263×148 / 同锚点 ⇒ 算法值相同）
+}
+template t_G11_rail_straight_v0(sheet) {
+  [1052, 296, 263, 148, -130, -15, sheet]  // 【手调】逐条照抄 t_G9_rail_straight_v0（同格位 263×148 / 同锚点 ⇒ 算法值相同）
+}
+template t_G11_rail_straight_v3(sheet) {
+  [1841, 296, 263, 148, -128, -16, sheet]  // 【手调】逐条照抄 t_G9_rail_straight_v3（同格位 263×148 / 同锚点 ⇒ 算法值相同）
+}
+template t_G11_rail_half_v0(sheet) {
+  [1052, 148, 263, 148, -129, -16, sheet]  // 【手调】逐条照抄 t_G9_rail_half_v0（同格位 263×148 / 同锚点 ⇒ 算法值相同）
+}
+template t_G11_rail_half_v1(sheet) {
+  [1315, 148, 263, 148, -128, -16, sheet]  // 【手调】逐条照抄 t_G9_rail_half_v1（同格位 263×148 / 同锚点 ⇒ 算法值相同）
+}
+template t_G11_rail_half_v2(sheet) {
+  [1578, 148, 263, 148, -129, -16, sheet]  // 【手调】逐条照抄 t_G9_rail_half_v2（同格位 263×148 / 同锚点 ⇒ 算法值相同）
+}
+template t_G11_rail_half_v3(sheet) {
+  [1841, 148, 263, 148, -126, -16, sheet]  // 【手调】逐条照抄 t_G9_rail_half_v3（同格位 263×148 / 同锚点 ⇒ 算法值相同）
+}
+template t_G11_rail_slope_v0(sheet) {
+  [0, 296, 263, 148, -129, -16, sheet]  // 【手调】逐条照抄 t_G9_rail_slope_v0（同格位 263×148 / 同锚点 ⇒ 算法值相同）
+}
+template t_G11_rail_slope_v1(sheet) {
+  [263, 296, 263, 148, -128, -16, sheet]  // 【手调】逐条照抄 t_G9_rail_slope_v1（同格位 263×148 / 同锚点 ⇒ 算法值相同）
+}
+template t_G11_rail_slope_v2(sheet) {
+  [526, 296, 263, 148, -129, -16, sheet]  // 【手调】逐条照抄 t_G9_rail_slope_v2（同格位 263×148 / 同锚点 ⇒ 算法值相同）
+}
+template t_G11_rail_slope_v3(sheet) {
+  [789, 296, 263, 148, -129, -16, sheet]  // 【手调】逐条照抄 t_G9_rail_slope_v3（同格位 263×148 / 同锚点 ⇒ 算法值相同）
+}
+
 // ---------------------------------------------------------------------------
 // G8_tunnel4_* —— **A10 组（`SGCA`）高速洞口 TUN-4**（分表 gfx/tunnel4.png）
 //
