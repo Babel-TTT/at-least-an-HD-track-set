@@ -193,6 +193,7 @@ const MAT = {
 //     改口径时两个文件要一起改 —— `SLE-3` 是两个组共用的同一批模型口径。
 const K_SLEEP_L = 0.19 / 0.18;        // 枕木横向加长（源 0.18 → 0.19 格 = 2.64 m）
 const K_SLEEP_T = 0.0215 / 0.016;     // 枕木沿轨加厚（源 0.016 → 0.0215 格 = 30 cm）
+const EPS = 0.0008;                   // 顶面换材质时的微小抬升（prism + poly 的两片做法；同 A8）
 const Z_BASE = 0.0075, Z_PAD = 0.0087, Z_MID = 0.0095, Z_TOP = 0.0100;
 const CUT = [0.4300, 0.4660, 0.5340, 0.5700];   // 承轨槽 4 条分带线（未加位移的名义值）
 const M_BODY = 'concrete_mid';        // 枕身（冷灰 159,165,175）
@@ -341,6 +342,35 @@ function clipS(pts, a, b) {
       const p = poly[i], q = poly[(i + 1) % poly.length];
       const fp = keep === 'ge' ? S(p) - a : b - S(p);
       const fq = keep === 'ge' ? S(q) - a : b - S(q);
+      if (fp >= -1e-9) out.push(p);
+      if ((fp >= -1e-9) !== (fq >= -1e-9)) {
+        const t = fp / (fp - fq);
+        out.push([p[0] + (q[0] - p[0]) * t, p[1] + (q[1] - p[1]) * t]);
+      }
+    }
+    return out;
+  };
+  return cut(cut(pts, 'ge'), 'le');
+}
+
+/** 凸多边形按 **s = 第 0 个分量** 裁剪（Sutherland–Hodgman）—— `prismSleeper()` 专用
+ *
+ *  ⚠⚠ 2026-10-08 修掉一个**从 A5 起就存在**的错（SECA / SDCA 实机「斜向的半格
+ *     枕木稀疏」）：`prismSleeper()` 里的多边形已经在 `(s, t) = (x+y, x−y)` 空间里，
+ *     **s 就是第 0 个分量**；而 `clipS()` 是给**世界坐标** `(x, y)` 写的，判据是 `x + y`。
+ *     把 (s,t) 喂给 `clipS()` ⇒ 判据变成 `s + t`（= 2x，与分带线毫无关系）⇒ 除极少数巧合，
+ *     每条枕木的 5 条分带全被裁成 < 3 点丢掉 ⇒ **枕木顶面只剩一块素混凝土**（挡肩 / 槽全没了）。
+ *     实测（`G10_track_half`，55 个源枕木 prism）：修前发出 **15** 条顶面带（肩 4 / 槽 4）、
+ *     `metal_pale` 面 **0** 个；修后 **127** 条（肩 36 / 槽 36 / 中 55）、丢弃 **0**。
+ *     ⚠ 三份同源副本（`gen-a5-heavy` / `gen-a8-crts1` / `gen-a9-hsballast`）**必须一起改**。
+ */
+function clipS1(pts, a, b) {
+  const cut = (poly, keep) => {
+    const out = [];
+    for (let i = 0; i < poly.length; i++) {
+      const p = poly[i], q = poly[(i + 1) % poly.length];
+      const fp = keep === 'ge' ? p[0] - a : b - p[0];
+      const fq = keep === 'ge' ? q[0] - a : b - q[0];
       if (fp >= -1e-9) out.push(p);
       if ((fp >= -1e-9) !== (fq >= -1e-9)) {
         const t = fp / (fp - fq);
@@ -631,10 +661,22 @@ function prismSleeper(rec, ctx, over) {
   const out = [emitPrism(0, Z_BASE, P.map(back), M_BODY)];
   const s0 = Math.min(...P.map((u) => u[0])), s1 = Math.max(...P.map((u) => u[0]));
   for (const [p, q] of splitByCuts(s0, s1, cuts)) {
-    const poly = clipS(P, p, q);
+    const poly = clipS1(P, p, q);
     if (poly.length < 3) continue;
     const z = zoneOf((p + q) / 2 - (ctx.shift.s ?? 0));
-    out.push(emitPrism(Z_BASE, z.z, poly.map(back), z.mat));
+    // ★ 挡肩那一档的**顶面**要换材质（`M_SH` = `metal_pale`）—— 与 `boxSleeper()`
+    //   （侧面 `z.mat` / 顶面 `z.top`）和 `quadSleeperGroup()`（`z.pad ? M_PAD : z.top`）
+    //   **同一口径**。`prism` 没有 `top=` 修饰符 ⇒ 走 `emitDiag()` 那套两片做法：
+    //   prism 到 `z − EPS` ＋ 一片 `poly` 顶面。
+    //   ⚠ 2026-10-08 修：修前这里只发 `z.mat` ⇒ 斜向枕木的挡肩顶与枕身同色，
+    //     实机读作"枕木稀疏 / 看不清"（SECA / SDCA）。
+    const bb = poly.map(back);
+    if (z.top && z.top !== z.mat) {
+      out.push(emitPrism(Z_BASE, z.z - EPS, bb, z.mat));
+      out.push(emitPoly(z.z, bb, z.top));
+    } else {
+      out.push(emitPrism(Z_BASE, z.z, bb, z.mat));
+    }
   }
   return out;
 }
