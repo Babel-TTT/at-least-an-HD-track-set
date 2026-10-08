@@ -1210,7 +1210,7 @@ template t_G7_junction4_v0(sheet) {
 //     照抄 metro 的 rect 会读错格子。
 // ---------------------------------------------------------------------------
 template t_G8_track_x_v0(sheet) {
-  [0, 588, 263, 147, -129, -14, sheet]  // 【手调】同 t_G4_track_x_v0（yrel +2）＋人工 2026-10-08 (−1,+2) 与 X 向平移 (−2,0)
+  [0, 588, 263, 147, -124, -17, sheet]  // 【手调】同 t_G4_track_x_v0（yrel +2）＋人工 2026-10-08 (−1,+2) 与 X 向平移 (−2,0)
 }
 template t_G8_track_x_v3(sheet) {
   [789, 588, 263, 147, -128, -15, sheet]  // 【手调】同 t_G4_track_x_v3 ＋人工 2026-10-08 (−1,+2)
@@ -1252,7 +1252,7 @@ template t_G8_track_slope_v3(sheet) {
   [1841, 441, 263, 147, -129, -15, sheet]  // 【手调】同 t_G4_track_slope_v3 ＋人工 2026-10-08 (−1,+2)
 }
 template t_G8_crossing_v0(sheet) {
-  [0, 0, 263, 147, -126, -19, sheet]  // 【手调】同 t_G4_crossing_v0
+  [0, 0, 263, 147, -129, -15, sheet]  // 【手调】同 t_G4_crossing_v0
 }
 template t_G8_junction3_v0(sheet) {
   [1052, 0, 263, 147, -128, -17, sheet]  // 【手调】同 t_G4_junction3_v0
