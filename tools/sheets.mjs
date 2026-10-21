@@ -137,15 +137,28 @@ export const SHEETS = [
     // ⚠ 2026-10-21：`G8_tunnel4s4_*`（洞内枕木 = SLE-4 的 SGCA 变体）**另立一张表**
     //   ⇒ 本表的正则加负向先行断言让路（同前缀、first-match-wins）。
     key: 'tunnel4',
-    title: '高速洞口 TUN-4（大跨度环框拱 + 帽檐；洞内 SLE-3；SCCA / SDCA / SECA / SFCA）',
-    match: /^G8_tunnel4(?!s4)/,
+    title: '高速洞口 TUN-4（大跨度环框拱 + 帽檐；洞内 BAL-E 板 + SLE-3；SCCA / SDCA）',
+    match: /^G8_tunnel4(?!s4|n|f)/,
+  },
+  {
+    // `SECA`（A25 · `BAL-N` 有砟·高速）专用洞口：`TUN-4` 的门，洞内 = **砟肩堆高断面 + SLE-3**
+    //   （人工 2026-10-21 第二轮：「SFCA,SECA,SDCA 没改」）。
+    key: 'tunnel4n',
+    title: '高速洞口 TUN-4 · SECA 变体（洞内 BAL-N 砟肩堆高 + SLE-3）',
+    match: /^G8_tunnel4n/,
+  },
+  {
+    // `SFCA`（A9 · `BAL-F` 无砟·CRTS II 纵连板）专用洞口：洞内 = **沿轨纵缝板 + SLE-3**。
+    key: 'tunnel4f',
+    title: '高速洞口 TUN-4 · SFCA 变体（洞内 BAL-F 纵缝板 + SLE-3）',
+    match: /^G8_tunnel4f/,
   },
   {
     // A10 组（`SGCA`）**自己的**洞口：TUN-4 的门，但洞内枕木 = **`SLE-4` 双块式**
     //   （人工 2026-10-21：「包括 A+B，SGCA 一并改了」）。只 2 件（A/B 组的 ground 层），
     //   `tunnel_overlay:` 那两件不含轨道 ⇒ 直接复用 `G8_tunnel4_over*`，不重出。
     key: 'tunnel4s4',
-    title: '高速洞口 TUN-4 · SGCA 变体（洞内 SLE-4 双块式）',
+    title: '高速洞口 TUN-4 · SGCA 变体（洞内 BAL-G 承轨台 + SLE-4 双块式）',
     match: /^G8_tunnel4s4/,
   },
   {

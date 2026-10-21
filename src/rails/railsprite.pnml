@@ -311,6 +311,23 @@ spriteset(probe_tunnels_4s4, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
     t_G8_tunnel4s4_b_v1("gfx/tunnel4s4.png")    // 3  DiagDir NW ← v1   B 组
 }
 
+// ★ 2026-10-21 第二轮：`SECA`（`BAL-N` 有砟·砟肩堆高）与 `SFCA`（`BAL-F` 沿轨纵缝板）
+//   各自的洞内道床 —— 原来四条 `S_CA` 共用一块素灰板（人工「SFCA,SECA,SDCA 没改」）。
+//   `SCCA` / `SDCA` 是同一块 `BAL-E` 板 ⇒ 仍用上面的 `probe_tunnels_4`。
+//   `tunnel_overlay:` 三支共用 `probe_tunnel_over_4`（不含轨道）。
+spriteset(probe_tunnels_4n, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G8_tunnel4n_v0("gfx/tunnel4n.png")        // 0  DiagDir NE ← v0   A 组
+    t_G8_tunnel4n_v3("gfx/tunnel4n.png")        // 1  DiagDir SE ← v3   A 组
+    t_G8_tunnel4n_b_v2("gfx/tunnel4n.png")      // 2  DiagDir SW ← v2   B 组
+    t_G8_tunnel4n_b_v1("gfx/tunnel4n.png")      // 3  DiagDir NW ← v1   B 组
+}
+spriteset(probe_tunnels_4f, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G8_tunnel4f_v0("gfx/tunnel4f.png")        // 0  DiagDir NE ← v0   A 组
+    t_G8_tunnel4f_v3("gfx/tunnel4f.png")        // 1  DiagDir SE ← v3   A 组
+    t_G8_tunnel4f_b_v2("gfx/tunnel4f.png")      // 2  DiagDir SW ← v2   B 组
+    t_G8_tunnel4f_b_v1("gfx/tunnel4f.png")      // 3  DiagDir NW ← v1   B 组
+}
+
 /* ===========================================================================
    A8 组（`SCCA` 城际 160 / `SDCA` 客专 210，25kV AC）—— underlay / track_overlay /
    道口 / 桥面（**洞口不在这里**，见下）

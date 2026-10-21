@@ -136,3 +136,70 @@ export function isRailFace(line) {
   if (Math.abs(quadZMax(t) - 0.0230) > 1e-3) return false;
   return ['rust', 'metal', 'metal_dark', 'metal_pale'].includes(t[13]);
 }
+
+/** 道床面：z_max ≤ 0.0065（实测 A3 的道砟带最高 0.0061；轨枕最低 0.0075） */
+export function isBedFace(line) {
+  const t = quadTokens(line);
+  if (!t) return false;
+  const z = quadZMax(t);
+  return z > 0 && z <= 0.0065;
+}
+
+// =============================================================================
+// 洞内道床的「素面近似」—— 人工 2026-10-21 第二轮：
+//   「SFCA,SECA,SDCA 没改」⇒ 四条 `S_CA` 共用同一个洞口，洞内道床还是同一块素灰板，
+//   没有各自的**板缝 / 砟肩堆高 / 纵缝 / 承轨台**。
+//
+//   ⚠ 这里是**近似**：洞内 1 格长的直线段，坡面一律做成**平顶台阶**（不做斜顶面，
+//     `box` 做不出斜面）。**如实登记**：视觉特征（缝 / 埂 / 台）齐了，坡面的斜面没有。
+//   数值全部取自各自的生成器（§1.1 的规格），不是新发明的数：
+//     `BAL-E`（A8）板顶 0.0078 · 板缝每 1/3 格（宽 0.0100 / 深 0.0028 ⇒ 缝底 0.0050）· 凸形挡台 0.036 见方 / 顶 0.0218
+//     `BAL-F`（A9）板顶 0.0078 · 横向宽接缝每 1 格（在瓦片边上，洞里看不到）· **板面正中一条沿轨纵缝**（宽 0.0100 / 深 0.0028）· 无挡台
+//     `BAL-N`（A25）道心 0.0078 · 砟肩外沿 0.0188 · 坡脚 0.1644（d = |y−0.5|）· 材质 `granite_grey`
+//     `BAL-G`（A10）低带 0.0025 · 承轨台 0.0100（台宽 0.040，居中于钢轨）· 材质 `concrete_mid`
+// =============================================================================
+const BED_BAND = [0.32, 0.68];          // 与全包一致的带宽 0.36 格
+const RAIL_C = [0.4484, 0.5516];
+
+export function emitBedLite(L, kind) {
+  const [Y0, Y1] = BED_BAND;
+  const box = (x0, y0, z0, x1, y1, z1, mat, top) =>
+    L.push(`box ${fmt(x0)} ${fmt(y0)} ${fmt(z0)}  ${fmt(x1)} ${fmt(y1)} ${fmt(z1)}  ${mat}${top ? ' top=' + top : ''}`);
+
+  if (kind === 'bal-e') {
+    // 板分 3 段（缝在 1/3、2/3）+ 缝底 + 凸形挡台
+    const J = [1 / 3, 2 / 3], JW = 0.0050;          // 缝半宽 = 0.0100 / 2
+    const bounds = [0, ...J.flatMap((j) => [j - JW, j + JW]), 1];
+    for (let i = 0; i + 1 < bounds.length; i += 1) {
+      const a = bounds[i], b = bounds[i + 1];
+      if (i % 2 === 1) continue;                     // 缝那两段单独发
+      box(a, Y0, 0, b, Y1, 0.0078, 'concrete_mid', 'concrete_mid');
+    }
+    for (const j of J) box(j - JW, Y0, 0, j + JW, Y1, 0.0050, 'panel_seam', 'panel_seam');
+    // 凸形挡台：每个缝位、两侧各一块（0.036 见方，顶 0.0218）
+    for (const j of J) for (const yc of [Y0 + 0.018, Y1 - 0.018]) {
+      box(j - 0.018, yc - 0.018, 0.0078, j + 0.018, yc + 0.018, 0.0218, 'concrete_mid', 'concrete_mid');
+    }
+  } else if (kind === 'bal-f') {
+    // 板 + 正中一条沿轨纵缝（宽 0.0100 / 深 0.0028）
+    box(0, Y0, 0, 1, 0.495, 0.0078, 'concrete_mid', 'concrete_mid');
+    box(0, 0.505, 0, 1, Y1, 0.0078, 'concrete_mid', 'concrete_mid');
+    box(0, 0.495, 0, 1, 0.505, 0.0050, 'panel_seam', 'panel_seam');
+  } else if (kind === 'bal-n') {
+    // 有砟·砟肩堆高：平顶台阶近似（道心 / 两道埂 / 坡脚各一档）
+    const STEPS = [
+      [0.3356, 0.3685, 0.0060],
+      [0.3685, 0.4044, 0.0188],
+      [0.4044, 0.5956, 0.0078],
+      [0.5956, 0.6315, 0.0188],
+      [0.6315, 0.6644, 0.0060],
+    ];
+    for (const [a, b, z] of STEPS) box(0, a, 0, 1, b, z, 'granite_grey', 'granite_grey');
+  } else if (kind === 'bal-g') {
+    // 无砟·CRTS III：低带 0.0025 + 两条承轨台 0.0100
+    box(0, Y0, 0, 1, Y1, 0.0025, 'concrete_mid', 'concrete_mid');
+    for (const c of RAIL_C) box(0, c - 0.0200, 0, 1, c + 0.0200, 0.0100, 'concrete_mid', 'concrete_mid');
+  } else {
+    throw new Error(`未知的洞内道床口径 bed=${kind}`);
+  }
+}

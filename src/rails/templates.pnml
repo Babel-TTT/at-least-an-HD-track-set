@@ -1977,6 +1977,41 @@ template t_G8_tunnel4s4_b_v1(sheet) {
 }
 
 // ---------------------------------------------------------------------------
+// G8_tunnel4n_* / G8_tunnel4f_* —— **`SECA`（`BAL-N`）与 `SFCA`（`BAL-F`）自己的洞口**
+//
+//   人工 2026-10-21 第二轮：「SFCA,SECA,SDCA 没改」——四条 `S_CA` 原来共用一个洞口，
+//   洞内道床是同一块**素面灰板**，没有各自的砟肩堆高 / 沿轨纵缝。（`SCCA`+`SDCA` 本来
+//   就是同一块 `BAL-E` 板 ⇒ 仍共用上表 `t_G8_tunnel4_*`。）
+//   两张分表 `gfx/tunnel4n.png` / `gfx/tunnel4f.png`：各 **2 件**（A/B 组 ground 层）
+//   / 8 张精灵 / 格位 263×167；`tunnel_overlay:` 复用 `t_G8_tunnel4_over_*`。
+//   ★ 与 `t_G8_tunnel4_*` **同格位、同锚点、同按名排序** ⇒ 4 条**逐条照抄**（实测 rect 全同）。
+// ---------------------------------------------------------------------------
+template t_G8_tunnel4n_v0(sheet) {
+  [0, 0, 263, 167, -126, -36, sheet]  // 【手调】照抄 t_G8_tunnel4_v0（同格位同锚点）
+}
+template t_G8_tunnel4n_v3(sheet) {
+  [789, 0, 263, 167, -126, -36, sheet]  // 【手调】照抄 t_G8_tunnel4_v3
+}
+template t_G8_tunnel4n_b_v2(sheet) {
+  [1578, 0, 263, 167, -119, -35, sheet]  // 【手调】照抄 t_G8_tunnel4_b_v2
+}
+template t_G8_tunnel4n_b_v1(sheet) {
+  [1315, 0, 263, 167, -130, -36, sheet]  // 【手调】照抄 t_G8_tunnel4_b_v1
+}
+template t_G8_tunnel4f_v0(sheet) {
+  [0, 0, 263, 167, -126, -36, sheet]  // 【手调】照抄 t_G8_tunnel4_v0
+}
+template t_G8_tunnel4f_v3(sheet) {
+  [789, 0, 263, 167, -126, -36, sheet]  // 【手调】照抄 t_G8_tunnel4_v3
+}
+template t_G8_tunnel4f_b_v2(sheet) {
+  [1578, 0, 263, 167, -119, -35, sheet]  // 【手调】照抄 t_G8_tunnel4_b_v2
+}
+template t_G8_tunnel4f_b_v1(sheet) {
+  [1315, 0, 263, 167, -130, -36, sheet]  // 【手调】照抄 t_G8_tunnel4_b_v1
+}
+
+// ---------------------------------------------------------------------------
 // G4_tunnel5_* —— **A12 组（`SAC3`）地铁矩形洞口 TUN-5**（分表 gfx/tunnel5.png）
 //
 //   模型由 `tools/gen-a12-metro.mjs` 生成；端墙尺寸与盖土几何与 TUN-1 同源。
