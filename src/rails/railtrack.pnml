@@ -1454,3 +1454,76 @@ item(FEAT_RAILTYPES, rail_SFCA, 23) {
         catenary_wire:   probe_catenary_wire;
     }
 }
+
+// SDDA —— 电气化快速（1991，200km/h，25kV AC；BAL-A 有砟·标准碎石，秦沈客专）
+item(FEAT_RAILTYPES, rail_SDDA, 24) {
+    property {
+        label:                  "SDDA";
+        introduction_date:      date(1991, 1, 1);
+        name:                   string(STR_RAIL_SDDA);
+        toolbar_caption:        string(STR_RAIL_SDDA);
+        menu_text:              string(STR_RAIL_SDDA);
+        build_window_caption:   string(STR_RAIL_SDDA);
+        autoreplace_text:       string(STR_RAIL_SDDA);
+        new_engine_text:        string(STR_RAIL_SDDA);
+        /* 兼容 / powered 与 `SGCA`（A10）/ `SFCA`（A9）那套列表**逐条相同** ——
+           本包所有 25kV 电气化类型必须互相跑得通。 */
+        compatible_railtype_list: ["RAIL", "ELRL", 
+                                    "SADN", "SBDN", "SCDN", "SDDN", "SEDN",  "SFDN", "SGDN",
+                                    "SAEN", "SBEN", "SCEN", "SDEN", "SEEN",  "SFEN", "SGEN",
+                                    "SADA", "SBDA", "SCDA", "SDDA", "SEDA",  "SFDA", "SGDA", 
+                                    "SAEA", "SBEA", "SCEA", "SDEA", "SEEA",  "SFEA", "SGEA", 
+                                    "SADd", "SBDd", "SCDd", "SDDd", "SEDd", 
+                                    "SAEd", "SBEd", "SCEd", "SDEd", "SEEd",  
+                                    "SADD", "SBDD", "SCDD", "SDDD", "SEDD",   
+                                    "DADN", "DBDN",
+                                    "DADA", "DBDA"];
+        powered_railtype_list:    [ "ELRL", 
+                                    "SADA", "SBDA", "SCDA", "SDDA", "SEDA",  "SFDA", "SGDA", 
+                                    "SAEA", "SBEA", "SCEA", "SDEA", "SEEA",  "SFEA", "SGEA",
+                                    "DACA", "DADA", "DBDA"];
+        /* `CATENARY`：25kV 架空接触网（本包自己出支柱 + 导线）。
+           ⚠ **不带 `NO_LEVEL_CROSSING`** —— 人工 2026-10-21 在 A6 确认门里点名
+           「**要平交道口**」⇒ 提供 `level_crossings:` 精灵（10 格，与 A8 同结构）。 */
+        railtype_flags:         bitmask(RAILTYPE_FLAG_CATENARY);
+        curve_speed_multiplier: 1;
+        station_graphics:       RAILTYPE_STATION_NORMAL;
+        /* 费用：按 C8 的档位内插（160 → 12/6、210 → 20/10）⇒ 200km/h 取 **18/9**；
+           地图色沿 `0x57`…`0x67`（`SFCA`=0x67）的顺序接 **0x68**。 */
+        construction_cost:      18;
+        maintenance_cost:       9;
+        speed_limit:            200 km/h;
+        acceleration_model:     ACC_MODEL_RAIL;
+        map_colour:             0x68;
+        sort_order:             SORT_ELECTRIC;
+    }
+    /* ★ 2026-10-21：A6 组（`BAL-A` 有砟·标准碎石 + `SLE-3` 混凝土宽枕 + `RAI-3` 长轨）
+       接入 —— 优先级 4 的第一条。模型由 `tools/gen-a6-fast.mjs`（人工 2026-10-21 按 L3
+       批准新建，是 `gen-a9-hsballast.mjs` 的同源副本）从 `G1_*` 派生（删道砟 →
+       按 `BAL-A` **平断面**重铺；钢轨只换材质 + 探出），分表 `gfx/quasifast.png`
+       （11 件 / 44 张精灵，格位 263×151、ca [131,83]）。
+
+       ★ `BAL-A` 的口径**照 A3 那一轮**（`SCDN` / `SCDA` 已经落地过一次）：
+         带宽 **0.36 格**（= 枕长 0.18 + 两肩各 0.09，与 `BAL-C` 同宽同色）、
+         道床顶面 **0.0078**（与 A5 / A8 / A25 / A9 同一个数 ⇒ 同一批 `SLE-3`
+         在五组上露出的高度完全一致）、**平断面不做砟肩堆高**（与 A25 `BAL-N` 的唯一区别）、
+         外缘拉直、粒径台阶 0.0011、材质 `gravel`。
+         ⚠ 与 A3 的差别：本组是**高度场重铺** ⇒ **没有坡脚散粒**（如实登记，1~2 px）。
+         ⚠ 所以 `SDDA` 与 `SCDA`（A3）的道床看起来一样，区别在轨枕（`SLE-3` vs `SLE-2`）
+           与钢轨（`RAI-3` vs `RAI-1`）—— 这是 §1.1 的规格本身决定的。
+       ★ **洞口复用 A3 的 `TUN-3`**（`probe_tunnels_3` / `probe_tunnel_over_3`，
+         `gfx/tunnel3.png`）—— 本组一件洞口模型都没出。
+       ★ 接触网：制式 `EL-25`，支柱 **`PYL-C2`** 混凝土圆柱（与 `SCDA` 同一批），
+         25kV ⇒ **无标牌**。
+       ★ 平交道口：**有**（人工 2026-10-21 点名）⇒ `probe_level_crossing_quasifast`。 */
+    graphics {
+        underlay:        probe_underlay_quasifast;
+        track_overlay:   probe_overlay_quasifast;
+        tunnels:         probe_tunnels_3;
+        tunnel_overlay:  probe_tunnel_over_3;
+        level_crossings: probe_level_crossing_quasifast;
+        bridge_surfaces: probe_bridge_surfaces_quasifast;
+        catenary_pylons: probe_catenary_pylons_cyl;
+        catenary_wire:   probe_catenary_wire;
+    }
+}

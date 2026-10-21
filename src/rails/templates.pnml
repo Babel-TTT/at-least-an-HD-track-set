@@ -1639,6 +1639,122 @@ template t_G11_rail_slope_v3(sheet) {
 }
 
 // ---------------------------------------------------------------------------
+// G12_* —— **A6 组（`SDDA` 电气化快速 200km/h）**（分表 gfx/quasifast.png）
+//
+//   模型由 `tools/gen-a6-fast.mjs` 生成（人工 2026-10-21 按 L3 批准新建，
+//   = `gen-a9-hsballast.mjs` 的同源副本）：道床换成 **`BAL-A` 有砟·标准碎石**
+//   （**平断面**，全场高 0.0078 · 带宽 0.36 · 外缘拉直 · 粒径台阶 0.0011 · `gravel`），
+//   轨枕 `SLE-3` / 钢轨 `RAI-3` **逐字照 A25**；★ 本组**有平交道口**。
+//
+//   分表 `gfx/quasifast.png`：11 件 / 44 张精灵，**格位 263×151**、`ca = [131, 83]`。
+//   ⚠ 与 G10（`hsballast.png`，263×150 / ca 131,82）**只差 1 px 的格位高** ⇒
+//     算法值逐条 `yrel −1`，于是
+//       **本节的摆位值 = `t_G10_*` 的值 + (0, −1)**（`xrel` 一个字不动），
+//     道口那两条 = `t_G9_levelcrossing_*` 的值 + (0, −3)。
+//     ★ 手调增量跟着 G10 走是**故意的**：两组的轨枕与钢轨是同一批模型，
+//       只是道床那一层不同 ⇒ 唯有这样 A6 的钢轨才与 A25 落在同一处。
+// ---------------------------------------------------------------------------
+template t_G12_track_x_v0(sheet) {
+  [1052, 604, 263, 151, -129, -18, sheet]  // 【手调】= t_G10_track_x_v0 + (0,−1)
+}
+template t_G12_track_x_v3(sheet) {
+  [1841, 604, 263, 151, -128, -19, sheet]  // 【手调】= t_G10_track_x_v3 + (0,−1)
+}
+template t_G12_track_half_v0(sheet) {
+  [1052, 453, 263, 151, -127, -21, sheet]  // 【手调】= t_G10_track_half_v0 + (0,−1)；UPPER（切 N 角）
+}
+template t_G12_track_half_v1(sheet) {
+  [1315, 453, 263, 151, -128, -19, sheet]  // 【手调】= t_G10_track_half_v1 + (0,−1)；LEFT(RTO_W)
+}
+template t_G12_track_half_v2(sheet) {
+  [1578, 453, 263, 151, -127, -21, sheet]  // 【手调】= t_G10_track_half_v2 + (0,−1)；RTO_S 用镜像件，本行仅备查
+}
+template t_G12_track_half_v3(sheet) {
+  [1841, 453, 263, 151, -127, -19, sheet]  // 【手调】= t_G10_track_half_v3 + (0,−1)；RTO_E 用镜像件，同上
+}
+template t_G12_z_track_half_m_v0(sheet) {
+  [0, 755, 263, 151, -128, -21, sheet]  // 【手调】= t_G10_z_track_half_m_v0 + (0,−1)；本行仅备查
+}
+template t_G12_z_track_half_m_v1(sheet) {
+  [263, 755, 263, 151, -128, -19, sheet]  // 【手调】= t_G10_z_track_half_m_v1 + (0,−1)；本行仅备查
+}
+template t_G12_z_track_half_m_v2(sheet) {
+  [526, 755, 263, 151, -128, -21, sheet]  // 【手调】= t_G10_z_track_half_m_v2 + (0,−1) ← RTO_S 用这张
+}
+template t_G12_z_track_half_m_v3(sheet) {
+  [789, 755, 263, 151, -128, -19, sheet]  // 【手调】= t_G10_z_track_half_m_v3 + (0,−1) ← RTO_E 用这张
+}
+template t_G12_track_slope_v0(sheet) {
+  [0, 604, 263, 151, -126, -19, sheet]  // 【手调】= t_G10_track_slope_v0 + (0,−1)；坡 NE
+}
+template t_G12_track_slope_v1(sheet) {
+  [263, 604, 263, 151, -127, -19, sheet]  // 【手调】= t_G10_track_slope_v1 + (0,−1)；坡 NW
+}
+template t_G12_track_slope_v2(sheet) {
+  [526, 604, 263, 151, -129, -19, sheet]  // 【手调】= t_G10_track_slope_v2 + (0,−1)；坡 SW
+}
+template t_G12_track_slope_v3(sheet) {
+  [789, 604, 263, 151, -129, -19, sheet]  // 【手调】= t_G10_track_slope_v3 + (0,−1)；坡 SE
+}
+template t_G12_crossing_v0(sheet) {
+  [0, 0, 263, 151, -127, -21, sheet]  // 【手调】= t_G10_crossing_v0 + (0,−1)
+}
+template t_G12_junction3_v0(sheet) {
+  [1052, 0, 263, 151, -128, -21, sheet]  // 【手调】= t_G10_junction3_v0 + (0,−1)
+}
+template t_G12_junction3_v1(sheet) {
+  [1315, 0, 263, 151, -128, -21, sheet]  // 【手调】= t_G10_junction3_v1 + (0,−1)
+}
+template t_G12_junction3_v2(sheet) {
+  [1578, 0, 263, 151, -128, -21, sheet]  // 【手调】= t_G10_junction3_v2 + (0,−1)
+}
+template t_G12_junction3_v3(sheet) {
+  [1841, 0, 263, 151, -128, -21, sheet]  // 【手调】= t_G10_junction3_v3 + (0,−1)
+}
+template t_G12_junction4_v0(sheet) {
+  [0, 151, 263, 151, -128, -21, sheet]  // 【手调】= t_G10_junction4_v0 + (0,−1)
+}
+template t_G12_rail_straight_v0(sheet) {
+  [0, 453, 263, 151, -130, -18, sheet]  // 【手调】= t_G10_rail_straight_v0 + (0,−1)；overlay 仅钢轨层
+}
+template t_G12_rail_straight_v3(sheet) {
+  [789, 453, 263, 151, -128, -19, sheet]  // 【手调】= t_G10_rail_straight_v3 + (0,−1)
+}
+template t_G12_rail_half_v0(sheet) {
+  [0, 302, 263, 151, -127, -21, sheet]  // 【手调】= t_G10_rail_half_v0 + (0,−1)
+}
+template t_G12_rail_half_v1(sheet) {
+  [263, 302, 263, 151, -128, -19, sheet]  // 【手调】= t_G10_rail_half_v1 + (0,−1)；LEFT(RTO_W)
+}
+template t_G12_rail_half_v2(sheet) {
+  [526, 302, 263, 151, -128, -21, sheet]  // 【手调】= t_G10_rail_half_v2 + (0,−1)
+}
+template t_G12_rail_half_v3(sheet) {
+  [789, 302, 263, 151, -128, -19, sheet]  // 【手调】= t_G10_rail_half_v3 + (0,−1)；RIGHT(RTO_E)
+}
+template t_G12_rail_slope_v0(sheet) {
+  [1052, 302, 263, 151, -126, -19, sheet]  // 【手调】= t_G10_rail_slope_v0 + (0,−1)
+}
+template t_G12_rail_slope_v1(sheet) {
+  [1315, 302, 263, 151, -127, -19, sheet]  // 【手调】= t_G10_rail_slope_v1 + (0,−1)
+}
+template t_G12_rail_slope_v2(sheet) {
+  [1578, 302, 263, 151, -129, -19, sheet]  // 【手调】= t_G10_rail_slope_v2 + (0,−1)
+}
+template t_G12_rail_slope_v3(sheet) {
+  [1841, 302, 263, 151, -129, -19, sheet]  // 【手调】= t_G10_rail_slope_v3 + (0,−1)
+}
+// ★ 平交道口两条（`level_crossings:` 那一组的 0 号与 5 号槽）：源是本组自己的
+//   `G12_levelcrossing`（**素面道床照 BAL-A 平断面重铺** + 宽枕 + 长轨）。
+//   手调增量跟着 A8（`t_G9_levelcrossing_*`）走，格位差用算法值补 ⇒ + (0,−3)。
+template t_G12_levelcrossing_v0(sheet) {
+  [1052, 151, 263, 151, -126, -20, sheet]  // 【手调】= t_G9_levelcrossing_v0 + (0,−3)；X 方向
+}
+template t_G12_levelcrossing_v3(sheet) {
+  [1841, 151, 263, 151, -234, -72, sheet]  // 【手调】= t_G9_levelcrossing_v3 + (0,−3)；Y 方向
+}
+
+// ---------------------------------------------------------------------------
 // G8_tunnel4_* —— **A10 组（`SGCA`）高速洞口 TUN-4**（分表 gfx/tunnel4.png）
 //
 //   模型由 `tools/gen-a10-slab.mjs` 从 `G3_tunnel3*` 派生（端墙加宽到 0.80 格、

@@ -41,6 +41,7 @@ STR_RAIL_SCCA                               :Intercity {RED}25kVAC
 STR_RAIL_SDCA                               :Passenger dedicated {RED}25kVAC
 STR_RAIL_SECA                               :High-speed {RED}25kVAC
 STR_RAIL_SFCA                               :High-speed {RED}25kVAC
+STR_RAIL_SDDA                               :Electrified fast {RED}25kVAC
 STR_RAIL_NACN                               :Narrow gauge
 STR_RAIL_SBEN                               :Heavy haul
 STR_RAIL_SBEA                               :Electrified heavy haul {RED}25kVAC

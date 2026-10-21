@@ -507,6 +507,86 @@ spriteset(probe_bridge_surfaces_hsballast, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
 }
 
 /* ===========================================================================
+   A6 组（`SDDA` 电气化快速 200km/h，25kV AC，秦沈客专）
+   —— underlay / track_overlay / 平交道口 / 桥面 四组
+   （**洞口不在这里** —— 复用 A3 的 `TUN-3`；★ **本组有道口**，人工 2026-10-21 点名）
+
+   分表：轨道 = `gfx/quasifast.png`（见 tools/sheets.mjs；11 件 / 44 张精灵，
+   **格位 263×151**、`ca = [131, 83]`）。
+   模型由 `tools/gen-a6-fast.mjs`（人工 2026-10-21 按 L3 批准新建，= `gen-a9-hsballast.mjs`
+   的同源副本）从 **G1 的模型派生**：
+     `BAL-A` 有砟·**标准碎石**（**平断面**：道床顶面 0.0078 · **不做砟肩堆高** ·
+              带宽 **0.36** 格 = 枕长 0.18 + 两肩各 0.09 · **外缘拉直** ·
+              粒径台阶 **0.0011** 格 · 材质 `gravel` 156,149,138 · **无坡脚散粒**）
+     `SLE-3` 混凝土宽枕（**U 形承轨槽**，与 A5 / A8 / A25 / A9 共用同一批模型口径）
+     `RAI-3` 长轨（几何 = `RAI-1` 一字不动，只换 `metal_dark` / `metal_pale`）
+   摆位值见 templates.pnml 的 G12_* 那一节（= `t_G10_*` 的值 + 算法差 `yrel −1`；
+   道口两条 = `t_G9_levelcrossing_*` + `yrel −3`）。
+
+   ★ **洞口直接复用 A3 的 `TUN-3`**（`probe_tunnels_3` / `probe_tunnel_over_3`，
+     分表 `gfx/tunnel3.png`）—— 本组一件洞口模型都没出。
+   ★ **槽位顺序、取图顺序与 G1 / G4 / G5 / G6 / G9 / G10 逐条一样**；
+     本组**有** `level_crossings:`（与 A8 `crts1` 同结构、10 格）。
+   ★ 25kV 是默认制式 ⇒ 接触网支柱用 **`PYL-C2`** 混凝土圆柱
+     （`probe_catenary_pylons_cyl`，与 `SCDA` 同款）、导线用共用的 `probe_catenary_wire`。
+   =========================================================================== */
+spriteset(probe_underlay_quasifast, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G12_track_x_v0("gfx/quasifast.png")          //  0  RTO_X        X
+    t_G12_track_x_v3("gfx/quasifast.png")          //  1  RTO_Y        Y
+    t_G12_track_half_v0("gfx/quasifast.png")       //  2  RTO_N        UPPER（切 N 角）
+    t_G12_z_track_half_m_v2("gfx/quasifast.png")   //  3  RTO_S        LOWER ← 镜像件（本组无第三轨，只为槽位对齐）
+    t_G12_z_track_half_m_v3("gfx/quasifast.png")   //  4  RTO_E        RIGHT ← 镜像件
+    t_G12_track_half_v1("gfx/quasifast.png")       //  5  RTO_W        LEFT
+    t_G12_track_slope_v0("gfx/quasifast.png")      //  6  RTO_SLOPE_NE   v0（右上抬）
+    t_G12_track_slope_v3("gfx/quasifast.png")      //  7  RTO_SLOPE_SE   v3（右下抬）
+    t_G12_track_slope_v2("gfx/quasifast.png")      //  8  RTO_SLOPE_SW   v2（左下抬）
+    t_G12_track_slope_v1("gfx/quasifast.png")      //  9  RTO_SLOPE_NW   v1（左上抬）
+    t_G12_crossing_v0("gfx/quasifast.png")         // 10  RTO_CROSSING_XY（自带两组钢轨）
+    t_G12_junction3_v0("gfx/quasifast.png")        // 11  RTO_JUNCTION_SW（只有道床）
+    t_G12_junction3_v2("gfx/quasifast.png")        // 12  RTO_JUNCTION_NE（v2）
+    t_G12_junction3_v1("gfx/quasifast.png")        // 13  RTO_JUNCTION_SE（v1）
+    t_G12_junction3_v3("gfx/quasifast.png")        // 14  RTO_JUNCTION_NW（v3）
+    t_G12_junction4_v0("gfx/quasifast.png")        // 15  RTO_JUNCTION_NSEW（只有道床）
+}
+
+spriteset(probe_overlay_quasifast, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G12_rail_straight_v0("gfx/quasifast.png")    // 0  RTO_X        宽枕 + 钢轨层（透明底）
+    t_G12_rail_straight_v3("gfx/quasifast.png")    // 1  RTO_Y
+    t_G12_rail_half_v0("gfx/quasifast.png")        // 2  RTO_N
+    t_G12_rail_half_v2("gfx/quasifast.png")        // 3  RTO_S
+    t_G12_rail_half_v3("gfx/quasifast.png")        // 4  RTO_E
+    t_G12_rail_half_v1("gfx/quasifast.png")        // 5  RTO_W
+    t_G12_rail_slope_v0("gfx/quasifast.png")       // 6  RTO_SLOPE_NE
+    t_G12_rail_slope_v3("gfx/quasifast.png")       // 7  RTO_SLOPE_SE
+    t_G12_rail_slope_v2("gfx/quasifast.png")       // 8  RTO_SLOPE_SW
+    t_G12_rail_slope_v1("gfx/quasifast.png")       // 9  RTO_SLOPE_NW
+}
+
+// 平交道口 —— 10 格 = 2 方向 × (1 张轨道图 + 4 张道口灯/栏杆)；占位与 G1 / G5 / G6 / G9 逐条相同
+spriteset(probe_level_crossing_quasifast, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G12_levelcrossing_v0("gfx/quasifast.png")               // 0  X 方向：轨道图
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png")      // 1  X 方向：道口灯 1（占位）
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png")      // 2  X 方向：道口灯 2（占位）
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png")      // 3  X 方向：栏杆 1（占位）
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png")      // 4  X 方向：栏杆 2（占位）
+    t_G12_levelcrossing_v3("gfx/quasifast.png")               // 5  Y 方向：轨道图
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png")      // 6  Y 方向：道口灯 1（占位）
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png")      // 7  Y 方向：道口灯 2（占位）
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png")      // 8  Y 方向：栏杆 1（占位）
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png")      // 9  Y 方向：栏杆 2（占位）
+}
+
+// 桥面 —— 6 格（平 X / 平 Y / 坡 NE / SE / SW / NW），顺序同 probe_bridge_surfaces
+spriteset(probe_bridge_surfaces_quasifast, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G12_track_x_v0("gfx/quasifast.png")          // 0  平 — X
+    t_G12_track_x_v3("gfx/quasifast.png")          // 1  平 — Y
+    t_G12_track_slope_v0("gfx/quasifast.png")      // 2  坡 NE（x=0 边抬 / 远端高）
+    t_G12_track_slope_v3("gfx/quasifast.png")      // 3  坡 SE（y=1 边抬 / 近端高）
+    t_G12_track_slope_v2("gfx/quasifast.png")      // 4  坡 SW（x=1 边抬 / 近端高）
+    t_G12_track_slope_v1("gfx/quasifast.png")      // 5  坡 NW（y=0 边抬 / 远端高）
+}
+
+/* ===========================================================================
    隧道口 —— TUN-1「料石端墙拱」（分表：gfx/tunnel.png）
 
    两个组，对应 NML 的 `tunnels:` 与 `tunnel_overlay:`（核自官方 wiki
