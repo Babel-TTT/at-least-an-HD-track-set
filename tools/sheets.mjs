@@ -213,6 +213,22 @@ export const SHEETS = [
     match: /^G12_/,
   },
   {
+    // A11 组（`SACd` 1979·80 / `SBCd` 1998·140，1500V DC 地铁）的轨道：
+    //   **`BAL-H` 浮置板 + `SLE-5` 混凝土枕 + `RAI-1` 60kg/m 钢轨 + `TUN-5` 洞口**，
+    //   与已装机的 A12（`SAC3` 第三轨地铁）**只差"没有第三轨与罩"**。
+    // 几何由 tools/gen-a11-metro-dc.mjs 生成（= `gen-a12-metro.mjs` 的同源副本，
+    // 每个 `trackShapes()` 调用补 `third: false`；洞口不重出，复用 A12 的 `gfx/tunnel5.png`）。
+    //
+    // ⚠ **本组没有平交道口**（`SACd` / `SBCd` 与 `SAC3` 一样带
+    //   `RAILTYPE_FLAG_NO_LEVEL_CROSSING`）⇒ 表里 10 件（比 A12 少一件道口图，
+    //   比 A8 少一件道口图与两件镜像件）。
+    // ⚠ 单独一张表（同 rail / metro / crts3 / crts1 / hsballast / crts2 / quasifast 表的
+    //   理由：格位由本表自己的极值决定，混进去会把已有几十条 `rect` 顶移位）。
+    key: 'dcmetro',
+    title: '地铁直流 BAL-H（浮置板 + SLE-5 + RAI-1，无第三轨；SACd / SBCd）',
+    match: /^G13_/,
+  },
+  {
     // A15 组（`NACN` 窄轨）的**洞口**：TUN-7 小断面拱（端墙外形照 TUN-1，
     // 只把拱洞与洞内轨道按 k = 0.70 收窄；几何由 tools/gen-a15-narrow.mjs 从 TUN-1 收窄而来）。
     // ⚠ 必须登记在下面的 narrow **之前**：那个表的正则是 /^G5_/，会先把 G5_tunnel7_* 吃掉。
@@ -274,7 +290,22 @@ export const SHEETS = [
     //   登记在 pylonstyle **之前**：它的正则是 /^G1_sty_/，会先把 G1_sty_cyl_* 吃掉。
     key: 'pyloncyl',
     title: '接触网支柱 PYL-C2（混凝土等径圆柱；SCDA）',
-    match: /^G1_sty_cyl/,
+    // ⚠ 负向先行断言把 `G1_sty_cyl_blue_*` 让给下一张表（同前缀、first-match-wins）。
+    match: /^G1_sty_cyl(?!_blue)/,
+  },
+  {
+    // 接触网支柱 **PYL-C2 + 浅蓝牌**（= 1500V DC 档，人工 2026-10-21 批准本轮做）：
+    //   §1.6.5.1 的落位表里 `SACd` / `SBCd` / `SACZ` 三条都是 `PYL-C2` + 浅蓝牌，
+    //   而那时「C2 + 浅蓝」这套还没建 ⇒ 本轮给 `SACd` / `SBCd` 补上（`SACZ` 将来直接用）。
+    //
+    // 模型 `models/G1_sty_cyl_blue_a|_b.model` = `G1_sty_cyl_a|_b` **逐字相同 +
+    //   一根同轴圆柱环箍**（半径 0.0280 = 柱基半径、z 0.1250–0.1850、材质
+    //   `awning_ltblue`，与 E1 那块蓝牌同一个 z 区间与颜色）。
+    // ⚠ 本族与 `pyloncyl` **同格位**（`zmax` 都钉 0.7000、环箍不撑大外接框 ⇒ 263×210）
+    //   ⇒ 分表的理由不是格位，而是守"一表一类"这条纪律（同 pylonsteel / pylondkblue）。
+    key: 'pyloncylblue',
+    title: '接触网支柱 PYL-C2 + 浅蓝牌（1500V DC；SACd / SBCd）',
+    match: /^G1_sty_cyl_blue/,
   },
   {
     // 接触网支柱 **PYL-S1 H 型钢**（人工 2026-10-05 批准：A10 确认门里与 `SGCA` 同批；

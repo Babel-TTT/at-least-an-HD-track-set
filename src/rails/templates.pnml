@@ -1755,6 +1755,146 @@ template t_G12_levelcrossing_v3(sheet) {
 }
 
 // ---------------------------------------------------------------------------
+// G13_* —— **A11 组（`SACd` / `SBCd` 直流地铁）**（分表 gfx/dcmetro.png）
+//
+//   模型由 `tools/gen-a11-metro-dc.mjs` 生成（人工 2026-10-21 按 L3 批准新建，
+//   = `gen-a12-metro.mjs` 的同源副本）：道床 `BAL-H` + 轨枕 `SLE-5` + 钢轨 `RAI-1`，
+//   **与 A12（`SAC3`）的唯一区别是没有第三轨与罩**；洞口复用 A12 的 `TUN-5`（0 件新洞口）。
+//
+//   分表 `gfx/dcmetro.png`：10 件 / 40 张精灵，**格位 263×149**、`ca = [131, 81]`。
+//   ★ 与 `metro.png`（A12）**同格位、同锚点、同按名排序** ⇒ 渲完从 `gfx/openttd.json`
+//     逐条复核：10 个模型的 `rect` 与 `xrel/yrel` **全部一模一样**（`rect 相同 10/10`）。
+//     ⇒ 本节 **逐条照抄 `t_G4_*`**（含 2026-10-08 那批 (−2,+2) 的斜向半格手调与
+//       2026-10-21 的 LEFT/RIGHT 手调 —— 两条地铁线的钢轨**必须落在同一处**）。
+//   ⚠ **没有洞口模板**（`TUN-5` 用 A12 的 `gfx/tunnel5.png`）、**没有道口模板**
+//     （`SACd` / `SBCd` 与 `SAC3` 一样带 `NO_LEVEL_CROSSING`）。
+// ---------------------------------------------------------------------------
+template t_G13_track_x_v0(sheet) {
+  [0, 596, 263, 149, -126, -18, sheet]  // 【手调】逐条照抄 t_G4_track_x_v0（同格位同锚点 ⇒ 算法值相同）
+}
+template t_G13_track_x_v3(sheet) {
+  [789, 596, 263, 149, -127, -19, sheet]  // 【手调】照抄 t_G4_track_x_v3
+}
+template t_G13_track_half_v0(sheet) {
+  [0, 447, 263, 149, -127, -19, sheet]  // 【手调】照抄 t_G4_track_half_v0
+}
+template t_G13_track_half_v1(sheet) {
+  [263, 447, 263, 149, -128, -17, sheet]  // 【手调】照抄 t_G4_track_half_v1（LEFT(RTO_W)）
+}
+template t_G13_track_half_v2(sheet) {
+  [526, 447, 263, 149, -127, -19, sheet]  // 【手调】照抄 t_G4_track_half_v2（RTO_S 用镜像件，本行仅备查）
+}
+template t_G13_track_half_v3(sheet) {
+  [789, 447, 263, 149, -127, -17, sheet]  // 【手调】照抄 t_G4_track_half_v3（同上）
+}
+template t_G13_z_track_half_m_v0(sheet) {
+  [1052, 596, 263, 149, -128, -19, sheet]  // 【手调】照抄 t_G4_z_track_half_m_v0（本行仅备查；本组无第三轨 ⇒ 与原版同形）
+}
+template t_G13_z_track_half_m_v1(sheet) {
+  [1315, 596, 263, 149, -128, -17, sheet]  // 【手调】照抄 t_G4_z_track_half_m_v1（LEFT(RTO_W)）
+}
+template t_G13_z_track_half_m_v2(sheet) {
+  [1578, 596, 263, 149, -128, -19, sheet]  // 【手调】照抄 t_G4_z_track_half_m_v2 ← RTO_S 用这张
+}
+template t_G13_z_track_half_m_v3(sheet) {
+  [1841, 596, 263, 149, -128, -17, sheet]  // 【手调】照抄 t_G4_z_track_half_m_v3 ← RTO_E 用这张
+}
+template t_G13_track_slope_v0(sheet) {
+  [1052, 447, 263, 149, -125, -19, sheet]  // 【手调】照抄 t_G4_track_slope_v0；坡 NE
+}
+template t_G13_track_slope_v1(sheet) {
+  [1315, 447, 263, 149, -126, -19, sheet]  // 【手调】照抄 t_G4_track_slope_v1；坡 NW
+}
+template t_G13_track_slope_v2(sheet) {
+  [1578, 447, 263, 149, -128, -19, sheet]  // 【手调】照抄 t_G4_track_slope_v2；坡 SW
+}
+template t_G13_track_slope_v3(sheet) {
+  [1841, 447, 263, 149, -128, -19, sheet]  // 【手调】照抄 t_G4_track_slope_v3；坡 SE
+}
+template t_G13_crossing_v0(sheet) {
+  [0, 0, 263, 149, -125, -19, sheet]  // 【手调】照抄 t_G4_crossing_v0
+}
+template t_G13_junction3_v0(sheet) {
+  [1052, 0, 263, 149, -128, -19, sheet]  // 【手调】照抄 t_G4_junction3_v0
+}
+template t_G13_junction3_v1(sheet) {
+  [1315, 0, 263, 149, -128, -19, sheet]  // 【手调】照抄 t_G4_junction3_v1
+}
+template t_G13_junction3_v2(sheet) {
+  [1578, 0, 263, 149, -128, -19, sheet]  // 【手调】照抄 t_G4_junction3_v2
+}
+template t_G13_junction3_v3(sheet) {
+  [1841, 0, 263, 149, -128, -19, sheet]  // 【手调】照抄 t_G4_junction3_v3
+}
+template t_G13_junction4_v0(sheet) {
+  [0, 149, 263, 149, -128, -19, sheet]  // 【手调】照抄 t_G4_junction4_v0
+}
+template t_G13_rail_straight_v0(sheet) {
+  [1052, 298, 263, 149, -127, -18, sheet]  // 【手调】照抄 t_G4_rail_straight_v0
+}
+template t_G13_rail_straight_v3(sheet) {
+  [1841, 298, 263, 149, -128, -19, sheet]  // 【手调】照抄 t_G4_rail_straight_v3
+}
+template t_G13_rail_half_v0(sheet) {
+  [1052, 149, 263, 149, -128, -19, sheet]  // 【手调】照抄 t_G4_rail_half_v0
+}
+template t_G13_rail_half_v1(sheet) {
+  [1315, 149, 263, 149, -127, -17, sheet]  // 【手调】照抄 t_G4_rail_half_v1（LEFT(RTO_W)）
+}
+template t_G13_rail_half_v2(sheet) {
+  [1578, 149, 263, 149, -128, -19, sheet]  // 【手调】照抄 t_G4_rail_half_v2
+}
+template t_G13_rail_half_v3(sheet) {
+  [1841, 149, 263, 149, -128, -17, sheet]  // 【手调】照抄 t_G4_rail_half_v3（RIGHT(RTO_E)）
+}
+template t_G13_rail_slope_v0(sheet) {
+  [0, 298, 263, 149, -125, -19, sheet]  // 【手调】照抄 t_G4_rail_slope_v0
+}
+template t_G13_rail_slope_v1(sheet) {
+  [263, 298, 263, 149, -126, -19, sheet]  // 【手调】照抄 t_G4_rail_slope_v1
+}
+template t_G13_rail_slope_v2(sheet) {
+  [526, 298, 263, 149, -128, -19, sheet]  // 【手调】照抄 t_G4_rail_slope_v2
+}
+template t_G13_rail_slope_v3(sheet) {
+  [789, 298, 263, 149, -128, -19, sheet]  // 【手调】照抄 t_G4_rail_slope_v3
+}
+
+// ---------------------------------------------------------------------------
+// G1_sty_cyl_blue_* —— **PYL-C2 + 浅蓝牌**（1500V DC 档；`SACd` / `SBCd`）
+//   分表 `gfx/pyloncylblue.png`（2 件 / 8 张精灵 / **格位 263×210**）。
+//   模型 = `G1_sty_cyl_a|_b` **逐字相同 + 一根同轴圆柱环箍**（半径 0.0280、z 0.1250–0.1850、
+//   `awning_ltblue`）⇒ 外接框与锚点一模一样（渲完从 `gfx/openttd.json` 复核：
+//   `rect` 与 `xrel/yrel` 与 `t_G1_sty_cyl_*` **逐条相同**）。
+//   ⇒ 8 条**逐条照抄** `t_G1_sty_cyl_*`，只有传给模板的 sheet 换成 `"gfx/pyloncylblue.png"`。
+//   ⚠ 摆位值本身来自更早的人工手调（源 `t_G1_pylon_a|_b_v*`，见上面 cyl 那一节的注释）。
+// ---------------------------------------------------------------------------
+template t_G1_sty_cyl_blue_a_v0(sheet) {
+  [0, 0, 263, 210, -131, -82, sheet]  // 【手调】照抄 t_G1_sty_cyl_a_v0
+}
+template t_G1_sty_cyl_blue_a_v1(sheet) {
+  [263, 0, 263, 210, -11, -142, sheet]  // 【手调】照抄 t_G1_sty_cyl_a_v1
+}
+template t_G1_sty_cyl_blue_a_v2(sheet) {
+  [526, 0, 263, 210, -131, -202, sheet]  // 【手调】照抄 t_G1_sty_cyl_a_v2
+}
+template t_G1_sty_cyl_blue_a_v3(sheet) {
+  [789, 0, 263, 210, -251, -142, sheet]  // 【手调】照抄 t_G1_sty_cyl_a_v3
+}
+template t_G1_sty_cyl_blue_b_v0(sheet) {
+  [1052, 0, 263, 210, -131, -82, sheet]  // 【手调】照抄 t_G1_sty_cyl_b_v0
+}
+template t_G1_sty_cyl_blue_b_v1(sheet) {
+  [1315, 0, 263, 210, -28, -139, sheet]  // 【手调】照抄 t_G1_sty_cyl_b_v1
+}
+template t_G1_sty_cyl_blue_b_v2(sheet) {
+  [1578, 0, 263, 210, -131, -202, sheet]  // 【手调】照抄 t_G1_sty_cyl_b_v2
+}
+template t_G1_sty_cyl_blue_b_v3(sheet) {
+  [1841, 0, 263, 210, -225, -142, sheet]  // 【手调】照抄 t_G1_sty_cyl_b_v3
+}
+
+// ---------------------------------------------------------------------------
 // G8_tunnel4_* —— **A10 组（`SGCA`）高速洞口 TUN-4**（分表 gfx/tunnel4.png）
 //
 //   模型由 `tools/gen-a10-slab.mjs` 从 `G3_tunnel3*` 派生（端墙加宽到 0.80 格、

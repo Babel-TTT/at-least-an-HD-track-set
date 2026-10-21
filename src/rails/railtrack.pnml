@@ -1527,3 +1527,137 @@ item(FEAT_RAILTYPES, rail_SDDA, 24) {
         catenary_wire:   probe_catenary_wire;
     }
 }
+
+// SACd —— 地铁（1500V DC · 1979 · 80km/h · 23t；BAL-H 浮置板，**无第三轨**，架空接触网）
+item(FEAT_RAILTYPES, rail_SACd, 25) {
+    property {
+        label:                  "SACd";
+        introduction_date:      date(1979, 1, 1);
+        name:                   string(STR_RAIL_SACd);
+        toolbar_caption:        string(STR_RAIL_SACd);
+        menu_text:              string(STR_RAIL_SACd);
+        build_window_caption:   string(STR_RAIL_SACd);
+        autoreplace_text:       string(STR_RAIL_SACd);
+        new_engine_text:        string(STR_RAIL_SACd);
+        /* 兼容 / powered 与 `SAC3`（A12）那套列表**逐条相同** —— 同一个直流地铁族
+           （1500V DC / 第三轨 / 直线电机之间必须互相跑得通）。 */
+        compatible_railtype_list: ["RAIL", "ELRL", 
+                                    "SACN", "SBCN", "SCCN", "SDCN", "SECN",  "SFCN", "SGDN",
+                                    "SADN", "SBDN", "SCDN", "SDDN", "SEDN",  "SFDN", "SGDN",
+                                    "SAEN", "SBEN", "SCEN", "SDEN", "SEEN",  "SFEN", "SGEN",
+                                    "SACA", "SBCA", "SCCA", "SDCA", "SECA",  "SFCA", "SGCA",
+                                    "SADA", "SBDA", "SCDA", "SDDA", "SEDA",  "SFDA", "SGDA", 
+                                    "SAEA", "SBEA", "SCEA", "SDEA", "SEEA",  "SFEA", "SGEA",
+                                    "SACd", "SBCd", "SCCd", "SDCd", "SECd",
+                                    "SADd", "SBDd", "SCDd", "SDDd", "SEDd",
+                                    "SAEd", "SBEd", "SCEd", "SDEd", "SEEd",  
+                                    "SACD", "SBCD", "SCCD", "SDCD", "SECD", 
+                                    "SADD", "SBDD", "SCDD", "SDDD", "SEDD",   
+                                    "SAC3", "SBC3", "SCC3", "SDC3",
+                                    "SACZ", "SBCZ", "SCCZ", "SDCZ",    
+                                    "SACL", "SBCL", "SCCL", "SDCL",
+                                    "DACN", 
+                                    "DADN", "DBDN",
+                                    "DACA", 
+                                    "DADA", "DBDA",
+                                    "dACN", "dBCN"];
+        powered_railtype_list:    [ "ELRL", 
+                                    "SACd", "SBCd", "SCCd", "SDCd",
+                                    "SACD", "SBCD", "SCCD", "SDCD",
+                                    "SAC3", "SBC3", "SCC3", "SDC3",
+                                    "SACZ", "SBCZ", "SCCZ", "SDCZ",
+                                    "SACL", "SBCL", "SCCL", "SDCL"];
+        /* `CATENARY`：1500V DC **架空接触网**（与第三轨地铁 `SAC3` 相反 ⇒ 带这个 flag）；
+           `NO_LEVEL_CROSSING`：人工 2026-10-21 确认门裁定「不做平交道口」
+           （与 A12 `SAC3` 一致）⇒ 不提供 `level_crossings:` 精灵。 */
+        railtype_flags:         bitmask(RAILTYPE_FLAG_CATENARY, RAILTYPE_FLAG_NO_LEVEL_CROSSING);
+        curve_speed_multiplier: 1;
+        station_graphics:       RAILTYPE_STATION_NORMAL;
+        construction_cost:      4;
+        maintenance_cost:       2;
+        speed_limit:            80 km/h;
+        acceleration_model:     ACC_MODEL_RAIL;
+        map_colour:             0x69;
+        sort_order:             SORT_ELECTRIC;
+    }
+    /* ★ 2026-10-21：A11 组（`BAL-H` 浮置板 + `SLE-5` 无枕扣件座 + `RAI-1` 钢轨，
+       **没有第三轨与罩**）接入 —— 与 A12（`SAC3`）同一套板/枕/洞口，只少了接触轨。
+       模型由 `tools/gen-a11-metro-dc.mjs`（人工 2026-10-21 按 L3 批准新建，
+       = `gen-a12-metro.mjs` 的同源副本）生成，分表 `gfx/dcmetro.png`（10 件 / 40 张精灵 /
+       格位 263×149、ca [131,81] —— 与 `metro.png` 同格位一族 ⇒ 模板逐条照抄 `t_G4_*`）。
+       ★ 洞口**复用 A12 的 `TUN-5`**（`probe_tunnels_metro` / `probe_tunnel_over_metro`）。
+       ★ 电气化：`EL-1500` + **`PYL-C2` 浅蓝牌**（`probe_catenary_pylons_cyl_blue`，
+         人工 2026-10-21 本轮新建 ⇒ `SACZ` 将来直接用同一套）。 */
+    graphics {
+        underlay:        probe_underlay_dcmetro;
+        track_overlay:   probe_overlay_dcmetro;
+        tunnels:         probe_tunnels_metro;
+        tunnel_overlay:  probe_tunnel_over_metro;
+        bridge_surfaces: probe_bridge_surfaces_dcmetro;
+        catenary_pylons: probe_catenary_pylons_cyl_blue;
+        catenary_wire:   probe_catenary_wire;
+    }
+}
+
+// SBCd —— 地铁（1500V DC · 1998 · 140km/h · 23t；**与 `SACd` 同一套几何，只差 C8**）
+item(FEAT_RAILTYPES, rail_SBCd, 26) {
+    property {
+        label:                  "SBCd";
+        introduction_date:      date(1998, 1, 1);
+        name:                   string(STR_RAIL_SBCd);
+        toolbar_caption:        string(STR_RAIL_SBCd);
+        menu_text:              string(STR_RAIL_SBCd);
+        build_window_caption:   string(STR_RAIL_SBCd);
+        autoreplace_text:       string(STR_RAIL_SBCd);
+        new_engine_text:        string(STR_RAIL_SBCd);
+        /* 兼容 / powered 与 `SACd` 逐条相同（同一个直流地铁族）。 */
+        compatible_railtype_list: ["RAIL", "ELRL", 
+                                    "SACN", "SBCN", "SCCN", "SDCN", "SECN",  "SFCN", "SGDN",
+                                    "SADN", "SBDN", "SCDN", "SDDN", "SEDN",  "SFDN", "SGDN",
+                                    "SAEN", "SBEN", "SCEN", "SDEN", "SEEN",  "SFEN", "SGEN",
+                                    "SACA", "SBCA", "SCCA", "SDCA", "SECA",  "SFCA", "SGCA",
+                                    "SADA", "SBDA", "SCDA", "SDDA", "SEDA",  "SFDA", "SGDA", 
+                                    "SAEA", "SBEA", "SCEA", "SDEA", "SEEA",  "SFEA", "SGEA",
+                                    "SACd", "SBCd", "SCCd", "SDCd", "SECd",
+                                    "SADd", "SBDd", "SCDd", "SDDd", "SEDd",
+                                    "SAEd", "SBEd", "SCEd", "SDEd", "SEEd",  
+                                    "SACD", "SBCD", "SCCD", "SDCD", "SECD", 
+                                    "SADD", "SBDD", "SCDD", "SDDD", "SEDD",   
+                                    "SAC3", "SBC3", "SCC3", "SDC3",
+                                    "SACZ", "SBCZ", "SCCZ", "SDCZ",    
+                                    "SACL", "SBCL", "SCCL", "SDCL",
+                                    "DACN", 
+                                    "DADN", "DBDN",
+                                    "DACA", 
+                                    "DADA", "DBDA",
+                                    "dACN", "dBCN"];
+        powered_railtype_list:    [ "ELRL", 
+                                    "SACd", "SBCd", "SCCd", "SDCd",
+                                    "SACD", "SBCD", "SCCD", "SDCD",
+                                    "SAC3", "SBC3", "SCC3", "SDC3",
+                                    "SACZ", "SBCZ", "SCCZ", "SDCZ",
+                                    "SACL", "SBCL", "SCCL", "SDCL"];
+        railtype_flags:         bitmask(RAILTYPE_FLAG_CATENARY, RAILTYPE_FLAG_NO_LEVEL_CROSSING);
+        curve_speed_multiplier: 1;
+        station_graphics:       RAILTYPE_STATION_NORMAL;
+        /* 费用：140 km/h 在 120（`SBC3` 10/5）与 160（`SCDA` 16/8）之间取 **14/7**。 */
+        construction_cost:      14;
+        maintenance_cost:       7;
+        speed_limit:            140 km/h;
+        acceleration_model:     ACC_MODEL_RAIL;
+        map_colour:             0x6A;
+        sort_order:             SORT_ELECTRIC;
+    }
+    /* ★ 2026-10-21：与 `SACd` **同一套模型 / 同一批模板 / 同一个分表**
+       （`probe_underlay_dcmetro` 等）—— 两条只差 C8：速度 140、费用 14/7、
+       年代 1998、地图色 0x6A。 */
+    graphics {
+        underlay:        probe_underlay_dcmetro;
+        track_overlay:   probe_overlay_dcmetro;
+        tunnels:         probe_tunnels_metro;
+        tunnel_overlay:  probe_tunnel_over_metro;
+        bridge_surfaces: probe_bridge_surfaces_dcmetro;
+        catenary_pylons: probe_catenary_pylons_cyl_blue;
+        catenary_wire:   probe_catenary_wire;
+    }
+}

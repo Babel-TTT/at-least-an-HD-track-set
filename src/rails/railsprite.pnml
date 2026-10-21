@@ -587,6 +587,71 @@ spriteset(probe_bridge_surfaces_quasifast, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
 }
 
 /* ===========================================================================
+   A11 组（`SACd` 1979·80 / `SBCd` 1998·140，1500V DC 地铁）
+   —— underlay / track_overlay / 桥面 三组
+   （**洞口不在这里** —— 复用 A12 的 `TUN-5`；**没有道口** —— 与 `SAC3` 一样 `NO_LEVEL_CROSSING`）
+
+   分表：轨道 = `gfx/dcmetro.png`（11 件里本组只有 10 件 / 40 张精灵，
+   **格位 263×149**、`ca = [131, 81]` —— 与 `metro.png` 同格位一族）。
+   模型由 `tools/gen-a11-metro-dc.mjs`（人工 2026-10-21 按 L3 批准新建，
+   = `gen-a12-metro.mjs` 的同源副本）从 G1 派生：
+     `BAL-H` 浮置板（板带 0.32~0.68 · 板顶 0.010 · 无中央排水沟）
+     `SLE-5` 无枕扣件座（25 个 / 间距 0.04）
+     `RAI-1` 60kg/m 钢轨（轨顶 0.0230）
+     ⚠ **没有第三轨与罩**（与 A12 `SAC3` 的唯一区别；`trackShapes(third:false)` +
+       `crossingShapes()` 里那 8 条"断开段"整段删掉）
+   摆位值见 templates.pnml 的 G13_* 那一节（= **逐条照抄 `t_G4_*`**：同格位、同锚点、
+   同按名排序 ⇒ `rect` 与 `xrel/yrel` 全部相同）。
+
+   ★ **洞口直接复用 A12 的 `TUN-5`**（`probe_tunnels_metro` / `probe_tunnel_over_metro`，
+     分表 `gfx/tunnel5.png`）—— 本组一件洞口模型都没出。
+   ★ **槽位顺序、取图顺序与 G1 / G4 / G5 / G6 / G9 / G10 / G12 逐条一样**（只少道口那一组）。
+   ★ 电气化：`EL-1500` + **`PYL-C2` 浅蓝牌**（`probe_catenary_pylons_cyl_blue`，
+     人工 2026-10-21 本轮新建；`SACZ` 将来直接用），导线用共用的 `probe_catenary_wire`。
+   =========================================================================== */
+spriteset(probe_underlay_dcmetro, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G13_track_x_v0("gfx/dcmetro.png")          //  0  RTO_X        X
+    t_G13_track_x_v3("gfx/dcmetro.png")          //  1  RTO_Y        Y
+    t_G13_track_half_v0("gfx/dcmetro.png")       //  2  RTO_N        UPPER（切 N 角）
+    t_G13_z_track_half_m_v2("gfx/dcmetro.png")   //  3  RTO_S        LOWER ← 镜像件（本组无第三轨，只为槽位对齐）
+    t_G13_z_track_half_m_v3("gfx/dcmetro.png")   //  4  RTO_E        RIGHT ← 镜像件
+    t_G13_track_half_v1("gfx/dcmetro.png")       //  5  RTO_W        LEFT
+    t_G13_track_slope_v0("gfx/dcmetro.png")      //  6  RTO_SLOPE_NE   v0（右上抬）
+    t_G13_track_slope_v3("gfx/dcmetro.png")      //  7  RTO_SLOPE_SE   v3（右下抬）
+    t_G13_track_slope_v2("gfx/dcmetro.png")      //  8  RTO_SLOPE_SW   v2（左下抬）
+    t_G13_track_slope_v1("gfx/dcmetro.png")      //  9  RTO_SLOPE_NW   v1（左上抬）
+    t_G13_crossing_v0("gfx/dcmetro.png")         // 10  RTO_CROSSING_XY（自带两组钢轨）
+    t_G13_junction3_v0("gfx/dcmetro.png")        // 11  RTO_JUNCTION_SW（只有道床板）
+    t_G13_junction3_v2("gfx/dcmetro.png")        // 12  RTO_JUNCTION_NE（v2）
+    t_G13_junction3_v1("gfx/dcmetro.png")        // 13  RTO_JUNCTION_SE（v1）
+    t_G13_junction3_v3("gfx/dcmetro.png")        // 14  RTO_JUNCTION_NW（v3）
+    t_G13_junction4_v0("gfx/dcmetro.png")        // 15  RTO_JUNCTION_NSEW（只有道床板）
+}
+
+spriteset(probe_overlay_dcmetro, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G13_rail_straight_v0("gfx/dcmetro.png")    // 0  RTO_X        扣件座 + 钢轨层（透明底）
+    t_G13_rail_straight_v3("gfx/dcmetro.png")    // 1  RTO_Y
+    t_G13_rail_half_v0("gfx/dcmetro.png")        // 2  RTO_N
+    t_G13_rail_half_v2("gfx/dcmetro.png")        // 3  RTO_S
+    t_G13_rail_half_v3("gfx/dcmetro.png")        // 4  RTO_E
+    t_G13_rail_half_v1("gfx/dcmetro.png")        // 5  RTO_W
+    t_G13_rail_slope_v0("gfx/dcmetro.png")       // 6  RTO_SLOPE_NE
+    t_G13_rail_slope_v3("gfx/dcmetro.png")       // 7  RTO_SLOPE_SE
+    t_G13_rail_slope_v2("gfx/dcmetro.png")       // 8  RTO_SLOPE_SW
+    t_G13_rail_slope_v1("gfx/dcmetro.png")       // 9  RTO_SLOPE_NW
+}
+
+// 桥面 —— 6 格（平 X / 平 Y / 坡 NE / SE / SW / NW），顺序同 probe_bridge_surfaces
+spriteset(probe_bridge_surfaces_dcmetro, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G13_track_x_v0("gfx/dcmetro.png")          // 0  平 — X
+    t_G13_track_x_v3("gfx/dcmetro.png")          // 1  平 — Y
+    t_G13_track_slope_v0("gfx/dcmetro.png")      // 2  坡 NE（x=0 边抬 / 远端高）
+    t_G13_track_slope_v3("gfx/dcmetro.png")      // 3  坡 SE（y=1 边抬 / 近端高）
+    t_G13_track_slope_v2("gfx/dcmetro.png")      // 4  坡 SW（x=1 边抬 / 近端高）
+    t_G13_track_slope_v1("gfx/dcmetro.png")      // 5  坡 NW（y=0 边抬 / 远端高）
+}
+
+/* ===========================================================================
    隧道口 —— TUN-1「料石端墙拱」（分表：gfx/tunnel.png）
 
    两个组，对应 NML 的 `tunnels:` 与 `tunnel_overlay:`（核自官方 wiki
@@ -1365,4 +1430,26 @@ spriteset(probe_catenary_pylons_cyl, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
     t_G1_sty_cyl_b_v2("gfx/pyloncyl.png")   // 5  PSO_EW_S   斜半轨，柱在 S 边中点
     t_G1_sty_cyl_b_v1("gfx/pyloncyl.png")   // 6  PSO_NS_W   斜半轨，柱在 W 边中点
     t_G1_sty_cyl_b_v3("gfx/pyloncyl.png")   // 7  PSO_NS_E   斜半轨，柱在 E 边中点
+}
+
+// ===========================================================================
+// **PYL-C2 + 浅蓝牌**（1500V DC 档；`SACd` / `SBCd`，人工 2026-10-21 批准本轮新建）
+//
+//   模型 `models/G1_sty_cyl_blue_a|_b.model` = `G1_sty_cyl_a|_b` **逐字相同 +
+//   一根同轴圆柱环箍**（半径 0.0280 = 柱基半径、z 0.1250–0.1850、材质 `awning_ltblue`）；
+//   分表 `gfx/pyloncylblue.png`（2 件 / 8 张精灵 / 格位 **263×210**，与 `pyloncyl.png` 同）。
+//   槽位映射与 C2 / C1 / E1 **完全一样**（同一个引擎枚举、同一套几何朝向）：
+//       直向 a：v0→槽 0 / v2→槽 1 / v1→槽 2 / v3→槽 3
+//       斜向 b：v0→槽 4 / v2→槽 5 / v1→槽 6 / v3→槽 7
+//   ⚠ 斜向那 4 个（槽 4~7）与 C1 / E1 / C2 同样的未验证项。
+// ===========================================================================
+spriteset(probe_catenary_pylons_cyl_blue, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G1_sty_cyl_blue_a_v0("gfx/pyloncylblue.png")   // 0  PSO_Y_NE
+    t_G1_sty_cyl_blue_a_v2("gfx/pyloncylblue.png")   // 1  PSO_Y_SW
+    t_G1_sty_cyl_blue_a_v1("gfx/pyloncylblue.png")   // 2  PSO_X_NW
+    t_G1_sty_cyl_blue_a_v3("gfx/pyloncylblue.png")   // 3  PSO_X_SE
+    t_G1_sty_cyl_blue_b_v0("gfx/pyloncylblue.png")   // 4  PSO_EW_N
+    t_G1_sty_cyl_blue_b_v2("gfx/pyloncylblue.png")   // 5  PSO_EW_S
+    t_G1_sty_cyl_blue_b_v1("gfx/pyloncylblue.png")   // 6  PSO_NS_W
+    t_G1_sty_cyl_blue_b_v3("gfx/pyloncylblue.png")   // 7  PSO_NS_E
 }
