@@ -134,9 +134,19 @@ export const SHEETS = [
     // （几何由 tools/gen-a10-slab.mjs 从 `G3_tunnel3*` 派生：端墙加宽到 0.80 格、
     //  洞跨加宽到 0.40 格、拱顶抬到 0.215，再在洞口正面加一圈挑出的帽檐）。
     // ⚠ 必须登记在下面的 crts3 **之前**：那个表的正则是 /^G8_/，会先把 G8_tunnel4_* 吃掉。
+    // ⚠ 2026-10-21：`G8_tunnel4s4_*`（洞内枕木 = SLE-4 的 SGCA 变体）**另立一张表**
+    //   ⇒ 本表的正则加负向先行断言让路（同前缀、first-match-wins）。
     key: 'tunnel4',
-    title: '高速洞口 TUN-4（大跨度环框拱 + 帽檐；SGCA）',
-    match: /^G8_tunnel4/,
+    title: '高速洞口 TUN-4（大跨度环框拱 + 帽檐；洞内 SLE-3；SCCA / SDCA / SECA / SFCA）',
+    match: /^G8_tunnel4(?!s4)/,
+  },
+  {
+    // A10 组（`SGCA`）**自己的**洞口：TUN-4 的门，但洞内枕木 = **`SLE-4` 双块式**
+    //   （人工 2026-10-21：「包括 A+B，SGCA 一并改了」）。只 2 件（A/B 组的 ground 层），
+    //   `tunnel_overlay:` 那两件不含轨道 ⇒ 直接复用 `G8_tunnel4_over*`，不重出。
+    key: 'tunnel4s4',
+    title: '高速洞口 TUN-4 · SGCA 变体（洞内 SLE-4 双块式）',
+    match: /^G8_tunnel4s4/,
   },
   {
     // A10 组（`SGCA` 高速无砟 CRTS III）的轨道：BAL-G 无砟板（两条承轨台 + 三条低带）
@@ -193,6 +203,15 @@ export const SHEETS = [
     key: 'crts2',
     title: '高速无砟 CRTS II 纵连板（BAL-F + SLE-3 宽枕 + RAI-3 长轨；SFCA）',
     match: /^G11_/,
+  },
+  {
+    // A6 组（`SDDA`）**自己的**洞口：`TUN-3` 的门（A3 的口径：端墙 + 截水沟 + 翼墙），
+    //   洞内换成 `SLE-3` 宽枕 + `RAI-3` 配色（人工 2026-10-21）。
+    //   只 2 件（A/B 组的 ground 层），overlay 复用 A3 的 `G3_tunnel3_over*`。
+    // ⚠ 必须登记在下面的 quasifast **之前**：那个表的正则是 /^G12_/，会先把本族吃掉。
+    key: 'tunnel3fast',
+    title: '现代洞口 TUN-3 · SDDA 变体（洞内 SLE-3 + RAI-3）',
+    match: /^G12_tunnel3/,
   },
   {
     // A6 组（`SDDA` 电气化快速 200km/h，25kV AC，秦沈客专）的轨道：

@@ -116,6 +116,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 import { ROOT, log, rel, isMain } from './util.mjs';
+// ★ 2026-10-21：洞内轨道（枕木 / 钢轨）的重发工具 —— 与 `gen-a10-slab.mjs` 共用同一份。
+import { sleeperSlots, isInnerSleeper, isRailFace, emitSleeper3, retintRailLine } from './tunnel-inner.mjs';
 
 // ---------------------------------------------------------------- 口径常量
 // `BAL-A` 断面（规格见文件头那一节；A3 组已经落地过的同一套口径）
@@ -871,6 +873,64 @@ function processJob(job) {
   return { file, stats };
 }
 
+// =============================================================================
+// 六、`TUN-3 + SLE-3 + RAI-3` 的洞口变体（`G12_tunnel3*`）—— 人工 2026-10-21
+//
+//   人工：「怎么 SCCA, SDCA, SECA, SFCA, **SDDA** 的隧道图像里的轨道样式和实际普通的
+//   轨道样式不同？」——`SDDA` 用的是 A3 的 `TUN-3`（`tunnels: probe_tunnels_3`），
+//   而 `TUN-3` 里是 **A3 那一版**：枕木 `SLE-2`、钢轨 `RAI-1`（`rust`/`metal`）。
+//
+//   ⇒ 本组自己出一套洞口：**洞门结构逐字照抄 `G3_tunnel3*`**（端墙 / 截水沟 / 翼墙
+//     一律不动 —— 那是 A3 的美术口径，没理由为 `SDDA` 再改），只换**洞内的轨道**：
+//       · 枕木：`SLE-2` → **`SLE-3`**（与地面同一批，长 0.19 / 挡肩顶 `metal_pale` / 槽 `panel_seam`）
+//       · 钢轨：`rust`/`metal` → **`metal_dark`/`metal_pale`**（= `RAI-3` 的配色，轨顶 0.0230 不动）
+//   ⚠ `tunnel_overlay:` 那两件（`G3_tunnel3_over*`）**不含轨道**（实测轨面 / 枕带 / 道床面都是 0）
+//     ⇒ **直接复用 A3 的**，本组不重出。
+//   ⚠ **不能改 `TUN-3` 本身**：它还给 `SCDN` / `SCDA`（A3）用，那两条本来就是 `SLE-2` ✓。
+// =============================================================================
+const TUNNEL_JOBS = [
+  { src: 'G3_tunnel3', dst: 'G12_tunnel3', note: 'tunnels: 组（A 组：远半 y<0.5）· 洞内 = SLE-3 + RAI-3' },
+  { src: 'G3_tunnel3_b', dst: 'G12_tunnel3_b', note: 'tunnels: 组（B 组：近半 y>0.5）· 洞内 = SLE-3 + RAI-3' },
+];
+
+function processTunnel(job) {
+  const src = fs.readFileSync(path.join(ROOT, 'models', `${job.src}.model`), 'utf8').split(/\r?\n/);
+  const head = [];
+  const body = [];
+  const slots = sleeperSlots(src);
+  let dropped = 0, rails = 0;
+  for (const raw of src) {
+    const line = raw.trimEnd();
+    if (!line.trim()) continue;
+    if (/^#/.test(line.trim())) { head.push(line); continue; }
+    if (/^name\s/.test(line)) { head.push(`name      ${job.dst}`); continue; }
+    if (/^(group|footprint|zmax)\s/.test(line)) { head.push(line); continue; }
+    if (isInnerSleeper(line)) { dropped++; continue; }          // 旧 SLE-2 枕木整族删掉
+    if (isRailFace(line)) { body.push(retintRailLine(line)); rails++; continue; }  // RAI-1 → RAI-3
+    body.push(line);
+  }
+  for (const [x0, x1] of slots) emitSleeper3(body, x0, x1);
+
+  const note = [
+    '# =============================================================================',
+    `# ${job.dst} —— A6 组（\`SDDA\` 电气化快速 200km/h）的洞口 \`TUN-3\` 变体`,
+    '#',
+    `# ${job.note}`,
+    '#',
+    '# 【本文件由 tools/gen-a6-fast.mjs 生成（**整件重写**），请勿手改；改口径改生成器】',
+    `#   源 = models/${job.src}.model（A3 的 \`TUN-3\`）`,
+    '#   **洞门结构逐字照抄**（端墙 / 截水沟 / 翼墙都不动）；只换洞内轨道：',
+    `#     枕木 SLE-2 → SLE-3（重发 ${slots.length} 根，删旧枕面 ${dropped} 个）`,
+    `#     钢轨 RAI-1（rust/metal）→ RAI-3（metal_dark/metal_pale），共 ${rails} 面，轨顶 0.0230 不动`,
+    '#   理由见生成器文件头第六节。',
+    '# =============================================================================',
+    '',
+  ].join('\n');
+  const file = path.join(ROOT, 'models', `${job.dst}.model`);
+  fs.writeFileSync(file, note + [...head, ...body].join('\n') + '\n', 'utf8');
+  return { file, slots: slots.length, dropped, rails };
+}
+
 // ⚠ 取景用的 `zmax` **照抄源模型那一行**（本组不自己定）：道床最高点是砟肩顶
 //   0.0188 + 抖动 0.0015 = 0.0203（坡道上再加 0.2041 = 0.2244），**都低于轨顶**
 //   0.0230（坡道 0.2271）⇒ 取景框仍由钢轨决定，源的 `zmax` 对本组同样成立，
@@ -885,6 +945,14 @@ export function generate() {
     log(`  → ${rel(file).padEnd(38)} 入 ${String(stats.lines).padStart(4)} → 出 ${String(stats.out).padStart(4)} 行`
       + `   删旧砟 ${String(stats.drop).padStart(3)} · 道床 ${String(stats.bed).padStart(3)} ·`
       + ` 枕 ${String(stats.sleep).padStart(3)} · 轨 ${String(stats.rail).padStart(2)}`);
+  }
+  for (const job of TUNNEL_JOBS) {
+    const srcFile = path.join(ROOT, 'models', `${job.src}.model`);
+    if (!fs.existsSync(srcFile)) { log(`  × 跳过 ${job.dst}：源 ${job.src}.model 不存在`); continue; }
+    const r = processTunnel(job);
+    files.push(r.file);
+    log(`  → ${rel(r.file).padEnd(38)} 洞口：重发枕 ${String(r.slots).padStart(2)} 根 ·`
+      + ` 删旧枕面 ${String(r.dropped).padStart(3)} · 钢轨换色 ${String(r.rails).padStart(2)} 面`);
   }
   return files;
 }

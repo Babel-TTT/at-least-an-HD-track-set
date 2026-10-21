@@ -1169,7 +1169,10 @@ item(FEAT_RAILTYPES, rail_SGCA, 19) {
     graphics {
         underlay:        probe_underlay_crts3;
         track_overlay:   probe_overlay_crts3;
-        tunnels:         probe_tunnels_4;
+        /* ★ 2026-10-21：`SGCA` 自己的 `TUN-4` 变体 —— 洞内枕木是 `SLE-4` 双块式
+           （外面这套轨道就是双块式；人工「包括 A+B，SGCA 一并改了」）。
+           `tunnel_overlay:` 仍用共用的那两件（overlay 不含轨道）。 */
+        tunnels:         probe_tunnels_4s4;
         tunnel_overlay:  probe_tunnel_over_4;
         bridge_surfaces: probe_bridge_surfaces_crts3;
         catenary_pylons: probe_catenary_pylons_steel;
@@ -1519,7 +1522,10 @@ item(FEAT_RAILTYPES, rail_SDDA, 24) {
     graphics {
         underlay:        probe_underlay_quasifast;
         track_overlay:   probe_overlay_quasifast;
-        tunnels:         probe_tunnels_3;
+        /* ★ 2026-10-21：`SDDA` **不再复用 A3 的 `TUN-3`** —— 那里面是 A3 的 `SLE-2` + `RAI-1`
+           （锈色钢轨），与地面的 `SLE-3` + `RAI-3` 不一致（人工实机指出）。
+           现在用本组自己的变体 `probe_tunnels_3a6`（洞门结构逐字照抄、只换洞内轨道）。 */
+        tunnels:         probe_tunnels_3a6;
         tunnel_overlay:  probe_tunnel_over_3;
         level_crossings: probe_level_crossing_quasifast;
         bridge_surfaces: probe_bridge_surfaces_quasifast;
@@ -1632,11 +1638,8 @@ item(FEAT_RAILTYPES, rail_SBCd, 26) {
                                     "DADA", "DBDA",
                                     "dACN", "dBCN"];
         powered_railtype_list:    [ "ELRL", 
-                                    "SACd", "SBCd", "SCCd", "SDCd",
-                                    "SACD", "SBCD", "SCCD", "SDCD",
-                                    "SAC3", "SBC3", "SCC3", "SDC3",
-                                    "SACZ", "SBCZ", "SCCZ", "SDCZ",
-                                    "SACL", "SBCL", "SCCL", "SDCL"];
+                                    "SAEd", "SBEd", "SCEd", "SDEd", "SEEd",
+                                    "SACZ", "SBCZ", "SCCZ", "SDCZ"];
         railtype_flags:         bitmask(RAILTYPE_FLAG_CATENARY, RAILTYPE_FLAG_NO_LEVEL_CROSSING);
         curve_speed_multiplier: 1;
         station_graphics:       RAILTYPE_STATION_NORMAL;

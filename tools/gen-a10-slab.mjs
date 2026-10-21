@@ -52,6 +52,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 import { ROOT, log, rel, isMain } from './util.mjs';
+// ★ 2026-10-21：洞内轨道（枕木）的重发工具 —— 与 `gen-a6-fast.mjs` 的 SDDA 洞口变体共用。
+import { sleeperSlots, isInnerSleeper, emitSleeper3, emitSleeper4 } from './tunnel-inner.mjs';
 
 // ---------------------------------------------------------------- 口径常量
 const BAND = [0.3200, 0.6800];        // 道床板带（与 G1 / A12 同宽 0.36 格 = 5.0 m）
@@ -530,19 +532,36 @@ function canopyLines() {
 }
 
 const TUNNEL_JOBS = [
-  { src: 'G3_tunnel3', name: 'G8_tunnel4', canopy: false, note: 'tunnels: 组（A 组：远半 y<0.5）' },
-  { src: 'G3_tunnel3_b', name: 'G8_tunnel4_b', canopy: false, note: 'tunnels: 组（B 组：近半 y>0.5）' },
-  { src: 'G3_tunnel3_over', name: 'G8_tunnel4_over', canopy: true, note: 'tunnel_overlay: 组（A 组：近半）+ **帽檐整块**' },
-  { src: 'G3_tunnel3_over_b', name: 'G8_tunnel4_over_b', canopy: true, note: 'tunnel_overlay: 组（B 组：远半）+ **帽檐整块**' },
+  { src: 'G3_tunnel3', name: 'G8_tunnel4', canopy: false, sleeper: 'sle3',
+    note: 'tunnels: 组（A 组：远半 y<0.5）；洞内枕木 = **SLE-3**（2026-10-21 重发）' },
+  { src: 'G3_tunnel3_b', name: 'G8_tunnel4_b', canopy: false, sleeper: 'sle3',
+    note: 'tunnels: 组（B 组：近半 y>0.5）；洞内枕木 = **SLE-3**（2026-10-21 重发）' },
+  { src: 'G3_tunnel3_over', name: 'G8_tunnel4_over', canopy: true, sleeper: null,
+    note: 'tunnel_overlay: 组（A 组：近半）+ **帽檐整块**（不含轨道 ⇒ 枕木无关）' },
+  { src: 'G3_tunnel3_over_b', name: 'G8_tunnel4_over_b', canopy: true, sleeper: null,
+    note: 'tunnel_overlay: 组（B 组：远半）+ **帽檐整块**（不含轨道 ⇒ 枕木无关）' },
+  // ★ 2026-10-21（人工：「包括 A+B，SGCA 一并改了」）：`SGCA`（A10）外面是 `SLE-4`
+  //   双块式 ⇒ 它的洞口不能和上面四条共用一个「洞内枕木是 SLE-3」的模型。
+  //   ⇒ 再出 **2 件** A/B 组（洞内枕木 = `SLE-4`）；`tunnel_overlay:` 那两件不含轨道
+  //     ⇒ **与上面对应的 `G8_tunnel4_over*` 逐字相同**，直接复用、不重出。
+  { src: 'G3_tunnel3', name: 'G8_tunnel4s4', canopy: false, sleeper: 'sle4',
+    note: 'tunnels: 组（A 组：远半）；洞内枕木 = **SLE-4 双块式**（`SGCA` 专用，2026-10-21）' },
+  { src: 'G3_tunnel3_b', name: 'G8_tunnel4s4_b', canopy: false, sleeper: 'sle4',
+    note: 'tunnels: 组（B 组：近半）；洞内枕木 = **SLE-4 双块式**（`SGCA` 专用，2026-10-21）' },
 ];
 
 function buildTunnel(job) {
   const src = readSrc(job.src);
   const head = [];
   const body = [];
+  // ★ 2026-10-21：洞内枕木**按目标轨枕口径重发**（人工：隧道里的轨道样式与普通轨道不同）。
+  //   槽位从源里量（`sleeperSlots`），旧枕面按 z_max 判据**丢掉**，再按 SLE-3 / SLE-4 重发。
+  //   钢轨与道床**一个面不动**（TUN-4 在 2026-10-08 已经换过 RAI-3 的色）。
+  const slots = job.sleeper ? sleeperSlots(src) : [];
   for (const line of src) {
     if (/^name\s/.test(line)) { head.push(`name      ${job.name}`); continue; }
     if (!/^quad /.test(line)) { head.push(line); continue; }
+    if (job.sleeper && isInnerSleeper(line)) continue;   // 旧枕木整族删掉
     const t = line.split(/\s+/);
     // ★ 洞内道床 / 钢轨（`z_max ≤ PORTAL_ZMIN`）**整件横向不动** ——
     //   `mapPortal` 的 ×1.2903 是**给洞跨用的**（0.31 → 0.40 格），它没有理由
@@ -560,7 +579,11 @@ function buildTunnel(job) {
     body.push(retintTunnel(out));
   }
   if (job.canopy) body.push(...canopyLines());
-  return { head, body };
+  if (job.sleeper) {
+    const emitS = job.sleeper === 'sle4' ? emitSleeper4 : emitSleeper3;
+    for (const [x0, x1] of slots) emitS(body, x0, x1);
+  }
+  return { head, body, slots: slots.length };
 }
 
 // =============================================================================

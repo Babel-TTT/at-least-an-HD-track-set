@@ -300,6 +300,17 @@ spriteset(probe_tunnel_over_4, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
     t_G8_tunnel4_over_b_v1("gfx/tunnel4.png")   // 3  DiagDir NW ← v1   B 组
 }
 
+// ★ 2026-10-21：`SGCA` 专用 —— 同一个 `TUN-4` 的门，但**洞内枕木是 `SLE-4` 双块式**
+//   （外面那套轨道就是双块式；人工「包括 A+B，SGCA 一并改了」）。
+//   分表 `gfx/tunnel3fast.png` 无关，这里是 `gfx/tunnel4s4.png`（2 件 / 8 张精灵）。
+//   `tunnel_overlay:` **仍用上面那两件**（不含轨道 ⇒ 无需变体）。
+spriteset(probe_tunnels_4s4, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G8_tunnel4s4_v0("gfx/tunnel4s4.png")      // 0  DiagDir NE ← v0   A 组（远半）
+    t_G8_tunnel4s4_v3("gfx/tunnel4s4.png")      // 1  DiagDir SE ← v3   A 组
+    t_G8_tunnel4s4_b_v2("gfx/tunnel4s4.png")    // 2  DiagDir SW ← v2   B 组（近半）
+    t_G8_tunnel4s4_b_v1("gfx/tunnel4s4.png")    // 3  DiagDir NW ← v1   B 组
+}
+
 /* ===========================================================================
    A8 组（`SCCA` 城际 160 / `SDCA` 客专 210，25kV AC）—— underlay / track_overlay /
    道口 / 桥面（**洞口不在这里**，见下）
@@ -1381,6 +1392,17 @@ spriteset(probe_tunnel_over_3, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
     t_G3_tunnel3_over_v3("gfx/tunnel3.png")     // 1  DiagDir SE ← v3   A 组
     t_G3_tunnel3_over_b_v2("gfx/tunnel3.png")   // 2  DiagDir SW ← v2   B 组（远半 + 洞顶 + 截水沟）
     t_G3_tunnel3_over_b_v1("gfx/tunnel3.png")   // 3  DiagDir NW ← v1   B 组
+}
+
+// ★ 2026-10-21：`SDDA`（A6）专用 —— 同一个 `TUN-3` 的门，**洞内换成 `SLE-3` 宽枕 +
+//   `RAI-3` 配色**（`rust`/`metal` → `metal_dark`/`metal_pale`），洞门结构逐字照抄 A3。
+//   分表 `gfx/tunnel3fast.png`（2 件 / 8 张精灵 / 格位 263×167）。
+//   `tunnel_overlay:` **仍用上面那两件**（不含轨道 ⇒ 无需变体）。
+spriteset(probe_tunnels_3a6, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G12_tunnel3_v0("gfx/tunnel3fast.png")     // 0  DiagDir NE ← v0   A 组（远半）
+    t_G12_tunnel3_v3("gfx/tunnel3fast.png")     // 1  DiagDir SE ← v3   A 组
+    t_G12_tunnel3_b_v2("gfx/tunnel3fast.png")   // 2  DiagDir SW ← v2   B 组（近半）
+    t_G12_tunnel3_b_v1("gfx/tunnel3fast.png")   // 3  DiagDir NW ← v1   B 组
 }
 
 // 平交道口 —— 10 格 = 2 方向 × (1 张轨道图 + 4 张道口灯/栏杆)；占位同 G1 / G5 / G6
