@@ -1796,7 +1796,7 @@ template t_G13_track_x_v0(sheet) {
   [0, 596, 263, 149, -126, -18, sheet]  // 【手调】逐条照抄 t_G4_track_x_v0（同格位同锚点 ⇒ 算法值相同）
 }
 template t_G13_track_x_v3(sheet) {
-  [789, 596, 263, 149, -127, -19, sheet]  // 【手调】照抄 t_G4_track_x_v3
+  [789, 596, 263, 149, -130, -19, sheet]  // 【手调】照抄 t_G4_track_x_v3
 }
 template t_G13_track_half_v0(sheet) {
   [0, 447, 263, 149, -127, -19, sheet]  // 【手调】照抄 t_G4_track_half_v0
@@ -1826,7 +1826,7 @@ template t_G13_track_slope_v0(sheet) {
   [1052, 447, 263, 149, -125, -19, sheet]  // 【手调】照抄 t_G4_track_slope_v0；坡 NE
 }
 template t_G13_track_slope_v1(sheet) {
-  [1315, 447, 263, 149, -126, -19, sheet]  // 【手调】照抄 t_G4_track_slope_v1；坡 NW
+  [1315, 447, 263, 149, -128, -18, sheet]  // 【手调】照抄 t_G4_track_slope_v1；坡 NW
 }
 template t_G13_track_slope_v2(sheet) {
   [1578, 447, 263, 149, -128, -19, sheet]  // 【手调】照抄 t_G4_track_slope_v2；坡 SW
@@ -1835,7 +1835,7 @@ template t_G13_track_slope_v3(sheet) {
   [1841, 447, 263, 149, -128, -19, sheet]  // 【手调】照抄 t_G4_track_slope_v3；坡 SE
 }
 template t_G13_crossing_v0(sheet) {
-  [0, 0, 263, 149, -125, -19, sheet]  // 【手调】照抄 t_G4_crossing_v0
+  [0, 0, 263, 149, -126, -20, sheet]  // 【手调】照抄 t_G4_crossing_v0
 }
 template t_G13_junction3_v0(sheet) {
   [1052, 0, 263, 149, -128, -19, sheet]  // 【手调】照抄 t_G4_junction3_v0
@@ -1874,7 +1874,7 @@ template t_G13_rail_slope_v0(sheet) {
   [0, 298, 263, 149, -125, -19, sheet]  // 【手调】照抄 t_G4_rail_slope_v0
 }
 template t_G13_rail_slope_v1(sheet) {
-  [263, 298, 263, 149, -126, -19, sheet]  // 【手调】照抄 t_G4_rail_slope_v1
+  [263, 298, 263, 149, -128, -18, sheet]  // 【手调】照抄 t_G4_rail_slope_v1
 }
 template t_G13_rail_slope_v2(sheet) {
   [526, 298, 263, 149, -128, -19, sheet]  // 【手调】照抄 t_G4_rail_slope_v2
