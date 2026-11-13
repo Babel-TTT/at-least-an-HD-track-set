@@ -1884,6 +1884,33 @@ template t_G13_rail_slope_v3(sheet) {
 }
 
 // ---------------------------------------------------------------------------
+// G13_tunnel5_* —— **A11 组的洞口 ground 层**（分表 `gfx/tunnel5dc.png`）
+//
+//   人工 2026-11-13 实机：「但是隧道怎么还是第三轨的」—— A11 原来复用 A12 的
+//   `probe_tunnels_metro`，那套的洞内是 `SAC3`（第三轨地铁）口径 ⇒ 洞外没有接触轨、
+//   一进洞却冒出一条 `rust` 接触轨 ＋ `wood_dark` 木罩。
+//   ⇒ 由 `tools/gen-a11-metro-dc.mjs` 用**同一批洞口函数**重出两件 ground
+//     （`metroTunnelGround()` 里本来就是 `trackShapes({ third: false })`），
+//     面数 65 → **63**（只少那两根通长 box）；`_over` 两层不含轨道 ⇒ **复用 A12 的**。
+//   ★ 4 条与 `t_G4_tunnel5_*` **逐字相同**（连 `rect` 也一样）：渲完从 `gfx/openttd.json`
+//     逐条复核 —— 两族**格位同为 263×167、`ca` 同为 [131, 99]**，四个朝向的
+//     `xrel/yrel` 完全相同（删掉的那两根 box 不在外接框极值上）⇒ 一个数都不用重算。
+//   ⚠ 这 4 条在 TUN-5 那轮就是实机调出来的，别照 centerAnchor 重算。
+// ---------------------------------------------------------------------------
+template t_G13_tunnel5_v0(sheet) {
+  [0, 0, 263, 167, -126, -36, sheet]  // 【手调】同 t_G4_tunnel5_v0（DiagDir NE，A 组远半）
+}
+template t_G13_tunnel5_v3(sheet) {
+  [789, 0, 263, 167, -130, -37, sheet]  // 【手调】同 t_G4_tunnel5_v3（DiagDir SE，A 组）
+}
+template t_G13_tunnel5_b_v1(sheet) {
+  [1315, 0, 263, 167, -129, -36, sheet]  // 【手调】同 t_G4_tunnel5_b_v1（DiagDir NW，B 组近半）
+}
+template t_G13_tunnel5_b_v2(sheet) {
+  [1578, 0, 263, 167, -129, -36, sheet]  // 【手调】同 t_G4_tunnel5_b_v2（DiagDir SW，B 组）
+}
+
+// ---------------------------------------------------------------------------
 // G1_sty_cyl_blue_* —— **PYL-C2 + 浅蓝牌**（1500V DC 档；`SACd` / `SBCd`）
 //   分表 `gfx/pyloncylblue.png`（2 件 / 8 张精灵 / **格位 263×210**）。
 //   模型 = `G1_sty_cyl_a|_b` **逐字相同 + 一根同轴圆柱环箍**（半径 0.0280、z 0.1250–0.1850、

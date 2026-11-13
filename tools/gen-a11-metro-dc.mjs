@@ -7,16 +7,18 @@
 //
 // 口径（A11 确认门：① 两条一起通 ② 本轮一起做浅蓝牌支柱 ③ C8 按推荐）：
 //   A11 组 = 道床 **`BAL-H`**（浮置板）+ 轨枕 **`SLE-5`**（无枕扣件座）+ 钢轨 **`RAI-1`**
-//            + 洞口 **复用 A12 的 `TUN-5`** + 电气化 **`EL-1500` + `PYL-C2` 浅蓝牌**
+//            + 洞口 **TUN-5 的"A11 版"**（**洞内没有第三轨与木罩**，见 §10）
+//            + 电气化 **`EL-1500` + `PYL-C2` 浅蓝牌**
 //   覆盖 `SACd`（1979 · 80 km/h）与 `SBCd`（1998 · 140 km/h）—— **同几何、只差 C8**。
 //
 // ⚠ **与 A12（`SAC3` 第三轨地铁）的唯一区别：没有第三轨与罩** ⇒
-//   本文件是 `tools/gen-a12-metro.mjs` 的**同源副本**，每个 `trackShapes({ third: false })` 调用补
-//   `third: false`；洞口**一件都不出**（复用 `gfx/tunnel5.png`）；A13 那一半（`G7_*`，
+//   本文件是 `tools/gen-a12-metro.mjs` 的**同源副本**，每个 `trackShapes()` 调用补
+//   `third: false`（**洞内那一处也一起改了**）；A13 那一半（`G7_*`，
 //   `BAL-I` 浅色混凝土）**整段删掉**；**没有平交道口**（与 `SAC3` 一样禁道口）。
-//   ⇒ 产出 **10 件** `G13_*`：track_x / rail_straight / track_half / rail_half /
+//   ⇒ 产出 **12 件** `G13_*`：track_x / rail_straight / track_half / rail_half /
 //     z_track_half_m（**与 track_half 逐面相同**，只为槽位对齐）/ track_slope /
-//     rail_slope / crossing / junction3 / junction4。
+//     rail_slope / crossing / junction3 / junction4 ＋ **tunnel5 / tunnel5_b**
+//     （2026-11-13 新增：原来复用 A12 的洞口 ⇒ 洞内冒出一条 `SAC3` 的接触轨）。
 //
 // 【以下为 A12 的原始说明，逐条仍适用于本组（只把 `G13_*` 换成 `G13_*`）】
 //
@@ -604,6 +606,12 @@ function tunnel5Models() {
     + '# 基准朝向 = DiagDir NE：洞口在 x=0 那条边（N–E），轨道沿 x\n'
     + '# 取图顺序 v0=NE  v1=NW  v2=SW  v3=SE；⚠ 引擎槽位顺序是 NE/SE/SW/NW ⇒ 喂图 v0,v3,v2,v1\n'
     + '#\n'
+    + '# ★ **A11 版（`SACd` / `SBCd`）＝ A12 的 TUN-5 减去洞内第三轨与木罩**\n'
+    + '#   （本组是 1500V DC **架空接触网**，没有接触轨；`metroTunnelGround()` 里\n'
+    + '#    `trackShapes({ third: false })` ⇒ 洞内只剩道床 + 扣件座 + 两根钢轨）。\n'
+    + '#   洞口结构**逐字照抄** A12 —— 那套是实机调过 4 轮的，别在这里发明。\n'
+    + '#   `tunnel_overlay:` 那两层**不含轨道**（实测 0 面）⇒ 直接复用 A12 的模型。\n'
+    + '#\n'
     + '# 【为什么四个模型】overlay 是一张 sortable sprite，只能放「离镜头近」的半边：\n'
     + '#   v0/v3 近半 = y ≥ 0.5      v1/v2 近半 = y < 0.5\n'
     + '#   A 组（_v0/_v3 用）：tunnels:=远半  overlay=近半\n'
@@ -833,6 +841,27 @@ export function generate() {
         '同样不带钢轨（overlay 负责）。',
       ],
     }, header('G13_junction4', L)));
+  }
+
+  // 10) 洞口 ground 层（TUN-5 的 A/B 两支）—— **洞内没有第三轨与木罩**
+  //
+  //   人工 2026-11-13 实机：「**但是隧道怎么还是第三轨的**」。
+  //   根因：A11 原来**复用 A12 的 `probe_tunnels_metro`**（那套的洞内轨道是
+  //   `SAC3` 的第三轨地铁口径）⇒ 洞外的交叉 / 三向 / 四向早就没有接触轨了，
+  //   一进洞却冒出一条 `rust` 接触轨 + `wood_dark` 木罩（`G4_tunnel5.model`
+  //   第 73/74 行那两根通长 box）。
+  //   ⇒ 本组自己出 ground 层：`metroTunnelGround()` 里早已是
+  //   `trackShapes({ third: false })`（同源副本的改名 + 去第三轨都做过了），
+  //   只要把发射接回来即可；**洞口结构与 A12 逐字相同**（同一批函数）。
+  //   ⚠ `tunnel_overlay:` 的两件**不含轨道**（实测 0 面）⇒ **不重出**，直接复用
+  //     `G4_tunnel5_over*`（与 A/B 组、`SDDA` 那两轮同一口径）。
+  {
+    for (const [name, text] of tunnel5Models()) {
+      if (/_over/.test(name)) continue;          // overlay 层复用 A12 的
+      const file = path.join(ROOT, 'models', `${name}.model`);
+      fs.writeFileSync(file, text);
+      files.push(file);
+    }
   }
 
   return files;

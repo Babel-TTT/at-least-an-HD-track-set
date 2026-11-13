@@ -245,6 +245,19 @@ export const SHEETS = [
     match: /^G12_/,
   },
   {
+    // A11 组的**洞口 ground 层**（TUN-5 的 A11 版：洞内**没有第三轨与木罩**）。
+    //   人工 2026-11-13 实机：「但是隧道怎么还是第三轨的」—— 原来复用 A12 的
+    //   `probe_tunnels_metro`，洞外（交叉 / 三向 / 四向）早就没有接触轨了，
+    //   一进洞却冒出一条 `rust` 接触轨 ＋ `wood_dark` 木罩。
+    //   两件模型（A 组远半 / B 组近半）由 tools/gen-a11-metro-dc.mjs 用**同一批洞口
+    //   函数**重出，面数 65 → 63（只少那两根通长 box）；`_over` 两层不含轨道 ⇒ 复用 A12 的。
+    // ⚠ 必须登记在下面的 dcmetro **之前**：那个表的正则是 /^G13_/，会先吃掉
+    //   `G13_tunnel5*`（同 tunnel5 / tunnel7 / tunnel3fast 表的教训）。
+    key: 'tunnel5dc',
+    title: '地铁洞口 TUN-5（A11 版：洞内无第三轨；SACd / SBCd）',
+    match: /^G13_tunnel/,
+  },
+  {
     // A11 组（`SACd` 1979·80 / `SBCd` 1998·140，1500V DC 地铁）的轨道：
     //   **`BAL-H` 浮置板 + `SLE-5` 混凝土枕 + `RAI-1` 60kg/m 钢轨 + `TUN-5` 洞口**，
     //   与已装机的 A12（`SAC3` 第三轨地铁）**只差"没有第三轨与罩"**。
