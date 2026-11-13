@@ -213,7 +213,10 @@ const mapD = (x, y) => [(y + (x - 0.5)) / 2, (y - (x - 0.5)) / 2];
 /** 直向：轴对齐的 box（`long` 的件沿轨两端各探出 `OVER`，见文件头的说明） */
 function emitBox(L, b) {
   const o = b.long ? OVER : 0;
-  L.push(`box ${fmt(b.x0 - o)} ${fmt(b.y0)} ${fmt(b.z0)}  ${fmt(b.x1 + o)} ${fmt(b.y1)} ${fmt(b.z1)}   `
+  // `longY`= 沿 **y** 走的长件（交叉里那组 Y 向钢轨，见 `crossingShapes`）：
+  //   探出量加在 y 两端，与 X 向同口径（原来这一组一件都不探，缝上没有余量）。
+  const oy = b.longY ? OVER : 0;
+  L.push(`box ${fmt(b.x0 - o)} ${fmt(b.y0 - oy)} ${fmt(b.z0)}  ${fmt(b.x1 + o)} ${fmt(b.y1 + oy)} ${fmt(b.z1)}   `
     + `${b.mat}${b.top ? ` top=${b.top}` : ''}`);
 }
 
@@ -315,6 +318,32 @@ function slabJunction4(z0 = 0, z1 = SLAB_Z, mat = MAT.slab) {
   }];
 }
 
+/** 屏幕像素偏移 → 世界位移（与 `tools/gen-g1-switches.mjs` 逐字同源）
+ *  屏幕 (dx,dy) ⇒ a = wy−wx = dx/128、b = wx+wy = dy/64 */
+function worldShift([dx, dy]) {
+  const a = dx / 128, b = dy / 64;
+  return [(b - a) / 2, (a + b) / 2];
+}
+
+// ---------------------------------------------------------------- 交叉 Y 向轨道微调
+// 【人工 2026-11-13】「把 G13 crossing 的模型的 y 向轨道偏移 (−2, 2)」
+//
+//   口径与 2026-10-05（G1/G1_brown/G2）、2026-10-07（SCCA/SECA）那两次
+//   「交叉模型中的 y 方向轨道应用 (a,b) 的偏移」**完全一致**，见
+//   `docs/建模经验.md` §4.9 与 `docs/建模标准.md` 那两行台账：
+//     * 数值 = **屏幕 px**，在 `worldShift()` 里换成世界位移；
+//     * 作用范围 = **只作用于交叉模型里沿 y 走的那一组**（2 根钢轨 + 25 对扣件座），
+//       X 向轨道 / 道床十字板 / 三向 / 四向 / 平交道口 **一个数不动**；
+//     * 在**现值上叠加**（本工程人工报偏移的通用口径）。
+//
+//   ⚠ 换算是反直觉的：(−2,+2) px ⇒ 世界 **(+3/128, +1/128) 格**，落到 Y 向钢轨上 =
+//     **横移 2.68px ＋ 沿轨 1.12px**（1 格 = 143.1px；Y 轨垂直于轨道的每格投影 = 114.4px）。
+//     ⇒ 相邻格的 Y 向直线轨是**没动**的，这里改完两者会错开 2.68px —— 这正是人工
+//       在实机上要修的那个量（与 G1 / SCCA 那两次同一性质：修的是"交叉的 Y 轨相对
+//       相邻直线轨的横向偏差"）。
+const CROSS_Y_PX = [-2, 2];
+const CROSS_Y_SHIFT = worldShift(CROSS_Y_PX);
+
 /** 交叉瓦片的**全部**形状：道床板（十字，自带两组钢轨）+ 两个方向的钢轨/扣件座
  *   + 第三轨/罩在对方板带处断开成两段。
  *
@@ -327,8 +356,12 @@ function crossingShapes(slabMat = MAT.slab) {
   for (const b of slabCrossing(0, SLAB_Z, slabMat)) emitBox(L, b);
   // X 向：钢轨 + 扣件座（整格）
   for (const b of trackShapes({ slab: false, third: false })) emitBox(L, b);
-  // Y 向：钢轨 + 扣件座（沿 y 走）
-  const yDir = (b) => ({ x0: b.y0, x1: b.y1, y0: b.x0, y1: b.x1, z0: b.z0, z1: b.z1, mat: b.mat, top: b.top });
+  // Y 向：钢轨 + 扣件座（沿 y 走）—— 整组按 `CROSS_Y_SHIFT` 平移（人工 2026-11-13）
+  const [sx, sy] = CROSS_Y_SHIFT;
+  const yDir = (b) => ({
+    x0: b.y0 + sx, x1: b.y1 + sx, y0: b.x0 + sy, y1: b.x1 + sy,
+    z0: b.z0, z1: b.z1, mat: b.mat, top: b.top, longY: b.long,
+  });
   for (const b of trackShapes({ slab: false, third: false })) emitBox(L, yDir(b));
   // ⚠ **本组没有第三轨**（A11 是 1500V DC 架空接触网，不是第三轨地铁）⇒
   //   A12 在这里发的那 8 条"第三轨 + 木罩、四段断开"**整段删掉**（人工 2026-10-21 确认门口径）。
