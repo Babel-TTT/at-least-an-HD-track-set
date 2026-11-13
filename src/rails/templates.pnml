@@ -1835,7 +1835,7 @@ template t_G13_track_slope_v3(sheet) {
   [1841, 447, 263, 149, -128, -19, sheet]  // 【手调】照抄 t_G4_track_slope_v3；坡 SE
 }
 template t_G13_crossing_v0(sheet) {
-  [0, 0, 263, 149, -126, -20, sheet]  // 【手调】照抄 t_G4_crossing_v0
+  [0, 0, 263, 149, -124, -20, sheet]  // 【手调】照抄 t_G4_crossing_v0
 }
 template t_G13_junction3_v0(sheet) {
   [1052, 0, 263, 149, -128, -19, sheet]  // 【手调】照抄 t_G4_junction3_v0
