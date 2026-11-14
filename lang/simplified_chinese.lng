@@ -43,6 +43,7 @@ STR_RAIL_SFCA                               :高速铁路 {RED}25kVAC
 STR_RAIL_SDDA                               :电气化快速铁路 {RED}25kVAC
 STR_RAIL_SACd                               :地铁轨道 {LTBLUE}1.5kVDC
 STR_RAIL_SBCd                               :现代化地铁轨道 {LTBLUE}1.5kVDC
+STR_RAIL_SACZ                               :地铁轨道 {LTBLUE}1.5kVDC{GREEN}+第三轨
 STR_RAIL_NACN                               :窄轨铁路
 STR_RAIL_SBEN                               :现代重载铁路
 STR_RAIL_SBEA                               :电气化重载铁路 {RED}25kVAC

@@ -1715,3 +1715,85 @@ item(FEAT_RAILTYPES, rail_SBCd, 26) {
         catenary_wire:   probe_catenary_wire;
     }
 }
+
+// SACZ —— 地铁**双制式**（1500V DC 接触网 + 第三轨 · 2000 · 80km/h · 23t；A13 组）
+//
+//   人工 2026-11-14 确认门（「下一步是什么轨道」→ 选 SACZ，C8 按推荐）：
+//     费用 14/7 · 地图色 0x6B · 局部 id 27 · `CATENARY` + `NO_LEVEL_CROSSING`。
+//   CSV 第 23 行：`SACZ,地铁轨道(1500V DC接触网+第三轨),1435mm,80km/h,23t,
+//                  1500V DC+第三轨,2000,16,4`（末两列 = 费用系数 16 / 优先级 4）。
+item(FEAT_RAILTYPES, rail_SACZ, 27) {
+    property {
+        label:                  "SACZ";
+        introduction_date:      date(2000, 1, 1);
+        name:                   string(STR_RAIL_SACZ);
+        toolbar_caption:        string(STR_RAIL_SACZ);
+        menu_text:              string(STR_RAIL_SACZ);
+        build_window_caption:   string(STR_RAIL_SACZ);
+        autoreplace_text:       string(STR_RAIL_SACZ);
+        new_engine_text:        string(STR_RAIL_SACZ);
+        /* 兼容列表与 `SBC3`（同一个浮置板地铁族）**逐条相同**。
+           ⚠ `powered` 不同：本组是**双制式**（第三轨 **＋** 1500V DC 接触网）
+           ⇒ 第三轨族（`SAC3…`）与接触网族（`SACd…`、`SACL…`）的车辆
+             在这条轨道上**都算通电**，所以取 `SACd` 那份**超集**。 */
+        compatible_railtype_list: ["RAIL", "ELRL", 
+                                    "SACN", "SBCN", "SCCN", "SDCN", "SECN",  "SFCN", "SGCN",
+                                    "SADN", "SBDN", "SCDN", "SDDN", "SEDN",  "SFDN", "SGDN",
+                                    "SAEN", "SBEN", "SCEN", "SDEN", "SEEN",  "SFEN", "SGEN",
+                                    "SACA", "SBCA", "SCCA", "SDCA", "SECA",  "SFCA", "SGCA",
+                                    "SADA", "SBDA", "SCDA", "SDDA", "SEDA",  "SFDA", "SGDA", 
+                                    "SAEA", "SBEA", "SCEA", "SDEA", "SEEA",  "SFEA", "SGEA",
+                                    "SACd", "SBCd", "SCCd", "SDCd", "SECd",
+                                    "SADd", "SBDd", "SCDd", "SDDd", "SEDd",
+                                    "SAEd", "SBEd", "SCEd", "SDEd", "SEEd",  
+                                    "SACD", "SBCD", "SCCD", "SDCD", "SECD", 
+                                    "SADD", "SBDD", "SCDD", "SDDD", "SEDD",   
+                                    "SAC3", "SBC3", "SCC3", "SDC3",
+                                    "SACZ", "SBCZ", "SCCZ", "SDCZ",    
+                                    "SACL", "SBCL", "SCCL", "SDCL",
+                                    "DACN", 
+                                    "DADN", "DBDN",
+                                    "DACA", 
+                                    "DADA", "DBDA",
+                                    "dACN", "dBCN"];
+        powered_railtype_list:    [ "ELRL", 
+                                    "SACd", "SBCd", "SCCd", "SDCd",
+                                    "SACD", "SBCD", "SCCD", "SDCD",
+                                    "SAC3", "SBC3", "SCC3", "SDC3",
+                                    "SACZ", "SBCZ", "SCCZ", "SDCZ",
+                                    "SACL", "SBCL", "SCCL", "SDCL"];
+        /* `CATENARY`：双制式里 1500V DC 的那一半走**架空接触网**
+           （与纯第三轨的 `SAC3` / `SBC3` 相反 —— 那两条**不设** CATENARY）；
+           `NO_LEVEL_CROSSING`：地铁不设平交道口（A13 本来也没有道口图）。 */
+        railtype_flags:         bitmask(RAILTYPE_FLAG_CATENARY, RAILTYPE_FLAG_NO_LEVEL_CROSSING);
+        curve_speed_multiplier: 1;
+        station_graphics:       RAILTYPE_STATION_NORMAL;
+        /* 费用系数 = CSV 的 16 ⇒ 建设 14 / 维护 7（与同系数的 `SBCd` 同口径）。 */
+        construction_cost:      14;
+        maintenance_cost:       7;
+        speed_limit:            80 km/h;
+        acceleration_model:     ACC_MODEL_RAIL;
+        map_colour:             0x6B;
+        sort_order:             SORT_ELECTRIC;
+    }
+    /* ★ 2026-11-14：A13 组第三条（`SBC3` 之后）—— **零新模型 / 零新模板 / 零新分表**。
+       七项图形全部复用现成的：
+         underlay / bridge_surfaces ← `probe_*_floatslab`（`G7_*`，`BAL-I` 浅色板，
+                                      与 `SBC3` 同一套；SLE-5 无枕扣件座 + RAI-4 第三轨）
+         track_overlay            ← `probe_overlay_metro`（纯钢轨层，A12/A13 共用）
+         tunnels / tunnel_overlay ← `probe_tunnels_metro`（`TUN-5`，**洞内带第三轨**
+                                      ⇒ 本组是双制式，**正好要**；与 2026-11-13 给
+                                      `SACd`/`SBCd` 另出 `probe_tunnels_dcmetro` 的情况相反）
+         catenary_pylons / wire   ← `probe_catenary_pylons_cyl_blue`（`PYL-C2` 浅蓝牌，
+                                      2026-10-21 为 A11 新建的那一套）+ `probe_catenary_wire`
+       与 `SBC3` 只差 C8（80 vs 120 km/h、14/7 vs 10/5、0x6B vs 0x62）与**多接接触网两项**。 */
+    graphics {
+        underlay:        probe_underlay_floatslab;
+        track_overlay:   probe_overlay_metro;
+        tunnels:         probe_tunnels_metro;
+        tunnel_overlay:  probe_tunnel_over_metro;
+        bridge_surfaces: probe_bridge_surfaces_floatslab;
+        catenary_pylons: probe_catenary_pylons_cyl_blue;
+        catenary_wire:   probe_catenary_wire;
+    }
+}
