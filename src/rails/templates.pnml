@@ -1823,7 +1823,7 @@ template t_G13_z_track_half_m_v3(sheet) {
   [1841, 596, 263, 149, -128, -17, sheet]  // 【手调】照抄 t_G4_z_track_half_m_v3 ← RTO_E 用这张
 }
 template t_G13_track_slope_v0(sheet) {
-  [1052, 447, 263, 149, -125, -19, sheet]  // 【手调】照抄 t_G4_track_slope_v0；坡 NE
+  [1052, 447, 263, 149, -127, -18, sheet]  // 【手调】照抄 t_G4_track_slope_v0；坡 NE
 }
 template t_G13_track_slope_v1(sheet) {
   [1315, 447, 263, 149, -128, -18, sheet]  // 【手调】照抄 t_G4_track_slope_v1；坡 NW
@@ -1871,7 +1871,7 @@ template t_G13_rail_half_v3(sheet) {
   [1841, 149, 263, 149, -128, -17, sheet]  // 【手调】照抄 t_G4_rail_half_v3（RIGHT(RTO_E)）
 }
 template t_G13_rail_slope_v0(sheet) {
-  [0, 298, 263, 149, -125, -19, sheet]  // 【手调】照抄 t_G4_rail_slope_v0
+  [0, 298, 263, 149, -127, -18, sheet]  // 【手调】照抄 t_G4_rail_slope_v0
 }
 template t_G13_rail_slope_v1(sheet) {
   [263, 298, 263, 149, -128, -18, sheet]  // 【手调】照抄 t_G4_rail_slope_v1
