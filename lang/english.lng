@@ -36,6 +36,7 @@ STR_RAIL_SBEd                               :Industrial electrified railway {LTB
 STR_RAIL_SBDD                               :Korean electrified railway {BLUE}3kVDC
 STR_RAIL_SAC3                               :Metro {GREEN}3rd Rail
 STR_RAIL_SACL                               :Linear motor {GREEN}3rd Rail + LIM
+STR_RAIL_dBCN                               :Dual gauge {BLUE}1435+1000mm
 STR_RAIL_SBC3                               :Modern metro {GREEN}3rd Rail
 STR_RAIL_SGCA                               :High-speed {RED}25kVAC
 STR_RAIL_SCCA                               :Intercity {RED}25kVAC

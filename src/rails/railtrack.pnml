@@ -2044,8 +2044,7 @@ item(FEAT_RAILTYPES, rail_SACL, 32) {
                                     "DADA", "DBDA",
                                     "dACN", "dBCN"];
         powered_railtype_list:    [ "ELRL", 
-                                    "SAC3", "SBC3", "SCC3", "SDC3",
-                                    "SACZ", "SBCZ", "SCCZ", "SDCZ",    
+                                    "SAC3", "SBC3", "SCC3", "SDC3",   
                                     "SACL", "SBCL", "SCCL", "SDCL"];
         /* 第三轨 + 直线电机都是**车下设备** ⇒ 不架接触网，**不设** `CATENARY`；
            `NO_LEVEL_CROSSING`：地铁口径，与 `SAC3` / `SACZ` 一致 ⇒ 不提供 `level_crossings:`。 */
@@ -2071,5 +2070,104 @@ item(FEAT_RAILTYPES, rail_SACL, 32) {
         tunnels:         probe_tunnels_linear;
         tunnel_overlay:  probe_tunnel_over_metro;
         bridge_surfaces: probe_bridge_surfaces_linear;
+    }
+}
+
+/* ---------------------------------------------------------------------------
+   A24 组（准轨-窄轨套轨）—— `dBCN`（注意 label 首字母是**小写 d**）
+   `BAL-K` 加宽道床 + `SLE-1` 木枕 + **`RAI-10` 四根轨** + `TUN-8` 加宽断面拱。
+   与 A15（`NACN` 窄轨）**共用同一个 k = 0.70**，但方向相反：
+   A15 是「整条断面收窄」，本条是「断面加宽 + 把钢轨按 k 复制一遍」。
+   --------------------------------------------------------------------------- */
+
+// dBCN —— 准轨-窄轨套轨（1950 · B 档 120km/h · 23t · 非电化 · 1435/1067/1000mm）
+item(FEAT_RAILTYPES, rail_dBCN, 33) {
+    property {
+        label:                  "dBCN";
+        introduction_date:      date(1950, 1, 1);
+        name:                   string(STR_RAIL_dBCN);
+        toolbar_caption:        string(STR_RAIL_dBCN);
+        menu_text:              string(STR_RAIL_dBCN);
+        build_window_caption:   string(STR_RAIL_dBCN);
+        autoreplace_text:       string(STR_RAIL_dBCN);
+        new_engine_text:        string(STR_RAIL_dBCN);
+        /* ★ 套轨 = **两套车共线** ⇒ 兼容表取「准轨全族 + 窄轨全族 + 套轨那 4 个 d 码」
+           （不是随便抄一张：`SACL` 那份标准轨全量表 + `NACN` 那份窄轨量表取并集）。
+           方向性说明见文件头——引擎按「车所在轨道的表里有没有目标轨道」判，两边都已经
+           互相收录（标准轨那几十张表里早有 `dBCN`，窄轨那 4 张里也有）⇒ 双向可通。 */
+        compatible_railtype_list: ["RAIL", "ELRL",
+                                    "SACN", "SBCN", "SCCN", "SDCN", "SECN",  "SFCN", "SGCN",
+                                    "SADN", "SBDN", "SCDN", "SDDN", "SEDN",  "SFDN", "SGDN",
+                                    "SAEN", "SBEN", "SCEN", "SDEN", "SEEN",  "SFEN", "SGEN",
+                                    "SACA", "SBCA", "SCCA", "SDCA", "SECA",  "SFCA", "SGCA",
+                                    "SADA", "SBDA", "SCDA", "SDDA", "SEDA",  "SFDA", "SGDA",
+                                    "SAEA", "SBEA", "SCEA", "SDEA", "SEEA",  "SFEA", "SGEA",
+                                    "SACd", "SBCd", "SCCd", "SDCd", "SECd",
+                                    "SADd", "SBDd", "SCDd", "SDDd", "SEDd",
+                                    "SAEd", "SBEd", "SCEd", "SDEd", "SEEd",
+                                    "SACD", "SBCD", "SCCD", "SDCD", "SECD",
+                                    "SADD", "SBDD", "SCDD", "SDDD", "SEDD",
+                                    "SAC3", "SBC3", "SCC3", "SDC3",
+                                    "SACZ", "SBCZ", "SCCZ", "SDCZ",
+                                    "SACL", "SBCL", "SCCL", "SDCL",
+                                    "NACN", "NBCN", "NCCN", "NDCN",
+                                    "NACA", "NBCa", "NCCA", "NDCA",
+                                    "DACN",
+                                    "DADN", "DBDN",
+                                    "DACA",
+                                    "DADA", "DBDA",
+                                    "dACN", "dBCN", "dACA", "dBCA"];
+        /* 非电化（CSV：N/A）⇒ 不设 `CATENARY`；**允许平交道口**（套轨多出现在既有
+           地面线上，`dBCN` 的岔口 / 道口要能建）⇒ `railtype_flags: 0`。 */
+        powered_railtype_list:    ["RAIL", "ELRL",
+                                    "SACN", "SBCN", "SCCN", "SDCN", "SECN",  "SFCN", "SGCN",
+                                    "SADN", "SBDN", "SCDN", "SDDN", "SEDN",  "SFDN", "SGDN",
+                                    "SAEN", "SBEN", "SCEN", "SDEN", "SEEN",  "SFEN", "SGEN",
+                                    "SACA", "SBCA", "SCCA", "SDCA", "SECA",  "SFCA", "SGCA",
+                                    "SADA", "SBDA", "SCDA", "SDDA", "SEDA",  "SFDA", "SGDA",
+                                    "SAEA", "SBEA", "SCEA", "SDEA", "SEEA",  "SFEA", "SGEA",
+                                    "SACd", "SBCd", "SCCd", "SDCd", "SECd",
+                                    "SADd", "SBDd", "SCDd", "SDDd", "SEDd",
+                                    "SAEd", "SBEd", "SCEd", "SDEd", "SEEd",
+                                    "SACD", "SBCD", "SCCD", "SDCD", "SECD",
+                                    "SADD", "SBDD", "SCDD", "SDDD", "SEDD",
+                                    "SAC3", "SBC3", "SCC3", "SDC3",
+                                    "SACZ", "SBCZ", "SCCZ", "SDCZ",
+                                    "SACL", "SBCL", "SCCL", "SDCL",
+                                    "NACN", "NBCN", "NCCN", "NDCN",
+                                    "NACA", "NBCa", "NCCA", "NDCA",
+                                    "DACN",
+                                    "DADN", "DBDN",
+                                    "DACA",
+                                    "DADA", "DBDA",
+                                    "dACN", "dBCN", "dACA", "dBCA"];
+        railtype_flags:         0;
+        curve_speed_multiplier: 1;
+        station_graphics:       RAILTYPE_STATION_NORMAL;
+        /* 费用系数 = CSV 的 5 ⇒ 建设 5 / 维护 2（维护 = 系数除 2 取整，同 `SAC3` 10/5）。 */
+        construction_cost:      5;
+        maintenance_cost:       2;
+        /* ★ 速度：CSV 写 **100 km/h**，但标准化编码是 `d_B_C_N` ⇒ 按 **C5 裁定**
+           「速度值与字母整数档不齐时，遵照字母取档」⇒ 准轨族 B 档 = **120 km/h**
+           （同族的 `DBDN` / `DBDA` 也是 B 档 120）。CSV 的 100 作为**意图记录**
+           写进语言文件的名称（`{BLUE}1435+1000mm`，见 STR_RAIL_dBCN 那两行）。
+           ⚠ 要改回 100 只改这一行 + 语言文件的名称。 */
+        speed_limit:            120 km/h;
+        acceleration_model:     ACC_MODEL_RAIL;
+        map_colour:             0x71;
+        sort_order:             SORT_EARLY;
+    }
+    /* ★ 2026-11-18：A24 组。模型由 `tools/gen-a15-narrow.mjs` **第二节**生成：
+       源 = `G1_*` / `probe_track_x` / `G1_tunnel2_stone*`（A1 的几何），
+       道床与枕木横向 ×10/9、钢轨原样 + 同一对按 k = 0.70 再画一遍 ⇒ 四根轨。
+       分表 `gfx/dual.png`（263×149）+ `gfx/tunnel8.png`（263×167）。
+       ⚠ `tunnel_overlay:` **不能**复用 A1 的 `probe_tunnel_over_2` —— 洞口外形加宽了。 */
+    graphics {
+        underlay:        probe_underlay_dual;
+        track_overlay:   probe_overlay_dual;
+        tunnels:         probe_tunnels_dual;
+        tunnel_overlay:  probe_tunnel_over_dual;
+        level_crossings: probe_level_crossing_dual;
+        bridge_surfaces: probe_bridge_surfaces_dual;
     }
 }
