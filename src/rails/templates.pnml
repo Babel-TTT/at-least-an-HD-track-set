@@ -2335,6 +2335,132 @@ template t_G14_tunnel7_over_b_v2(sheet) {
   [1578, 167, 263, 167, -131, -156, sheet]  // 【手调】照抄 t_G5_tunnel7_over_b_v2
 }
 
+// ---------------------------------------------------------------------------
+// G15_* —— **A17 组（`NCCA` 高速窄轨）**（分表 gfx/narrowhs.png 263×144
+//   ＋ gfx/tunnel7hs.png 263×167）
+//
+//   人工 2026-11-17 批准（紧接 A16 之后；生成器「扩既有 A16 生成器」、允许平交道口、
+//   C8 全按拟定值）；模型由 `tools/gen-a16-narrow-modern.mjs` 的 **A17 那支**生成：
+//   **底板 = A15 的产物**（BAL-D + RAI-7 + TUN-7，逐面照搬），
+//   **只把枕木那一层换成 A5 的 `SLE-3`**（混凝土宽枕，U 形承轨槽）。
+//   ⇒ 与 A16 的差别**只有枕木来源**（`SLE-2` Ⅱ型枕 → `SLE-3` 宽枕），
+//     与 A15 的差别也只有枕木；道床 / 钢轨 / 洞门一个数没动。
+//
+//   ★ 56 张精灵的 `rect`（含表内位置）/ `xrel` / `yrel` / `centerAnchor` 与 `G5_*` **逐条相同**
+//     （渲完从 `gfx/openttd.json` 全量核对过：56/56 全同）⇒ 下面 36 条
+//     **逐条照抄 `t_G5_*`**，一个数都不用重算。
+//   ⚠ 摆位值本身是 A15 那轮从 `t_probe_*` / `t_G1_*` 手调出来的（注释里记着增量），别按
+//     `centerAnchor` 重算。
+// ---------------------------------------------------------------------------
+template t_G15_track_x_v0(sheet) {
+  [1052, 576, 263, 144, -126, -13, sheet]  // 【手调】照抄 t_G5_track_x_v0
+}
+template t_G15_track_x_v3(sheet) {
+  [1841, 576, 263, 144, -130, -13, sheet]  // 【手调】照抄 t_G5_track_x_v3
+}
+template t_G15_rail_straight_v0(sheet) {
+  [0, 432, 263, 144, -126, -13, sheet]  // 【手调】照抄 t_G5_rail_straight_v0
+}
+template t_G15_rail_straight_v3(sheet) {
+  [789, 432, 263, 144, -130, -13, sheet]  // 【手调】照抄 t_G5_rail_straight_v3
+}
+template t_G15_track_half_v0(sheet) {
+  [1052, 432, 263, 144, -128, -14, sheet]  // 【手调】照抄 t_G5_track_half_v0
+}
+template t_G15_track_half_v1(sheet) {
+  [1315, 432, 263, 144, -128, -13, sheet]  // 【手调】照抄 t_G5_track_half_v1
+}
+template t_G15_track_half_v2(sheet) {
+  [1578, 432, 263, 144, -129, -14, sheet]  // 【手调】照抄 t_G5_track_half_v2
+}
+template t_G15_track_half_v3(sheet) {
+  [1841, 432, 263, 144, -128, -13, sheet]  // 【手调】照抄 t_G5_track_half_v3
+}
+template t_G15_rail_half_v0(sheet) {
+  [0, 288, 263, 144, -128, -14, sheet]  // 【手调】照抄 t_G5_rail_half_v0
+}
+template t_G15_rail_half_v1(sheet) {
+  [263, 288, 263, 144, -128, -13, sheet]  // 【手调】照抄 t_G5_rail_half_v1
+}
+template t_G15_rail_half_v2(sheet) {
+  [526, 288, 263, 144, -129, -14, sheet]  // 【手调】照抄 t_G5_rail_half_v2
+}
+template t_G15_rail_half_v3(sheet) {
+  [789, 288, 263, 144, -128, -13, sheet]  // 【手调】照抄 t_G5_rail_half_v3
+}
+template t_G15_track_slope_v0(sheet) {
+  [0, 576, 263, 144, -125, -13, sheet]  // 【手调】照抄 t_G5_track_slope_v0
+}
+template t_G15_track_slope_v1(sheet) {
+  [263, 576, 263, 144, -131, -13, sheet]  // 【手调】照抄 t_G5_track_slope_v1
+}
+template t_G15_track_slope_v2(sheet) {
+  [526, 576, 263, 144, -123, -13, sheet]  // 【手调】照抄 t_G5_track_slope_v2
+}
+template t_G15_track_slope_v3(sheet) {
+  [789, 576, 263, 144, -131, -13, sheet]  // 【手调】照抄 t_G5_track_slope_v3
+}
+template t_G15_rail_slope_v0(sheet) {
+  [1052, 288, 263, 144, -125, -13, sheet]  // 【手调】照抄 t_G5_rail_slope_v0
+}
+template t_G15_rail_slope_v1(sheet) {
+  [1315, 288, 263, 144, -131, -13, sheet]  // 【手调】照抄 t_G5_rail_slope_v1
+}
+template t_G15_rail_slope_v2(sheet) {
+  [1578, 288, 263, 144, -123, -13, sheet]  // 【手调】照抄 t_G5_rail_slope_v2
+}
+template t_G15_rail_slope_v3(sheet) {
+  [1841, 288, 263, 144, -131, -13, sheet]  // 【手调】照抄 t_G5_rail_slope_v3
+}
+template t_G15_crossing_v0(sheet) {
+  [0, 0, 263, 144, -127, -14, sheet]  // 【手调】照抄 t_G5_crossing_v0
+}
+template t_G15_junction3_v0(sheet) {
+  [1052, 0, 263, 144, -129, -14, sheet]  // 【手调】照抄 t_G5_junction3_v0
+}
+template t_G15_junction3_v1(sheet) {
+  [1315, 0, 263, 144, -125, -15, sheet]  // 【手调】照抄 t_G5_junction3_v1
+}
+template t_G15_junction3_v2(sheet) {
+  [1578, 0, 263, 144, -128, -14, sheet]  // 【手调】照抄 t_G5_junction3_v2
+}
+template t_G15_junction3_v3(sheet) {
+  [1841, 0, 263, 144, -129, -14, sheet]  // 【手调】照抄 t_G5_junction3_v3
+}
+template t_G15_junction4_v0(sheet) {
+  [0, 144, 263, 144, -129, -15, sheet]  // 【手调】照抄 t_G5_junction4_v0
+}
+template t_G15_levelcrossing_v0(sheet) {
+  [1052, 144, 263, 144, -126, -13, sheet]  // 【手调】照抄 t_G5_levelcrossing_v0
+}
+template t_G15_levelcrossing_v3(sheet) {
+  [1841, 144, 263, 144, -234, -65, sheet]  // 【手调】照抄 t_G5_levelcrossing_v3
+}
+template t_G15_tunnel7_v0(sheet) {
+  [0, 0, 263, 167, -126, -36, sheet]  // 【手调】照抄 t_G5_tunnel7_v0（DiagDir NE，A 组远半）
+}
+template t_G15_tunnel7_v3(sheet) {
+  [789, 0, 263, 167, -126, -36, sheet]  // 【手调】照抄 t_G5_tunnel7_v3（DiagDir SE）
+}
+template t_G15_tunnel7_b_v1(sheet) {
+  [1315, 0, 263, 167, -130, -36, sheet]  // 【手调】照抄 t_G5_tunnel7_b_v1（DiagDir NW，B 组近半）
+}
+template t_G15_tunnel7_b_v2(sheet) {
+  [1578, 0, 263, 167, -119, -35, sheet]  // 【手调】照抄 t_G5_tunnel7_b_v2（DiagDir SW）
+}
+template t_G15_tunnel7_over_v0(sheet) {
+  [0, 167, 263, 167, -126, -156, sheet]  // 【手调】照抄 t_G5_tunnel7_over_v0
+}
+template t_G15_tunnel7_over_v3(sheet) {
+  [789, 167, 263, 167, -131, -156, sheet]  // 【手调】照抄 t_G5_tunnel7_over_v3
+}
+template t_G15_tunnel7_over_b_v1(sheet) {
+  [1315, 167, 263, 167, -129, -155, sheet]  // 【手调】照抄 t_G5_tunnel7_over_b_v1
+}
+template t_G15_tunnel7_over_b_v2(sheet) {
+  [1578, 167, 263, 167, -131, -156, sheet]  // 【手调】照抄 t_G5_tunnel7_over_b_v2
+}
+
 // ===========================================================================
 // A5 组（`SBEN` / `SBEA` 重载）—— 分表 gfx/heavy.png（263×149）· gfx/tunnel6.png（263×167）
 //

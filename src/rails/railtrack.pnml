@@ -1915,3 +1915,71 @@ item(FEAT_RAILTYPES, rail_NBCA, 29) {
         catenary_wire:   probe_catenary_wire;
     }
 }
+
+/* ---------------------------------------------------------------------------
+   A17 组（高速窄轨）—— `NCCA` 25kV AC
+   与 A16（`NBCN` / `NBCA`）**只差轨枕**：`SLE-2` Ⅱ型混凝土枕 → **`SLE-3` 混凝土宽枕**
+   （A5 / A8 / A25 / A9 / A6 同一批）。道床 `BAL-D` / 钢轨 `RAI-7` / 洞口 `TUN-7` 逐面相同，
+   k = 0.70 米轨 1000mm 不变。
+   --------------------------------------------------------------------------- */
+
+// NCCA —— 高速窄轨铁路（2000 · C 档 160km/h · 23t · 25kV AC）
+item(FEAT_RAILTYPES, rail_NCCA, 30) {
+    property {
+        label:                  "NCCA";
+        introduction_date:      date(2000, 1, 1);
+        name:                   string(STR_RAIL_NCCA);
+        toolbar_caption:        string(STR_RAIL_NCCA);
+        menu_text:              string(STR_RAIL_NCCA);
+        build_window_caption:   string(STR_RAIL_NCCA);
+        autoreplace_text:       string(STR_RAIL_NCCA);
+        new_engine_text:        string(STR_RAIL_NCCA);
+        /* 兼容 / powered 与 `NBCN` / `NBCA` **逐条相同**（同一套几何、同一个窄轨族，
+           窄轨族四条 `NACN` / `NBCN` / `NBCA` / `NCCA` 的这两张表从此完全一致）。 */
+        compatible_railtype_list: ["RAIL", "ELRL",
+                                    "NACN", "NBCN", "NBCA", "NCCA", "dBCN",
+                                    "SADN", "SBDN", "SCDN", "SDDN", "SEDN", "SFDN", "SGDN",
+                                    "SADA", "SBDA", "SCDA", "SDDA", "SEDA", "SFDA", "SGDA",
+                                    "SADd", "SBDd", "SCDd", "SDDd", "SEDd",
+                                    "SAEd", "SBEd", "SCEd", "SDEd", "SEEd",
+                                    "SADD", "SBDD", "SCDD", "SDDD", "SEDD",
+                                    "DADN", "DBDN", "DADA", "DBDA"];
+        powered_railtype_list:    ["RAIL", "ELRL",
+                                    "NACN", "NBCN", "NBCA", "NCCA", "dBCN",
+                                    "SADN", "SBDN", "SCDN", "SDDN", "SEDN", "SFDN", "SGDN",
+                                    "SADA", "SBDA", "SCDA", "SDDA", "SEDA", "SFDA", "SGDA",
+                                    "SADd", "SBDd", "SCDd", "SDDd", "SEDd",
+                                    "SAEd", "SBEd", "SCEd", "SDEd", "SEEd",
+                                    "SADD", "SBDD", "SCDD", "SDDD", "SEDD",
+                                    "DADN", "DBDN", "DADA", "DBDA"];
+        /* `CATENARY`：25kV AC 架空接触网；**允许平交道口**（与窄轨族另外三条一致，
+           人工 2026-11-17 在确认门里选的就是这一项）。 */
+        railtype_flags:         bitmask(RAILTYPE_FLAG_CATENARY);
+        curve_speed_multiplier: 1;
+        station_graphics:       RAILTYPE_STATION_NORMAL;
+        /* 费用 = CSV 的系数 16 ⇒ 建设 16 / 维护 8（与 `NBCN` 3/1、`NBCA` 6/3 同一套换算）。 */
+        construction_cost:      16;
+        maintenance_cost:       8;
+        /* 速度按标准化编码的字母档（C5 裁定）：N 轨距的 C 档 = **160 km/h**（CSV 也是 160）。 */
+        speed_limit:            160 km/h;
+        acceleration_model:     ACC_MODEL_RAIL;
+        map_colour:             0x6E;
+        sort_order:             SORT_ELECTRIC;
+    }
+    /* ★ 2026-11-17：A17 组。模型由 `tools/gen-a16-narrow-modern.mjs` 的 A17 那支生成：
+       底板 = A15 的产物（`G5_*` 逐面照搬），**只把枕木那层换成 A5 的 `SLE-3`**；
+       分表 `gfx/narrowhs.png`（263×144）+ `gfx/tunnel7hs.png`（263×167）。
+       接触网按落位表第 31 行原本就写明的 **`EL-25/S1`** ⇒ **`PYL-S1` H 型钢**
+       （`probe_catenary_pylons_steel`，25kV ⇒ 无标牌）+ 共用 `probe_catenary_wire`；
+       ⇒ `PYL-S1` 至此挂 5 条，只剩 `SFCA`（A9）未挂。 */
+    graphics {
+        underlay:        probe_underlay_narrowhs;
+        track_overlay:   probe_overlay_narrowhs;
+        tunnels:         probe_tunnels_narrowhs;
+        tunnel_overlay:  probe_tunnel_over_narrowhs;
+        level_crossings: probe_level_crossing_narrowhs;
+        bridge_surfaces: probe_bridge_surfaces_narrowhs;
+        catenary_pylons: probe_catenary_pylons_steel;
+        catenary_wire:   probe_catenary_wire;
+    }
+}
