@@ -1753,6 +1753,158 @@ spriteset(probe_bridge_surfaces_wide, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
 }
 
 /* ===========================================================================
+   A19 组（`DBDA` 电气化准轨-俄罗斯宽轨套轨）—— underlay / track_overlay / 洞口 / 道口 / 桥面
+
+   分表：轨道 = `gfx/dualwidemodern.png`、洞口 = `gfx/tunnel8widemodern.png`。
+   模型由 `tools/gen-a15-narrow.mjs` 的**第四节**生成：**底板 = A18（`G19_*`）逐面照搬**，
+   只把木枕 `SLE-1` 换成 **`SLE-2` Ⅱ 型混凝土枕**（从 `G3_*` 借；洞内两件从
+   `G2_tunnel2_stone*` 借 —— TUN-3 的洞门也是 `concrete`，借不得）。
+   槽位顺序与 A18 / A24 / A5 / A1 **逐字相同**，换的只是表名与模板前缀。
+   ⚠ `SLE-2` 在灰道砟上对比度极低（A16 那轮就登记过「实机几乎看不见枕木」，
+      只露 0.7 px）—— 本组**继承同一个观感**，要改就得改 `concrete` 的配色（待人工裁）。
+   =========================================================================== */
+spriteset(probe_underlay_dualwidemodern, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G21_track_x_v0("gfx/dualwidemodern.png")         //  0  RTO_X        X
+    t_G21_track_x_v3("gfx/dualwidemodern.png")         //  1  RTO_Y        Y
+    t_G21_track_half_v0("gfx/dualwidemodern.png")      //  2  RTO_N        UPPER（切 N 角）
+    t_G21_track_half_v2("gfx/dualwidemodern.png")      //  3  RTO_S        LOWER
+    t_G21_track_half_v3("gfx/dualwidemodern.png")      //  4  RTO_E        RIGHT
+    t_G21_track_half_v1("gfx/dualwidemodern.png")      //  5  RTO_W        LEFT
+    t_G21_track_slope_v0("gfx/dualwidemodern.png")     //  6  RTO_SLOPE_NE
+    t_G21_track_slope_v3("gfx/dualwidemodern.png")     //  7  RTO_SLOPE_SE
+    t_G21_track_slope_v2("gfx/dualwidemodern.png")     //  8  RTO_SLOPE_SW
+    t_G21_track_slope_v1("gfx/dualwidemodern.png")     //  9  RTO_SLOPE_NW
+    t_G21_crossing_v0("gfx/dualwidemodern.png")        // 10  RTO_CROSSING_XY（四根轨）
+    t_G21_junction3_v0("gfx/dualwidemodern.png")       // 11  RTO_JUNCTION_SW（只有道床）
+    t_G21_junction3_v2("gfx/dualwidemodern.png")       // 12  RTO_JUNCTION_NE
+    t_G21_junction3_v1("gfx/dualwidemodern.png")       // 13  RTO_JUNCTION_SE
+    t_G21_junction3_v3("gfx/dualwidemodern.png")       // 14  RTO_JUNCTION_NW
+    t_G21_junction4_v0("gfx/dualwidemodern.png")       // 15  RTO_JUNCTION_NSEW
+}
+
+spriteset(probe_overlay_dualwidemodern, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G21_rail_straight_v0("gfx/dualwidemodern.png")   // 0  RTO_X        纯钢轨层（四根 + 混凝土枕）
+    t_G21_rail_straight_v3("gfx/dualwidemodern.png")   // 1  RTO_Y
+    t_G21_rail_half_v0("gfx/dualwidemodern.png")       // 2  RTO_N
+    t_G21_rail_half_v2("gfx/dualwidemodern.png")       // 3  RTO_S
+    t_G21_rail_half_v3("gfx/dualwidemodern.png")       // 4  RTO_E
+    t_G21_rail_half_v1("gfx/dualwidemodern.png")       // 5  RTO_W
+    t_G21_rail_slope_v0("gfx/dualwidemodern.png")      // 6  RTO_SLOPE_NE
+    t_G21_rail_slope_v3("gfx/dualwidemodern.png")      // 7  RTO_SLOPE_SE
+    t_G21_rail_slope_v2("gfx/dualwidemodern.png")      // 8  RTO_SLOPE_SW
+    t_G21_rail_slope_v1("gfx/dualwidemodern.png")      // 9  RTO_SLOPE_NW
+}
+
+/* 洞口 TUN-8（同一个加宽拱）—— 洞内四根轨 + Ⅱ 型混凝土枕 */
+spriteset(probe_tunnels_dualwidemodern, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G21_tunnel8wide_v0("gfx/tunnel8widemodern.png")            // 0  DiagDir NE ← v0
+    t_G21_tunnel8wide_v3("gfx/tunnel8widemodern.png")            // 1  DiagDir SE ← v3
+    t_G21_tunnel8wide_b_v2("gfx/tunnel8widemodern.png")          // 2  DiagDir SW ← v2
+    t_G21_tunnel8wide_b_v1("gfx/tunnel8widemodern.png")          // 3  DiagDir NW ← v1
+}
+
+spriteset(probe_tunnel_over_dualwidemodern, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G21_tunnel8wide_over_v0("gfx/tunnel8widemodern.png")       // 0  DiagDir NE ← v0
+    t_G21_tunnel8wide_over_v3("gfx/tunnel8widemodern.png")       // 1  DiagDir SE ← v3
+    t_G21_tunnel8wide_over_b_v2("gfx/tunnel8widemodern.png")     // 2  DiagDir SW ← v2
+    t_G21_tunnel8wide_over_b_v1("gfx/tunnel8widemodern.png")     // 3  DiagDir NW ← v1
+}
+
+spriteset(probe_level_crossing_dualwidemodern, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G21_levelcrossing_v0("gfx/dualwidemodern.png")        // 0  X 方向：轨道图
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png")    // 1  X 方向：道口灯 1（占位）
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png")    // 2  X 方向：道口灯 2（占位）
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png")    // 3  X 方向：栏杆 1（占位）
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png")    // 4  X 方向：栏杆 2（占位）
+    t_G21_levelcrossing_v3("gfx/dualwidemodern.png")        // 5  Y 方向：轨道图
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png")    // 6  Y 方向：道口灯 1（占位）
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png")    // 7  Y 方向：道口灯 2（占位）
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png")    // 8  Y 方向：栏杆 1（占位）
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png")    // 9  Y 方向：栏杆 2（占位）
+}
+
+spriteset(probe_bridge_surfaces_dualwidemodern, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G21_track_x_v0("gfx/dualwidemodern.png")         // 0  平 — X
+    t_G21_track_x_v3("gfx/dualwidemodern.png")         // 1  平 — Y
+    t_G21_track_slope_v0("gfx/dualwidemodern.png")     // 2  坡 NE
+    t_G21_track_slope_v3("gfx/dualwidemodern.png")     // 3  坡 SE
+    t_G21_track_slope_v2("gfx/dualwidemodern.png")     // 4  坡 SW
+    t_G21_track_slope_v1("gfx/dualwidemodern.png")     // 5  坡 NW
+}
+
+/* ===========================================================================
+   A23 组（`BBDA` 电气化俄罗斯宽轨）—— 与 A19 同一套拼装（底板 = A22 的 `G20_*`）
+   分表：轨道 = `gfx/widemodern.png`、洞口 = `gfx/tunnel8broadmodern.png`。
+   =========================================================================== */
+spriteset(probe_underlay_widemodern, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G22_track_x_v0("gfx/widemodern.png")         //  0  RTO_X        X
+    t_G22_track_x_v3("gfx/widemodern.png")         //  1  RTO_Y        Y
+    t_G22_track_half_v0("gfx/widemodern.png")      //  2  RTO_N        UPPER（切 N 角）
+    t_G22_track_half_v2("gfx/widemodern.png")      //  3  RTO_S        LOWER
+    t_G22_track_half_v3("gfx/widemodern.png")      //  4  RTO_E        RIGHT
+    t_G22_track_half_v1("gfx/widemodern.png")      //  5  RTO_W        LEFT
+    t_G22_track_slope_v0("gfx/widemodern.png")     //  6  RTO_SLOPE_NE
+    t_G22_track_slope_v3("gfx/widemodern.png")     //  7  RTO_SLOPE_SE
+    t_G22_track_slope_v2("gfx/widemodern.png")     //  8  RTO_SLOPE_SW
+    t_G22_track_slope_v1("gfx/widemodern.png")     //  9  RTO_SLOPE_NW
+    t_G22_crossing_v0("gfx/widemodern.png")        // 10  RTO_CROSSING_XY（两组 1520 轨）
+    t_G22_junction3_v0("gfx/widemodern.png")       // 11  RTO_JUNCTION_SW（只有道床）
+    t_G22_junction3_v2("gfx/widemodern.png")       // 12  RTO_JUNCTION_NE
+    t_G22_junction3_v1("gfx/widemodern.png")       // 13  RTO_JUNCTION_SE
+    t_G22_junction3_v3("gfx/widemodern.png")       // 14  RTO_JUNCTION_NW
+    t_G22_junction4_v0("gfx/widemodern.png")       // 15  RTO_JUNCTION_NSEW
+}
+
+spriteset(probe_overlay_widemodern, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G22_rail_straight_v0("gfx/widemodern.png")   // 0  RTO_X        纯钢轨层（两根 1520 + 混凝土枕）
+    t_G22_rail_straight_v3("gfx/widemodern.png")   // 1  RTO_Y
+    t_G22_rail_half_v0("gfx/widemodern.png")       // 2  RTO_N
+    t_G22_rail_half_v2("gfx/widemodern.png")       // 3  RTO_S
+    t_G22_rail_half_v3("gfx/widemodern.png")       // 4  RTO_E
+    t_G22_rail_half_v1("gfx/widemodern.png")       // 5  RTO_W
+    t_G22_rail_slope_v0("gfx/widemodern.png")      // 6  RTO_SLOPE_NE
+    t_G22_rail_slope_v3("gfx/widemodern.png")      // 7  RTO_SLOPE_SE
+    t_G22_rail_slope_v2("gfx/widemodern.png")      // 8  RTO_SLOPE_SW
+    t_G22_rail_slope_v1("gfx/widemodern.png")      // 9  RTO_SLOPE_NW
+}
+
+spriteset(probe_tunnels_widemodern, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G22_tunnel8broad_v0("gfx/tunnel8broadmodern.png")            // 0  DiagDir NE ← v0
+    t_G22_tunnel8broad_v3("gfx/tunnel8broadmodern.png")            // 1  DiagDir SE ← v3
+    t_G22_tunnel8broad_b_v2("gfx/tunnel8broadmodern.png")          // 2  DiagDir SW ← v2
+    t_G22_tunnel8broad_b_v1("gfx/tunnel8broadmodern.png")          // 3  DiagDir NW ← v1
+}
+
+spriteset(probe_tunnel_over_widemodern, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G22_tunnel8broad_over_v0("gfx/tunnel8broadmodern.png")       // 0  DiagDir NE ← v0
+    t_G22_tunnel8broad_over_v3("gfx/tunnel8broadmodern.png")       // 1  DiagDir SE ← v3
+    t_G22_tunnel8broad_over_b_v2("gfx/tunnel8broadmodern.png")     // 2  DiagDir SW ← v2
+    t_G22_tunnel8broad_over_b_v1("gfx/tunnel8broadmodern.png")     // 3  DiagDir NW ← v1
+}
+
+spriteset(probe_level_crossing_widemodern, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G22_levelcrossing_v0("gfx/widemodern.png")            // 0  X 方向：轨道图
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png")    // 1  X 方向：道口灯 1（占位）
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png")    // 2  X 方向：道口灯 2（占位）
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png")    // 3  X 方向：栏杆 1（占位）
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png")    // 4  X 方向：栏杆 2（占位）
+    t_G22_levelcrossing_v3("gfx/widemodern.png")            // 5  Y 方向：轨道图
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png")    // 6  Y 方向：道口灯 1（占位）
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png")    // 7  Y 方向：道口灯 2（占位）
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png")    // 8  Y 方向：栏杆 1（占位）
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png")    // 9  Y 方向：栏杆 2（占位）
+}
+
+spriteset(probe_bridge_surfaces_widemodern, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G22_track_x_v0("gfx/widemodern.png")         // 0  平 — X
+    t_G22_track_x_v3("gfx/widemodern.png")         // 1  平 — Y
+    t_G22_track_slope_v0("gfx/widemodern.png")     // 2  坡 NE
+    t_G22_track_slope_v3("gfx/widemodern.png")     // 3  坡 SE
+    t_G22_track_slope_v2("gfx/widemodern.png")     // 4  坡 SW
+    t_G22_track_slope_v1("gfx/widemodern.png")     // 5  坡 NW
+}
+
+/* ===========================================================================
    A5 组（`SBEN` / `SBEA` 重载）—— underlay / track_overlay / 洞口 / 道口 / 桥面
 
    分表：轨道 = `gfx/heavy.png`、洞口 = `gfx/tunnel6.png`（见 tools/sheets.mjs）。

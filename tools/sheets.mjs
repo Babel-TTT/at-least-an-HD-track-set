@@ -478,6 +478,31 @@ export const SHEETS = [
     match: /^G1_(fence|railing)/,
   },
   {
+    // A19 组（`DBDA` 电气化准宽套轨）的**洞口**：同一个 `TUN-8`，只是洞内枕木换成 Ⅱ 型混凝土枕。
+    // ⚠ 必须登记在下面的 dualwidemodern **之前**（first-match-wins）。
+    key: 'tunnel8widemodern',
+    title: '宽轨套轨洞口 TUN-8（加宽拱圈，洞内四根轨 + 混凝土枕；DBDA）',
+    match: /^G21_tunnel8wide/,
+  },
+  {
+    // A23 组（`BBDA` 电气化俄罗斯宽轨）的**洞口**：同上，洞内两根 1520 轨。
+    key: 'tunnel8broadmodern',
+    title: '宽轨洞口 TUN-8（加宽拱圈，洞内两根 1520 轨 + 混凝土枕；BBDA）',
+    match: /^G22_tunnel8broad/,
+  },
+  {
+    // A19 组（`DBDA`）的轨道：与 `dualwide`（A18）**逐面相同，只把木枕换成 SLE-2 Ⅱ 型混凝土枕**。
+    key: 'dualwidemodern',
+    title: '准宽套轨·电气化（BAL-K + SLE-2 + RAI-5 四轨；DBDA）',
+    match: /^G21_/,
+  },
+  {
+    // A23 组（`BBDA`）的轨道：与 `wide`（A22）**逐面相同，只换枕木**。
+    key: 'widemodern',
+    title: '俄罗斯宽轨·电气化（BAL-K + SLE-2 + RAI-9 两轨 1520；BBDA）',
+    match: /^G22_/,
+  },
+  {
     // A18 组（`DBDN` 准轨-俄罗斯宽轨套轨）的**洞口**：`TUN-8` 套轨加宽断面拱
     // —— 与 A24（`dBCN`）的 `tunnel8` 表**逐件同几何**（同一条 ×10/9 加宽映射），
     // 差别只在洞内轨道那一层的钢轨横向尺度（本族四根：1435 原样 + 1520 那一对）。

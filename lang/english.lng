@@ -39,6 +39,8 @@ STR_RAIL_SACL                               :Linear motor {GREEN}3rd Rail + LIM
 STR_RAIL_dBCN                               :Dual gauge {BLUE}1435+1000mm
 STR_RAIL_DBDN                               :Dual gauge (broad) {BLUE}1435+1520mm
 STR_RAIL_BBDN                               :Russian broad gauge {BLUE}1520mm
+STR_RAIL_DBDA                               :Dual gauge (broad, electrified) {RED}25kVAC
+STR_RAIL_BBDA                               :Russian broad gauge (electrified) {RED}25kVAC
 STR_RAIL_SBC3                               :Modern metro {GREEN}3rd Rail
 STR_RAIL_SGCA                               :High-speed {RED}25kVAC
 STR_RAIL_SCCA                               :Intercity {RED}25kVAC

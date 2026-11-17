@@ -2359,3 +2359,174 @@ item(FEAT_RAILTYPES, rail_BBDN, 35) {
         bridge_surfaces: probe_bridge_surfaces_wide;
     }
 }
+
+/* ===========================================================================
+   宽轨那一族的**电气化**两条（人工 2026-11-18 第二轮「推进宽轨」的后半）
+   A19 组 `DBDA`（电气化准轨-俄罗斯宽轨套轨）· A23 组 `BBDA`（电气化俄罗斯宽轨）
+   ---------------------------------------------------------------------------
+   与 `DBDN` / `BBDN` **只差枕木**：道床 `BAL-K` · 钢轨 `RAI-5` / `RAI-9` · 洞口 `TUN-8`
+   全部逐面沿用，只把木枕 `SLE-1` 换成 **`SLE-2` Ⅱ 型混凝土枕**；再加上 **`EL-25` 接触网**
+   （`PYL-C1` 支柱 = 共用的 `probe_catenary_pylons`）。
+   ⇒ 模型由 `tools/gen-a15-narrow.mjs` 的**第四节**生成；分表 `gfx/dualwidemodern.png` /
+   `gfx/widemodern.png`（263×149）+ `gfx/tunnel8widemodern.png` / `gfx/tunnel8broadmodern.png`（263×167）。
+
+   ⚠ `SLE-2` 在灰道砟上**对比度极低**（A16 那轮登记过「实机几乎看不见枕木」，只露 0.7 px）
+     —— 本两条继承同一个观感，与 `SCDN` / `SBDN` 一致；要改就改 `concrete` 的配色（待人工裁）。
+   =========================================================================== */
+
+// DBDA —— 电气化准轨-俄罗斯宽轨套轨（25kV AC · 1980 · B 档 120km/h · 25t · 1435/1520mm）
+item(FEAT_RAILTYPES, rail_DBDA, 36) {
+    property {
+        label:                  "DBDA";
+        introduction_date:      date(1980, 1, 1);
+        name:                   string(STR_RAIL_DBDA);
+        toolbar_caption:        string(STR_RAIL_DBDA);
+        menu_text:              string(STR_RAIL_DBDA);
+        build_window_caption:   string(STR_RAIL_DBDA);
+        autoreplace_text:       string(STR_RAIL_DBDA);
+        new_engine_text:        string(STR_RAIL_DBDA);
+        /* 与 `DBDN` 同一张联合表（理由见上面宽轨族的注释段）。 */
+        compatible_railtype_list: ["RAIL", "ELRL", 
+                                    "SACN", "SBCN", "SCCN", "SDCN", "SECN",  "SFCN", "SGCN",
+                                    "SADN", "SBDN", "SCDN", "SDDN", "SEDN",  "SFDN", "SGDN",
+                                    "SAEN", "SBEN", "SCEN", "SDEN", "SEEN",  "SFEN", "SGEN",
+                                    "SACA", "SBCA", "SCCA", "SDCA", "SECA",  "SFCA", "SGCA",
+                                    "SADA", "SBDA", "SCDA", "SDDA", "SEDA",  "SFDA", "SGDA",
+                                    "SAEA", "SBEA", "SCEA", "SDEA", "SEEA",  "SFEA", "SGEA",
+                                    "SACd", "SBCd", "SCCd", "SDCd", "SECd",
+                                    "SADd", "SBDd", "SCDd", "SDDd", "SEDd",
+                                    "SAEd", "SBEd", "SCEd", "SDEd", "SEEd",
+                                    "SACD", "SBCD", "SCCD", "SDCD", "SECD",
+                                    "SADD", "SBDD", "SCDD", "SDDD", "SEDD",
+                                    "SAC3", "SBC3", "SCC3", "SDC3",
+                                    "SACZ", "SBCZ", "SCCZ", "SDCZ",
+                                    "SACL", "SBCL", "SCCL", "SDCL",
+                                    "DACN", "DADN", "DBDN", "DACA", "DADA", "DBDA",
+                                    "BADN", "BBDN", "BCDN", "BDDN",
+                                    "BADA", "BBDA", "BCDA", "BDDA",
+                                    "dACN", "dBCN", "dACA", "dBCA",
+                                    "NACN", "NBCN", "NCCN", "NDCN",
+                                    "NACA", "NBCa", "NCCA", "NDCA"];
+        powered_railtype_list:    ["RAIL", "ELRL", 
+                                    "SACN", "SBCN", "SCCN", "SDCN", "SECN",  "SFCN", "SGCN",
+                                    "SADN", "SBDN", "SCDN", "SDDN", "SEDN",  "SFDN", "SGDN",
+                                    "SAEN", "SBEN", "SCEN", "SDEN", "SEEN",  "SFEN", "SGEN",
+                                    "SACA", "SBCA", "SCCA", "SDCA", "SECA",  "SFCA", "SGCA",
+                                    "SADA", "SBDA", "SCDA", "SDDA", "SEDA",  "SFDA", "SGDA",
+                                    "SAEA", "SBEA", "SCEA", "SDEA", "SEEA",  "SFEA", "SGEA",
+                                    "SACd", "SBCd", "SCCd", "SDCd", "SECd",
+                                    "SADd", "SBDd", "SCDd", "SDDd", "SEDd",
+                                    "SAEd", "SBEd", "SCEd", "SDEd", "SEEd",
+                                    "SACD", "SBCD", "SCCD", "SDCD", "SECD",
+                                    "SADD", "SBDD", "SCDD", "SDDD", "SEDD",
+                                    "SAC3", "SBC3", "SCC3", "SDC3",
+                                    "SACZ", "SBCZ", "SCCZ", "SDCZ",
+                                    "SACL", "SBCL", "SCCL", "SDCL",
+                                    "DACN", "DADN", "DBDN", "DACA", "DADA", "DBDA",
+                                    "BADN", "BBDN", "BCDN", "BDDN",
+                                    "BADA", "BBDA", "BCDA", "BDDA",
+                                    "dACN", "dBCN", "dACA", "dBCA",
+                                    "NACN", "NBCN", "NCCN", "NDCN",
+                                    "NACA", "NBCa", "NCCA", "NDCA"];
+        /* CSV：25kV AC ⇒ `CATENARY`；仍允许平交道口（与 `DBDN` 一致）。 */
+        railtype_flags:         bitmask(RAILTYPE_FLAG_CATENARY);
+        curve_speed_multiplier: 1;
+        station_graphics:       RAILTYPE_STATION_NORMAL;
+        /* 费用系数 = CSV 的 **20** ⇒ 建设 20 / 维护 10。 */
+        construction_cost:      20;
+        maintenance_cost:       10;
+        speed_limit:            120 km/h;
+        acceleration_model:     ACC_MODEL_RAIL;
+        map_colour:             0x74;
+        sort_order:             SORT_ELECTRIC;
+    }
+    /* ★ 2026-11-18：A19 组 = A18 的产物换枕木（`tools/gen-a15-narrow.mjs` 第四节）。 */
+    graphics {
+        underlay:        probe_underlay_dualwidemodern;
+        track_overlay:   probe_overlay_dualwidemodern;
+        tunnels:         probe_tunnels_dualwidemodern;
+        tunnel_overlay:  probe_tunnel_over_dualwidemodern;
+        level_crossings: probe_level_crossing_dualwidemodern;
+        bridge_surfaces: probe_bridge_surfaces_dualwidemodern;
+        catenary_pylons: probe_catenary_pylons;
+        catenary_wire:   probe_catenary_wire;
+    }
+}
+
+// BBDA —— 电气化俄罗斯宽轨（25kV AC · 1950 · B 档 120km/h · 25t · 1520mm 单轨距）
+item(FEAT_RAILTYPES, rail_BBDA, 37) {
+    property {
+        label:                  "BBDA";
+        introduction_date:      date(1950, 1, 1);
+        name:                   string(STR_RAIL_BBDA);
+        toolbar_caption:        string(STR_RAIL_BBDA);
+        menu_text:              string(STR_RAIL_BBDA);
+        build_window_caption:   string(STR_RAIL_BBDA);
+        autoreplace_text:       string(STR_RAIL_BBDA);
+        new_engine_text:        string(STR_RAIL_BBDA);
+        /* 与 `BBDN` 同一张联合表。 */
+        compatible_railtype_list: ["RAIL", "ELRL", 
+                                    "SACN", "SBCN", "SCCN", "SDCN", "SECN",  "SFCN", "SGCN",
+                                    "SADN", "SBDN", "SCDN", "SDDN", "SEDN",  "SFDN", "SGDN",
+                                    "SAEN", "SBEN", "SCEN", "SDEN", "SEEN",  "SFEN", "SGEN",
+                                    "SACA", "SBCA", "SCCA", "SDCA", "SECA",  "SFCA", "SGCA",
+                                    "SADA", "SBDA", "SCDA", "SDDA", "SEDA",  "SFDA", "SGDA",
+                                    "SAEA", "SBEA", "SCEA", "SDEA", "SEEA",  "SFEA", "SGEA",
+                                    "SACd", "SBCd", "SCCd", "SDCd", "SECd",
+                                    "SADd", "SBDd", "SCDd", "SDDd", "SEDd",
+                                    "SAEd", "SBEd", "SCEd", "SDEd", "SEEd",
+                                    "SACD", "SBCD", "SCCD", "SDCD", "SECD",
+                                    "SADD", "SBDD", "SCDD", "SDDD", "SEDD",
+                                    "SAC3", "SBC3", "SCC3", "SDC3",
+                                    "SACZ", "SBCZ", "SCCZ", "SDCZ",
+                                    "SACL", "SBCL", "SCCL", "SDCL",
+                                    "DACN", "DADN", "DBDN", "DACA", "DADA", "DBDA",
+                                    "BADN", "BBDN", "BCDN", "BDDN",
+                                    "BADA", "BBDA", "BCDA", "BDDA",
+                                    "dACN", "dBCN", "dACA", "dBCA",
+                                    "NACN", "NBCN", "NCCN", "NDCN",
+                                    "NACA", "NBCa", "NCCA", "NDCA"];
+        powered_railtype_list:    ["RAIL", "ELRL", 
+                                    "SACN", "SBCN", "SCCN", "SDCN", "SECN",  "SFCN", "SGCN",
+                                    "SADN", "SBDN", "SCDN", "SDDN", "SEDN",  "SFDN", "SGDN",
+                                    "SAEN", "SBEN", "SCEN", "SDEN", "SEEN",  "SFEN", "SGEN",
+                                    "SACA", "SBCA", "SCCA", "SDCA", "SECA",  "SFCA", "SGCA",
+                                    "SADA", "SBDA", "SCDA", "SDDA", "SEDA",  "SFDA", "SGDA",
+                                    "SAEA", "SBEA", "SCEA", "SDEA", "SEEA",  "SFEA", "SGEA",
+                                    "SACd", "SBCd", "SCCd", "SDCd", "SECd",
+                                    "SADd", "SBDd", "SCDd", "SDDd", "SEDd",
+                                    "SAEd", "SBEd", "SCEd", "SDEd", "SEEd",
+                                    "SACD", "SBCD", "SCCD", "SDCD", "SECD",
+                                    "SADD", "SBDD", "SCDD", "SDDD", "SEDD",
+                                    "SAC3", "SBC3", "SCC3", "SDC3",
+                                    "SACZ", "SBCZ", "SCCZ", "SDCZ",
+                                    "SACL", "SBCL", "SCCL", "SDCL",
+                                    "DACN", "DADN", "DBDN", "DACA", "DADA", "DBDA",
+                                    "BADN", "BBDN", "BCDN", "BDDN",
+                                    "BADA", "BBDA", "BCDA", "BDDA",
+                                    "dACN", "dBCN", "dACA", "dBCA",
+                                    "NACN", "NBCN", "NCCN", "NDCN",
+                                    "NACA", "NBCa", "NCCA", "NDCA"];
+        railtype_flags:         bitmask(RAILTYPE_FLAG_CATENARY);
+        curve_speed_multiplier: 1;
+        station_graphics:       RAILTYPE_STATION_NORMAL;
+        /* 费用系数 = CSV 的 **8** ⇒ 建设 8 / 维护 4。 */
+        construction_cost:      8;
+        maintenance_cost:       4;
+        speed_limit:            120 km/h;
+        acceleration_model:     ACC_MODEL_RAIL;
+        map_colour:             0x75;
+        sort_order:             SORT_ELECTRIC;
+    }
+    /* ★ 2026-11-18：A23 组 = A22 的产物换枕木 + 接触网。 */
+    graphics {
+        underlay:        probe_underlay_widemodern;
+        track_overlay:   probe_overlay_widemodern;
+        tunnels:         probe_tunnels_widemodern;
+        tunnel_overlay:  probe_tunnel_over_widemodern;
+        level_crossings: probe_level_crossing_widemodern;
+        bridge_surfaces: probe_bridge_surfaces_widemodern;
+        catenary_pylons: probe_catenary_pylons;
+        catenary_wire:   probe_catenary_wire;
+    }
+}

@@ -760,6 +760,227 @@ export function generateWide() {
   return files;
 }
 
+// =============================================================================
+// 第四节：A19 组（`DBDA`）＋ A23 组（`BBDA`）—— 只换枕木：`SLE-1` → `SLE-2`
+//
+//   覆盖 `DBDA`（CSV：1435/1520mm · 25kV AC · 1980 · 120km/h · 25t）
+//        `BBDA`（CSV：1520mm      · 25kV AC · 1950 · 120km/h · 25t）
+//   与第三节的两族**只差枕木**：道床 `BAL-K` / 钢轨 `RAI-5`（四根）/ `RAI-9`（两根）
+//   / 洞口 `TUN-8` 全部逐面沿用，只把木枕（`SLE-1`）换成 Ⅱ 型混凝土枕（`SLE-2`）。
+//
+// -----------------------------------------------------------------------------
+// 【做法：与 A16 / A17 同一套「拼装」，但底板已经是加宽后的产物】
+//
+//   ① 底板 = **第三节的产物**（`models/G19_*.model` / `G20_*.model`） —— 它已经是
+//      「G1 的几何 × 10/9 + 宽轨钢轨」，道砟 / 坡度 / 岔口并集 / 洞门 / 钢轨全在里面。
+//   ② 枕木 = `models/G3_*.model`（A3 = `BAL-A` + `SLE-2`）里 **`SLE-2` 那一层**，
+//      用**第三节的同一个 `xformW`**（道床 ×10/9）变换后贴上去。
+//   ③ 洞内枕木**不能**从 `G3_tunnel3*` 借（TUN-3 的洞门也是 `concrete`），
+//      改用 `G2_tunnel2_stone*`（A2 = TUN-2 + `SLE-2`）—— 它**就是**本族的洞门族
+//      （`TUN-8` = TUN-2 ×10/9），洞内轨道层的切片方式与底板**同源**，
+//      而且 A4 那一轮已经验证过它的 `concrete / concrete_seam / trim_dark` 闸门
+//      只圈住洞内枕木、不会削到洞门（洞门是 `concrete_dark` + 4 面 `panel_seam`）。
+//
+//   ⚠ **闸门**（沿用 A16 生成器，实测零冲突）：
+//        SLE-1 = `wood_dark` / `wood_seam`   ← 从底板删掉
+//        SLE-2 = `concrete` / `concrete_seam` / `trim_dark`  ← 从 G3 / G2 借
+//      `G19_*` / `G20_*` 全部 28 件里 `concrete*` / `trim_dark` 一个都没有
+//      （实测材质表：gravel wood_dark wood_seam rust metal stone_dark trim_black
+//       metal_seam panel_seam concrete_dark dirt）；反方向 `wood*` 在 `G3_*` / `G2_*` 里也没有。
+//
+//   ⚠ **一个已知的 0.7 px 偏差（接受）**：`SLE-2` 的 U 形承轨槽按准轨 ±0.0516 做，
+//     整层 ×10/9 后槽落到 ±0.0573，而本族两根轨在 ±0.0516（1435）与 ±0.0547（1520）。
+//     ⇒ 槽落在**外侧那根轨的外面**约 0.0026 格 = 0.33 px。要精确对位就得「只拉长枕木、
+//     不动槽」，那不是仿射变换（得逐个面改），而 0.33 px 在 1x 下是 0.08 px —— 接受，记账。
+//
+//   ⚠ **平交道口仍然 `noWiden`**：那一条的枕木在底板里就是 0.18（砟带由公路开口定），
+//     所以借来的枕木也要按 s = 1 放，不能跟着 ×10/9。
+// =============================================================================
+
+/** A16 生成器的闸门：SLE-1（木枕）与 SLE-2（Ⅱ 型混凝土枕） */
+const SLE1_MAT = /^wood(_dark|_seam)?$/;
+const SLE2_MAT = /^(concrete|concrete_seam|trim_dark)$/;
+const FACE_KW = /^(box|quad|prism|poly)$/;
+
+const MOD_FAMS = [
+  {
+    id: 'A19', prefix: 'G21', base: 'G19', tunnel: 'tunnel8wide', rails: '`RAI-5`',
+    codes: '`DBDA` 电气化准轨-俄罗斯宽轨套轨 · 25kV AC · 1980 · 120km/h',
+  },
+  {
+    id: 'A23', prefix: 'G22', base: 'G20', tunnel: 'tunnel8broad', rails: '`RAI-9`',
+    codes: '`BBDA` 电气化俄罗斯宽轨 · 25kV AC · 1950 · 120km/h',
+  },
+];
+
+/** 地面件：与第三节同名同参；`sl` = 借枕木的源（G3 = A3 的 SLE-2） */
+const MOD_JOBS = [
+  { name: 'track_x', kind: 'y', over: true, sl: 'G3_track_x',
+    note: 'underlay 槽 0/1（RTO_X / RTO_Y）：加宽道床 + Ⅱ 型混凝土枕 + 宽轨钢轨' },
+  { name: 'rail_straight', kind: 'y', over: true, sl: 'G3_rail_straight',
+    note: 'overlay 槽 0/1：钢轨层（透明底，钢轨 + 枕木）' },
+  { name: 'track_half', kind: 'diag', over: true, sl: 'G3_track_half',
+    note: 'underlay 槽 2-5（RTO_N / S / E / W）：切 N 角的半格宽轨' },
+  { name: 'rail_half', kind: 'diag', over: true, sl: 'G3_rail_half',
+    note: 'overlay 槽 2-5：半格轨的钢轨层' },
+  { name: 'track_slope', kind: 'y', over: false, sl: 'G3_track_slope',
+    note: 'underlay 槽 6-9：坡道（z 已含 RISE，只横向加宽，沿轨不探出）' },
+  { name: 'rail_slope', kind: 'y', over: false, sl: 'G3_rail_slope',
+    note: 'overlay 槽 6-9：坡道的钢轨层' },
+  { name: 'crossing', kind: 'cross', over: true, edge: CROSS_EDGE, sl: 'G3_crossing',
+    note: 'underlay 槽 10（RTO_CROSSING_XY）：交叉，自带两组钢轨' },
+  { name: 'junction3', kind: 'cross', over: true, edge: CROSS_EDGE, sl: null,
+    note: 'underlay 槽 11-14：三向道岔（只有道床板，没有枕木）' },
+  { name: 'junction4', kind: 'cross', over: true, edge: CROSS_EDGE, sl: null,
+    note: 'underlay 槽 15：四向道岔（只有道床板）' },
+  { name: 'levelcrossing', kind: 'y', over: true, noWiden: true, sl: 'G3_levelcrossing',
+    note: 'level_crossings 的轨道图（v0 → X 槽、v3 → Y 槽）—— 道床与枕木都**不放大**' },
+];
+
+/** 洞口件：`tunnels:` 两层借 `G2_tunnel2_stone*` 的 SLE-2；`tunnel_overlay:` 两层无轨道 */
+const MOD_TUNNELS = [
+  { suf: '', base: 'G2_tunnel2_stone', note: 'tunnels: 组（A 组：远半）' },
+  { suf: '_b', base: 'G2_tunnel2_stone_b', note: 'tunnels: 组（B 组：近半）' },
+  { suf: '_over', base: null, note: 'tunnel_overlay: 组（A 组：近半 + 洞顶）—— 不含轨道，逐字照抄' },
+  { suf: '_over_b', base: null, note: 'tunnel_overlay: 组（B 组：远半 + 洞顶）—— 逐字照抄' },
+];
+
+/** 取若干行的 x/y/z 外接框（用于「借来的枕木落在原来的位置没有」这条自检） */
+function bboxOf(lines) {
+  let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity, z0 = Infinity, z1 = -Infinity;
+  for (const raw of lines) {
+    const t = raw.trim().split(/\s+/);
+    const put = (x, y, z) => {
+      if (!Number.isFinite(x) || !Number.isFinite(y)) return;
+      x0 = Math.min(x0, x); x1 = Math.max(x1, x);
+      y0 = Math.min(y0, y); y1 = Math.max(y1, y);
+      if (Number.isFinite(z)) { z0 = Math.min(z0, z); z1 = Math.max(z1, z); }
+    };
+    if (t[0] === 'box') { put(+t[1], +t[2], +t[3]); put(+t[4], +t[5], +t[6]); }
+    else if (t[0] === 'quad') { for (let i = 0; i < 4; i++) put(+t[1 + i * 3], +t[2 + i * 3], +t[3 + i * 3]); }
+    else if (t[0] === 'prism' || t[0] === 'poly') {
+      const at = t[0] === 'prism' ? 4 : 3;
+      if (t[0] === 'prism') { z0 = Math.min(z0, +t[1]); z1 = Math.max(z1, +t[2]); }
+      else { z0 = Math.min(z0, +t[1]); z1 = Math.max(z1, +t[1]); }
+      for (const p of t.slice(at)) { const [a, b] = p.split(','); put(+a, +b, NaN); }
+    }
+  }
+  return { x0, x1, y0, y1, z0, z1 };
+}
+
+function headerForMod(fam, job, stats) {
+  return [
+    '# =============================================================================',
+    `# ${job.dst} —— ${fam.id} 组（${fam.codes}）· ${job.note}`,
+    '#',
+    '# 【本文件由 tools/gen-a15-narrow.mjs 的**第四节**生成，请勿手改】',
+    `#   底板 = models/${job.base}.model（= 第三节的产物：BAL-K 加宽道床 + ${fam.rails} + TUN-8）`,
+    job.sl
+      ? `#   枕木 = models/${job.sl}.model 里的 SLE-2（${SLE2_MAT.source}），同一个 xformW 加宽`
+      : '#   枕木 = 无（这件本来就没有枕木层）',
+    `#   删掉底板的 SLE-1 = ${stats.dropped} 面（wood_dark / wood_seam），换成 SLE-2 = ${stats.added} 面`,
+    `#   kind=${job.kind}、沿轨探出 OVER=${OVER} 格${job.over ? '' : '（本件**不探出**）'}`
+      + `${job.noWiden ? '、**道床与枕木都不放大**（平交道口）' : ''}`,
+    stats.align
+      ? `#   对位自检：借来的枕木与原来的木枕 bbox 偏差 Δx=${stats.align.dx} Δy=${stats.align.dy} Δz=${stats.align.dz}`
+      : '#   对位自检：本件没有枕木层',
+    '#   拼装口径与「承轨槽 0.33 px 偏差」见本工具第四节文件头。',
+    '# =============================================================================',
+    '',
+  ].join('\n');
+}
+
+export function generateModern() {
+  const files = [];
+  for (const fam of MOD_FAMS) {
+    const jobs = [
+      ...MOD_JOBS.map((j) => ({
+        ...j, base: `${fam.base}_${j.name}`, dst: `${fam.prefix}_${j.name}`,
+      })),
+      ...MOD_TUNNELS.map((t) => ({
+        ...t, kind: 'tunnel', over: true, edge: ARCH_EDGE, sl: t.base,
+        base: `${fam.base}_${fam.tunnel}${t.suf}`, dst: `${fam.prefix}_${fam.tunnel}${t.suf}`,
+      })),
+    ];
+
+    for (const job of jobs) {
+      const srcPath = path.join(ROOT, 'models', `${job.base}.model`);
+      if (!fs.existsSync(srcPath)) {
+        log(`  × 跳过 ${job.dst}：底板 ${job.base}.model 不存在`);
+        continue;
+      }
+      const srcText = fs.readFileSync(srcPath, 'utf8').split('\n');
+      const head = srcText.filter((l) => /^(name|group|footprint|zmax)\s/.test(l));
+      const src = srcText.filter((l) => FACE_KW.test(l.trim().split(/\s+/)[0]));
+
+      const kept = [];
+      const droppedLines = [];
+      for (const raw of src) {
+        if (SLE1_MAT.test(matOfLine(raw))) { droppedLines.push(raw); continue; }
+        kept.push(raw);
+      }
+
+      const sleeperLines = [];
+      let clipped = 0;
+      if (job.sl) {
+        const slPath = path.join(ROOT, 'models', `${job.sl}.model`);
+        if (!fs.existsSync(slPath)) {
+          log(`  × 跳过 ${job.dst}：枕木源 ${job.sl}.model 不存在`);
+          continue;
+        }
+        const slFaces = fs.readFileSync(slPath, 'utf8').split('\n')
+          .filter((l) => FACE_KW.test(l.trim().split(/\s+/)[0]))
+          .filter((l) => SLE2_MAT.test(matOfLine(l)));
+        // ★ 借来的枕木层必须落在「原来那层木枕的外接框」里 —— 否则会在切角处戳出砟带。
+        //   实测只有斜向件（`track_half` / `rail_half`）会：A3 的斜向件把**切角那条边**
+        //   也按 OVER/√2 探了出去（它自己整件外移 0.0221 格），而本族的底板
+        //   （`probe_half_upper` 系）没有 —— 借过来再加宽 10/9 就变成 0.035 格（4.5 px）戳出。
+        //   判据：逐面比外接框，超出容差 0.003 格的一律丢掉（等价于退回到 probe 的切角口径）。
+        const TOL = 0.003;
+        const woodBox = droppedLines.length ? bboxOf(droppedLines) : null;
+        for (const raw of slFaces) {
+          const line = xformLine(job, raw, xformW).line;
+          if (woodBox) {
+            const b = bboxOf([line]);
+            const outside = b.x0 < woodBox.x0 - TOL || b.x1 > woodBox.x1 + TOL
+              || b.y0 < woodBox.y0 - TOL || b.y1 > woodBox.y1 + TOL;
+            if (outside) { clipped++; continue; }
+          }
+          sleeperLines.push(line);
+        }
+        if (!slFaces.length) log(`  ⚠ ${job.dst}：${job.sl} 里没有 SLE-2 面`);
+      }
+
+      // 对位自检：原来的木枕 vs 贴上去的 SLE-2（bbox 差值）
+      let align = null;
+      if (droppedLines.length && sleeperLines.length) {
+        const a = bboxOf(droppedLines), b = bboxOf(sleeperLines);
+        align = {
+          dx: `${(b.x0 - a.x0).toFixed(4)}/${(b.x1 - a.x1).toFixed(4)}`,
+          dy: `${(b.y0 - a.y0).toFixed(4)}/${(b.y1 - a.y1).toFixed(4)}`,
+          dz: `${(b.z0 - a.z0).toFixed(4)}/${(b.z1 - a.z1).toFixed(4)}`,
+        };
+      }
+
+      const body = [...kept, ...sleeperLines];
+      const group = head.find((l) => /^group\s/.test(l)) || 'group     misc';
+      const footprint = head.find((l) => /^footprint\s/.test(l)) || 'footprint 1 1';
+      const zmax = head.find((l) => /^zmax\s/.test(l)) || 'zmax      0.0280';
+
+      const stats = { dropped: droppedLines.length, added: sleeperLines.length, align };
+      const out = path.join(ROOT, 'models', `${job.dst}.model`);
+      fs.writeFileSync(out, headerForMod(fam, job, stats)
+        + `name      ${job.dst}\n${group.trimEnd()}\n${footprint.trimEnd()}\n${zmax.trimEnd()}\n\n`
+        + body.join('\n') + '\n', 'utf8');
+      files.push(out);
+      log(`  → ${rel(out).padEnd(48)} 面 ${String(body.length).padStart(4)}`
+        + `（删 ${String(droppedLines.length).padStart(3)} / 加 ${String(sleeperLines.length).padStart(3)}）`
+        + (align ? `  对位 Δx=${align.dx} Δy=${align.dy} Δz=${align.dz}` : ''));
+    }
+  }
+  return files;
+}
+
 if (isMain(import.meta.url)) {
   const t0 = Date.now();
   log(`生成 A15 组（NACN 窄轨）模型：k = ${K}（米轨 1000mm）、OVER = ${OVER}`);
@@ -776,5 +997,10 @@ if (isMain(import.meta.url)) {
     + `（A18 四根 = [1, S]、A22 两根 = [S]）`);
   const filesW = generateWide();
   log(`✔ 生成 ${filesW.length} 个模型，用时 ${((Date.now() - t2) / 1000).toFixed(2)} s`);
+
+  const t3 = Date.now();
+  log('生成 A19 / A23 组（宽轨电气化）模型：底板 = A18 / A22 产物，枕木换 SLE-2');
+  const filesM = generateModern();
+  log(`✔ 生成 ${filesM.length} 个模型，用时 ${((Date.now() - t3) / 1000).toFixed(2)} s`);
   log('  下一步：make render → 抄模板 → make check');
 }
