@@ -36,6 +36,8 @@ STR_RAIL_SBDD                               :朝鲜电气化铁路 {BLUE}3kVDC
 STR_RAIL_SAC3                               :地铁轨道 {GREEN}第三轨
 STR_RAIL_SACL                               :直线电机轨道 {GREEN}第三轨+直线电机
 STR_RAIL_dBCN                               :准轨-窄轨套轨 {BLUE}1435+1000mm
+STR_RAIL_DBDN                               :准轨-俄罗斯宽轨套轨 {BLUE}1435+1520mm
+STR_RAIL_BBDN                               :俄罗斯宽轨 {BLUE}1520mm
 STR_RAIL_SBC3                               :现代化地铁轨道 {GREEN}第三轨
 STR_RAIL_SGCA                               :高速铁路 {RED}25kVAC
 STR_RAIL_SCCA                               :城际铁路 {RED}25kVAC

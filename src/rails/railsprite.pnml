@@ -1591,6 +1591,168 @@ spriteset(probe_bridge_surfaces_dual, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
 }
 
 /* ===========================================================================
+   A18 组（`DBDN` 准轨-俄罗斯宽轨套轨）—— underlay / track_overlay / 洞口 / 道口 / 桥面
+
+   分表：轨道 = `gfx/dualwide.png`、洞口 = `gfx/tunnel8wide.png`（见 tools/sheets.mjs）。
+   模型由 `tools/gen-a15-narrow.mjs` 的**第三节**生成；**道床 / 枕木 / 洞门三层与 A24
+   （`dBCN`）逐字相同**（同一个 `BAL-K` 0.40、同一个 `SLE-1`、同一个 `TUN-8`），
+   差别只在钢轨那一层：
+     `RAI-5` 四根 = 准轨那对**原样**（0.1032 格 = 1.435 m）
+                    + 同一对按 S = 1520/1435 放大一遍（0.1093 格 = 1.520 m，**在外侧**）
+   ⚠ 四根轨在 4x 下会并成一根（85 mm = 0.8 px，而轨断面本身 1.0 px）—— 见生成器文件头。
+
+   槽位顺序与 A24 / A5 / A1 **逐字相同**（同一个 RTO 表），换的只是表名与模板前缀。
+   =========================================================================== */
+spriteset(probe_underlay_dualwide, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G19_track_x_v0("gfx/dualwide.png")         //  0  RTO_X        X
+    t_G19_track_x_v3("gfx/dualwide.png")         //  1  RTO_Y        Y
+    t_G19_track_half_v0("gfx/dualwide.png")      //  2  RTO_N        UPPER（切 N 角）
+    t_G19_track_half_v2("gfx/dualwide.png")      //  3  RTO_S        LOWER
+    t_G19_track_half_v3("gfx/dualwide.png")      //  4  RTO_E        RIGHT
+    t_G19_track_half_v1("gfx/dualwide.png")      //  5  RTO_W        LEFT
+    t_G19_track_slope_v0("gfx/dualwide.png")     //  6  RTO_SLOPE_NE   v0（右上抬）
+    t_G19_track_slope_v3("gfx/dualwide.png")     //  7  RTO_SLOPE_SE   v3（右下抬）
+    t_G19_track_slope_v2("gfx/dualwide.png")     //  8  RTO_SLOPE_SW   v2（左下抬）
+    t_G19_track_slope_v1("gfx/dualwide.png")     //  9  RTO_SLOPE_NW   v1（左上抬）
+    t_G19_crossing_v0("gfx/dualwide.png")        // 10  RTO_CROSSING_XY（自带两组钢轨 → 四组）
+    t_G19_junction3_v0("gfx/dualwide.png")       // 11  RTO_JUNCTION_SW（只有道床）
+    t_G19_junction3_v2("gfx/dualwide.png")       // 12  RTO_JUNCTION_NE（v2）
+    t_G19_junction3_v1("gfx/dualwide.png")       // 13  RTO_JUNCTION_SE（v1）
+    t_G19_junction3_v3("gfx/dualwide.png")       // 14  RTO_JUNCTION_NW（v3）
+    t_G19_junction4_v0("gfx/dualwide.png")       // 15  RTO_JUNCTION_NSEW（只有道床）
+}
+
+spriteset(probe_overlay_dualwide, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G19_rail_straight_v0("gfx/dualwide.png")   // 0  RTO_X        纯钢轨层（四根）
+    t_G19_rail_straight_v3("gfx/dualwide.png")   // 1  RTO_Y
+    t_G19_rail_half_v0("gfx/dualwide.png")       // 2  RTO_N
+    t_G19_rail_half_v2("gfx/dualwide.png")       // 3  RTO_S
+    t_G19_rail_half_v3("gfx/dualwide.png")       // 4  RTO_E
+    t_G19_rail_half_v1("gfx/dualwide.png")       // 5  RTO_W
+    t_G19_rail_slope_v0("gfx/dualwide.png")      // 6  RTO_SLOPE_NE
+    t_G19_rail_slope_v3("gfx/dualwide.png")      // 7  RTO_SLOPE_SE
+    t_G19_rail_slope_v2("gfx/dualwide.png")      // 8  RTO_SLOPE_SW
+    t_G19_rail_slope_v1("gfx/dualwide.png")      // 9  RTO_SLOPE_NW
+}
+
+/* 洞口 TUN-8（加宽拱圈）—— 两层 × A/B 两组 = 8 张（同 A24 的槽位顺序）
+   槽位 = DiagDirection，顺序 NE / SE / SW / NW ⇒ 喂图 **v0, v3, v2(_b), v1(_b)**。 */
+spriteset(probe_tunnels_dualwide, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G19_tunnel8wide_v0("gfx/tunnel8wide.png")            // 0  DiagDir NE ← v0   A 组（远半）
+    t_G19_tunnel8wide_v3("gfx/tunnel8wide.png")            // 1  DiagDir SE ← v3   A 组
+    t_G19_tunnel8wide_b_v2("gfx/tunnel8wide.png")          // 2  DiagDir SW ← v2   B 组（近半）
+    t_G19_tunnel8wide_b_v1("gfx/tunnel8wide.png")          // 3  DiagDir NW ← v1   B 组
+}
+
+spriteset(probe_tunnel_over_dualwide, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G19_tunnel8wide_over_v0("gfx/tunnel8wide.png")       // 0  DiagDir NE ← v0   A 组（近半 + 洞顶）
+    t_G19_tunnel8wide_over_v3("gfx/tunnel8wide.png")       // 1  DiagDir SE ← v3   A 组
+    t_G19_tunnel8wide_over_b_v2("gfx/tunnel8wide.png")     // 2  DiagDir SW ← v2   B 组（远半 + 洞顶）
+    t_G19_tunnel8wide_over_b_v1("gfx/tunnel8wide.png")     // 3  DiagDir NW ← v1   B 组
+}
+
+// 平交道口 —— 10 格（2 方向 × 1 张轨道图 + 4 张占位；道口灯/栏杆仍未做，与 G1 / A15 / A16 / A17 / A24 一样）
+spriteset(probe_level_crossing_dualwide, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G19_levelcrossing_v0("gfx/dualwide.png")              // 0  X 方向：轨道图
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png")    // 1  X 方向：道口灯 1（占位）
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png")    // 2  X 方向：道口灯 2（占位）
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png")    // 3  X 方向：栏杆 1（占位）
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png")    // 4  X 方向：栏杆 2（占位）
+    t_G19_levelcrossing_v3("gfx/dualwide.png")              // 5  Y 方向：轨道图
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png")    // 6  Y 方向：道口灯 1（占位）
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png")    // 7  Y 方向：道口灯 2（占位）
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png")    // 8  Y 方向：栏杆 1（占位）
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png")    // 9  Y 方向：栏杆 2（占位）
+}
+
+// 桥面 —— 6 格（平 X / 平 Y / 坡 NE / SE / SW / NW）；桥上也是同一段道床的断面
+spriteset(probe_bridge_surfaces_dualwide, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G19_track_x_v0("gfx/dualwide.png")         // 0  平 — X
+    t_G19_track_x_v3("gfx/dualwide.png")         // 1  平 — Y
+    t_G19_track_slope_v0("gfx/dualwide.png")     // 2  坡 NE
+    t_G19_track_slope_v3("gfx/dualwide.png")     // 3  坡 SE
+    t_G19_track_slope_v2("gfx/dualwide.png")     // 4  坡 SW
+    t_G19_track_slope_v1("gfx/dualwide.png")     // 5  坡 NW
+}
+
+/* ===========================================================================
+   A22 组（`BBDN` 纯 1520 宽轨）—— underlay / track_overlay / 洞口 / 道口 / 桥面
+
+   分表：轨道 = `gfx/wide.png`、洞口 = `gfx/tunnel8broad.png`。
+   与 A18 组**只差钢轨画几遍**（同一个 `xformW`、同一个 `BAL-K` / `SLE-1` / `TUN-8`）：
+     `RAI-9` **两根** = 只画按 S = 1520/1435 放大那一遍（轨距 0.1093 格 = 1.520 m）
+   ⇒ 图上与 A18 的差别只有「每侧一根 / 每侧两根」，是本尺度能表达的极限。
+   =========================================================================== */
+spriteset(probe_underlay_wide, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G20_track_x_v0("gfx/wide.png")             //  0  RTO_X        X
+    t_G20_track_x_v3("gfx/wide.png")             //  1  RTO_Y        Y
+    t_G20_track_half_v0("gfx/wide.png")          //  2  RTO_N        UPPER（切 N 角）
+    t_G20_track_half_v2("gfx/wide.png")          //  3  RTO_S        LOWER
+    t_G20_track_half_v3("gfx/wide.png")          //  4  RTO_E        RIGHT
+    t_G20_track_half_v1("gfx/wide.png")          //  5  RTO_W        LEFT
+    t_G20_track_slope_v0("gfx/wide.png")         //  6  RTO_SLOPE_NE   v0（右上抬）
+    t_G20_track_slope_v3("gfx/wide.png")         //  7  RTO_SLOPE_SE   v3（右下抬）
+    t_G20_track_slope_v2("gfx/wide.png")         //  8  RTO_SLOPE_SW   v2（左下抬）
+    t_G20_track_slope_v1("gfx/wide.png")         //  9  RTO_SLOPE_NW   v1（左上抬）
+    t_G20_crossing_v0("gfx/wide.png")            // 10  RTO_CROSSING_XY（自带两组钢轨 → 两组 1520）
+    t_G20_junction3_v0("gfx/wide.png")           // 11  RTO_JUNCTION_SW（只有道床）
+    t_G20_junction3_v2("gfx/wide.png")           // 12  RTO_JUNCTION_NE（v2）
+    t_G20_junction3_v1("gfx/wide.png")           // 13  RTO_JUNCTION_SE（v1）
+    t_G20_junction3_v3("gfx/wide.png")           // 14  RTO_JUNCTION_NW（v3）
+    t_G20_junction4_v0("gfx/wide.png")           // 15  RTO_JUNCTION_NSEW（只有道床）
+}
+
+spriteset(probe_overlay_wide, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G20_rail_straight_v0("gfx/wide.png")       // 0  RTO_X        纯钢轨层（两根 1520）
+    t_G20_rail_straight_v3("gfx/wide.png")       // 1  RTO_Y
+    t_G20_rail_half_v0("gfx/wide.png")           // 2  RTO_N
+    t_G20_rail_half_v2("gfx/wide.png")           // 3  RTO_S
+    t_G20_rail_half_v3("gfx/wide.png")           // 4  RTO_E
+    t_G20_rail_half_v1("gfx/wide.png")           // 5  RTO_W
+    t_G20_rail_slope_v0("gfx/wide.png")          // 6  RTO_SLOPE_NE
+    t_G20_rail_slope_v3("gfx/wide.png")          // 7  RTO_SLOPE_SE
+    t_G20_rail_slope_v2("gfx/wide.png")          // 8  RTO_SLOPE_SW
+    t_G20_rail_slope_v1("gfx/wide.png")          // 9  RTO_SLOPE_NW
+}
+
+/* 洞口 TUN-8（同一个加宽拱）—— 洞内只有两根 1520 轨 */
+spriteset(probe_tunnels_wide, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G20_tunnel8broad_v0("gfx/tunnel8broad.png")            // 0  DiagDir NE ← v0   A 组（远半）
+    t_G20_tunnel8broad_v3("gfx/tunnel8broad.png")            // 1  DiagDir SE ← v3   A 组
+    t_G20_tunnel8broad_b_v2("gfx/tunnel8broad.png")          // 2  DiagDir SW ← v2   B 组（近半）
+    t_G20_tunnel8broad_b_v1("gfx/tunnel8broad.png")          // 3  DiagDir NW ← v1   B 组
+}
+
+spriteset(probe_tunnel_over_wide, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G20_tunnel8broad_over_v0("gfx/tunnel8broad.png")       // 0  DiagDir NE ← v0   A 组（近半 + 洞顶）
+    t_G20_tunnel8broad_over_v3("gfx/tunnel8broad.png")       // 1  DiagDir SE ← v3   A 组
+    t_G20_tunnel8broad_over_b_v2("gfx/tunnel8broad.png")     // 2  DiagDir SW ← v2   B 组（远半 + 洞顶）
+    t_G20_tunnel8broad_over_b_v1("gfx/tunnel8broad.png")     // 3  DiagDir NW ← v1   B 组
+}
+
+spriteset(probe_level_crossing_wide, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G20_levelcrossing_v0("gfx/wide.png")                  // 0  X 方向：轨道图
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png")    // 1  X 方向：道口灯 1（占位）
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png")    // 2  X 方向：道口灯 2（占位）
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png")    // 3  X 方向：栏杆 1（占位）
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png")    // 4  X 方向：栏杆 2（占位）
+    t_G20_levelcrossing_v3("gfx/wide.png")                  // 5  Y 方向：轨道图
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png")    // 6  Y 方向：道口灯 1（占位）
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png")    // 7  Y 方向：道口灯 2（占位）
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png")    // 8  Y 方向：栏杆 1（占位）
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png")    // 9  Y 方向：栏杆 2（占位）
+}
+
+spriteset(probe_bridge_surfaces_wide, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G20_track_x_v0("gfx/wide.png")             // 0  平 — X
+    t_G20_track_x_v3("gfx/wide.png")             // 1  平 — Y
+    t_G20_track_slope_v0("gfx/wide.png")         // 2  坡 NE
+    t_G20_track_slope_v3("gfx/wide.png")         // 3  坡 SE
+    t_G20_track_slope_v2("gfx/wide.png")         // 4  坡 SW
+    t_G20_track_slope_v1("gfx/wide.png")         // 5  坡 NW
+}
+
+/* ===========================================================================
    A5 组（`SBEN` / `SBEA` 重载）—— underlay / track_overlay / 洞口 / 道口 / 桥面
 
    分表：轨道 = `gfx/heavy.png`、洞口 = `gfx/tunnel6.png`（见 tools/sheets.mjs）。

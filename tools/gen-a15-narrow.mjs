@@ -409,7 +409,8 @@ const widen = (c, s) => (s === 1 ? c : 0.5 + s * (c - 0.5));
  * 「按材质取 S」—— 钢轨 S = 1（不动），其余 S = `W_BED`。
  */
 function xformW(job, x, y, mat) {
-  const s = job.noWiden ? 1 : (RAIL_ALL.test(mat) ? 1 : W_BED);
+  // `job.railS` 只有第三节（宽轨）会传：钢轨层的横向尺度由它给，缺省 1（= A24 的口径）。
+  const s = job.noWiden ? 1 : (RAIL_ALL.test(mat) ? (job.railS ?? 1) : W_BED);
   const track = TRACK_MATS.test(mat);
   switch (job.kind) {
     case 'y':
@@ -569,6 +570,196 @@ export function generateA24() {
   return files;
 }
 
+// =============================================================================
+// 第三节：A18 组（`DBDN` 准轨-俄罗斯宽轨套轨）＋ A22 组（`BBDN` 纯 1520 宽轨）
+//
+//   覆盖 `DBDN`（CSV：1435/1520mm · 1898 · 120km/h · 25t · 非电）
+//        `BBDN`（CSV：1520mm      · 1898 · 120km/h · 25t · 非电）
+//   道床 `BAL-K`（= 第二节那个加宽道床 **0.40 格**，一个数不改）+ `SLE-1` 木枕
+//   + 洞口 `TUN-8`（= 第二节那个加宽拱，一个数不改）
+//   钢轨：A18 = **`RAI-5`**（四根：1435 内侧 + 1520 外侧）
+//         A22 = **`RAI-9`**（两根：1520）
+//
+// -----------------------------------------------------------------------------
+// 【本轮一个数都不新造 —— 新东西只有"钢轨的横向尺度"】
+//
+//   A24（第二节）已经把 `BAL-K` 加宽道床与 `TUN-8` 造出来了，本组**整件沿用**；
+//   与 A24 的差别只在钢轨那一层取哪个尺度：
+//
+//     家族   钢轨遍数            结果                轨距（格 / 米）
+//     ----   ------------------  ------------------  --------------------------
+//     A24    [1, K]             四根（窄轨在内）    0.1032 / 0.0722 = 1435 / 1004
+//     A18    [1, S_BROAD]       四根（宽轨在外）    0.1032 / 0.1093 = 1435 / 1520
+//     A22    [S_BROAD]          两根                0.1093          = 1520
+//
+//   ⇒ 第三节 = 第二节的同一个 `xformW()` + 同一个 `W_BED`，只多一个 `S_BROAD`。
+//
+// 【S_BROAD 是纯比值，不依赖"一格几米"】
+//
+//   `probe_track_x` 文件头的轨距口径：准轨 **0.1032 格 ↔ 1.435 m**
+//   ⇒ 1520 mm 落在 0.1032 × 1520/1435 = **0.1093118 格**，反算回来正好 1.520 m ✓
+//   顶点级（源轨心 y = 0.5 ± 0.0516、断面 0.0080 格）：
+//     · 轨心 → 0.5 ± **0.0546559**，即 y = 0.4453 / 0.5547
+//     · 断面 → 0.0085 格（+5.9% = **0.06 px @4x**，看不见）
+//
+//   ⚠ A24 的复制那遍是**收窄**（k = 0.70，断面跟着变细 = 60kg → 50kg 观感）；
+//     本组是**放大**（S > 1），断面跟着略微变粗 —— 同一段代码的另一个方向，
+//     而且 1520 用 R65 / 1435 用 60kg 本来也粗一点，方向是对的。
+//
+// 【四根轨在 4x 下会并成一根 —— 这是对的】
+//
+//   1435 与 1520 只差 **85 mm = 0.0062 格 = 0.8 px @4x**（screen_x = Δy · 128 / 格），
+//   而一根轨的断面本身就有 0.0080 格 ≈ 1.0 px ⇒ 每侧那两根**必然糊成一根约 1.4 px 宽的轨**。
+//   现实里的 1435/1520 套轨就是这样（两轨中心距 85 mm、轨头宽 70 mm，几乎贴死），
+//   所以 **A18 与 A22 在图上的差别只有"每侧厚一点 / 薄一点"** —— 不是画错，
+//   是本尺度（1 格 = 13.9 m）能表达的极限。要更醒目只能靠 C8 的地图色与名称。
+//
+// 【为什么道床还用 0.40 而不是单线标准的 0.36】
+//
+//   `美术要素方案.md` §3.1 的 A18/A19/A22/A23 四行都写 `BAL-K` + `TUN-8`
+//   （"三条的道床与隧道口都暂按加宽复用套轨那套…要分开画再拆 `BAL-K2` / `TUN-8b`"）。
+//   本轮照办 —— 好处是三个家族（A18 / A22 / A24）的**道床与洞门逐字相同**，
+//   分表格位也必然同族（263×149 / 263×167），模板可以逐条照抄；
+//   代价是纯 1520 的道床偏宽（缺口已登记在 `美术要素方案.md` §3.1）。
+// =============================================================================
+
+/** 1520 / 1435 —— 宽轨相对准轨的横向比值（本组唯一的新尺度） */
+const S_BROAD = 1520 / 1435;
+
+/**
+ * 两个宽轨家族：只差「钢轨画几遍」。
+ *   `railPasses` = 钢轨层的横向尺度序列（第一个是原件，其余是复制件）
+ *   `tunnel`     = 洞口模型名后缀（两族各出一套，因为 `tunnels:` 那层含洞内轨道）
+ */
+const WIDE_FAMS = [
+  {
+    group: 'A18', prefix: 'G19', tunnel: 'tunnel8wide',
+    railTypes: '`RAI-5`',
+    railNote: '四根：准轨那对**原样**（0.1032 格 = 1.435 m）+ 同一对按 S 放大一遍'
+      + '（0.1093 格 = 1.520 m，**在外侧**）',
+    railPasses: [1, S_BROAD],
+    sheet: 'dualwide',
+  },
+  {
+    group: 'A22', prefix: 'G20', tunnel: 'tunnel8broad',
+    railTypes: '`RAI-9`',
+    railNote: '两根：**只**画按 S 放大那一遍（轨距 0.1093 格 = **1.520 m**）',
+    railPasses: [S_BROAD],
+    sheet: 'wide',
+  },
+];
+
+/** 作业表 —— 与 `JOBS24` 逐条同源同参，只把产物名换成本族的 */
+function jobsWide(fam) {
+  const p = fam.prefix, t = fam.tunnel;
+  return [
+    { src: 'probe_track_x', dst: `${p}_track_x`, kind: 'y', over: true,
+      note: 'underlay 槽 0/1（RTO_X / RTO_Y）：加宽道床 + 木枕 + 宽轨钢轨（完整画面）' },
+    { src: 'G1_rail_straight', dst: `${p}_rail_straight`, kind: 'y', over: true,
+      note: 'overlay 槽 0/1：钢轨层（透明底，钢轨 + 枕木）' },
+    { src: 'probe_half_upper', dst: `${p}_track_half`, kind: 'diag', over: true,
+      note: 'underlay 槽 2-5（RTO_N / S / E / W）：切 N 角的半格宽轨' },
+    { src: 'G1_rail_halftrack', dst: `${p}_rail_half`, kind: 'diag', over: true,
+      note: 'overlay 槽 2-5：半格轨的钢轨层' },
+    { src: 'G1_track_slope', dst: `${p}_track_slope`, kind: 'y', over: false,
+      note: 'underlay 槽 6-9：坡道（z 已含 RISE，只横向加宽，沿轨不探出）' },
+    { src: 'G1_rail_slope', dst: `${p}_rail_slope`, kind: 'y', over: false,
+      note: 'overlay 槽 6-9：坡道的钢轨层' },
+    { src: 'G1_crossing', dst: `${p}_crossing`, kind: 'cross', over: true, edge: CROSS_EDGE,
+      note: 'underlay 槽 10（RTO_CROSSING_XY）：交叉，自带两组钢轨' },
+    { src: 'G1_junction3', dst: `${p}_junction3`, kind: 'cross', over: true, edge: CROSS_EDGE,
+      note: 'underlay 槽 11-14：三向道岔（只有道床板，没有钢轨）' },
+    { src: 'G1_junction4', dst: `${p}_junction4`, kind: 'cross', over: true, edge: CROSS_EDGE,
+      note: 'underlay 槽 15：四向道岔（只有道床板）' },
+    { src: 'G1_levelcrossing', dst: `${p}_levelcrossing`, kind: 'y', over: true, noWiden: true,
+      note: 'level_crossings 的轨道图（v0 → X 槽、v3 → Y 槽）—— 道床**不放大**，钢轨照挪到宽轨位' },
+    { src: 'G1_tunnel2_stone', dst: `${p}_${t}`, kind: 'tunnel', over: true, edge: ARCH_EDGE,
+      note: 'tunnels: 组（A 组：远半）—— 洞内加宽道床/枕木/宽轨 + 翼墙 + 洞门远半' },
+    { src: 'G1_tunnel2_stone_b', dst: `${p}_${t}_b`, kind: 'tunnel', over: true, edge: ARCH_EDGE,
+      note: 'tunnels: 组（B 组：近半）' },
+    { src: 'G1_tunnel2_stone_over', dst: `${p}_${t}_over`, kind: 'tunnel', over: true, edge: ARCH_EDGE,
+      note: 'tunnel_overlay: 组（A 组：近半 + 洞顶）—— 不含轨道，外形与 A24 的 TUN-8 逐字相同' },
+    { src: 'G1_tunnel2_stone_over_b', dst: `${p}_${t}_over_b`, kind: 'tunnel', over: true, edge: ARCH_EDGE,
+      note: 'tunnel_overlay: 组（B 组：远半 + 洞顶）' },
+  ];
+}
+
+function headerForWide(fam, job, stats) {
+  return [
+    '# =============================================================================',
+    `# ${job.dst} —— ${fam.group} 组宽轨（${fam.railTypes}）· ${job.note}`,
+    '#',
+    '# 【本文件由 tools/gen-a15-narrow.mjs 的**第三节**生成，请勿手改】',
+    `#   源 = models/${job.src}.model（G1 / TUN-2 的几何，实机调过的口径）`,
+    `#   道床 / 枕木 × ${W_BED.toFixed(4)}（0.36 → 0.40 格，与 A24 的 \`BAL-K\` 逐字相同）`,
+    `#   钢轨 = ${fam.railNote}`,
+    `#          S = 1520/1435 = ${S_BROAD.toFixed(6)} ⇒ 轨心 0.5 ± 0.0546559（准轨是 ±0.0516）、`
+      + '断面 0.0080 → 0.0085 格',
+    `#   方式 kind=${job.kind}、沿轨探出 OVER=${OVER} 格${job.over ? '' : '（本件**不探出**）'}`
+      + `${job.noWiden ? '、**道床不放大**（平交道口砟带由公路开口定）' : ''}`,
+    '#   口径与"为什么四根轨在 4x 下会并成一根"见本工具第三节的文件头。',
+    '#',
+    `# 自检：顶点挪动 ${stats.moved} 个、钢轨行 ${stats.rails} 条（每条画 ${fam.railPasses.length} 遍）`
+      + `、模型空间 bbox x[${stats.x0}, ${stats.x1}] y[${stats.y0}, ${stats.y1}]`,
+    '# =============================================================================',
+    '',
+  ].join('\n');
+}
+
+export function generateWide() {
+  const files = [];
+  for (const fam of WIDE_FAMS) {
+    for (const job of jobsWide(fam)) {
+      const srcFile = path.join(ROOT, 'models', `${job.src}.model`);
+      if (!fs.existsSync(srcFile)) {
+        log(`  × 跳过 ${job.dst}：源 ${job.src}.model 不存在`);
+        continue;
+      }
+      const src = fs.readFileSync(srcFile, 'utf8').split('\n');
+
+      const body = [];
+      const stats = { moved: 0, rails: 0, x0: Infinity, x1: -Infinity, y0: Infinity, y1: -Infinity };
+      let seenHead = false;
+      for (const raw of src) {
+        if (!/^\S/.test(raw)) continue;                     // 空行 / 注释一律丢掉（重新写头）
+        const kw = raw.trim().split(/\s+/)[0];
+        if (kw === 'name') { body.push(`name      ${job.dst}`); seenHead = true; continue; }
+        if (kw === 'group' || kw === 'footprint' || kw === 'zmax') { body.push(raw.trimEnd()); continue; }
+
+        const isRail = RAIL_ALL.test(matOfLine(raw));
+        if (isRail) stats.rails++;
+        // 钢轨层：按 `railPasses` 逐个尺度各画一遍；其余层只画一遍（S = W_BED 在 xformW 里）
+        const passes = isRail ? fam.railPasses : [null];
+        for (const s of passes) {
+          const j = s === null ? job : { ...job, railS: s, noWiden: false };
+          const { line, moved } = xformLine(j, raw, xformW);
+          stats.moved += moved;
+          body.push(line);
+          if (kw === 'quad' || kw === 'box') {
+            const n = line.trim().split(/\s+/).slice(1).map(Number);
+            const count = kw === 'quad' ? 4 : 2;
+            for (let i = 0; i < count; i++) {
+              const x = n[i * 3], y = n[i * 3 + 1];
+              if (!Number.isFinite(x) || !Number.isFinite(y)) break;
+              stats.x0 = Math.min(stats.x0, x); stats.x1 = Math.max(stats.x1, x);
+              stats.y0 = Math.min(stats.y0, y); stats.y1 = Math.max(stats.y1, y);
+            }
+          }
+        }
+      }
+      if (!seenHead) log(`  ⚠ ${job.src} 里没有 name 行`);
+
+      const out = path.join(ROOT, 'models', `${job.dst}.model`);
+      fs.writeFileSync(out, headerForWide(fam, job, stats) + body.join('\n') + '\n', 'utf8');
+      files.push(out);
+      log(`  → ${rel(out).padEnd(44)} ${String(body.length).padStart(4)} 行  挪动 ${stats.moved} 顶点`
+        + `  轨行 ${String(stats.rails).padStart(3)} ×${fam.railPasses.length}`
+        + `  bbox x[${stats.x0.toFixed(4)}, ${stats.x1.toFixed(4)}] y[${stats.y0.toFixed(4)}, ${stats.y1.toFixed(4)}]`);
+    }
+  }
+  return files;
+}
+
 if (isMain(import.meta.url)) {
   const t0 = Date.now();
   log(`生成 A15 组（NACN 窄轨）模型：k = ${K}（米轨 1000mm）、OVER = ${OVER}`);
@@ -579,5 +770,11 @@ if (isMain(import.meta.url)) {
   log(`生成 A24 组（dBCN 准轨-窄轨套轨）模型：道床 ×${W_BED.toFixed(4)}、内侧轨距 k = ${K}`);
   const files24 = generateA24();
   log(`✔ 生成 ${files24.length} 个模型，用时 ${((Date.now() - t1) / 1000).toFixed(2)} s`);
+
+  const t2 = Date.now();
+  log(`生成 A18 / A22 组（宽轨）模型：道床 ×${W_BED.toFixed(4)}、钢轨横向 S = ${S_BROAD.toFixed(6)}`
+    + `（A18 四根 = [1, S]、A22 两根 = [S]）`);
+  const filesW = generateWide();
+  log(`✔ 生成 ${filesW.length} 个模型，用时 ${((Date.now() - t2) / 1000).toFixed(2)} s`);
   log('  下一步：make render → 抄模板 → make check');
 }
