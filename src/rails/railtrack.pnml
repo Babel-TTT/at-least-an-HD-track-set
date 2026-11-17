@@ -2003,3 +2003,73 @@ item(FEAT_RAILTYPES, rail_SAEN, 31) {
         bridge_surfaces: probe_bridge_surfaces_heavywood;
     }
 }
+
+/* ---------------------------------------------------------------------------
+   A14 组（直线电机）—— `SACL` 第三轨 + 直线电机
+   与 A12（`SAC3`）**只差一块中央连续反应板**：`BAL-J` = `BAL-H` 的板带 + 反应板，
+   板宽 0.35 m（y 0.4872~0.5128）· 板顶 0.0170 · `metal_dark` + 顶面 `metal_pale`。
+   轨枕 `SLE-5` / 钢轨 / 第三轨与木罩 / 洞口 `TUN-5` 全部不变。
+   --------------------------------------------------------------------------- */
+
+// SACL —— 直线电机轨道（2005 · A 档 90km/h · 23t · 第三轨 + 直线电机）
+item(FEAT_RAILTYPES, rail_SACL, 32) {
+    property {
+        label:                  "SACL";
+        introduction_date:      date(2005, 1, 1);
+        name:                   string(STR_RAIL_SACL);
+        toolbar_caption:        string(STR_RAIL_SACL);
+        menu_text:              string(STR_RAIL_SACL);
+        build_window_caption:   string(STR_RAIL_SACL);
+        autoreplace_text:       string(STR_RAIL_SACL);
+        new_engine_text:        string(STR_RAIL_SACL);
+        /* 兼容 / powered 与 `SAC3` **逐条相同**（同一个「第三轨」家族）。 */
+        compatible_railtype_list: ["RAIL", "ELRL", 
+                                    "SACN", "SBCN", "SCCN", "SDCN", "SECN",  "SFCN", "SGCN",
+                                    "SADN", "SBDN", "SCDN", "SDDN", "SEDN",  "SFDN", "SGDN",
+                                    "SAEN", "SBEN", "SCEN", "SDEN", "SEEN",  "SFEN", "SGEN",
+                                    "SACA", "SBCA", "SCCA", "SDCA", "SECA",  "SFCA", "SGCA",
+                                    "SADA", "SBDA", "SCDA", "SDDA", "SEDA",  "SFDA", "SGDA", 
+                                    "SAEA", "SBEA", "SCEA", "SDEA", "SEEA",  "SFEA", "SGEA",
+                                    "SACd", "SBCd", "SCCd", "SDCd", "SECd",
+                                    "SADd", "SBDd", "SCDd", "SDDd", "SEDd",
+                                    "SAEd", "SBEd", "SCEd", "SDEd", "SEEd",  
+                                    "SACD", "SBCD", "SCCD", "SDCD", "SECD", 
+                                    "SADD", "SBDD", "SCDD", "SDDD", "SEDD",   
+                                    "SAC3", "SBC3", "SCC3", "SDC3",
+                                    "SACZ", "SBCZ", "SCCZ", "SDCZ",    
+                                    "SACL", "SBCL", "SCCL", "SDCL",
+                                    "DACN", 
+                                    "DADN", "DBDN",
+                                    "DACA", 
+                                    "DADA", "DBDA",
+                                    "dACN", "dBCN"];
+        powered_railtype_list:    [ "ELRL", 
+                                    "SAC3", "SBC3", "SCC3", "SDC3",
+                                    "SACZ", "SBCZ", "SCCZ", "SDCZ",    
+                                    "SACL", "SBCL", "SCCL", "SDCL"];
+        /* 第三轨 + 直线电机都是**车下设备** ⇒ 不架接触网，**不设** `CATENARY`；
+           `NO_LEVEL_CROSSING`：地铁口径，与 `SAC3` / `SACZ` 一致 ⇒ 不提供 `level_crossings:`。 */
+        railtype_flags:         bitmask(RAILTYPE_FLAG_NO_LEVEL_CROSSING);
+        curve_speed_multiplier: 1;
+        station_graphics:       RAILTYPE_STATION_NORMAL;
+        /* 费用系数 = CSV 的 8 ⇒ 建设 8 / 维护 4。 */
+        construction_cost:      8;
+        maintenance_cost:       4;
+        /* CSV 直接给 90 km/h（标准化编码是 `S_A_C_L`，`L` 是自定义档 —— 见 C3）。 */
+        speed_limit:            90 km/h;
+        acceleration_model:     ACC_MODEL_RAIL;
+        map_colour:             0x70;
+        sort_order:             SORT_ELECTRIC;
+    }
+    /* ★ 2026-11-18：A14 组。模型由 `tools/gen-a12-metro.mjs` **第 12 节**生成：
+       A12 的整组几何 + 中央连续反应板；分表 `gfx/linear.png`（263×149）+
+       `gfx/tunnel5linear.png`（263×167）。
+       overlay 三件 / 三向四向道岔板 / 洞口 overlay 两件**全部复用 A12**（理由见 spriteset 注释）。 */
+    graphics {
+        underlay:        probe_underlay_linear;
+        track_overlay:   probe_overlay_metro;
+        tunnels:         probe_tunnels_linear;
+        tunnel_overlay:  probe_tunnel_over_metro;
+        bridge_surfaces: probe_bridge_surfaces_linear;
+    }
+}

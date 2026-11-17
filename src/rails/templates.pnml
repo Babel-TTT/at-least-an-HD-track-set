@@ -2080,6 +2080,79 @@ template t_G4_tunnel5_over_b_v2(sheet) {
 }
 
 // ---------------------------------------------------------------------------
+// G17_* —— **A14 组（`SACL` 直线电机 · 2005 · 90km/h）**
+//   （分表 gfx/linear.png 263×149 ＋ gfx/tunnel5linear.png 263×167）
+//
+//   人工 2026-11-18 批准（「A14 `SACL` 直线电机」+ 反应板「加宽到 0.35 m」+ 洞口「新出 2 件」）；
+//   模型由 `tools/gen-a12-metro.mjs` **第 12 节**生成：**A12 的整组几何 + 一块中央连续反应板**
+//   （`BAL-J` = `BAL-H` 的板带 + 反应板）。板带 / 板顶 / `SLE-5` / 走行轨 / 第三轨 / 木罩
+//   一个数没动 ⇒ 与 A12 的差别**只有那块板**。
+//
+//   ★ 本表 **5 个模型 / 20 张精灵**（overlay 三件、三向 / 四向道岔板、洞口 overlay 两件
+//     都直接复用 A12 —— 理由见生成器第 12 节的文件头）。
+//   ★ 所有件的 `xrel` / `yrel` 与 `t_G4_*` **逐条相同**（格位同为 263×149、`ca` 同为 (131,81)）；
+//     ⚠ **只有 `rect` 必须按本表自己的按名排序格位重写**（`linear.png` 只有 5 个模型、
+//     `metro.png` 有 10 个 ⇒ 装箱位置完全不同）。下面每条都是渲完从 `gfx/openttd.json` 取的。
+// ---------------------------------------------------------------------------
+template t_G17_track_x_v0(sheet) {
+  [1052, 149, 263, 149, -126, -18, sheet]  // 【手调】照抄 t_G4_track_x_v0
+}
+template t_G17_track_x_v3(sheet) {
+  [1841, 149, 263, 149, -127, -19, sheet]  // 【手调】照抄 t_G4_track_x_v3
+}
+template t_G17_track_half_v0(sheet) {
+  [1052, 0, 263, 149, -127, -19, sheet]  // 【手调】照抄 t_G4_track_half_v0
+}
+template t_G17_track_half_v1(sheet) {
+  [1315, 0, 263, 149, -128, -17, sheet]  // 【手调】照抄 t_G4_track_half_v1
+}
+template t_G17_track_half_v2(sheet) {
+  [1578, 0, 263, 149, -127, -19, sheet]  // 【手调】照抄 t_G4_track_half_v2
+}
+template t_G17_track_half_v3(sheet) {
+  [1841, 0, 263, 149, -127, -17, sheet]  // 【手调】照抄 t_G4_track_half_v3
+}
+template t_G17_z_track_half_m_v0(sheet) {
+  [0, 298, 263, 149, -128, -19, sheet]  // 【手调】照抄 t_G4_z_track_half_m_v0
+}
+template t_G17_z_track_half_m_v1(sheet) {
+  [263, 298, 263, 149, -128, -17, sheet]  // 【手调】照抄 t_G4_z_track_half_m_v1
+}
+template t_G17_z_track_half_m_v2(sheet) {
+  [526, 298, 263, 149, -128, -19, sheet]  // 【手调】照抄 t_G4_z_track_half_m_v2
+}
+template t_G17_z_track_half_m_v3(sheet) {
+  [789, 298, 263, 149, -128, -17, sheet]  // 【手调】照抄 t_G4_z_track_half_m_v3
+}
+template t_G17_track_slope_v0(sheet) {
+  [0, 149, 263, 149, -125, -19, sheet]  // 【手调】照抄 t_G4_track_slope_v0
+}
+template t_G17_track_slope_v1(sheet) {
+  [263, 149, 263, 149, -126, -19, sheet]  // 【手调】照抄 t_G4_track_slope_v1
+}
+template t_G17_track_slope_v2(sheet) {
+  [526, 149, 263, 149, -128, -19, sheet]  // 【手调】照抄 t_G4_track_slope_v2
+}
+template t_G17_track_slope_v3(sheet) {
+  [789, 149, 263, 149, -128, -19, sheet]  // 【手调】照抄 t_G4_track_slope_v3
+}
+template t_G17_crossing_v0(sheet) {
+  [0, 0, 263, 149, -125, -19, sheet]  // 【手调】照抄 t_G4_crossing_v0
+}
+template t_G17_tunnel5_v0(sheet) {
+  [0, 0, 263, 167, -126, -36, sheet]  // 【手调】照抄 t_G4_tunnel5_v0
+}
+template t_G17_tunnel5_v3(sheet) {
+  [789, 0, 263, 167, -130, -37, sheet]  // 【手调】照抄 t_G4_tunnel5_v3
+}
+template t_G17_tunnel5_b_v1(sheet) {
+  [1315, 0, 263, 167, -129, -36, sheet]  // 【手调】照抄 t_G4_tunnel5_b_v1
+}
+template t_G17_tunnel5_b_v2(sheet) {
+  [1578, 0, 263, 167, -129, -36, sheet]  // 【手调】照抄 t_G4_tunnel5_b_v2
+}
+
+// ---------------------------------------------------------------------------
 // G5_* —— **A15 组（`NACN` 窄轨）**：BAL-D 道床 + SLE-1 木枕 + RAI-7 窄轨（米轨 1000mm）
 //          + TUN-7 小断面拱（人工 2026-10-04 §6 确认门裁定，k = 0.70）
 //

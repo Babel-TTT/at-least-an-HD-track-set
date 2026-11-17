@@ -121,7 +121,26 @@ const MAT = {
   //   ⚠ 与 `concrete_mid` 一样是相对上游 flatiso 的**本地增补**，同步上游时别丢
   //     （见 tools/flatiso/VENDORED.md）。
   slabLight: 'concrete_light',
+  // A14 道床（`BAL-J`）中央**连续反应板（感应板）** —— 2026-11-18 新增：
+  //   主体 `metal_dark`(94,100,106) + 顶面 `metal_pale`，与钢轨同款"暗身亮顶"，
+  //   一眼读成一条金属条（真实直线电机的二次侧铝板 / 钢板的观感）。
+  plate: 'metal_dark', plateTop: 'metal_pale',
 };
+
+/**
+ * A14 `SACL`（直线电机）的**中央连续反应板** —— 2026-11-18 人工定：**宽 0.35 m**。
+ *
+ *   换算锚点 1 m = 0.0731 格（与 `SLE-3` = 2.6 m ↔ 0.19 格同一把尺）
+ *     板宽 0.35 m ⇒ **0.0256 格** ⇒ y `0.4872 ~ 0.5128`（关于 0.5 对称）
+ *     板高 0.10 m ⇒ **0.0070 格** ⇒ z `0.0100 ~ 0.0170`
+ *       · 起点 = 板顶 0.0100（直接坐在道床上，不需要支架）
+ *       · 终点 0.0170 **低于轨顶 0.0230**、与 `SLE-5` 扣件座顶 0.0175 基本齐平
+ *
+ *   ⚠ 这块板落在中央带 y ∈ [0.4872, 0.5128]。实测 `G4_track_x` 里占住这条带的
+ *     **只有一块道床板**（`concrete_mid`，z 0~0.0100）⇒ 没有共面 / 穿插风险。
+ *   ⚠ 板关于 y = 0.5 对称 ⇒ `flip`（第三轨换边）对它**逐字无影响**。
+ */
+const PLATE = { c: 0.5, hw: 0.0128, z0: 0.0100, z1: 0.0170 };
 
 const fmt = (v) => v.toFixed(4);
 const N = (v) => Number(v.toFixed(6));
@@ -129,7 +148,7 @@ const N = (v) => Number(v.toFixed(6));
 // ---------------------------------------------------------------- 形状表
 // 每个形状 = 轴对齐的一"块"：x 沿轨（0…1）、y 横向（绝对坐标）、z 上下、材质
 function trackShapes({ slab = true, rails = true, seats = true, third = true, flip = false,
-                       slabMat = MAT.slab } = {}) {
+                       plate = false, slabMat = MAT.slab } = {}) {
   // flip = 把第三轨/罩挪到板带**另一侧**（关于带中心 y = 0.5 镜像）。
   //   板 / 钢轨 / 扣件座本来就关于 0.5 对称，镜像后逐字不变。
   //   用途见下面第 3b/4b 件：斜向链上 LEFT 与 RIGHT 差 180°，不镜像的话第三轨
@@ -154,6 +173,11 @@ function trackShapes({ slab = true, rails = true, seats = true, third = true, fl
     const c = flip ? 1 - THIRD.c : THIRD.c;
     S.push({ long: true, x0: 0, x1: 1, y0: c - THIRD.hw, y1: c + THIRD.hw, z0: RAIL_Z0, z1: THIRD.z1, mat: MAT.third, top: MAT.thirdTop });
     S.push({ long: true, x0: 0, x1: 1, y0: c - COVER.hw, y1: c + COVER.hw, z0: THIRD.z1, z1: COVER.z1, mat: MAT.cover, top: MAT.coverTop });
+  }
+  // A14 `SACL` 的中央反应板（关于 y = 0.5 对称 ⇒ 不受 flip 影响，见 PLATE 的注释）
+  if (plate) {
+    S.push({ long: true, x0: 0, x1: 1, y0: PLATE.c - PLATE.hw, y1: PLATE.c + PLATE.hw,
+             z0: PLATE.z0, z1: PLATE.z1, mat: MAT.plate, top: MAT.plateTop });
   }
   return S;
 }
@@ -318,7 +342,7 @@ function slabJunction4(z0 = 0, z1 = SLAB_Z, mat = MAT.slab) {
  *     A13 只要把 `slabMat` 换成浅色混凝土，其余（两组钢轨、断口位置）逐字相同。
  *     ⇒ 岔口不会出现"板面颜色与直线段不一致"（2026-10-06 那条教训，见 §11 的 ★）。
  */
-function crossingShapes(slabMat = MAT.slab) {
+function crossingShapes(slabMat = MAT.slab, plate = false) {
   const L = [];
   for (const b of slabCrossing(0, SLAB_Z, slabMat)) emitBox(L, b);
   // X 向：钢轨 + 扣件座（整格）
@@ -330,6 +354,10 @@ function crossingShapes(slabMat = MAT.slab) {
   //   现实里接触轨过交叉必须断开，否则钢轨会把它短路；图形上也免得两根钢轨
   //   压着一条穿过去的第三轨。断口 = 对方的板带 [BAND[0], BAND[1]]（宽 0.36）。
   //   四段（每方向 2 段 × 第三轨/罩 2 层）互不重叠 —— 别改成整格，会与对方共面相交。
+  //
+  //   ★ A14 的中央反应板同理：它**恰好在 y = 0.5**、落在对方的板带里，
+  //     ⇒ 与第三轨同一套断口（每方向只留 [0, BAND0] 与 [BAND1, 1] 两段），
+  //     十字中间那块十字形区域**两个方向都不放板**（现实里反应板也必须在岔口断开）。
   for (const [z0, z1, hw, mat, top] of [
     [RAIL_Z0, THIRD.z1, THIRD.hw, MAT.third, MAT.thirdTop],
     [THIRD.z1, COVER.z1, COVER.hw, MAT.cover, MAT.coverTop],
@@ -339,6 +367,16 @@ function crossingShapes(slabMat = MAT.slab) {
       emitBox(L, { x0: t0, x1: t1, y0: THIRD.c - hw, y1: THIRD.c + hw, z0, z1, mat, top });
       // Y 向那根：沿 y 走，横向在 x = THIRD.c
       emitBox(L, { x0: THIRD.c - hw, x1: THIRD.c + hw, y0: t0, y1: t1, z0, z1, mat, top });
+    }
+  }
+  if (plate) {
+    for (const [t0, t1] of [[0, BAND[0]], [BAND[1], 1]]) {
+      // X 向那块：沿 x 走，横向在 y = PLATE.c
+      emitBox(L, { x0: t0, x1: t1, y0: PLATE.c - PLATE.hw, y1: PLATE.c + PLATE.hw,
+                   z0: PLATE.z0, z1: PLATE.z1, mat: MAT.plate, top: MAT.plateTop });
+      // Y 向那块：沿 y 走，横向在 x = PLATE.c
+      emitBox(L, { x0: PLATE.c - PLATE.hw, x1: PLATE.c + PLATE.hw, y0: t0, y1: t1,
+                   z0: PLATE.z0, z1: PLATE.z1, mat: MAT.plate, top: MAT.plateTop });
     }
   }
   return L;
@@ -435,9 +473,9 @@ function q5(L, pts, want, mat) {
 }
 
 /** 洞内轨道：与 G4_track_x **同源**（整格道床 + 钢轨 + 扣件座 + 第三轨），只是多了暗幕 */
-function metroTunnelGround() {
+function metroTunnelGround({ plate = false } = {}) {
   const L = [];
-  for (const b of trackShapes()) emitBox(L, b);
+  for (const b of trackShapes({ plate })) emitBox(L, b);
   // 洞口暗幕 —— 两条口径（人工 2026-10-03 实机截图：「黑幕位置靠后」）：
   //   ① **x 贴着洞口平面**（正面 X1 = 0.80，取 0.795）。原来放 0.67（端墙背面再往里
   //      0.13 格），等距投影后整块往屏幕右侧跑 0.13×128 ≈ 17 px ⇒ 从洞口右边露出去，
@@ -550,7 +588,7 @@ function split5(lines) {
   return { lo, hi };
 }
 
-function tunnel5Models() {
+function tunnel5Models({ plate = false, prefix = 'G4_', label = 'A12', series = 'A12 / `SAC3`' } = {}) {
   // ★ 分层口径（人工 2026-10-04 定稿，别再反复）：
   //
   //   tunnels: 底图 = 洞内道床 / 轨道 / 暗幕 + 翼墙×2
@@ -565,7 +603,7 @@ function tunnel5Models() {
   //   裂开一道缝。所以这一段必须跟着过梁一起进 overlay。
   //   ⚠ 柱脚 / 柱身仍按 y = 0.5 切（一根柱子整根在同一层），只是把最上面这一段
   //     额外整块加到两组 overlay 里 —— 不是把柱子切开。
-  const base = [...metroTunnelGround(), ...wing5(-1), ...wing5(+1)];
+  const base = [...metroTunnelGround({ plate }), ...wing5(-1), ...wing5(+1)];
   const low = split5(portalLow5());                    // 柱脚：按 y 切左右
   const high = split5(portalHigh5({ z1: TU.OH }));     // 柱身（洞口上沿以下）：按 y 切左右
   const crown = portalHigh5({ z0: TU.OH });            // 柱顶（与过梁同高）：整块
@@ -576,7 +614,7 @@ function tunnel5Models() {
     + '# 【本文件由 tools/gen-a12-metro.mjs 生成，请勿手改】\n#\n'
     + extra
     + '# =============================================================================\n\n';
-  const WHY = '# TUN-5 地铁矩形洞门（A12 / `SAC3`）\n'
+  const WHY = `# TUN-5 地铁矩形洞门（${series}）\n`
     + '# 基准朝向 = DiagDir NE：洞口在 x=0 那条边（N–E），轨道沿 x\n'
     + '# 取图顺序 v0=NE  v1=NW  v2=SW  v3=SE；⚠ 引擎槽位顺序是 NE/SE/SW/NW ⇒ 喂图 v0,v3,v2,v1\n'
     + '#\n'
@@ -595,19 +633,19 @@ function tunnel5Models() {
       + body.join('\n') + '\n';
     out.push([name, s]);
   };
-  asm('G4_tunnel5', 'A12 地铁洞口 TUN-5 —— tunnels: 组（A 组：远半）',
+  asm(`${prefix}tunnel5`, `${label} 地铁洞口 TUN-5 —— tunnels: 组（A 组：远半）`,
       [...base, ...low.lo, ...high.lo],
       '# --- 洞内轨道 + 暗幕 + 翼墙×2 + **洞门（柱脚 + 柱身）的远半** ---\n'
       + '#     （柱顶那一段不在这儿：它整块跟着过梁进了 tunnel_overlay）\n');
-  asm('G4_tunnel5_over', 'A12 地铁洞口 TUN-5 —— tunnel_overlay: 组（A 组：近半 + 柱顶整块）',
+  asm(`${prefix}tunnel5_over`, `${label} 地铁洞口 TUN-5 —— tunnel_overlay: 组（A 组：近半 + 柱顶整块）`,
       [...low.hi, ...high.hi, ...crown, ...always, ...lintel],
       '# --- **洞门近半（柱脚 + 柱身）** + **柱顶（与过梁同高，z ∈ [OH, TOP]，整块）**\n'
       + '#     + 压顶 + 仰面 + 过梁 ---\n');
-  asm('G4_tunnel5_b', 'A12 地铁洞口 TUN-5 —— tunnels: 组（B 组：近半）',
+  asm(`${prefix}tunnel5_b`, `${label} 地铁洞口 TUN-5 —— tunnels: 组（B 组：近半）`,
       [...base, ...low.hi, ...high.hi],
       '# --- 洞内轨道 + 暗幕 + 翼墙×2 + **洞门（柱脚 + 柱身）的近半** ---\n'
       + '#     （柱顶那一段不在这儿：它整块跟着过梁进了 tunnel_overlay）\n');
-  asm('G4_tunnel5_over_b', 'A12 地铁洞口 TUN-5 —— tunnel_overlay: 组（B 组：远半 + 柱顶整块）',
+  asm(`${prefix}tunnel5_over_b`, `${label} 地铁洞口 TUN-5 —— tunnel_overlay: 组（B 组：远半 + 柱顶整块）`,
       [...low.lo, ...high.lo, ...crown, ...always, ...lintel],
       '# --- **洞门远半（柱脚 + 柱身）** + **柱顶（与过梁同高，z ∈ [OH, TOP]，整块）**\n'
       + '#     + 压顶 + 仰面 + 过梁 ---\n');
@@ -952,6 +990,94 @@ export function generate() {
         '**只有道床板、没有钢轨**（同上）。',
       ],
     }, header('G7_junction4', L)));
+  }
+
+  // ===========================================================================
+  // 12) A14 组（`SACL` 直线电机 · 2005 · 90km/h）—— **六件 underlay + 两件洞口地面层**
+  //
+  //   人工 2026-11-18 批准三问（A14 `SACL` / 反应板**加宽到 0.35 m** / 洞口**新出 2 件**）。
+  //
+  //   口径：道床 **`BAL-J`** · 轨枕 `SLE-5` · 钢轨 **`RAI-6`**（两根走行轨 + 中央反应板）
+  //        · 洞口 **`TUN-5`** · 电气化 **`EL-NONE`**（CSV：第三轨 + 直线电机 ⇒ 自带接触轨）。
+  //
+  //   ⇒ **与 A12 的差别只有一块中央连续反应板**（`PLATE`，y 0.4872~0.5128 / z 0.0100~0.0170，
+  //     宽 0.35 m）。板带 / 板顶 / 扣件座 / 走行轨 / 第三轨 / 木罩 / 道床材质**一个数没动**
+  //     ⇒ `BAL-J` 与 `BAL-H` 的差别**就是这块板**（本地口径，写进台账）。
+  //
+  //   ★ **只出六件**，另有三类直接复用 A12（都有硬理由）：
+  //       · **overlay 三件**（`rail_straight` / `rail_half` / `rail_slope`）——
+  //         反应板和第三轨同理：道岔瓦片上引擎会**逐段**叠这张图，三向道岔就会叠出三块
+  //         交叉的板 ⇒ overlay **不含**反应板（与第三轨同一口径）。
+  //       · **三向 / 四向道岔板**—— A12 那两张是**素面平板**（只有道床），反应板本来就
+  //         不在上面；板面材质也没变 ⇒ 逐字复用 `gfx/metro.png` 的精灵。
+  //       · **洞口 overlay 两件**—— 那层不含轨道（同 §4.35 的结论）。
+  // ===========================================================================
+  const A14 = 'A14 组（`SACL` 直线电机 · `BAL-J` 中央反应板）';
+  const A14_NOTE = [
+    '道床 `BAL-J`（无砟·**整体道床**）= A12 的 `BAL-H` 板带 + **中央连续反应板（感应板）**；',
+    '板带宽度 / 板顶 0.0100 / 扣件座 `SLE-5` / 走行轨 `RAI-4` 口径 / 第三轨与木罩**一个数没动**。',
+    '',
+    `反应板（人工 2026-11-18 定「宽 0.35 m」）：y ${fmt(PLATE.c - PLATE.hw)}~${fmt(PLATE.c + PLATE.hw)}`
+      + `（0.0256 格）· z ${fmt(PLATE.z0)}~${fmt(PLATE.z1)}（0.0070 格 ≈ 0.10 m）`,
+    `材质 \`${MAT.plate}\` 厚板 + 顶面 \`${MAT.plateTop}\`（与钢轨同款「暗身亮顶」）。`,
+    '板顶 0.0170 **低于轨顶 0.0230**、与扣件座顶 0.0175 基本齐平；起点坐在板顶 0.0100 上。',
+    '',
+    '⚠ 斜向 / 坡道 / 交叉那几件的板都用同一份 `trackShapes({ plate: true })` 吐出来',
+    '  ⇒ 坡道上板跟着 `z(x) = RISE·(1−x)` 一起抬（`emitSheared` 逐顶点抬）。',
+    '⚠ 交叉瓦片上板**两个方向都在对方的板带里断开**（同第三轨），十字中心不放板。',
+  ];
+
+  // 12a) 直向（underlay 槽 0/1）
+  {
+    const L = [];
+    for (const b of trackShapes({ plate: true })) emitBox(L, b);
+    files.push(model('G17_track_x', {
+      zmax: fmt(FLAT), group: A14,
+      notes: ['underlay 槽 0/1（RTO_X / RTO_Y）：直线电机道床完整画面（板 + 反应板 + 扣件座 + 钢轨 + 第三轨）', ...A14_NOTE],
+    }, header('G17_track_x', L)));
+  }
+  // 12b) 半格轨（斜向，切 N 角；underlay 槽 2/5）
+  {
+    const L = [];
+    for (const b of trackShapes({ plate: true })) emitDiag(L, b);
+    files.push(model('G17_track_half', {
+      zmax: fmt(FLAT), group: A14,
+      notes: ['underlay 槽 2 / 5（RTO_N / RTO_W）：切 N 角的半格轨（反应板沿斜向）', ...A14_NOTE],
+    }, header('G17_track_half', L)));
+  }
+  // 12c) 半格轨镜像版（第三轨在 −y 侧；underlay 槽 3/4）
+  {
+    const L = [];
+    for (const b of trackShapes({ plate: true, flip: true })) emitDiag(L, b);
+    files.push(model('G17_z_track_half_m', {
+      zmax: fmt(FLAT), group: A14,
+      notes: ['underlay 槽 3/4（RTO_S / RTO_E）专用：半格轨的镜像版（第三轨在 −y 侧）', ...A14_NOTE,
+        '', '⚠ 反应板关于 y = 0.5 对称 ⇒ 镜像对板**逐字无影响**（只有第三轨 + 罩换边）。'],
+    }, header('G17_z_track_half_m', L)));
+  }
+  // 12d) 坡道（基准 SLOPE_NE；underlay 槽 6-9）
+  {
+    const L = [];
+    for (const b of trackShapes({ plate: true })) emitSheared(L, b);
+    files.push(model('G17_track_slope', {
+      zmax: fmt(SLOPE), group: A14,
+      notes: ['underlay 槽 6-9（RTO_SLOPE_NE / SE / SW / NW）：坡道（反应板跟着一起抬）', ...A14_NOTE],
+    }, header('G17_track_slope', L)));
+  }
+  // 12e) 交叉（underlay 槽 10）
+  {
+    const L = crossingShapes(MAT.slab, true);
+    files.push(model('G17_crossing', {
+      zmax: fmt(FLAT), group: A14,
+      notes: ['underlay 槽 10（RTO_CROSSING_XY）：交叉（自带两组钢轨），反应板四段断开', ...A14_NOTE],
+    }, header('G17_crossing', L)));
+  }
+  // 12f) 洞口 TUN-5 的地面层 ×2（`_over` 两件不含轨道 ⇒ 复用 A12 的）
+  for (const [name, text] of tunnel5Models({ plate: true, prefix: 'G17_', label: 'A14', series: 'A14 / `SACL`' })) {
+    if (/_over/.test(name)) continue;
+    const f = path.join(ROOT, 'models', `${name}.model`);
+    fs.writeFileSync(f, text);
+    files.push(f);
   }
 
   return files;

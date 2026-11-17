@@ -95,6 +95,23 @@ export const SHEETS = [
     match: /^G1_levelcrossing/,
   },
   {
+    // A14 组（`SACL` 直线电机）的**洞口**：仍是 TUN-5 矩形洞门（逐字照抄 A12），
+    //   只把洞内那层轨道加上**中央连续反应板**（`tools/gen-a12-metro.mjs` 第 12f 节）。
+    // ⚠ 必须登记在下面的 linear **之前**：那个表的正则是 /^G17_/，会先吃掉 G17_tunnel5_*。
+    key: 'tunnel5linear',
+    title: '地铁洞口 TUN-5（矩形洞门，洞内含反应板；SACL）',
+    match: /^G17_tunnel5/,
+  },
+  {
+    // A14 组（`SACL` 直线电机 · 2005 · 90km/h）的轨道：
+    //   `BAL-J` 整体道床 + **中央连续反应板**（宽 0.35 m）+ `SLE-5` + `RAI-6` + 第三轨。
+    //   与 A12（`SAC3`）**只差那块反应板**；overlay 三件与三向/四向道岔板直接复用 A12 的。
+    // 单独一张表（同 rail / metro 表的理由：混进去会把已有几十条 rect 顶移位）。
+    key: 'linear',
+    title: '直线电机道床（BAL-J + 中央反应板 + 第三轨；SACL）',
+    match: /^G17_/,
+  },
+  {
     // A12 组（`SAC3` 第三轨地铁）的**洞口**：TUN-5 矩形洞门（人工 2026-10-03 定：不做护坡）。
     // ⚠ 必须登记在下面的 metro **之前**：那个表的正则是 /^G4_/，会先把 G4_tunnel5_* 吃掉。
     key: 'tunnel5',

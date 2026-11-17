@@ -158,6 +158,60 @@ spriteset(probe_bridge_surfaces_metro, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
 }
 
 /* ===========================================================================
+   A14 组（`SACL` 直线电机 · 2005 · 90km/h）—— underlay / 洞口 / 桥面
+   （分表 gfx/linear.png 263×149 ＋ gfx/tunnel5linear.png 263×167）
+
+   模型由 `tools/gen-a12-metro.mjs` **第 12 节**生成（人工 2026-11-18 批准）：
+   **A12 的整组几何 + 一块中央连续反应板**（`BAL-J` = `BAL-H` 板带 + 反应板，
+   板宽 0.35 m ⇒ y 0.4872~0.5128、z 0.0100~0.0170，`metal_dark` + 顶面 `metal_pale`）。
+
+   ★ **本组只出 5 个模型 / 20 张精灵**，其余全部复用 A12（都有硬理由）：
+       · `probe_overlay_metro`（overlay 三件）—— 反应板与第三轨同理：道岔瓦片上引擎
+         会**逐段**叠这张图，三向道岔就会叠出三块交叉的板 ⇒ overlay **不含**反应板；
+       · **三向 / 四向道岔板** —— A12 那两张本来就是素面平板（只有道床），板面材质也没变；
+       · `probe_tunnel_over_metro`（洞口 overlay 两件）—— 那层不含轨道。
+   ★ 所有件的 `xrel` / `yrel` 与 `t_G4_*` 逐条相同（格位同为 263×149、`ca` (131,81)）。
+   =========================================================================== */
+spriteset(probe_underlay_linear, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G17_track_x_v0("gfx/linear.png")              //  0  RTO_X          X
+    t_G17_track_x_v3("gfx/linear.png")              //  1  RTO_Y          Y
+    t_G17_track_half_v0("gfx/linear.png")           //  2  RTO_N          UPPER（切 N 角）
+    t_G17_z_track_half_m_v2("gfx/linear.png")       //  3  RTO_S          LOWER ← **镜像版**（第三轨同侧）
+    t_G17_z_track_half_m_v3("gfx/linear.png")       //  4  RTO_E          RIGHT ← **镜像版**
+    t_G17_track_half_v1("gfx/linear.png")           //  5  RTO_W          LEFT
+    t_G17_track_slope_v0("gfx/linear.png")          //  6  RTO_SLOPE_NE   v0（右上抬）
+    t_G17_track_slope_v3("gfx/linear.png")          //  7  RTO_SLOPE_SE   v3（右下抬）
+    t_G17_track_slope_v2("gfx/linear.png")          //  8  RTO_SLOPE_SW   v2（左下抬）
+    t_G17_track_slope_v1("gfx/linear.png")          //  9  RTO_SLOPE_NW   v1（左上抬）
+    t_G17_crossing_v0("gfx/linear.png")             // 10  RTO_CROSSING_XY（自带两组钢轨 + 四段反应板）
+    t_G4_junction3_v0("gfx/metro.png")              // 11  RTO_JUNCTION_SW（A12 的素面道床板）
+    t_G4_junction3_v2("gfx/metro.png")              // 12  RTO_JUNCTION_NE（v2）
+    t_G4_junction3_v1("gfx/metro.png")              // 13  RTO_JUNCTION_SE（v1）
+    t_G4_junction3_v3("gfx/metro.png")              // 14  RTO_JUNCTION_NW（v3）
+    t_G4_junction4_v0("gfx/metro.png")              // 15  RTO_JUNCTION_NSEW（A12 的素面道床板）
+}
+
+/* 洞口 TUN-5（A14 版：洞内含中央反应板）—— ground 层 × A/B 两组 = 4 张
+   槽位 = DiagDirection，顺序 NE / SE / SW / NW ⇒ 喂图 **v0, v3, v2(_b), v1(_b)**。
+   `tunnel_overlay:` 那两件不含轨道 ⇒ 直接复用 A12 的 `probe_tunnel_over_metro`。 */
+spriteset(probe_tunnels_linear, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G17_tunnel5_v0("gfx/tunnel5linear.png")       // 0  DiagDir NE ← v0   A 组（远半）
+    t_G17_tunnel5_v3("gfx/tunnel5linear.png")       // 1  DiagDir SE ← v3   A 组
+    t_G17_tunnel5_b_v2("gfx/tunnel5linear.png")     // 2  DiagDir SW ← v2   B 组（近半）
+    t_G17_tunnel5_b_v1("gfx/tunnel5linear.png")     // 3  DiagDir NW ← v1   B 组
+}
+
+// 桥面 —— 6 格（平 X / 平 Y / 坡 NE / SE / SW / NW）；桥上也要有反应板 ⇒ 用本组自己的件
+spriteset(probe_bridge_surfaces_linear, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G17_track_x_v0("gfx/linear.png")              // 0  平 — X
+    t_G17_track_x_v3("gfx/linear.png")              // 1  平 — Y
+    t_G17_track_slope_v0("gfx/linear.png")          // 2  坡 NE
+    t_G17_track_slope_v3("gfx/linear.png")          // 3  坡 SE
+    t_G17_track_slope_v2("gfx/linear.png")          // 4  坡 SW
+    t_G17_track_slope_v1("gfx/linear.png")          // 5  坡 NW
+}
+
+/* ===========================================================================
    A13 组 —— `SBC3` 第三轨地铁 · 道床 **`BAL-I` = 浅色混凝土素面板**
    （分表 gfx/floatslab.png）
 
