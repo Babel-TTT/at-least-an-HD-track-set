@@ -10,16 +10,35 @@
 //   C5 裁定：速度按标准化方案的字母档取整，不按表里的实际值
 // ============================================================================
 
-/* 排序位（工具条里的先后）；数值越小越靠前 */
-#define SORT_EARLY   0x00
-#define SORT_STEAM   0x10
-#define SORT_DIESEL  0x20
-#define SORT_ELECTRIC 0x30
-#define SORT_HIGHSPEED 0x40
-/* ★ 2026-11-18：单轨 / 磁浮排在高铁之后 —— 与 wiki 的内建排序（rail 07 / elrail 17 /
-   monorail 27 / maglev 37，即「单轨在电气化之后」）同一个思路。 */
-#define SORT_MONO    0x50
-#define SORT_MAGLEV  0x60
+/* ===========================================================================
+   排序位（**购买菜单 / 工具条里轨道类型的先后**）；数值越小越靠前。
+
+   ★ 2026-11-18 人工裁定：「按照 中国轨道包.csv 里的顺序改变轨道在购买菜单的顺序」
+     ⇒ **废弃原来"按年代分档"的分组**（`SORT_EARLY / STEAM / DIESEL / ELECTRIC /
+       HIGHSPEED / MONO / MAGLEV` 那套 0x00/0x10/…/0x60），改成**一条轨道一个号**，
+       号 = **CSV 里的行序 − 2**（CSV 第 1 行是表头）：
+
+         SADN  0 · SBDN  1 · SCDN  2 · SBDA  3 · SCDA  4 · SDDA  5 · SCCA  6
+         SDCA  7 · SECA  8 · SFCA  9 · SGCA 10 · SAEN 11 · SBEN 12 · SBEA 13
+         SBEd 14 · SACd 15 · SBCd 16 · SBDD 17 · SAC3 18 · SBC3 19 · SACL 20
+         SACZ 21 · NACN 22 · NBCN 23 · NBCA 24 · NCCA 25 · dBCN 26 · BBDN 27
+         BBDA 28 · DBDN 29 · DBDA 30 · MONO 31 · MGLV 32
+
+     为什么必须**逐条**给：CSV 的顺序是"准轨非电 → 准轨电化 → 重载 → 地铁 → 窄轨 →
+     套轨/宽轨 → 单轨/磁浮"，**同一档里既有非电也有电化**（如 SCDN 非电夹在 SBDA 之前、
+     SAEN 重载排在 SGCA 之后）—— 任何"分组 + 组内按 id"的方案都摆不出这个顺序。
+
+   依据：wiki `NML:Railtypes` § Sort order（OpenTTD 1.1 r21866）
+     「`sort_order` = number which defines the sort order among rail types」，
+     作用对象就是**轨道类型的下拉列表**；不写时引擎按 `n*10+7` 给默认值
+     （rail 07 / elrail 17 / monorail 27 / maglev 37 / 第 n 个 = n7）。
+
+   ⚠ 数值必须**互不相同**（同号时引擎按 railtype id 兜底，顺序又回到 id 序）。
+   ⚠ 只影响**菜单顺序**，**不改 railtype id** ⇒ 已有存档、`compatible/powered` 列表、
+     模板 / spriteset 全不受影响（这也是不靠重排 id 来改顺序的理由）。
+   ⚠ 5 个隐藏锚点（`SACN` `SACA` `SACD` `DACN` `DACA`）带 `RAILTYPE_FLAG_HIDDEN`，
+     不进菜单 ⇒ **不给 sort_order**（引擎自会按 id 给默认值）。
+   =========================================================================== */
 
 /* ===========================================================================
    ★★ 必须重定义内建的 RAIL / ELRL，把我们的 label 塞进它们的 powered 列表 ★★
@@ -88,12 +107,7 @@ item(FEAT_RAILTYPES, hidden_rail_SACN, 0) {//兼容性维持。必要时也可�
                                     "DADN", "DBDN",
                                     "DACA", 
                                     "DADA", "DBDA",
-                                    "dACN", "dBCN",
-                                    /* ★ 2026-11-18：宽轨那 8 个码（B 族）补进锚点 —— 原先只在
-                                       隐藏锚点 `BACN` / `BACA`（id 5/6）里，`check` 会提示
-                                       「BBDN 不在任何兼容性锚点的 powered 里」。 */
-                                    "BADN", "BBDN", "BCDN", "BDDN",
-                                    "BADA", "BBDA", "BCDA", "BDDA"];
+                                    "dACN", "dBCN"];
         powered_railtype_list:    ["RAIL", "ELRL", 
                                     "SACN", "SBCN", "SCCN", "SDCN", "SECN",  "SFCN", "SGCN",
                                     "SADN", "SBDN", "SCDN", "SDDN", "SEDN",  "SFDN", "SGDN",
@@ -113,9 +127,7 @@ item(FEAT_RAILTYPES, hidden_rail_SACN, 0) {//兼容性维持。必要时也可�
                                     "DADN", "DBDN",
                                     "DACA", 
                                     "DADA", "DBDA",
-                                    "dACN", "dBCN",
-                                    "BADN", "BBDN", "BCDN", "BDDN",
-                                    "BADA", "BBDA", "BCDA", "BDDA"];
+                                    "dACN", "dBCN"];
         railtype_flags:  bitmask(RAILTYPE_FLAG_HIDDEN);
     }
 }
@@ -141,15 +153,12 @@ item(FEAT_RAILTYPES, hidden_rail_SACA, 1) {//兼容性维持。必要时也可�
                                     "DADN", "DBDN",
                                     "DACA", 
                                     "DADA", "DBDA",
-                                    "dACN", "dBCN",
-                                    "BADN", "BBDN", "BCDN", "BDDN",
-                                    "BADA", "BBDA", "BCDA", "BDDA"];
+                                    "dACN", "dBCN"];
         powered_railtype_list:    [ "ELRL", 
                                     "SACA", "SBCA", "SCCA", "SDCA", "SECA",  "SFCA", "SGCA",
                                     "SADA", "SBDA", "SCDA", "SDDA", "SEDA",  "SFDA", "SGDA", 
                                     "SAEA", "SBEA", "SCEA", "SDEA", "SEEA",  "SFEA", "SGEA",
-                                    "DACA", "DADA", "DBDA",
-                                    "BADA", "BBDA", "BCDA", "BDDA"];
+                                    "DACA", "DADA", "DBDA",];
         railtype_flags:  bitmask(RAILTYPE_FLAG_HIDDEN);
     }
 }
@@ -305,9 +314,9 @@ item(FEAT_RAILTYPES, hidden_rail_SACD, 4) {//兼容性维持。必要时也可�
         railtype_flags:  bitmask(RAILTYPE_FLAG_HIDDEN);
     }
 } */
-item(FEAT_RAILTYPES, hidden_rail_BACN, 5) {//兼容性维持。必要时也可以转为可用轨道
+item(FEAT_RAILTYPES, hidden_rail_DACN, 5) {//兼容性维持。必要时也可以转为可用轨道
     property {
-        label:                  "BACN";
+        label:                  "DACN";
         compatible_railtype_list: ["RAIL", "ELRL", 
                                     "SACN", "SBCN", "SCCN", "SDCN", "SECN",  "SFCN", "SGCN",
                                     "SADN", "SBDN", "SCDN", "SDDN", "SEDN",  "SFDN", "SGDN",
@@ -355,9 +364,9 @@ item(FEAT_RAILTYPES, hidden_rail_BACN, 5) {//兼容性维持。必要时也可�
         railtype_flags:  bitmask(RAILTYPE_FLAG_HIDDEN);
     }
 }
-item(FEAT_RAILTYPES, hidden_rail_BACA, 6) {//兼容性维持。已有的可变轨距电力车辆为可变供电。必要时也可以转为可用轨道
+item(FEAT_RAILTYPES, hidden_rail_DACA, 6) {//兼容性维持。已有的可变轨距电力车辆为可变供电。必要时也可以转为可用轨道
     property {
-        label:                  "BACA";
+        label:                  "DACA";
         compatible_railtype_list: ["RAIL", "ELRL", 
                                     "SACN", "SBCN", "SCCN", "SDCN", "SECN",  "SFCN", "SGCN",
                                     "SADN", "SBDN", "SCDN", "SDDN", "SEDN",  "SFDN", "SGDN",
@@ -442,7 +451,7 @@ item(FEAT_RAILTYPES, rail_SADN, 7) {
         speed_limit:            80 km/h;
         acceleration_model:     ACC_MODEL_RAIL;
         map_colour:             0x57;
-        sort_order:             SORT_EARLY;
+        sort_order:             0;                  // CSV 第 2 行 SADN
     }
     /* ⚠ P0/P1 探针：只为验证 4x 32bpp spriteset 语法、槽位顺序与摆放锚点。
        P2 会换成正式的几何组精灵。其余 6 种轨道暂不带 graphics 块（走原版精灵）。
@@ -515,7 +524,7 @@ item(FEAT_RAILTYPES, rail_SBDN, 8) {
         speed_limit:            120 km/h;
         acceleration_model:     ACC_MODEL_RAIL;
         map_colour:             0x58;
-        sort_order:             SORT_EARLY;
+        sort_order:             1;                  // CSV 第 3 行 SBDN
     }
     /* ★ 2026-10 接入：P2-G1 的几何组。
        `SBDN` 与同组的 `SADN`/`SBEd`/`SBDD` **共用道床/轨枕/钢轨**
@@ -577,7 +586,7 @@ item(FEAT_RAILTYPES, rail_SCDN, 9) {
         speed_limit:            160 km/h;
         acceleration_model:     ACC_MODEL_RAIL;
         map_colour:             0x59;
-        sort_order:             SORT_DIESEL;
+        sort_order:             2;                  // CSV 第 4 行 SCDN
     }
     /* ★ 2026-10-05 接入：P2-G3 的几何组（A3 组）。
        G3 = `BAL-A` 标准碎石 + **U 形混凝土枕 `SLE-2`** + `RAI-1` + **`TUN-3`**
@@ -638,7 +647,7 @@ item(FEAT_RAILTYPES, rail_SBDA, 10) {
         speed_limit:            120 km/h;
         acceleration_model:     ACC_MODEL_RAIL;
         map_colour:             0x5A;
-        sort_order:             SORT_ELECTRIC;
+        sort_order:             3;                  // CSV 第 5 行 SBDA
     }
     /* ★ 2026-10-02 接入：P2-G2 的几何组（第一个电气化轨道）。
        G2 = `BAL-C` + **U 形混凝土枕 `SLE-2`**（人工裁定）+ `RAI-1` + `TUN-2`。
@@ -701,7 +710,7 @@ item(FEAT_RAILTYPES, rail_SCDA, 11) {
         speed_limit:            160 km/h;
         acceleration_model:     ACC_MODEL_RAIL;
         map_colour:             0x5B;
-        sort_order:             SORT_ELECTRIC;
+        sort_order:             4;                  // CSV 第 6 行 SCDA
     }
     /* ★ 2026-10-05 接入：与 `SCDN` **逐行相同**的 A3 几何 + 接触网。
        §2 第 13 行给 `SCDA` 的支柱样式是 **`EL-25/C2`**（§1.6.5.1 的落位表）——
@@ -747,7 +756,7 @@ item(FEAT_RAILTYPES, rail_SBEd, 12) {
         speed_limit:            100 km/h;
         acceleration_model:     ACC_MODEL_RAIL;
         map_colour:             0x5C;
-        sort_order:             SORT_ELECTRIC;
+        sort_order:             14;                 // CSV 第 16 行 SBEd
     }
     /* ★ 2026-10-03 接入：P2-G1 的几何组 —— 与 `SBDN` 逐行一样
        （BAL-C 灰道床 + SLE-1 木枕 + RAI-1 + **TUN-2** 素混凝土洞口），
@@ -806,7 +815,7 @@ item(FEAT_RAILTYPES, rail_SBDD, 13) {
         speed_limit:            100 km/h;
         acceleration_model:     ACC_MODEL_RAIL;
         map_colour:             0x5D;
-        sort_order:             SORT_ELECTRIC;
+        sort_order:             17;                 // CSV 第 19 行 SBDD
     }
     /* ★ 2026-10-05 接入：P2-G1 的几何组 —— 与 `SBDN` / `SBEd` 逐行一样
        （BAL-C 灰道床 + SLE-1 木枕 + RAI-1 + **TUN-2** 素混凝土洞口），
@@ -881,7 +890,7 @@ item(FEAT_RAILTYPES, rail_SAC3, 14) {
         speed_limit:            80 km/h;
         acceleration_model:     ACC_MODEL_RAIL;
         map_colour:             0x5E;
-        sort_order:             SORT_ELECTRIC;
+        sort_order:             18;                 // CSV 第 20 行 SAC3
     }
     /* ★ 2026-10-03：A12 组（`BAL-H` 整体道床 + `SLE-5` 无枕 + `RAI-4` 第三轨）接入。
        模型由 `tools/gen-a12-metro.mjs` 生成，分表 `gfx/metro.png`。
@@ -934,7 +943,7 @@ item(FEAT_RAILTYPES, rail_NACN, 15) {
         speed_limit:            95 km/h;
         acceleration_model:     ACC_MODEL_RAIL;
         map_colour:             0x5F;
-        sort_order:             SORT_EARLY;
+        sort_order:             22;                 // CSV 第 24 行 NACN
     }
     /* ★ 2026-10-04：A15 组（`NACN` 窄轨）接入。
        口径（人工 §6 确认门四项全按推荐值裁定）：
@@ -990,7 +999,7 @@ item(FEAT_RAILTYPES, rail_SBEN, 16) {
         speed_limit:            120 km/h;
         acceleration_model:     ACC_MODEL_RAIL;
         map_colour:             0x60;
-        sort_order:             SORT_DIESEL;
+        sort_order:             12;                 // CSV 第 14 行 SBEN
     }
     /* ★ 2026-10-05：A5 组（重载）接入。口径（人工 §6 确认门：按推荐值执行，
        `SLE-3` **仿 G2 要 U 形承轨槽**）：
@@ -1040,7 +1049,7 @@ item(FEAT_RAILTYPES, rail_SBEA, 17) {
         speed_limit:            120 km/h;
         acceleration_model:     ACC_MODEL_RAIL;
         map_colour:             0x61;
-        sort_order:             SORT_ELECTRIC;
+        sort_order:             13;                 // CSV 第 15 行 SBEA
     }
     /* ★ 与 `SBEN` **同一套几何**（probe_*_heavy），只多两层接触网：
        制式 `EL-25`（25kV AC）⇒ 按 §1.6.5.1 的落位表用 **`PYL-C1` 预应力混凝土方柱**
@@ -1106,7 +1115,7 @@ item(FEAT_RAILTYPES, rail_SBC3, 18) {
         speed_limit:            120 km/h;
         acceleration_model:     ACC_MODEL_RAIL;
         map_colour:             0x62;
-        sort_order:             SORT_ELECTRIC;
+        sort_order:             19;                 // CSV 第 21 行 SBC3
     }
     /* ★ 2026-10-05：A13 组（`BAL-I` + `SLE-5` 无枕 + `RAI-4` 第三轨）接入。
        ★ 2026-10-06 人工改口径：「`BAL-I` **不要浮置版了**，改成**浅色混凝土**（不要暖色）」
@@ -1179,7 +1188,7 @@ item(FEAT_RAILTYPES, rail_SGCA, 19) {
         speed_limit:            0 km/h;
         acceleration_model:     ACC_MODEL_RAIL;
         map_colour:             0x63;
-        sort_order:             SORT_ELECTRIC;
+        sort_order:             10;                 // CSV 第 12 行 SGCA
     }
     /* ★ 2026-10-05：A10 组（`BAL-G` 无砟·CRTS III + `SLE-4` 双块式 + `RAI-3` 长轨）接入。
        `BAL-G` = A12 的整体道床**在板面上分出两条承轨台 + 三条低带**（自密实层一侧），
@@ -1257,7 +1266,7 @@ item(FEAT_RAILTYPES, rail_SCCA, 20) {
         speed_limit:            160 km/h;
         acceleration_model:     ACC_MODEL_RAIL;
         map_colour:             0x64;
-        sort_order:             SORT_ELECTRIC;
+        sort_order:             6;                  // CSV 第 8 行 SCCA
     }
     /* ★ 2026-10-06：A8 组（`BAL-E` 无砟·**CRTS I 单元板** + `SLE-3` 混凝土宽枕 +
        `RAI-3` 长轨）接入。模型由 `tools/gen-a8-crts1.mjs` 从 `G1_*` 派生
@@ -1328,7 +1337,7 @@ item(FEAT_RAILTYPES, rail_SDCA, 21) {
         speed_limit:            210 km/h;
         acceleration_model:     ACC_MODEL_RAIL;
         map_colour:             0x65;
-        sort_order:             SORT_ELECTRIC;
+        sort_order:             7;                  // CSV 第 9 行 SDCA
     }
     /* ★ 2026-10-06：与 `SCCA` **同一套模型**（`A8` 组：`BAL-E` + `SLE-3` + `RAI-3` +
        复用的 `TUN-4` + `PYL-S1`），差别只有 C8 —— 210 km/h / 费用 20·10 / 地图色 0x65
@@ -1397,7 +1406,7 @@ item(FEAT_RAILTYPES, rail_SECA, 22) {
         speed_limit:            250 km/h;
         acceleration_model:     ACC_MODEL_RAIL;
         map_colour:             0x66;
-        sort_order:             SORT_ELECTRIC;
+        sort_order:             8;                  // CSV 第 10 行 SECA
     }
     /* ★ 2026-10-06：A25 组（`BAL-N` 有砟·**高速砟肩堆高** + `SLE-3` 混凝土宽枕 +
        `RAI-3` 长轨）接入。模型由 `tools/gen-a9-hsballast.mjs` 从 `G1_*` 派生
@@ -1477,7 +1486,7 @@ item(FEAT_RAILTYPES, rail_SFCA, 23) {
         speed_limit:            310 km/h;
         acceleration_model:     ACC_MODEL_RAIL;
         map_colour:             0x67;
-        sort_order:             SORT_ELECTRIC;
+        sort_order:             9;                  // CSV 第 11 行 SFCA
     }
     /* ★ 2026-10-08：A9 组（`BAL-F` 无砟·**CRTS II 纵连板** + `SLE-3` 混凝土宽枕 +
        `RAI-3` 长轨）接入 —— **优先级 3 的最后一条**。模型由 `tools/gen-a11-crts2.mjs`
@@ -1551,7 +1560,7 @@ item(FEAT_RAILTYPES, rail_SDDA, 24) {
         speed_limit:            200 km/h;
         acceleration_model:     ACC_MODEL_RAIL;
         map_colour:             0x68;
-        sort_order:             SORT_ELECTRIC;
+        sort_order:             5;                  // CSV 第 7 行 SDDA
     }
     /* ★ 2026-10-21：A6 组（`BAL-A` 有砟·标准碎石 + `SLE-3` 混凝土宽枕 + `RAI-3` 长轨）
        接入 —— 优先级 4 的第一条。模型由 `tools/gen-a6-fast.mjs`（人工 2026-10-21 按 L3
@@ -1636,7 +1645,7 @@ item(FEAT_RAILTYPES, rail_SACd, 25) {
         speed_limit:            80 km/h;
         acceleration_model:     ACC_MODEL_RAIL;
         map_colour:             0x69;
-        sort_order:             SORT_ELECTRIC;
+        sort_order:             15;                 // CSV 第 17 行 SACd
     }
     /* ★ 2026-10-21：A11 组（`BAL-H` 浮置板 + `SLE-5` 无枕扣件座 + `RAI-1` 钢轨，
        **没有第三轨与罩**）接入 —— 与 A12（`SAC3`）同一套板/枕/洞口，只少了接触轨。
@@ -1706,7 +1715,7 @@ item(FEAT_RAILTYPES, rail_SBCd, 26) {
         speed_limit:            140 km/h;
         acceleration_model:     ACC_MODEL_RAIL;
         map_colour:             0x6A;
-        sort_order:             SORT_ELECTRIC;
+        sort_order:             16;                 // CSV 第 18 行 SBCd
     }
     /* ★ 2026-10-21：与 `SACd` **同一套模型 / 同一批模板 / 同一个分表**
        （`probe_underlay_dcmetro` 等）—— 两条只差 C8：速度 140、费用 14/7、
@@ -1780,7 +1789,7 @@ item(FEAT_RAILTYPES, rail_SACZ, 27) {
         speed_limit:            80 km/h;
         acceleration_model:     ACC_MODEL_RAIL;
         map_colour:             0x6B;
-        sort_order:             SORT_ELECTRIC;
+        sort_order:             21;                 // CSV 第 23 行 SACZ
     }
     /* ★ 2026-11-14：A13 组第三条（`SBC3` 之后）—— **零新模型 / 零新模板 / 零新分表**。
        七项图形全部复用现成的：
@@ -1843,7 +1852,7 @@ item(FEAT_RAILTYPES, rail_NBCN, 28) {
         speed_limit:            130 km/h;
         acceleration_model:     ACC_MODEL_RAIL;
         map_colour:             0x6C;
-        sort_order:             SORT_EARLY;
+        sort_order:             23;                 // CSV 第 25 行 NBCN
     }
     /* ★ 2026-11-17：A16 组第一条。模型由 `tools/gen-a16-narrow-modern.mjs` 生成：
        底板 = A15 的产物（`G5_*` 逐面照搬），**只把枕木那层换成 A3 的 `SLE-2`**；
@@ -1886,7 +1895,7 @@ item(FEAT_RAILTYPES, rail_NBCA, 29) {
         speed_limit:            130 km/h;
         acceleration_model:     ACC_MODEL_RAIL;
         map_colour:             0x6D;
-        sort_order:             SORT_ELECTRIC;
+        sort_order:             24;                 // CSV 第 26 行 NBCA
     }
     /* ★ 2026-11-17：与 `NBCN` **同一套模型 / 同一批模板 / 同一张分表** ——
        只多接接触网两项。人工 2026-11-17「柱子按原来的」⇒ 用共用的 `PYL-C2` 圆柱
@@ -1942,7 +1951,7 @@ item(FEAT_RAILTYPES, rail_NCCA, 30) {
         speed_limit:            160 km/h;
         acceleration_model:     ACC_MODEL_RAIL;
         map_colour:             0x6E;
-        sort_order:             SORT_ELECTRIC;
+        sort_order:             25;                 // CSV 第 27 行 NCCA
     }
     /* ★ 2026-11-17：A17 组。模型由 `tools/gen-a16-narrow-modern.mjs` 的 A17 那支生成：
        底板 = A15 的产物（`G5_*` 逐面照搬），**只把枕木那层换成 A5 的 `SLE-3`**；
@@ -2001,7 +2010,7 @@ item(FEAT_RAILTYPES, rail_SAEN, 31) {
         speed_limit:            80 km/h;
         acceleration_model:     ACC_MODEL_RAIL;
         map_colour:             0x6F;
-        sort_order:             SORT_EARLY;
+        sort_order:             11;                 // CSV 第 13 行 SAEN
     }
     /* ★ 2026-11-17：A4 组。模型由 `tools/gen-a5-heavy.mjs` **第七节**生成：
        底板 = A5 的产物（`G6_*` 逐面照搬），**只把枕木那层换成 A1 的 `SLE-1` 木枕**，
@@ -2072,7 +2081,7 @@ item(FEAT_RAILTYPES, rail_SACL, 32) {
         speed_limit:            90 km/h;
         acceleration_model:     ACC_MODEL_RAIL;
         map_colour:             0x70;
-        sort_order:             SORT_ELECTRIC;
+        sort_order:             20;                 // CSV 第 22 行 SACL
     }
     /* ★ 2026-11-18：A14 组。模型由 `tools/gen-a12-metro.mjs` **第 12 节**生成：
        A12 的整组几何 + 中央连续反应板；分表 `gfx/linear.png`（263×149）+
@@ -2171,7 +2180,7 @@ item(FEAT_RAILTYPES, rail_dBCN, 33) {
         speed_limit:            120 km/h;
         acceleration_model:     ACC_MODEL_RAIL;
         map_colour:             0x71;
-        sort_order:             SORT_EARLY;
+        sort_order:             26;                 // CSV 第 28 行 dBCN
     }
     /* ★ 2026-11-18：A24 组。模型由 `tools/gen-a15-narrow.mjs` **第二节**生成：
        源 = `G1_*` / `probe_track_x` / `G1_tunnel2_stone*`（A1 的几何），
@@ -2218,47 +2227,29 @@ item(FEAT_RAILTYPES, rail_DBDN, 34) {
         new_engine_text:        string(STR_RAIL_DBDN);
         /* 套轨 = 准轨车与宽轨车共线 ⇒ 兼容表取并集（同 `dBCN` 的口径，见上面那段注释）。 */
         compatible_railtype_list: ["RAIL", "ELRL", 
-                                    "SACN", "SBCN", "SCCN", "SDCN", "SECN",  "SFCN", "SGCN",
                                     "SADN", "SBDN", "SCDN", "SDDN", "SEDN",  "SFDN", "SGDN",
                                     "SAEN", "SBEN", "SCEN", "SDEN", "SEEN",  "SFEN", "SGEN",
-                                    "SACA", "SBCA", "SCCA", "SDCA", "SECA",  "SFCA", "SGCA",
-                                    "SADA", "SBDA", "SCDA", "SDDA", "SEDA",  "SFDA", "SGDA",
+                                    "SADA", "SBDA", "SCDA", "SDDA", "SEDA",  "SFDA", "SGDA", 
                                     "SAEA", "SBEA", "SCEA", "SDEA", "SEEA",  "SFEA", "SGEA",
-                                    "SACd", "SBCd", "SCCd", "SDCd", "SECd",
                                     "SADd", "SBDd", "SCDd", "SDDd", "SEDd",
-                                    "SAEd", "SBEd", "SCEd", "SDEd", "SEEd",
-                                    "SACD", "SBCD", "SCCD", "SDCD", "SECD",
-                                    "SADD", "SBDD", "SCDD", "SDDD", "SEDD",
-                                    "SAC3", "SBC3", "SCC3", "SDC3",
-                                    "SACZ", "SBCZ", "SCCZ", "SDCZ",
-                                    "SACL", "SBCL", "SCCL", "SDCL",
-                                    "DACN", "DADN", "DBDN", "DACA", "DADA", "DBDA",
+                                    "SAEd", "SBEd", "SCEd", "SDEd", "SEEd",   
+                                    "SADD", "SBDD", "SCDD", "SDDD", "SEDD",   
+                                    "DADN", "DBDN", 
+                                    "DADA", "DBDA",
                                     "BADN", "BBDN", "BCDN", "BDDN",
-                                    "BADA", "BBDA", "BCDA", "BDDA",
-                                    "dACN", "dBCN", "dACA", "dBCA",
-                                    "NACN", "NBCN", "NCCN", "NDCN",
-                                    "NACA", "NBCa", "NCCA", "NDCA"];
+                                    "BADA", "BBDA", "BCDA", "BDDA"];
         powered_railtype_list:    ["RAIL", "ELRL", 
-                                    "SACN", "SBCN", "SCCN", "SDCN", "SECN",  "SFCN", "SGCN",
                                     "SADN", "SBDN", "SCDN", "SDDN", "SEDN",  "SFDN", "SGDN",
                                     "SAEN", "SBEN", "SCEN", "SDEN", "SEEN",  "SFEN", "SGEN",
-                                    "SACA", "SBCA", "SCCA", "SDCA", "SECA",  "SFCA", "SGCA",
-                                    "SADA", "SBDA", "SCDA", "SDDA", "SEDA",  "SFDA", "SGDA",
+                                    "SADA", "SBDA", "SCDA", "SDDA", "SEDA",  "SFDA", "SGDA", 
                                     "SAEA", "SBEA", "SCEA", "SDEA", "SEEA",  "SFEA", "SGEA",
-                                    "SACd", "SBCd", "SCCd", "SDCd", "SECd",
                                     "SADd", "SBDd", "SCDd", "SDDd", "SEDd",
-                                    "SAEd", "SBEd", "SCEd", "SDEd", "SEEd",
-                                    "SACD", "SBCD", "SCCD", "SDCD", "SECD",
-                                    "SADD", "SBDD", "SCDD", "SDDD", "SEDD",
-                                    "SAC3", "SBC3", "SCC3", "SDC3",
-                                    "SACZ", "SBCZ", "SCCZ", "SDCZ",
-                                    "SACL", "SBCL", "SCCL", "SDCL",
-                                    "DACN", "DADN", "DBDN", "DACA", "DADA", "DBDA",
+                                    "SAEd", "SBEd", "SCEd", "SDEd", "SEEd",   
+                                    "SADD", "SBDD", "SCDD", "SDDD", "SEDD",   
+                                    "DADN", "DBDN", 
+                                    "DADA", "DBDA",
                                     "BADN", "BBDN", "BCDN", "BDDN",
-                                    "BADA", "BBDA", "BCDA", "BDDA",
-                                    "dACN", "dBCN", "dACA", "dBCA",
-                                    "NACN", "NBCN", "NCCN", "NDCN",
-                                    "NACA", "NBCa", "NCCA", "NDCA"];
+                                    "BADA", "BBDA", "BCDA", "BDDA"];
         /* 非电化（CSV：N/A）⇒ 不设 `CATENARY`；套轨多出现在既有地面线上 ⇒ 允许平交道口。 */
         railtype_flags:         0;
         curve_speed_multiplier: 1;
@@ -2270,7 +2261,7 @@ item(FEAT_RAILTYPES, rail_DBDN, 34) {
         speed_limit:            120 km/h;
         acceleration_model:     ACC_MODEL_RAIL;
         map_colour:             0x72;
-        sort_order:             SORT_EARLY;
+        sort_order:             29;                 // CSV 第 31 行 DBDN
     }
     /* ★ 2026-11-18：A18 组。模型由 `tools/gen-a15-narrow.mjs` **第三节**生成：
        源 = `G1_*` / `probe_track_x` / `G1_tunnel2_stone*`；道床与枕木 ×10/9（= A24 的 `BAL-K`），
@@ -2298,48 +2289,16 @@ item(FEAT_RAILTYPES, rail_BBDN, 35) {
         autoreplace_text:       string(STR_RAIL_BBDN);
         new_engine_text:        string(STR_RAIL_BBDN);
         /* 与 `DBDN` 同一张联合表（理由见上面那段注释）。 */
-        compatible_railtype_list: ["RAIL", "ELRL", 
-                                    "SACN", "SBCN", "SCCN", "SDCN", "SECN",  "SFCN", "SGCN",
-                                    "SADN", "SBDN", "SCDN", "SDDN", "SEDN",  "SFDN", "SGDN",
-                                    "SAEN", "SBEN", "SCEN", "SDEN", "SEEN",  "SFEN", "SGEN",
-                                    "SACA", "SBCA", "SCCA", "SDCA", "SECA",  "SFCA", "SGCA",
-                                    "SADA", "SBDA", "SCDA", "SDDA", "SEDA",  "SFDA", "SGDA",
-                                    "SAEA", "SBEA", "SCEA", "SDEA", "SEEA",  "SFEA", "SGEA",
-                                    "SACd", "SBCd", "SCCd", "SDCd", "SECd",
-                                    "SADd", "SBDd", "SCDd", "SDDd", "SEDd",
-                                    "SAEd", "SBEd", "SCEd", "SDEd", "SEEd",
-                                    "SACD", "SBCD", "SCCD", "SDCD", "SECD",
-                                    "SADD", "SBDD", "SCDD", "SDDD", "SEDD",
-                                    "SAC3", "SBC3", "SCC3", "SDC3",
-                                    "SACZ", "SBCZ", "SCCZ", "SDCZ",
-                                    "SACL", "SBCL", "SCCL", "SDCL",
-                                    "DACN", "DADN", "DBDN", "DACA", "DADA", "DBDA",
+        compatible_railtype_list: ["RAIL", "ELRL",   
+                                    "DADN", "DBDN", 
+                                    "DADA", "DBDA",
                                     "BADN", "BBDN", "BCDN", "BDDN",
-                                    "BADA", "BBDA", "BCDA", "BDDA",
-                                    "dACN", "dBCN", "dACA", "dBCA",
-                                    "NACN", "NBCN", "NCCN", "NDCN",
-                                    "NACA", "NBCa", "NCCA", "NDCA"];
-        powered_railtype_list:    ["RAIL", "ELRL", 
-                                    "SACN", "SBCN", "SCCN", "SDCN", "SECN",  "SFCN", "SGCN",
-                                    "SADN", "SBDN", "SCDN", "SDDN", "SEDN",  "SFDN", "SGDN",
-                                    "SAEN", "SBEN", "SCEN", "SDEN", "SEEN",  "SFEN", "SGEN",
-                                    "SACA", "SBCA", "SCCA", "SDCA", "SECA",  "SFCA", "SGCA",
-                                    "SADA", "SBDA", "SCDA", "SDDA", "SEDA",  "SFDA", "SGDA",
-                                    "SAEA", "SBEA", "SCEA", "SDEA", "SEEA",  "SFEA", "SGEA",
-                                    "SACd", "SBCd", "SCCd", "SDCd", "SECd",
-                                    "SADd", "SBDd", "SCDd", "SDDd", "SEDd",
-                                    "SAEd", "SBEd", "SCEd", "SDEd", "SEEd",
-                                    "SACD", "SBCD", "SCCD", "SDCD", "SECD",
-                                    "SADD", "SBDD", "SCDD", "SDDD", "SEDD",
-                                    "SAC3", "SBC3", "SCC3", "SDC3",
-                                    "SACZ", "SBCZ", "SCCZ", "SDCZ",
-                                    "SACL", "SBCL", "SCCL", "SDCL",
-                                    "DACN", "DADN", "DBDN", "DACA", "DADA", "DBDA",
+                                    "BADA", "BBDA", "BCDA", "BDDA"];
+        powered_railtype_list:    ["RAIL", "ELRL",   
+                                    "DADN", "DBDN", 
+                                    "DADA", "DBDA",
                                     "BADN", "BBDN", "BCDN", "BDDN",
-                                    "BADA", "BBDA", "BCDA", "BDDA",
-                                    "dACN", "dBCN", "dACA", "dBCA",
-                                    "NACN", "NBCN", "NCCN", "NDCN",
-                                    "NACA", "NBCa", "NCCA", "NDCA"];
+                                    "BADA", "BBDA", "BCDA", "BDDA"];
         railtype_flags:         0;
         curve_speed_multiplier: 1;
         station_graphics:       RAILTYPE_STATION_NORMAL;
@@ -2349,7 +2308,7 @@ item(FEAT_RAILTYPES, rail_BBDN, 35) {
         speed_limit:            120 km/h;
         acceleration_model:     ACC_MODEL_RAIL;
         map_colour:             0x73;
-        sort_order:             SORT_EARLY;
+        sort_order:             27;                 // CSV 第 29 行 BBDN
     }
     /* ★ 2026-11-18：A22 组。同一套生成器的第三节；与 A18 **只差钢轨画几遍**：
        只画按 S = 1520/1435 = 1.059233 放大那一遍 ⇒ 两根轨、轨距 0.1093 格 = 1.520 m（`RAI-9`）。
@@ -2391,47 +2350,23 @@ item(FEAT_RAILTYPES, rail_DBDA, 36) {
         new_engine_text:        string(STR_RAIL_DBDA);
         /* 与 `DBDN` 同一张联合表（理由见上面宽轨族的注释段）。 */
         compatible_railtype_list: ["RAIL", "ELRL", 
-                                    "SACN", "SBCN", "SCCN", "SDCN", "SECN",  "SFCN", "SGCN",
                                     "SADN", "SBDN", "SCDN", "SDDN", "SEDN",  "SFDN", "SGDN",
                                     "SAEN", "SBEN", "SCEN", "SDEN", "SEEN",  "SFEN", "SGEN",
-                                    "SACA", "SBCA", "SCCA", "SDCA", "SECA",  "SFCA", "SGCA",
-                                    "SADA", "SBDA", "SCDA", "SDDA", "SEDA",  "SFDA", "SGDA",
+                                    "SADA", "SBDA", "SCDA", "SDDA", "SEDA",  "SFDA", "SGDA", 
                                     "SAEA", "SBEA", "SCEA", "SDEA", "SEEA",  "SFEA", "SGEA",
-                                    "SACd", "SBCd", "SCCd", "SDCd", "SECd",
                                     "SADd", "SBDd", "SCDd", "SDDd", "SEDd",
-                                    "SAEd", "SBEd", "SCEd", "SDEd", "SEEd",
-                                    "SACD", "SBCD", "SCCD", "SDCD", "SECD",
-                                    "SADD", "SBDD", "SCDD", "SDDD", "SEDD",
-                                    "SAC3", "SBC3", "SCC3", "SDC3",
-                                    "SACZ", "SBCZ", "SCCZ", "SDCZ",
-                                    "SACL", "SBCL", "SCCL", "SDCL",
-                                    "DACN", "DADN", "DBDN", "DACA", "DADA", "DBDA",
+                                    "SAEd", "SBEd", "SCEd", "SDEd", "SEEd",   
+                                    "SADD", "SBDD", "SCDD", "SDDD", "SEDD",   
+                                    "DADN", "DBDN", 
+                                    "DADA", "DBDA",
                                     "BADN", "BBDN", "BCDN", "BDDN",
-                                    "BADA", "BBDA", "BCDA", "BDDA",
-                                    "dACN", "dBCN", "dACA", "dBCA",
-                                    "NACN", "NBCN", "NCCN", "NDCN",
-                                    "NACA", "NBCa", "NCCA", "NDCA"];
-        powered_railtype_list:    ["RAIL", "ELRL", 
-                                    "SACN", "SBCN", "SCCN", "SDCN", "SECN",  "SFCN", "SGCN",
-                                    "SADN", "SBDN", "SCDN", "SDDN", "SEDN",  "SFDN", "SGDN",
-                                    "SAEN", "SBEN", "SCEN", "SDEN", "SEEN",  "SFEN", "SGEN",
+                                    "BADA", "BBDA", "BCDA", "BDDA"];
+        powered_railtype_list:    [ "ELRL", 
                                     "SACA", "SBCA", "SCCA", "SDCA", "SECA",  "SFCA", "SGCA",
-                                    "SADA", "SBDA", "SCDA", "SDDA", "SEDA",  "SFDA", "SGDA",
+                                    "SADA", "SBDA", "SCDA", "SDDA", "SEDA",  "SFDA", "SGDA", 
                                     "SAEA", "SBEA", "SCEA", "SDEA", "SEEA",  "SFEA", "SGEA",
-                                    "SACd", "SBCd", "SCCd", "SDCd", "SECd",
-                                    "SADd", "SBDd", "SCDd", "SDDd", "SEDd",
-                                    "SAEd", "SBEd", "SCEd", "SDEd", "SEEd",
-                                    "SACD", "SBCD", "SCCD", "SDCD", "SECD",
-                                    "SADD", "SBDD", "SCDD", "SDDD", "SEDD",
-                                    "SAC3", "SBC3", "SCC3", "SDC3",
-                                    "SACZ", "SBCZ", "SCCZ", "SDCZ",
-                                    "SACL", "SBCL", "SCCL", "SDCL",
-                                    "DACN", "DADN", "DBDN", "DACA", "DADA", "DBDA",
-                                    "BADN", "BBDN", "BCDN", "BDDN",
-                                    "BADA", "BBDA", "BCDA", "BDDA",
-                                    "dACN", "dBCN", "dACA", "dBCA",
-                                    "NACN", "NBCN", "NCCN", "NDCN",
-                                    "NACA", "NBCa", "NCCA", "NDCA"];
+                                    "DADA", "DBDA",
+                                    "BADA", "BBDA", "BCDA", "BDDA"];
         /* CSV：25kV AC ⇒ `CATENARY`；仍允许平交道口（与 `DBDN` 一致）。 */
         railtype_flags:         bitmask(RAILTYPE_FLAG_CATENARY);
         curve_speed_multiplier: 1;
@@ -2442,7 +2377,7 @@ item(FEAT_RAILTYPES, rail_DBDA, 36) {
         speed_limit:            120 km/h;
         acceleration_model:     ACC_MODEL_RAIL;
         map_colour:             0x74;
-        sort_order:             SORT_ELECTRIC;
+        sort_order:             30;                 // CSV 第 32 行 DBDA
     }
     /* ★ 2026-11-18：A19 组 = A18 的产物换枕木（`tools/gen-a15-narrow.mjs` 第四节）。 */
     graphics {
@@ -2469,48 +2404,14 @@ item(FEAT_RAILTYPES, rail_BBDA, 37) {
         autoreplace_text:       string(STR_RAIL_BBDA);
         new_engine_text:        string(STR_RAIL_BBDA);
         /* 与 `BBDN` 同一张联合表。 */
-        compatible_railtype_list: ["RAIL", "ELRL", 
-                                    "SACN", "SBCN", "SCCN", "SDCN", "SECN",  "SFCN", "SGCN",
-                                    "SADN", "SBDN", "SCDN", "SDDN", "SEDN",  "SFDN", "SGDN",
-                                    "SAEN", "SBEN", "SCEN", "SDEN", "SEEN",  "SFEN", "SGEN",
-                                    "SACA", "SBCA", "SCCA", "SDCA", "SECA",  "SFCA", "SGCA",
-                                    "SADA", "SBDA", "SCDA", "SDDA", "SEDA",  "SFDA", "SGDA",
-                                    "SAEA", "SBEA", "SCEA", "SDEA", "SEEA",  "SFEA", "SGEA",
-                                    "SACd", "SBCd", "SCCd", "SDCd", "SECd",
-                                    "SADd", "SBDd", "SCDd", "SDDd", "SEDd",
-                                    "SAEd", "SBEd", "SCEd", "SDEd", "SEEd",
-                                    "SACD", "SBCD", "SCCD", "SDCD", "SECD",
-                                    "SADD", "SBDD", "SCDD", "SDDD", "SEDD",
-                                    "SAC3", "SBC3", "SCC3", "SDC3",
-                                    "SACZ", "SBCZ", "SCCZ", "SDCZ",
-                                    "SACL", "SBCL", "SCCL", "SDCL",
-                                    "DACN", "DADN", "DBDN", "DACA", "DADA", "DBDA",
+        compatible_railtype_list: ["RAIL", "ELRL",   
+                                    "DADN", "DBDN", 
+                                    "DADA", "DBDA",
                                     "BADN", "BBDN", "BCDN", "BDDN",
-                                    "BADA", "BBDA", "BCDA", "BDDA",
-                                    "dACN", "dBCN", "dACA", "dBCA",
-                                    "NACN", "NBCN", "NCCN", "NDCN",
-                                    "NACA", "NBCa", "NCCA", "NDCA"];
-        powered_railtype_list:    ["RAIL", "ELRL", 
-                                    "SACN", "SBCN", "SCCN", "SDCN", "SECN",  "SFCN", "SGCN",
-                                    "SADN", "SBDN", "SCDN", "SDDN", "SEDN",  "SFDN", "SGDN",
-                                    "SAEN", "SBEN", "SCEN", "SDEN", "SEEN",  "SFEN", "SGEN",
-                                    "SACA", "SBCA", "SCCA", "SDCA", "SECA",  "SFCA", "SGCA",
-                                    "SADA", "SBDA", "SCDA", "SDDA", "SEDA",  "SFDA", "SGDA",
-                                    "SAEA", "SBEA", "SCEA", "SDEA", "SEEA",  "SFEA", "SGEA",
-                                    "SACd", "SBCd", "SCCd", "SDCd", "SECd",
-                                    "SADd", "SBDd", "SCDd", "SDDd", "SEDd",
-                                    "SAEd", "SBEd", "SCEd", "SDEd", "SEEd",
-                                    "SACD", "SBCD", "SCCD", "SDCD", "SECD",
-                                    "SADD", "SBDD", "SCDD", "SDDD", "SEDD",
-                                    "SAC3", "SBC3", "SCC3", "SDC3",
-                                    "SACZ", "SBCZ", "SCCZ", "SDCZ",
-                                    "SACL", "SBCL", "SCCL", "SDCL",
-                                    "DACN", "DADN", "DBDN", "DACA", "DADA", "DBDA",
-                                    "BADN", "BBDN", "BCDN", "BDDN",
-                                    "BADA", "BBDA", "BCDA", "BDDA",
-                                    "dACN", "dBCN", "dACA", "dBCA",
-                                    "NACN", "NBCN", "NCCN", "NDCN",
-                                    "NACA", "NBCa", "NCCA", "NDCA"];
+                                    "BADA", "BBDA", "BCDA", "BDDA"];
+        powered_railtype_list:    ["ELRL",   
+                                    "DADA", "DBDA",
+                                    "BADA", "BBDA", "BCDA", "BDDA"];
         railtype_flags:         bitmask(RAILTYPE_FLAG_CATENARY);
         curve_speed_multiplier: 1;
         station_graphics:       RAILTYPE_STATION_NORMAL;
@@ -2520,7 +2421,7 @@ item(FEAT_RAILTYPES, rail_BBDA, 37) {
         speed_limit:            120 km/h;
         acceleration_model:     ACC_MODEL_RAIL;
         map_colour:             0x75;
-        sort_order:             SORT_ELECTRIC;
+        sort_order:             28;                 // CSV 第 30 行 BBDA
     }
     /* ★ 2026-11-18：A23 组 = A22 的产物换枕木 + 接触网。 */
     graphics {
@@ -2559,7 +2460,7 @@ item(FEAT_RAILTYPES, rail_BBDA, 37) {
    =========================================================================== */
 
 // MONO —— 跨座式单轨（2004 · 无限制 · 费用系数 4）
-item(FEAT_RAILTYPES, rail_MONO, 38) {
+/* item(FEAT_RAILTYPES, rail_MONO, 38) {
     property {
         label:                  "MONO";
         introduction_date:      date(2004, 1, 1);
@@ -2575,25 +2476,25 @@ item(FEAT_RAILTYPES, rail_MONO, 38) {
         curve_speed_multiplier: 1;
         station_graphics:       RAILTYPE_STATION_MONORAIL;
         construction_cost:      4;
-        maintenance_cost:       2;
+        maintenance_cost:       2; */
         /* 无限制（wiki：0 = unlimited）；CSV 的 100km/h 写在名称里。 */
-        speed_limit:            0 km/h;
+/*         speed_limit:            0 km/h;
         acceleration_model:     ACC_MODEL_MONORAIL;
         map_colour:             0x76;
-        sort_order:             SORT_MONO;
-    }
+        sort_order:             31;                 // CSV 第 34 行 MONO（本块当前被注释，见上）
+    } */
     /* ★ 2026-11-18：A20 组。只给 underlay / track_overlay / tunnels / bridge_surfaces 四个回调
        （overlay 与 underlay 是**同一批模型**：梁顶即走行面）。 */
-    graphics {
+/*     graphics {
         underlay:        probe_underlay_mono;
         track_overlay:   probe_overlay_mono;
         tunnels:         probe_tunnels_mono;
         bridge_surfaces: probe_bridge_surfaces_mono;
     }
-}
+} */
 
 // MGLV —— 磁浮（2002 · 120 km/h · 费用系数 32）
-item(FEAT_RAILTYPES, rail_MGLV, 39) {
+/* item(FEAT_RAILTYPES, rail_MGLV, 39) {
     property {
         label:                  "MGLV";
         introduction_date:      date(2002, 1, 1);
@@ -2609,18 +2510,19 @@ item(FEAT_RAILTYPES, rail_MGLV, 39) {
         curve_speed_multiplier: 1;
         station_graphics:       RAILTYPE_STATION_MAGLEV;
         construction_cost:      32;
-        maintenance_cost:       16;
+        maintenance_cost:       16; */
         /* C6 裁定：120 km/h（CSV 写 N/A）。 */
-        speed_limit:            120 km/h;
+/*         speed_limit:            120 km/h;
         acceleration_model:     ACC_MODEL_MAGLEV;
         map_colour:             0x77;
-        sort_order:             SORT_MAGLEV;
-    }
+        sort_order:             32;                 // CSV 第 35 行 MGLV（本块当前被注释，见上）
+    } */
     /* ★ 2026-11-18：A21 组。与 A20 同一套骨架，梁更宽、侧面是定子铁芯的深金属色。 */
-    graphics {
+/*     graphics {
         underlay:        probe_underlay_maglev;
         track_overlay:   probe_overlay_maglev;
         tunnels:         probe_tunnels_maglev;
         bridge_surfaces: probe_bridge_surfaces_maglev;
     }
 }
+ */
