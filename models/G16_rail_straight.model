@@ -1,0 +1,91 @@
+# =============================================================================
+# G16_rail_straight —— A4 组（`SAEN` 重载铁路 1932·80km/h）· overlay 槽 0/1：钢轨层（透明底，只有钢轨 + 木枕）
+#
+# 【本文件由 tools/gen-a5-heavy.mjs 生成，请勿手改】
+#   底板 = models/G6_rail_straight.model（= A5 的产物，BAL-B / RAI-2 / 洞门逐面照搬）
+#   枕木 = models/G1_rail_straight.model 里的 SLE-1（wood_dark / wood_seam），**坐标逐字照搬（零变换）**
+#   删掉 A5 的 250 面（^(concrete_mid|panel_seam|metal_pale)$），贴上 SLE-1 = 75 面
+#   标准轨距 ⇒ 不需要任何横向变换；拼装口径见 tools/gen-a5-heavy.mjs 第七节的文件头。
+# =============================================================================
+name      G16_rail_straight
+group     misc
+footprint 1 1
+zmax      0.028
+
+box -0.0313 0.4432 0.0085  1.0313 0.4536 0.0230  rust top=metal
+box -0.0313 0.5464 0.0085  1.0313 0.5568 0.0230  rust top=metal
+box 0.0120 0.4100 0.0000 0.0240 0.4700 0.0100 wood_dark top=wood_seam
+box 0.0120 0.4700 0.0000 0.0240 0.5300 0.0100 wood_seam top=wood_seam
+box 0.0120 0.5300 0.0000 0.0240 0.5900 0.0100 wood_dark top=wood_seam
+box 0.0520 0.4100 0.0000 0.0680 0.4700 0.0100 wood_seam top=wood_seam
+box 0.0520 0.4700 0.0000 0.0680 0.5300 0.0100 wood_dark top=wood_seam
+box 0.0520 0.5300 0.0000 0.0680 0.5900 0.0100 wood_seam top=wood_seam
+box 0.0920 0.4100 0.0000 0.1080 0.4700 0.0100 wood_dark top=wood_seam
+box 0.0920 0.4700 0.0000 0.1080 0.5300 0.0100 wood_seam top=wood_seam
+box 0.0920 0.5300 0.0000 0.1080 0.5900 0.0100 wood_dark top=wood_seam
+box 0.1320 0.4100 0.0000 0.1480 0.4700 0.0100 wood_seam top=wood_seam
+box 0.1320 0.4700 0.0000 0.1480 0.5300 0.0100 wood_dark top=wood_seam
+box 0.1320 0.5300 0.0000 0.1480 0.5900 0.0100 wood_seam top=wood_seam
+box 0.1720 0.4100 0.0000 0.1880 0.4700 0.0100 wood_dark top=wood_seam
+box 0.1720 0.4700 0.0000 0.1880 0.5300 0.0100 wood_seam top=wood_seam
+box 0.1720 0.5300 0.0000 0.1880 0.5900 0.0100 wood_dark top=wood_seam
+box 0.2120 0.4100 0.0000 0.2280 0.4700 0.0100 wood_seam top=wood_seam
+box 0.2120 0.4700 0.0000 0.2280 0.5300 0.0100 wood_dark top=wood_seam
+box 0.2120 0.5300 0.0000 0.2280 0.5900 0.0100 wood_seam top=wood_seam
+box 0.2520 0.4100 0.0000 0.2680 0.4700 0.0100 wood_dark top=wood_seam
+box 0.2520 0.4700 0.0000 0.2680 0.5300 0.0100 wood_seam top=wood_seam
+box 0.2520 0.5300 0.0000 0.2680 0.5900 0.0100 wood_dark top=wood_seam
+box 0.2920 0.4100 0.0000 0.3080 0.4700 0.0100 wood_seam top=wood_seam
+box 0.2920 0.4700 0.0000 0.3080 0.5300 0.0100 wood_dark top=wood_seam
+box 0.2920 0.5300 0.0000 0.3080 0.5900 0.0100 wood_seam top=wood_seam
+box 0.3320 0.4100 0.0000 0.3480 0.4700 0.0100 wood_dark top=wood_seam
+box 0.3320 0.4700 0.0000 0.3480 0.5300 0.0100 wood_seam top=wood_seam
+box 0.3320 0.5300 0.0000 0.3480 0.5900 0.0100 wood_dark top=wood_seam
+box 0.3720 0.4100 0.0000 0.3880 0.4700 0.0100 wood_seam top=wood_seam
+box 0.3720 0.4700 0.0000 0.3880 0.5300 0.0100 wood_dark top=wood_seam
+box 0.3720 0.5300 0.0000 0.3880 0.5900 0.0100 wood_seam top=wood_seam
+box 0.4120 0.4100 0.0000 0.4280 0.4700 0.0100 wood_dark top=wood_seam
+box 0.4120 0.4700 0.0000 0.4280 0.5300 0.0100 wood_seam top=wood_seam
+box 0.4120 0.5300 0.0000 0.4280 0.5900 0.0100 wood_dark top=wood_seam
+box 0.4520 0.4100 0.0000 0.4680 0.4700 0.0100 wood_seam top=wood_seam
+box 0.4520 0.4700 0.0000 0.4680 0.5300 0.0100 wood_dark top=wood_seam
+box 0.4520 0.5300 0.0000 0.4680 0.5900 0.0100 wood_seam top=wood_seam
+box 0.4920 0.4100 0.0000 0.5080 0.4700 0.0100 wood_dark top=wood_seam
+box 0.4920 0.4700 0.0000 0.5080 0.5300 0.0100 wood_seam top=wood_seam
+box 0.4920 0.5300 0.0000 0.5080 0.5900 0.0100 wood_dark top=wood_seam
+box 0.5320 0.4100 0.0000 0.5480 0.4700 0.0100 wood_seam top=wood_seam
+box 0.5320 0.4700 0.0000 0.5480 0.5300 0.0100 wood_dark top=wood_seam
+box 0.5320 0.5300 0.0000 0.5480 0.5900 0.0100 wood_seam top=wood_seam
+box 0.5720 0.4100 0.0000 0.5880 0.4700 0.0100 wood_dark top=wood_seam
+box 0.5720 0.4700 0.0000 0.5880 0.5300 0.0100 wood_seam top=wood_seam
+box 0.5720 0.5300 0.0000 0.5880 0.5900 0.0100 wood_dark top=wood_seam
+box 0.6120 0.4100 0.0000 0.6280 0.4700 0.0100 wood_seam top=wood_seam
+box 0.6120 0.4700 0.0000 0.6280 0.5300 0.0100 wood_dark top=wood_seam
+box 0.6120 0.5300 0.0000 0.6280 0.5900 0.0100 wood_seam top=wood_seam
+box 0.6520 0.4100 0.0000 0.6680 0.4700 0.0100 wood_dark top=wood_seam
+box 0.6520 0.4700 0.0000 0.6680 0.5300 0.0100 wood_seam top=wood_seam
+box 0.6520 0.5300 0.0000 0.6680 0.5900 0.0100 wood_dark top=wood_seam
+box 0.6920 0.4100 0.0000 0.7080 0.4700 0.0100 wood_seam top=wood_seam
+box 0.6920 0.4700 0.0000 0.7080 0.5300 0.0100 wood_dark top=wood_seam
+box 0.6920 0.5300 0.0000 0.7080 0.5900 0.0100 wood_seam top=wood_seam
+box 0.7320 0.4100 0.0000 0.7480 0.4700 0.0100 wood_dark top=wood_seam
+box 0.7320 0.4700 0.0000 0.7480 0.5300 0.0100 wood_seam top=wood_seam
+box 0.7320 0.5300 0.0000 0.7480 0.5900 0.0100 wood_dark top=wood_seam
+box 0.7720 0.4100 0.0000 0.7880 0.4700 0.0100 wood_seam top=wood_seam
+box 0.7720 0.4700 0.0000 0.7880 0.5300 0.0100 wood_dark top=wood_seam
+box 0.7720 0.5300 0.0000 0.7880 0.5900 0.0100 wood_seam top=wood_seam
+box 0.8120 0.4100 0.0000 0.8280 0.4700 0.0100 wood_dark top=wood_seam
+box 0.8120 0.4700 0.0000 0.8280 0.5300 0.0100 wood_seam top=wood_seam
+box 0.8120 0.5300 0.0000 0.8280 0.5900 0.0100 wood_dark top=wood_seam
+box 0.8520 0.4100 0.0000 0.8680 0.4700 0.0100 wood_seam top=wood_seam
+box 0.8520 0.4700 0.0000 0.8680 0.5300 0.0100 wood_dark top=wood_seam
+box 0.8520 0.5300 0.0000 0.8680 0.5900 0.0100 wood_seam top=wood_seam
+box 0.8920 0.4100 0.0000 0.9080 0.4700 0.0100 wood_dark top=wood_seam
+box 0.8920 0.4700 0.0000 0.9080 0.5300 0.0100 wood_seam top=wood_seam
+box 0.8920 0.5300 0.0000 0.9080 0.5900 0.0100 wood_dark top=wood_seam
+box 0.9320 0.4100 0.0000 0.9480 0.4700 0.0100 wood_seam top=wood_seam
+box 0.9320 0.4700 0.0000 0.9480 0.5300 0.0100 wood_dark top=wood_seam
+box 0.9320 0.5300 0.0000 0.9480 0.5900 0.0100 wood_seam top=wood_seam
+box 0.9720 0.4100 0.0000 0.9880 0.4700 0.0100 wood_dark top=wood_seam
+box 0.9720 0.4700 0.0000 0.9880 0.5300 0.0100 wood_seam top=wood_seam
+box 0.9720 0.5300 0.0000 0.9880 0.5900 0.0100 wood_dark top=wood_seam

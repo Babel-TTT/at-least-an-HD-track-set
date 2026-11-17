@@ -324,6 +324,23 @@ export const SHEETS = [
     match: /^G5_/,
   },
   {
+    // A4 组（`SAEN` 重载铁路 1932·80km/h）的**洞口**：**TUN-2 素混凝土端墙拱**
+    //   （落位表第 3 行），洞内那层换成 A1 的 `SLE-1` 木枕 —— 几何由
+    //   `tools/gen-a5-heavy.mjs` 第七节生成（底板 = A5 的产物，枕木另贴）。
+    // ⚠ 必须登记在下面的 heavywood **之前**：那个表的正则是 /^G16_/，会先吃掉 G16_tunnel2_*。
+    key: 'tunnel2wood',
+    title: '重载洞口 TUN-2（素混凝土端墙拱，洞内 SLE-1 木枕；SAEN）',
+    match: /^G16_tunnel2/,
+  },
+  {
+    // A4 组（`SAEN`）的轨道：`BAL-B` 厚道床 + **`SLE-1` 木枕** + `RAI-2` 75kg/m 重轨。
+    //   与 A5（`SBEN` / `SBEA`）**只差枕木与洞口**：道床 / 钢轨逐面相同，标准轨距 ⇒ **零变换**。
+    // 单独一张表（同 rail / metro / heavy 表的理由：混进去会把已有几十条 rect 顶移位）。
+    key: 'heavywood',
+    title: '重载轨道·木枕（BAL-B + SLE-1 + RAI-2；SAEN）',
+    match: /^G16_/,
+  },
+  {
     // A5 组（`SBEN` / `SBEA` 重载）的**洞口**：TUN-6 重载加固端墙
     // （端墙加宽 0.68 → 0.768 格、洞跨 0.31 → 0.35 格、洞口一圈凸出的加固环框；
     //  几何由 tools/gen-a5-heavy.mjs 从 TUN-2 的模型派生 + 追加环框）。

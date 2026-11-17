@@ -2647,6 +2647,118 @@ template t_G6_tunnel6_over_b_v3(sheet) {
   [1841, 167, 263, 167, -131, -35, sheet]
 }
 
+// ---------------------------------------------------------------------------
+// G16_* —— **A4 组（`SAEN` 重载铁路 1932·80km/h·30t(+)·非电化）**
+//   （分表 gfx/heavywood.png 263×149 ＋ gfx/tunnel2wood.png 263×167）
+//
+//   人工 2026-11-17 批准（「A4 `SAEN` 重载铁路」+「洞口按表用 TUN-2，新出 2 件」）；
+//   模型由 `tools/gen-a5-heavy.mjs` **第七节**生成：
+//   **底板 = A5 的产物**（`BAL-B` 厚道床 + `RAI-2` 重轨 + 洞门，逐面照搬），
+//   **只把枕木那层换成 A1 的 `SLE-1` 木枕**，洞口换成 **`TUN-2`** 素混凝土端墙拱。
+//   ⇒ 与 A5 的差别只有枕木与洞口；**标准轨距 ⇒ 一次横向变换都没有**（坐标逐字拼）。
+//
+//   ★ 48 张精灵的 `rect`（含表内位置）/ `xrel` / `yrel` 与参照件**逐条相同**
+//     （渲完从 `gfx/openttd.json` 全量核对过：轨道 40 张 ↔ `G6_*`、洞口 8 张 ↔
+//     `G2_tunnel2_stone*`，48/48 全同）⇒ 下面 32 条**逐条照抄** `t_G6_*`（洞口抄 TUN-2 那 4 条）。
+//   ★ **`tunnel_overlay:` 直接复用 TUN-2 的**（`probe_tunnel_over_2`）—— 那层不含轨道。
+// ---------------------------------------------------------------------------
+template t_G16_track_x_v0(sheet) {
+  [1052, 596, 263, 149, -124, -19, sheet]  // 【手调】照抄 t_G6_track_x_v0
+}
+template t_G16_track_x_v3(sheet) {
+  [1841, 596, 263, 149, -130, -18, sheet]  // 【手调】照抄 t_G6_track_x_v3
+}
+template t_G16_rail_straight_v0(sheet) {
+  [0, 447, 263, 149, -126, -18, sheet]  // 【手调】照抄 t_G6_rail_straight_v0
+}
+template t_G16_rail_straight_v3(sheet) {
+  [789, 447, 263, 149, -130, -18, sheet]  // 【手调】照抄 t_G6_rail_straight_v3
+}
+template t_G16_track_half_v0(sheet) {
+  [1052, 447, 263, 149, -128, -19, sheet]  // 【手调】照抄 t_G6_track_half_v0
+}
+template t_G16_track_half_v1(sheet) {
+  [1315, 447, 263, 149, -128, -18, sheet]  // 【手调】照抄 t_G6_track_half_v1
+}
+template t_G16_track_half_v2(sheet) {
+  [1578, 447, 263, 149, -129, -19, sheet]  // 【手调】照抄 t_G6_track_half_v2
+}
+template t_G16_track_half_v3(sheet) {
+  [1841, 447, 263, 149, -128, -18, sheet]  // 【手调】照抄 t_G6_track_half_v3
+}
+template t_G16_rail_half_v0(sheet) {
+  [0, 298, 263, 149, -128, -19, sheet]  // 【手调】照抄 t_G6_rail_half_v0
+}
+template t_G16_rail_half_v1(sheet) {
+  [263, 298, 263, 149, -128, -18, sheet]  // 【手调】照抄 t_G6_rail_half_v1
+}
+template t_G16_rail_half_v2(sheet) {
+  [526, 298, 263, 149, -129, -19, sheet]  // 【手调】照抄 t_G6_rail_half_v2
+}
+template t_G16_rail_half_v3(sheet) {
+  [789, 298, 263, 149, -128, -18, sheet]  // 【手调】照抄 t_G6_rail_half_v3
+}
+template t_G16_track_slope_v0(sheet) {
+  [0, 596, 263, 149, -125, -18, sheet]  // 【手调】照抄 t_G6_track_slope_v0
+}
+template t_G16_track_slope_v1(sheet) {
+  [263, 596, 263, 149, -131, -18, sheet]  // 【手调】照抄 t_G6_track_slope_v1
+}
+template t_G16_track_slope_v2(sheet) {
+  [526, 596, 263, 149, -123, -18, sheet]  // 【手调】照抄 t_G6_track_slope_v2
+}
+template t_G16_track_slope_v3(sheet) {
+  [789, 596, 263, 149, -131, -18, sheet]  // 【手调】照抄 t_G6_track_slope_v3
+}
+template t_G16_rail_slope_v0(sheet) {
+  [1052, 298, 263, 149, -125, -18, sheet]  // 【手调】照抄 t_G6_rail_slope_v0
+}
+template t_G16_rail_slope_v1(sheet) {
+  [1315, 298, 263, 149, -131, -18, sheet]  // 【手调】照抄 t_G6_rail_slope_v1
+}
+template t_G16_rail_slope_v2(sheet) {
+  [1578, 298, 263, 149, -123, -18, sheet]  // 【手调】照抄 t_G6_rail_slope_v2
+}
+template t_G16_rail_slope_v3(sheet) {
+  [1841, 298, 263, 149, -131, -18, sheet]  // 【手调】照抄 t_G6_rail_slope_v3
+}
+template t_G16_crossing_v0(sheet) {
+  [0, 0, 263, 149, -125, -20, sheet]  // 【手调】照抄 t_G6_crossing_v0
+}
+template t_G16_junction3_v0(sheet) {
+  [1052, 0, 263, 149, -129, -19, sheet]  // 【手调】照抄 t_G6_junction3_v0
+}
+template t_G16_junction3_v1(sheet) {
+  [1315, 0, 263, 149, -125, -20, sheet]  // 【手调】照抄 t_G6_junction3_v1
+}
+template t_G16_junction3_v2(sheet) {
+  [1578, 0, 263, 149, -128, -19, sheet]  // 【手调】照抄 t_G6_junction3_v2
+}
+template t_G16_junction3_v3(sheet) {
+  [1841, 0, 263, 149, -129, -19, sheet]  // 【手调】照抄 t_G6_junction3_v3
+}
+template t_G16_junction4_v0(sheet) {
+  [0, 149, 263, 149, -129, -20, sheet]  // 【手调】照抄 t_G6_junction4_v0
+}
+template t_G16_levelcrossing_v0(sheet) {
+  [1052, 149, 263, 149, -126, -18, sheet]  // 【手调】照抄 t_G6_levelcrossing_v0
+}
+template t_G16_levelcrossing_v3(sheet) {
+  [1841, 149, 263, 149, -234, -70, sheet]  // 【手调】照抄 t_G6_levelcrossing_v3
+}
+template t_G16_tunnel2_v0(sheet) {
+  [0, 0, 263, 167, -126, -36, sheet]  // 【手调】照抄 t_G2_tunnel2_stone_v0（同格位、同外形）
+}
+template t_G16_tunnel2_v3(sheet) {
+  [789, 0, 263, 167, -126, -36, sheet]  // 【手调】照抄 t_G2_tunnel2_stone_v3
+}
+template t_G16_tunnel2_b_v2(sheet) {
+  [1578, 0, 263, 167, -119, -35, sheet]  // 【手调】照抄 t_G2_tunnel2_stone_b_v2
+}
+template t_G16_tunnel2_b_v1(sheet) {
+  [1315, 0, 263, 167, -130, -36, sheet]  // 【手调】照抄 t_G2_tunnel2_stone_b_v1
+}
+
 // ===========================================================================
 // A3 组（`SCDN` / `SCDA` 准高速）—— 分表 gfx/quasi.png（263×148）· gfx/tunnel3.png（263×167）
 //   ＋ 接触网支柱 PYL-C2 —— 分表 gfx/pyloncyl.png（263×241）

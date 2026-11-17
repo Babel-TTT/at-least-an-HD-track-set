@@ -49,4 +49,5 @@ STR_RAIL_NBCN                               :现代窄轨铁路
 STR_RAIL_NBCA                               :电气化窄轨铁路 {RED}25kVAC
 STR_RAIL_NCCA                               :高速窄轨铁路 {RED}25kVAC
 STR_RAIL_SBEN                               :现代重载铁路
+STR_RAIL_SAEN                               :重载铁路
 STR_RAIL_SBEA                               :电气化重载铁路 {RED}25kVAC

@@ -900,21 +900,13 @@ item(FEAT_RAILTYPES, rail_NACN, 15) {
            ⚠ 窄轨该不该与准轨互通（本行 | 里塞了全量）**是个待人工裁定的口味问题**：
              若裁定「窄轨自成一网」，把 N* 那 5 个之外的全部删掉即可 —— 只改这两行。 */
         compatible_railtype_list: ["RAIL", "ELRL",
-                                    "NACN", "NBCN", "NBCA", "NCCA", "dBCN",
-                                    "SADN", "SBDN", "SCDN", "SDDN", "SEDN", "SFDN", "SGDN",
-                                    "SADA", "SBDA", "SCDA", "SDDA", "SEDA", "SFDA", "SGDA",
-                                    "SADd", "SBDd", "SCDd", "SDDd", "SEDd",
-                                    "SAEd", "SBEd", "SCEd", "SDEd", "SEEd",
-                                    "SADD", "SBDD", "SCDD", "SDDD", "SEDD",
-                                    "DADN", "DBDN", "DADA", "DBDA"];
+                                    "NACN", "NBCN", "NCCN", "NDCN",
+                                    "NACA", "NBCa", "NCCA", "NDCA",
+                                    "dACN", "dBCN", "dACA", "dBCA"];
         powered_railtype_list:    ["RAIL", "ELRL",
-                                    "NACN", "NBCN", "NBCA", "NCCA", "dBCN",
-                                    "SADN", "SBDN", "SCDN", "SDDN", "SEDN", "SFDN", "SGDN",
-                                    "SADA", "SBDA", "SCDA", "SDDA", "SEDA", "SFDA", "SGDA",
-                                    "SADd", "SBDd", "SCDd", "SDDd", "SEDd",
-                                    "SAEd", "SBEd", "SCEd", "SDEd", "SEEd",
-                                    "SADD", "SBDD", "SCDD", "SDDD", "SEDD",
-                                    "DADN", "DBDN", "DADA", "DBDA"];
+                                    "NACN", "NBCN", "NCCN", "NDCN",
+                                    "NACA", "NBCa", "NCCA", "NDCA",
+                                    "dACN", "dBCN", "dACA", "dBCA"];
         /* 非电气化（CSV：N/A）⇒ 不设 RAILTYPE_FLAG_CATENARY；
            **允许平交道口**（人工 2026-10-04 §6 确认门裁定 C8：窄轨乡间线有道口）⇒ 不设 NO_LEVEL_CROSSING。 */
         railtype_flags:         0;
@@ -1819,21 +1811,13 @@ item(FEAT_RAILTYPES, rail_NBCN, 28) {
         /* 兼容 / powered 与 `NACN`（同一条窄轨族）**逐条相同** —— 含"窄轨与准轨互通"那套
            全量 label；口径与待裁定项见 `rail_NACN` 那两行上面的注释。 */
         compatible_railtype_list: ["RAIL", "ELRL",
-                                    "NACN", "NBCN", "NBCA", "NCCA", "dBCN",
-                                    "SADN", "SBDN", "SCDN", "SDDN", "SEDN", "SFDN", "SGDN",
-                                    "SADA", "SBDA", "SCDA", "SDDA", "SEDA", "SFDA", "SGDA",
-                                    "SADd", "SBDd", "SCDd", "SDDd", "SEDd",
-                                    "SAEd", "SBEd", "SCEd", "SDEd", "SEEd",
-                                    "SADD", "SBDD", "SCDD", "SDDD", "SEDD",
-                                    "DADN", "DBDN", "DADA", "DBDA"];
+                                    "NACN", "NBCN", "NCCN", "NDCN",
+                                    "NACA", "NBCa", "NCCA", "NDCA",
+                                    "dACN", "dBCN", "dACA", "dBCA"];
         powered_railtype_list:    ["RAIL", "ELRL",
-                                    "NACN", "NBCN", "NBCA", "NCCA", "dBCN",
-                                    "SADN", "SBDN", "SCDN", "SDDN", "SEDN", "SFDN", "SGDN",
-                                    "SADA", "SBDA", "SCDA", "SDDA", "SEDA", "SFDA", "SGDA",
-                                    "SADd", "SBDd", "SCDd", "SDDd", "SEDd",
-                                    "SAEd", "SBEd", "SCEd", "SDEd", "SEEd",
-                                    "SADD", "SBDD", "SCDD", "SDDD", "SEDD",
-                                    "DADN", "DBDN", "DADA", "DBDA"];
+                                    "NACN", "NBCN", "NCCN", "NDCN",
+                                    "NACA", "NBCa", "NCCA", "NDCA",
+                                    "dACN", "dBCN", "dACA", "dBCA"];
         /* 非电 ⇒ 不设 CATENARY；**允许平交道口**（同 `NACN`：窄轨乡间线有道口）。 */
         railtype_flags:         0;
         curve_speed_multiplier: 1;
@@ -1873,21 +1857,11 @@ item(FEAT_RAILTYPES, rail_NBCA, 29) {
         new_engine_text:        string(STR_RAIL_NBCA);
         /* 与 `NBCN` **逐条相同**（同一套几何、同一个窄轨族）。 */
         compatible_railtype_list: ["RAIL", "ELRL",
-                                    "NACN", "NBCN", "NBCA", "NCCA", "dBCN",
-                                    "SADN", "SBDN", "SCDN", "SDDN", "SEDN", "SFDN", "SGDN",
-                                    "SADA", "SBDA", "SCDA", "SDDA", "SEDA", "SFDA", "SGDA",
-                                    "SADd", "SBDd", "SCDd", "SDDd", "SEDd",
-                                    "SAEd", "SBEd", "SCEd", "SDEd", "SEEd",
-                                    "SADD", "SBDD", "SCDD", "SDDD", "SEDD",
-                                    "DADN", "DBDN", "DADA", "DBDA"];
-        powered_railtype_list:    ["RAIL", "ELRL",
-                                    "NACN", "NBCN", "NBCA", "NCCA", "dBCN",
-                                    "SADN", "SBDN", "SCDN", "SDDN", "SEDN", "SFDN", "SGDN",
-                                    "SADA", "SBDA", "SCDA", "SDDA", "SEDA", "SFDA", "SGDA",
-                                    "SADd", "SBDd", "SCDd", "SDDd", "SEDd",
-                                    "SAEd", "SBEd", "SCEd", "SDEd", "SEEd",
-                                    "SADD", "SBDD", "SCDD", "SDDD", "SEDD",
-                                    "DADN", "DBDN", "DADA", "DBDA"];
+                                    "NACN", "NBCN", "NCCN", "NDCN",
+                                    "NACA", "NBCa", "NCCA", "NDCA",
+                                    "dACN", "dBCN", "dACA", "dBCA"];
+        powered_railtype_list:    [ "ELRL",                                    
+                                    "NACA", "NBCa", "NCCA", "NDCA"];
         /* `CATENARY`：25kV AC 架空接触网；**允许平交道口**（与 `NBCN` 一致）。 */
         railtype_flags:         bitmask(RAILTYPE_FLAG_CATENARY);
         curve_speed_multiplier: 1;
@@ -1937,21 +1911,11 @@ item(FEAT_RAILTYPES, rail_NCCA, 30) {
         /* 兼容 / powered 与 `NBCN` / `NBCA` **逐条相同**（同一套几何、同一个窄轨族，
            窄轨族四条 `NACN` / `NBCN` / `NBCA` / `NCCA` 的这两张表从此完全一致）。 */
         compatible_railtype_list: ["RAIL", "ELRL",
-                                    "NACN", "NBCN", "NBCA", "NCCA", "dBCN",
-                                    "SADN", "SBDN", "SCDN", "SDDN", "SEDN", "SFDN", "SGDN",
-                                    "SADA", "SBDA", "SCDA", "SDDA", "SEDA", "SFDA", "SGDA",
-                                    "SADd", "SBDd", "SCDd", "SDDd", "SEDd",
-                                    "SAEd", "SBEd", "SCEd", "SDEd", "SEEd",
-                                    "SADD", "SBDD", "SCDD", "SDDD", "SEDD",
-                                    "DADN", "DBDN", "DADA", "DBDA"];
-        powered_railtype_list:    ["RAIL", "ELRL",
-                                    "NACN", "NBCN", "NBCA", "NCCA", "dBCN",
-                                    "SADN", "SBDN", "SCDN", "SDDN", "SEDN", "SFDN", "SGDN",
-                                    "SADA", "SBDA", "SCDA", "SDDA", "SEDA", "SFDA", "SGDA",
-                                    "SADd", "SBDd", "SCDd", "SDDd", "SEDd",
-                                    "SAEd", "SBEd", "SCEd", "SDEd", "SEEd",
-                                    "SADD", "SBDD", "SCDD", "SDDD", "SEDD",
-                                    "DADN", "DBDN", "DADA", "DBDA"];
+                                    "NACN", "NBCN", "NCCN", "NDCN",
+                                    "NACA", "NBCa", "NCCA", "NDCA",
+                                    "dACN", "dBCN", "dACA", "dBCA"];
+        powered_railtype_list:    [ "ELRL",                                    
+                                    "NACA", "NBCa", "NCCA", "NDCA"];
         /* `CATENARY`：25kV AC 架空接触网；**允许平交道口**（与窄轨族另外三条一致，
            人工 2026-11-17 在确认门里选的就是这一项）。 */
         railtype_flags:         bitmask(RAILTYPE_FLAG_CATENARY);
@@ -1981,5 +1945,61 @@ item(FEAT_RAILTYPES, rail_NCCA, 30) {
         bridge_surfaces: probe_bridge_surfaces_narrowhs;
         catenary_pylons: probe_catenary_pylons_steel;
         catenary_wire:   probe_catenary_wire;
+    }
+}
+
+/* ---------------------------------------------------------------------------
+   A4 组（重载铁路）—— `SAEN` 非电化
+   与 A5（`SBEN` / `SBEA`）**只差枕木与洞口**：`BAL-B` 厚道床 + `RAI-2` 重轨逐面相同，
+   枕木 `SLE-3` 混凝土宽枕 → **`SLE-1` 木枕**，洞口 `TUN-6` → **`TUN-2`** 素混凝土端墙拱。
+   标准轨距 ⇒ 本组**没有任何横向收窄**（与 A15/A16/A17 那三条窄轨相反）。
+   --------------------------------------------------------------------------- */
+
+// SAEN —— 重载铁路（1932 · A 档 80km/h · 30t(+) · 非电化）
+item(FEAT_RAILTYPES, rail_SAEN, 31) {
+    property {
+        label:                  "SAEN";
+        introduction_date:      date(1932, 1, 1);
+        name:                   string(STR_RAIL_SAEN);
+        toolbar_caption:        string(STR_RAIL_SAEN);
+        menu_text:              string(STR_RAIL_SAEN);
+        build_window_caption:   string(STR_RAIL_SAEN);
+        autoreplace_text:       string(STR_RAIL_SAEN);
+        new_engine_text:        string(STR_RAIL_SAEN);
+        /* 兼容 / powered 与 `SBEN` **逐条相同**（同一支重载家族 `S?EN` / `S?EA` / `S?Ed`）。 */
+        compatible_railtype_list: ["RAIL", "ELRL", 
+                                    "SAEN", "SBEN", "SCEN", "SDEN", "SEEN",  "SFEN", "SGEN",
+                                    "SAEA", "SBEA", "SCEA", "SDEA", "SEEA",  "SFEA", "SGEA", 
+                                    "SAEd", "SBEd", "SCEd", "SDEd", "SEEd"];
+        powered_railtype_list:    ["RAIL", "ELRL",
+                                    "SAEN", "SBEN", "SCEN", "SDEN", "SEEN",  "SFEN", "SGEN",
+                                    "SAEA", "SBEA", "SCEA", "SDEA", "SEEA",  "SFEA", "SGEA",
+                                    "SAEd", "SBEd", "SCEd", "SDEd", "SEEd"];
+        /* 非电化（CSV：N/A）⇒ 不设 `CATENARY`；**允许平交道口**（与 `SBEN` 一致，
+           1930 年代重载线本来就是平交道口遍地）。 */
+        railtype_flags:         0;
+        curve_speed_multiplier: 1;
+        station_graphics:       RAILTYPE_STATION_NORMAL;
+        /* 费用系数 = CSV 的 4 ⇒ 建设 4 / 维护 2。 */
+        construction_cost:      4;
+        maintenance_cost:       2;
+        /* 速度按标准化编码的字母档（A = 80），与 CSV 的 80km/h 一致。 */
+        speed_limit:            80 km/h;
+        acceleration_model:     ACC_MODEL_RAIL;
+        map_colour:             0x6F;
+        sort_order:             SORT_EARLY;
+    }
+    /* ★ 2026-11-17：A4 组。模型由 `tools/gen-a5-heavy.mjs` **第七节**生成：
+       底板 = A5 的产物（`G6_*` 逐面照搬），**只把枕木那层换成 A1 的 `SLE-1` 木枕**，
+       洞口换成 A2 的 **`TUN-2`** 素混凝土端墙拱（洞内木枕就地重贴）；
+       分表 `gfx/heavywood.png`（263×149）+ `gfx/tunnel2wood.png`（263×167）。
+       `tunnel_overlay:` 直接复用 TUN-2 的 `probe_tunnel_over_2`（那层不含轨道）。 */
+    graphics {
+        underlay:        probe_underlay_heavywood;
+        track_overlay:   probe_overlay_heavywood;
+        tunnels:         probe_tunnels_heavywood;
+        tunnel_overlay:  probe_tunnel_over_2;
+        level_crossings: probe_level_crossing_heavywood;
+        bridge_surfaces: probe_bridge_surfaces_heavywood;
     }
 }

@@ -719,6 +719,130 @@ function processJob(job) {
   return { file, stats: { ...stats, recolor: nRecolor } };
 }
 
+// =============================================================================
+// 第七节：**A4 组（`SAEN` 重载铁路 1932 · 80km/h · 30t(+) · 非电化）**
+//
+//   `A4` = `BAL-B` + **`SLE-1` 木枕** + `RAI-2` + **`TUN-2`**（落位表第 3 行）
+//   ⇒ 它与 A5（`SBEN` / `SBEA`，本工具的正支）**只差两处**：
+//        ① 枕木 `SLE-3` 混凝土宽枕 → `SLE-1` 木枕（A1 那一套）
+//        ② 洞口 `TUN-6`（重载加固端墙）→ `TUN-2`（素混凝土端墙拱，洞内也是木枕）
+//
+//   ★ **零变换**：A4 是 1435 标准轨距，`G6_*` 与 A1 的模型都是全宽 ⇒ **坐标逐字拼**，
+//     连 `OVER` 都不用算（`G6_*` 的沿轨探出早就烘在坐标里了）。
+//
+//   判据（实测，两个方向都零冲突）：
+//        A5 的 `G6_*` 里只有 `concrete_mid` / `panel_seam` / `metal_pale` 三种枕木料
+//        A1 的模型里只有 `wood_dark` / `wood_seam` 两种
+//        两边**都不含对方那套** ⇒ 按材质删一层、按材质贴一层，互不误伤。
+//        ⚠ `stone_dark`（坡脚散粒 / 道口三块铺板）在两边都有、**一格不能动** ⇒ 不在闸门里。
+//
+//   ⚠ 洞口只能按**另一套**材质闸门删：`G2_tunnel2_stone` 的枕木是 G2 的
+//     `concrete` / `concrete_seam` / `trim_dark`（那正是 TUN-2 里 G2 那一层），
+//     而它的洞门是 `concrete_dark` ⇒ 闸门里**绝不能带 `concrete_dark`**；
+//     它还有 4 面 `panel_seam`（z 0~0.2，洞门上的）⇒ 闸门里也**不能带 `panel_seam`**。
+//
+//   ⚠ **如实登记的既有债**：TUN-2 洞内的钢轨仍是 A1 的 `RAI-1`（8 + 2 面），
+//     而 A4 地面用的是 `RAI-2`（宽 0.0104 / 轨底下沉 0.0015）。两者差 ~0.0024 格 ≈ **0.34 px**，
+//     且在暗幕底下；要换必须连洞内那 10 面一起重出（`G6_track_x` 的钢轨只有 2 面、
+//     结构不同，直接替换会伸出洞门穿墙）⇒ 本轮不动，登记在 `docs/建模标准.md`。
+// =============================================================================
+const A4_STRIP_BED = /^(concrete_mid|panel_seam|metal_pale)$/;   // A5 的 SLE-3（枕体 / 槽底 / 挡肩顶）
+const A4_STRIP_TUN = /^(concrete|concrete_seam|trim_dark)$/;     // TUN-2 里 G2 的 SLE-2
+const A4_WOOD = /^wood(_dark|_seam)?$/;                          // A1 的 SLE-1
+
+const A4_JOBS = [
+  { from: 'G6_track_x', dst: 'G16_track_x', wood: 'probe_track_x', strip: A4_STRIP_BED,
+    note: 'underlay 槽 0/1（RTO_X / RTO_Y）：BAL-B 厚道床 + SLE-1 木枕 + RAI-2 重轨' },
+  { from: 'G6_rail_straight', dst: 'G16_rail_straight', wood: 'G1_rail_straight', strip: A4_STRIP_BED,
+    note: 'overlay 槽 0/1：钢轨层（透明底，只有钢轨 + 木枕）' },
+  { from: 'G6_track_half', dst: 'G16_track_half', wood: 'probe_half_upper', strip: A4_STRIP_BED,
+    note: 'underlay 槽 2-5（RTO_N / S / E / W）：切 N 角的半格轨' },
+  { from: 'G6_rail_half', dst: 'G16_rail_half', wood: 'G1_rail_halftrack', strip: A4_STRIP_BED,
+    note: 'overlay 槽 2-5：半格轨的钢轨层' },
+  { from: 'G6_track_slope', dst: 'G16_track_slope', wood: 'G1_track_slope', strip: A4_STRIP_BED,
+    note: 'underlay 槽 6-9：坡道（z 已含 RISE）' },
+  { from: 'G6_rail_slope', dst: 'G16_rail_slope', wood: 'G1_rail_slope', strip: A4_STRIP_BED,
+    note: 'overlay 槽 6-9：坡道的钢轨层' },
+  { from: 'G6_crossing', dst: 'G16_crossing', wood: 'G1_crossing', strip: A4_STRIP_BED,
+    note: 'underlay 槽 10（RTO_CROSSING_XY）：交叉，自带两组钢轨' },
+  { from: 'G6_junction3', dst: 'G16_junction3', wood: null, strip: A4_STRIP_BED,
+    note: 'underlay 槽 11-14：三向道岔（只有道床板，没有枕木）' },
+  { from: 'G6_junction4', dst: 'G16_junction4', wood: null, strip: A4_STRIP_BED,
+    note: 'underlay 槽 15：四向道岔（只有道床板）' },
+  { from: 'G6_levelcrossing', dst: 'G16_levelcrossing', wood: 'G1_levelcrossing', strip: A4_STRIP_BED,
+    note: 'level_crossings 的轨道图（取图 v0 → X 槽、v3 → Y 槽）' },
+  // ---- 洞口 TUN-2（素混凝土端墙拱）：枕木借 A1 那份**直的**木枕（洞内轨道是平的）----
+  { from: 'G2_tunnel2_stone', dst: 'G16_tunnel2', wood: 'probe_track_x', strip: A4_STRIP_TUN,
+    note: 'tunnels: 组（A 组：远半）—— 洞内道床/木枕/钢轨/暗幕 + 翼墙 + 洞门远半' },
+  { from: 'G2_tunnel2_stone_b', dst: 'G16_tunnel2_b', wood: 'probe_track_x', strip: A4_STRIP_TUN,
+    note: 'tunnels: 组（B 组：近半）' },
+];
+
+/** 取一行的材质名（位置随图元不同） */
+function a4MatOf(t) {
+  switch (t[0]) {
+    case 'box': return t[7];
+    case 'quad': return t[13];
+    case 'prism': return t[3];
+    case 'poly': return t[2];
+    default: return null;
+  }
+}
+const A4_FACE_KW = /^(box|quad|prism|poly)$/;
+const a4Faces = (p) => fs.readFileSync(p, 'utf8').split('\n').filter((l) => A4_FACE_KW.test(l.trim().split(/\s+/)[0]));
+
+function buildA4() {
+  const files = [];
+  for (const job of A4_JOBS) {
+    const srcPath = path.join(ROOT, 'models', `${job.from}.model`);
+    if (!fs.existsSync(srcPath)) { log(`  × 跳过 ${job.dst}：源 ${job.from}.model 不存在`); continue; }
+    const head = fs.readFileSync(srcPath, 'utf8').split('\n')
+      .filter((l) => /^(name|group|footprint|zmax)\s/.test(l));
+
+    const kept = [];
+    let dropped = 0;
+    for (const l of a4Faces(srcPath)) {
+      if (job.strip.test(a4MatOf(l.trim().split(/\s+/)))) { dropped++; continue; }
+      kept.push(l);                                   // 坐标逐字照搬（零变换）
+    }
+
+    const added = [];
+    if (job.wood) {
+      const wp = path.join(ROOT, 'models', `${job.wood}.model`);
+      if (!fs.existsSync(wp)) { log(`  × 跳过 ${job.dst}：木枕源 ${job.wood}.model 不存在`); continue; }
+      for (const l of a4Faces(wp)) {
+        if (A4_WOOD.test(a4MatOf(l.trim().split(/\s+/)))) added.push(l);   // 同样逐字照搬
+      }
+      if (!added.length) log(`  ⚠ ${job.dst}：${job.wood} 里没有找到 SLE-1 面`);
+    }
+
+    const body = [...kept, ...added];
+    const group = head.find((l) => /^group\s/.test(l)) || 'group     misc';
+    const footprint = head.find((l) => /^footprint\s/.test(l)) || 'footprint 1 1';
+    const zmax = head.find((l) => /^zmax\s/.test(l)) || 'zmax      0.0280';
+    const hdr = [
+      '# =============================================================================',
+      `# ${job.dst} —— A4 组（\`SAEN\` 重载铁路 1932·80km/h）· ${job.note}`,
+      '#',
+      '# 【本文件由 tools/gen-a5-heavy.mjs 生成，请勿手改】',
+      `#   底板 = models/${job.from}.model（= A5 的产物，BAL-B / RAI-2 / 洞门逐面照搬）`,
+      job.wood
+        ? `#   枕木 = models/${job.wood}.model 里的 SLE-1（wood_dark / wood_seam），**坐标逐字照搬（零变换）**`
+        : '#   枕木 = 无（这件本来就没有枕木层）',
+      `#   删掉 A5 的 ${dropped} 面（${job.strip.source}），贴上 SLE-1 = ${added.length} 面`,
+      '#   标准轨距 ⇒ 不需要任何横向变换；拼装口径见 tools/gen-a5-heavy.mjs 第七节的文件头。',
+      '# =============================================================================',
+      '',
+    ].join('\n');
+    const out = path.join(ROOT, 'models', `${job.dst}.model`);
+    fs.writeFileSync(out, hdr + `name      ${job.dst}\n${group.trimEnd()}\n${footprint.trimEnd()}\n${zmax.trimEnd()}\n`
+      + '\n' + body.join('\n') + '\n', 'utf8');
+    files.push(out);
+    log(`  → ${rel(out).padEnd(38)} 面 ${String(body.length).padStart(4)}（删 ${dropped} / 加 ${added.length}）`);
+  }
+  return files;
+}
+
 export function generate() {
   const files = [];
   for (const job of JOBS) {
@@ -730,6 +854,9 @@ export function generate() {
       + `   道床 ${String(stats.bal).padStart(3)} · 枕木 ${String(stats.sleep).padStart(3)} · 钢轨 ${String(stats.rail).padStart(2)} · 洞门 ${String(stats.portal).padStart(3)}`
       + (stats.recolor ? ` · 洞口配色 ${String(stats.recolor).padStart(3)} 处` : ''));
   }
+  // ---- 第七节：A4 组（`SAEN`）—— 必须在 A5 的 `G6_*` 全部写完之后跑（它读的是 A5 的产物）----
+  log('  A4 组（SAEN 重载·木枕）—— 底板 = A5 的产物，枕木换 SLE-1、洞口换 TUN-2：');
+  files.push(...buildA4());
   return files;
 }
 
