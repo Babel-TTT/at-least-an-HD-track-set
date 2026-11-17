@@ -16,6 +16,10 @@
 #define SORT_DIESEL  0x20
 #define SORT_ELECTRIC 0x30
 #define SORT_HIGHSPEED 0x40
+/* ★ 2026-11-18：单轨 / 磁浮排在高铁之后 —— 与 wiki 的内建排序（rail 07 / elrail 17 /
+   monorail 27 / maglev 37，即「单轨在电气化之后」）同一个思路。 */
+#define SORT_MONO    0x50
+#define SORT_MAGLEV  0x60
 
 /* ===========================================================================
    ★★ 必须重定义内建的 RAIL / ELRL，把我们的 label 塞进它们的 powered 列表 ★★
@@ -2528,5 +2532,95 @@ item(FEAT_RAILTYPES, rail_BBDA, 37) {
         bridge_surfaces: probe_bridge_surfaces_widemodern;
         catenary_pylons: probe_catenary_pylons;
         catenary_wire:   probe_catenary_wire;
+    }
+}
+
+/* ===========================================================================
+   单轨 / 磁浮（人工 2026-11-18「弄单轨和磁悬浮」）
+   A20 `MONO`（跨座式单轨 · 重庆单轨）· A21 `MGLV`（磁浮 · 上海磁浮）
+   ---------------------------------------------------------------------------
+   ★ 这两条与其他 37 条**不是同一种东西**：没有道砟 / 枕木 / 钢轨，也没有洞口与平交道口。
+     口径（`美术要素方案.md` §2 第 33/34 行）：
+       `BAL-L` / `BAL-M` 梁体 · `SLE-6` 导向轮组/悬浮架 · `RAI-8` 无传统钢轨 · `TUN-9` 无（高架）
+     模型由 `tools/gen-a20-mono.mjs` 生成（G1 道砟板带压窄 + 抬成实体）；
+     分表 `gfx/mono.png`（263×142）/ `gfx/maglev.png`（263×147），一表 6 件。
+
+   ★ `station_graphics` 用 **MONORAIL / MAGLEV**：这样车站用原版单轨/磁浮站台，
+     而且**没给的那几个 callback（`tunnel_overlay:` / `level_crossings:`）会自动回落到
+     同一套原版图**（见 NML:Railtypes「If a callback is not implemented or fails, graphics
+     from the fallback railtype (picked via the `station_graphics` property) will be used」）。
+     ⇒ `tunnels:` 只给「洞内那四张梁体」，洞口形体是原版单轨/磁浮的隧道头 —— 这就是 `TUN-9`。
+
+   ★ 速度（`美术要素方案.md` §6 的 **C6 裁定**）：`MONO` 用「无限制」（`speed_limit: 0`，
+     wiki：`A speed limit of 0 means unlimited speed`），CSV 的 100km/h 记进名称；
+     `MGLV` 取 **120 km/h**，CSV 写 N/A ⇒ 名称里不写速度。
+   ★ 兼容表**只有自己**：单轨跑不了钢轨、磁浮跑不了单轨。⚠ 这会让 `check` 的
+     「label 不在任何兼容性锚点的 powered 里」多两条提示 —— **那是故意的**，不是漏。
+   =========================================================================== */
+
+// MONO —— 跨座式单轨（2004 · 无限制 · 费用系数 4）
+item(FEAT_RAILTYPES, rail_MONO, 38) {
+    property {
+        label:                  "MONO";
+        introduction_date:      date(2004, 1, 1);
+        name:                   string(STR_RAIL_MONO);
+        toolbar_caption:        string(STR_RAIL_MONO);
+        menu_text:              string(STR_RAIL_MONO);
+        build_window_caption:   string(STR_RAIL_MONO);
+        autoreplace_text:       string(STR_RAIL_MONO);
+        new_engine_text:        string(STR_RAIL_MONO);
+        compatible_railtype_list: ["MONO"];
+        powered_railtype_list:    ["MONO"];
+        railtype_flags:         bitmask(RAILTYPE_FLAG_NO_LEVEL_CROSSING);
+        curve_speed_multiplier: 1;
+        station_graphics:       RAILTYPE_STATION_MONORAIL;
+        construction_cost:      4;
+        maintenance_cost:       2;
+        /* 无限制（wiki：0 = unlimited）；CSV 的 100km/h 写在名称里。 */
+        speed_limit:            0 km/h;
+        acceleration_model:     ACC_MODEL_MONORAIL;
+        map_colour:             0x76;
+        sort_order:             SORT_MONO;
+    }
+    /* ★ 2026-11-18：A20 组。只给 underlay / track_overlay / tunnels / bridge_surfaces 四个回调
+       （overlay 与 underlay 是**同一批模型**：梁顶即走行面）。 */
+    graphics {
+        underlay:        probe_underlay_mono;
+        track_overlay:   probe_overlay_mono;
+        tunnels:         probe_tunnels_mono;
+        bridge_surfaces: probe_bridge_surfaces_mono;
+    }
+}
+
+// MGLV —— 磁浮（2002 · 120 km/h · 费用系数 32）
+item(FEAT_RAILTYPES, rail_MGLV, 39) {
+    property {
+        label:                  "MGLV";
+        introduction_date:      date(2002, 1, 1);
+        name:                   string(STR_RAIL_MGLV);
+        toolbar_caption:        string(STR_RAIL_MGLV);
+        menu_text:              string(STR_RAIL_MGLV);
+        build_window_caption:   string(STR_RAIL_MGLV);
+        autoreplace_text:       string(STR_RAIL_MGLV);
+        new_engine_text:        string(STR_RAIL_MGLV);
+        compatible_railtype_list: ["MGLV"];
+        powered_railtype_list:    ["MGLV"];
+        railtype_flags:         bitmask(RAILTYPE_FLAG_NO_LEVEL_CROSSING);
+        curve_speed_multiplier: 1;
+        station_graphics:       RAILTYPE_STATION_MAGLEV;
+        construction_cost:      32;
+        maintenance_cost:       16;
+        /* C6 裁定：120 km/h（CSV 写 N/A）。 */
+        speed_limit:            120 km/h;
+        acceleration_model:     ACC_MODEL_MAGLEV;
+        map_colour:             0x77;
+        sort_order:             SORT_MAGLEV;
+    }
+    /* ★ 2026-11-18：A21 组。与 A20 同一套骨架，梁更宽、侧面是定子铁芯的深金属色。 */
+    graphics {
+        underlay:        probe_underlay_maglev;
+        track_overlay:   probe_overlay_maglev;
+        tunnels:         probe_tunnels_maglev;
+        bridge_surfaces: probe_bridge_surfaces_maglev;
     }
 }

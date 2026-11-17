@@ -478,6 +478,20 @@ export const SHEETS = [
     match: /^G1_(fence|railing)/,
   },
   {
+    // A20 组（`MONO` 跨座式单轨）—— **一个组一张表**：梁体就是全部（没有道床/枕木/钢轨三层，
+    // 也没有洞口：`TUN-9` = 不做隧道口，`tunnels:` 直接复用 `track_x` 的四张）。
+    // 模型由 `tools/gen-a20-mono.mjs` 生成（板带压窄 + 抬成实体）。
+    key: 'mono',
+    title: '跨座式单轨 PC 轨道梁（BAL-L，0.85 m 宽；MONO）',
+    match: /^G23_/,
+  },
+  {
+    // A21 组（`MGLV` 磁浮）—— 与 A20 同一套骨架，梁更宽（2.40 m）、侧面是定子铁芯的深金属色。
+    key: 'maglev',
+    title: '磁浮高架导向梁（BAL-M，2.40 m 宽；MGLV）',
+    match: /^G24_/,
+  },
+  {
     // A19 组（`DBDA` 电气化准宽套轨）的**洞口**：同一个 `TUN-8`，只是洞内枕木换成 Ⅱ 型混凝土枕。
     // ⚠ 必须登记在下面的 dualwidemodern **之前**（first-match-wins）。
     key: 'tunnel8widemodern',

@@ -3677,3 +3677,136 @@ template t_G22_tunnel8broad_over_b_v1(sheet) {
 template t_G22_tunnel8broad_over_b_v2(sheet) {
   [1578, 167, 263, 167, -131, -156, sheet]  // 【手调】照抄 t_G20_tunnel8broad_over_b_v2
 }
+
+
+// ---------------------------------------------------------------------------
+// G23_* —— **A20 组（`MONO` 跨座式单轨）**（分表 gfx/mono.png 263×142）
+//
+//   模型由 `tools/gen-a20-mono.mjs` 生成：**梁体 = G1 的道砟板带压窄到 0.85 m + 抬成实体**
+//   （顶面 `concrete_mid`、侧面 `concrete`、底裙 `trim_dark`；`SLE-6` / `RAI-8` 不出图）。
+//   ⚠ 本族**没有洞口模型**：`TUN-9` = 不做隧道口 ⇒ `tunnels:` 复用 `track_x` 的四张
+//     （`tunnel_overlay:` 不给 ⇒ 原版 MONO 的洞口画在上面，见 NML:Railtypes 的 tunnel 段）。
+//
+//   ★ 摆位值：**新族 ⇒ 用算法值**（`yrel = −(格位高 − 132)`、`xrel = −(格位宽 − 1)/2`）：
+//     格位 263×142 ⇒ **(−131, −10)**；四个朝向**都用这一组** ——
+//     `gfx/openttd.json` 里 v1/v3 给出的是 (−3,−74)/(−259,−74)，那里面含 footprint 旋转项，
+//     与本工程模板口径不同（A1 那轮就是把旋转项抵掉之后才对的，见 `t_G18_*` 的 v3 用 −130 而非 −259）。
+//   ⚠ 实机若整体偏 1~2 px，照老规矩在该行补【手调】增量。
+// ---------------------------------------------------------------------------
+template t_G23_track_x_v0(sheet) {
+  [1052, 284, 263, 142, -131, -10, sheet]  // 【手调】新族算法值（格位 263×142）
+}
+template t_G23_track_x_v1(sheet) {
+  [1315, 284, 263, 142, -131, -10, sheet]  // 旋转视图沿用 v0（见本节说明）
+}
+template t_G23_track_x_v2(sheet) {
+  [1578, 284, 263, 142, -131, -10, sheet]
+}
+template t_G23_track_x_v3(sheet) {
+  [1841, 284, 263, 142, -131, -10, sheet]
+}
+template t_G23_track_half_v0(sheet) {
+  [1052, 142, 263, 142, -131, -10, sheet]
+}
+template t_G23_track_half_v1(sheet) {
+  [1315, 142, 263, 142, -131, -10, sheet]
+}
+template t_G23_track_half_v2(sheet) {
+  [1578, 142, 263, 142, -131, -10, sheet]
+}
+template t_G23_track_half_v3(sheet) {
+  [1841, 142, 263, 142, -131, -10, sheet]
+}
+template t_G23_track_slope_v0(sheet) {
+  [0, 284, 263, 142, -131, -10, sheet]
+}
+template t_G23_track_slope_v1(sheet) {
+  [263, 284, 263, 142, -131, -10, sheet]
+}
+template t_G23_track_slope_v2(sheet) {
+  [526, 284, 263, 142, -131, -10, sheet]
+}
+template t_G23_track_slope_v3(sheet) {
+  [789, 284, 263, 142, -131, -10, sheet]
+}
+template t_G23_crossing_v0(sheet) {
+  [0, 0, 263, 142, -131, -10, sheet]
+}
+template t_G23_junction3_v0(sheet) {
+  [1052, 0, 263, 142, -131, -10, sheet]
+}
+template t_G23_junction3_v1(sheet) {
+  [1315, 0, 263, 142, -131, -10, sheet]
+}
+template t_G23_junction3_v2(sheet) {
+  [1578, 0, 263, 142, -131, -10, sheet]
+}
+template t_G23_junction3_v3(sheet) {
+  [1841, 0, 263, 142, -131, -10, sheet]
+}
+template t_G23_junction4_v0(sheet) {
+  [0, 142, 263, 142, -131, -10, sheet]
+}
+
+
+// ---------------------------------------------------------------------------
+// G24_* —— **A21 组（`MGLV` 磁浮）**（分表 gfx/maglev.png 263×147）
+//
+//   与 G23 同一套骨架：梁宽 2.40 m（k = 0.48）、梁高 0.50 m、侧面是**定子铁芯的深金属色**
+//   （`metal_dark`）、底裙 `metal_seam`。洞口同样复用 `track_x`。
+//   ★ 摆位值：新族算法值，格位 263×147 ⇒ **(−131, −15)**，四个朝向同一组。
+// ---------------------------------------------------------------------------
+template t_G24_track_x_v0(sheet) {
+  [1052, 294, 263, 147, -131, -15, sheet]  // 【手调】新族算法值（格位 263×147）
+}
+template t_G24_track_x_v1(sheet) {
+  [1315, 294, 263, 147, -131, -15, sheet]
+}
+template t_G24_track_x_v2(sheet) {
+  [1578, 294, 263, 147, -131, -15, sheet]
+}
+template t_G24_track_x_v3(sheet) {
+  [1841, 294, 263, 147, -131, -15, sheet]
+}
+template t_G24_track_half_v0(sheet) {
+  [1052, 147, 263, 147, -131, -15, sheet]
+}
+template t_G24_track_half_v1(sheet) {
+  [1315, 147, 263, 147, -131, -15, sheet]
+}
+template t_G24_track_half_v2(sheet) {
+  [1578, 147, 263, 147, -131, -15, sheet]
+}
+template t_G24_track_half_v3(sheet) {
+  [1841, 147, 263, 147, -131, -15, sheet]
+}
+template t_G24_track_slope_v0(sheet) {
+  [0, 294, 263, 147, -131, -15, sheet]
+}
+template t_G24_track_slope_v1(sheet) {
+  [263, 294, 263, 147, -131, -15, sheet]
+}
+template t_G24_track_slope_v2(sheet) {
+  [526, 294, 263, 147, -131, -15, sheet]
+}
+template t_G24_track_slope_v3(sheet) {
+  [789, 294, 263, 147, -131, -15, sheet]
+}
+template t_G24_crossing_v0(sheet) {
+  [0, 0, 263, 147, -131, -15, sheet]
+}
+template t_G24_junction3_v0(sheet) {
+  [1052, 0, 263, 147, -131, -15, sheet]
+}
+template t_G24_junction3_v1(sheet) {
+  [1315, 0, 263, 147, -131, -15, sheet]
+}
+template t_G24_junction3_v2(sheet) {
+  [1578, 0, 263, 147, -131, -15, sheet]
+}
+template t_G24_junction3_v3(sheet) {
+  [1841, 0, 263, 147, -131, -15, sheet]
+}
+template t_G24_junction4_v0(sheet) {
+  [0, 147, 263, 147, -131, -15, sheet]
+}

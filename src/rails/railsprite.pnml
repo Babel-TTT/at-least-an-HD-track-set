@@ -2220,3 +2220,116 @@ spriteset(probe_catenary_pylons_cyl_blue, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
     t_G1_sty_cyl_blue_b_v1("gfx/pyloncylblue.png")   // 6  PSO_NS_W
     t_G1_sty_cyl_blue_b_v3("gfx/pyloncylblue.png")   // 7  PSO_NS_E
 }
+
+/* ===========================================================================
+   A20 组（`MONO` 跨座式单轨）—— underlay / track_overlay / 洞口 / 桥面
+
+   分表：**一张** `gfx/mono.png`（263×142，6 件 / 24 张）。
+   模型由 `tools/gen-a20-mono.mjs` 生成：梁体 = G1 的道砟板带压窄到 0.85 m 再抬成实体。
+   ★ 本族的三件特殊事：
+     ① **`underlay` 与 `track_overlay` 是同一批模型** —— 单轨没有「道床 + 钢轨」两层，
+        梁顶就是走行面（`RAI-8` 不出图）；
+     ② **没有 `tunnel_overlay`**：`TUN-9` = 不做隧道口 ⇒ `tunnels:` 只给洞内那四张梁体，
+        洞口由原版 MONO 的隧道头画在上面（NML:Railtypes「tunnels」段的取图顺序）；
+     ③ **没有 `level_crossings`**：单轨不做平交道口（`RAILTYPE_FLAG_NO_LEVEL_CROSSING`）。
+   =========================================================================== */
+spriteset(probe_underlay_mono, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G23_track_x_v0("gfx/mono.png")             //  0  RTO_X
+    t_G23_track_x_v3("gfx/mono.png")             //  1  RTO_Y
+    t_G23_track_half_v0("gfx/mono.png")          //  2  RTO_N
+    t_G23_track_half_v2("gfx/mono.png")          //  3  RTO_S
+    t_G23_track_half_v3("gfx/mono.png")          //  4  RTO_E
+    t_G23_track_half_v1("gfx/mono.png")          //  5  RTO_W
+    t_G23_track_slope_v0("gfx/mono.png")         //  6  RTO_SLOPE_NE
+    t_G23_track_slope_v3("gfx/mono.png")         //  7  RTO_SLOPE_SE
+    t_G23_track_slope_v2("gfx/mono.png")         //  8  RTO_SLOPE_SW
+    t_G23_track_slope_v1("gfx/mono.png")         //  9  RTO_SLOPE_NW
+    t_G23_crossing_v0("gfx/mono.png")            // 10  RTO_CROSSING_XY（两条梁体）
+    t_G23_junction3_v0("gfx/mono.png")           // 11  RTO_JUNCTION_SW（只有枢纽骨架）
+    t_G23_junction3_v2("gfx/mono.png")           // 12  RTO_JUNCTION_NE
+    t_G23_junction3_v1("gfx/mono.png")           // 13  RTO_JUNCTION_SE
+    t_G23_junction3_v3("gfx/mono.png")           // 14  RTO_JUNCTION_NW
+    t_G23_junction4_v0("gfx/mono.png")           // 15  RTO_JUNCTION_NSEW
+}
+
+spriteset(probe_overlay_mono, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G23_track_x_v0("gfx/mono.png")             // 0  RTO_X        梁体（无独立钢轨层）
+    t_G23_track_x_v3("gfx/mono.png")             // 1  RTO_Y
+    t_G23_track_half_v0("gfx/mono.png")          // 2  RTO_N
+    t_G23_track_half_v2("gfx/mono.png")          // 3  RTO_S
+    t_G23_track_half_v3("gfx/mono.png")          // 4  RTO_E
+    t_G23_track_half_v1("gfx/mono.png")          // 5  RTO_W
+    t_G23_track_slope_v0("gfx/mono.png")         // 6  RTO_SLOPE_NE
+    t_G23_track_slope_v3("gfx/mono.png")         // 7  RTO_SLOPE_SE
+    t_G23_track_slope_v2("gfx/mono.png")         // 8  RTO_SLOPE_SW
+    t_G23_track_slope_v1("gfx/mono.png")         // 9  RTO_SLOPE_NW
+}
+
+// 洞口：只有「洞内那四张梁体」，洞口形体交给原版 MONO（TUN-9 = 不做隧道口）
+spriteset(probe_tunnels_mono, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G23_track_x_v0("gfx/mono.png")             // 0  DiagDir NE
+    t_G23_track_x_v3("gfx/mono.png")             // 1  DiagDir SE
+    t_G23_track_x_v2("gfx/mono.png")             // 2  DiagDir SW
+    t_G23_track_x_v1("gfx/mono.png")             // 3  DiagDir NW
+}
+
+spriteset(probe_bridge_surfaces_mono, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G23_track_x_v0("gfx/mono.png")             // 0  平 — X
+    t_G23_track_x_v3("gfx/mono.png")             // 1  平 — Y
+    t_G23_track_slope_v0("gfx/mono.png")         // 2  坡 NE
+    t_G23_track_slope_v3("gfx/mono.png")         // 3  坡 SE
+    t_G23_track_slope_v2("gfx/mono.png")         // 4  坡 SW
+    t_G23_track_slope_v1("gfx/mono.png")         // 5  坡 NW
+}
+
+/* ===========================================================================
+   A21 组（`MGLV` 磁浮）—— 与 A20 同一套骨架，分表 gfx/maglev.png（263×147）
+   梁宽 2.40 m、侧面 `metal_dark`（定子铁芯）、底裙 `metal_seam`。
+   =========================================================================== */
+spriteset(probe_underlay_maglev, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G24_track_x_v0("gfx/maglev.png")           //  0  RTO_X
+    t_G24_track_x_v3("gfx/maglev.png")           //  1  RTO_Y
+    t_G24_track_half_v0("gfx/maglev.png")        //  2  RTO_N
+    t_G24_track_half_v2("gfx/maglev.png")        //  3  RTO_S
+    t_G24_track_half_v3("gfx/maglev.png")        //  4  RTO_E
+    t_G24_track_half_v1("gfx/maglev.png")        //  5  RTO_W
+    t_G24_track_slope_v0("gfx/maglev.png")       //  6  RTO_SLOPE_NE
+    t_G24_track_slope_v3("gfx/maglev.png")       //  7  RTO_SLOPE_SE
+    t_G24_track_slope_v2("gfx/maglev.png")       //  8  RTO_SLOPE_SW
+    t_G24_track_slope_v1("gfx/maglev.png")       //  9  RTO_SLOPE_NW
+    t_G24_crossing_v0("gfx/maglev.png")          // 10  RTO_CROSSING_XY
+    t_G24_junction3_v0("gfx/maglev.png")         // 11  RTO_JUNCTION_SW
+    t_G24_junction3_v2("gfx/maglev.png")         // 12  RTO_JUNCTION_NE
+    t_G24_junction3_v1("gfx/maglev.png")         // 13  RTO_JUNCTION_SE
+    t_G24_junction3_v3("gfx/maglev.png")         // 14  RTO_JUNCTION_NW
+    t_G24_junction4_v0("gfx/maglev.png")         // 15  RTO_JUNCTION_NSEW
+}
+
+spriteset(probe_overlay_maglev, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G24_track_x_v0("gfx/maglev.png")           // 0  RTO_X
+    t_G24_track_x_v3("gfx/maglev.png")           // 1  RTO_Y
+    t_G24_track_half_v0("gfx/maglev.png")        // 2  RTO_N
+    t_G24_track_half_v2("gfx/maglev.png")        // 3  RTO_S
+    t_G24_track_half_v3("gfx/maglev.png")        // 4  RTO_E
+    t_G24_track_half_v1("gfx/maglev.png")        // 5  RTO_W
+    t_G24_track_slope_v0("gfx/maglev.png")       // 6  RTO_SLOPE_NE
+    t_G24_track_slope_v3("gfx/maglev.png")       // 7  RTO_SLOPE_SE
+    t_G24_track_slope_v2("gfx/maglev.png")       // 8  RTO_SLOPE_SW
+    t_G24_track_slope_v1("gfx/maglev.png")       // 9  RTO_SLOPE_NW
+}
+
+spriteset(probe_tunnels_maglev, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G24_track_x_v0("gfx/maglev.png")           // 0  DiagDir NE
+    t_G24_track_x_v3("gfx/maglev.png")           // 1  DiagDir SE
+    t_G24_track_x_v2("gfx/maglev.png")           // 2  DiagDir SW
+    t_G24_track_x_v1("gfx/maglev.png")           // 3  DiagDir NW
+}
+
+spriteset(probe_bridge_surfaces_maglev, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G24_track_x_v0("gfx/maglev.png")           // 0  平 — X
+    t_G24_track_x_v3("gfx/maglev.png")           // 1  平 — Y
+    t_G24_track_slope_v0("gfx/maglev.png")       // 2  坡 NE
+    t_G24_track_slope_v3("gfx/maglev.png")       // 3  坡 SE
+    t_G24_track_slope_v2("gfx/maglev.png")       // 4  坡 SW
+    t_G24_track_slope_v1("gfx/maglev.png")       // 5  坡 NW
+}
