@@ -639,8 +639,12 @@ template t_G1_pylon_b_v3(sheet) {
 //     两族**几何逐字相同**，摆位值也逐字相同（见下面 dkblue 那一段的理由）。
 //
 //   ⚠ 与上面那套（`G1_pylon_a/_b` = 方形混凝土 C1）**不在同一张表**：
-//     `pylonstyle.png` 的格位是 263×**207**，比 catenary 的 210 矮 3 px
-//     （木杆只到 0.460，C1 到 0.480）⇒ 每条的 **yrel 都比 C1 大 3**，xrel 不变。
+//     `pylonstyle.png` 的格位是 263×**206**，比 catenary 的 210 矮 4 px
+//     （木杆只到 0.460，C1 到 0.480）⇒ 每条的 **yrel 都比 C1 大 4**，xrel 不变。
+//     ⚠ **2026-11-18 精细化那一轮**：木杆改成八角回转体 + 杆顶拉杆 ⇒ 内容最高点
+//       投影变了 1 px（207 → **206**、yrel 全部 **+1**）。**zmax 没动**（仍 0.6100）——
+//       实测证明 `zmax` 只在"比内容低"时才起作用，内容顶才是格位的真正上限
+//       （`core/bake.mjs` 的 `unionFrame`：extra 里的 zmax 点只到 (pivot.zmax)）。
 //
 //   ★ 取值 = flatiso 算法值 + **与 C1 同一套手调增量**：
 //     增量是「引擎把表里的 (x_offset,y_offset) 当原点」造成的漂移，只跟**用哪几个槽位**
@@ -652,28 +656,28 @@ template t_G1_pylon_b_v3(sheet) {
 //     ⚠ 2026-10-05 改矮：格位 229 → **207**、yrel 全部 **+22**（算法值 −97 → −75）。
 // ---------------------------------------------------------------------------
 template t_G1_sty_early_blue_a_v0(sheet) {
-  [0, 0, 263, 207, -131, -79, sheet]  // 【手调】C1 增量 0,-4（蓝 / 红两族同值）
+  [0, 0, 263, 206, -131, -78, sheet]  // 【手调】C1 增量 0,-4（蓝 / 红两族同值）
 }
 template t_G1_sty_early_blue_a_v1(sheet) {
-  [263, 0, 263, 207, -11, -139, sheet]  // 【手调】C1 增量 -8,0
+  [263, 0, 263, 206, -11, -138, sheet]  // 【手调】C1 增量 -8,0
 }
 template t_G1_sty_early_blue_a_v2(sheet) {
-  [526, 0, 263, 207, -131, -199, sheet]  // 【手调】C1 增量 0,+4
+  [526, 0, 263, 206, -131, -198, sheet]  // 【手调】C1 增量 0,+4
 }
 template t_G1_sty_early_blue_a_v3(sheet) {
-  [789, 0, 263, 207, -251, -139, sheet]  // 【手调】C1 增量 +8,0
+  [789, 0, 263, 206, -251, -138, sheet]  // 【手调】C1 增量 +8,0
 }
 template t_G1_sty_early_blue_b_v0(sheet) {
-  [1052, 0, 263, 207, -131, -79, sheet]  // 【手调】C1 增量 0,-4
+  [1052, 0, 263, 206, -131, -78, sheet]  // 【手调】C1 增量 0,-4
 }
 template t_G1_sty_early_blue_b_v1(sheet) {
-  [1315, 0, 263, 207, -28, -136, sheet]  // 【手调】C1 增量 -25,+3（半格量）
+  [1315, 0, 263, 206, -28, -135, sheet]  // 【手调】C1 增量 -25,+3（半格量）
 }
 template t_G1_sty_early_blue_b_v2(sheet) {
-  [1578, 0, 263, 207, -131, -199, sheet]  // 【手调】C1 增量 0,+4
+  [1578, 0, 263, 206, -131, -198, sheet]  // 【手调】C1 增量 0,+4
 }
 template t_G1_sty_early_blue_b_v3(sheet) {
-  [1841, 0, 263, 207, -225, -139, sheet]  // 【手调】C1 增量 +34,0（半格量）
+  [1841, 0, 263, 206, -225, -138, sheet]  // 【手调】C1 增量 +34,0（半格量）
 }
 
 // ---------------------------------------------------------------------------
@@ -693,28 +697,28 @@ template t_G1_sty_early_blue_b_v3(sheet) {
 //   ⚠ 摆位值必须**随浅蓝一起改**：两族同格位，浅蓝改矮 / 改形状时这 8 行要同步。
 // ---------------------------------------------------------------------------
 template t_G1_sty_early_dkblue_a_v0(sheet) {
-  [0, 0, 263, 207, -131, -79, sheet]  // 【手调】同 t_G1_sty_early_blue_a_v0
+  [0, 0, 263, 206, -131, -78, sheet]  // 【手调】同 t_G1_sty_early_blue_a_v0
 }
 template t_G1_sty_early_dkblue_a_v1(sheet) {
-  [263, 0, 263, 207, -11, -139, sheet]  // 【手调】同 t_G1_sty_early_blue_a_v1
+  [263, 0, 263, 206, -11, -138, sheet]  // 【手调】同 t_G1_sty_early_blue_a_v1
 }
 template t_G1_sty_early_dkblue_a_v2(sheet) {
-  [526, 0, 263, 207, -131, -199, sheet]  // 【手调】同 t_G1_sty_early_blue_a_v2
+  [526, 0, 263, 206, -131, -198, sheet]  // 【手调】同 t_G1_sty_early_blue_a_v2
 }
 template t_G1_sty_early_dkblue_a_v3(sheet) {
-  [789, 0, 263, 207, -251, -139, sheet]  // 【手调】同 t_G1_sty_early_blue_a_v3
+  [789, 0, 263, 206, -251, -138, sheet]  // 【手调】同 t_G1_sty_early_blue_a_v3
 }
 template t_G1_sty_early_dkblue_b_v0(sheet) {
-  [1052, 0, 263, 207, -131, -79, sheet]  // 【手调】同 t_G1_sty_early_blue_b_v0
+  [1052, 0, 263, 206, -131, -78, sheet]  // 【手调】同 t_G1_sty_early_blue_b_v0
 }
 template t_G1_sty_early_dkblue_b_v1(sheet) {
-  [1315, 0, 263, 207, -28, -136, sheet]  // 【手调】同 t_G1_sty_early_blue_b_v1
+  [1315, 0, 263, 206, -28, -135, sheet]  // 【手调】同 t_G1_sty_early_blue_b_v1
 }
 template t_G1_sty_early_dkblue_b_v2(sheet) {
-  [1578, 0, 263, 207, -131, -199, sheet]  // 【手调】同 t_G1_sty_early_blue_b_v2
+  [1578, 0, 263, 206, -131, -198, sheet]  // 【手调】同 t_G1_sty_early_blue_b_v2
 }
 template t_G1_sty_early_dkblue_b_v3(sheet) {
-  [1841, 0, 263, 207, -225, -139, sheet]  // 【手调】同 t_G1_sty_early_blue_b_v3
+  [1841, 0, 263, 206, -225, -138, sheet]  // 【手调】同 t_G1_sty_early_blue_b_v3
 }
 
 // ---------------------------------------------------------------------------
@@ -1920,28 +1924,28 @@ template t_G13_tunnel5_b_v2(sheet) {
 //   ⚠ 摆位值本身来自更早的人工手调（源 `t_G1_pylon_a|_b_v*`，见上面 cyl 那一节的注释）。
 // ---------------------------------------------------------------------------
 template t_G1_sty_cyl_blue_a_v0(sheet) {
-  [0, 0, 263, 210, -131, -82, sheet]  // 【手调】照抄 t_G1_sty_cyl_a_v0
+  [0, 0, 263, 209, -131, -81, sheet]  // 【手调】照抄 t_G1_sty_cyl_a_v0
 }
 template t_G1_sty_cyl_blue_a_v1(sheet) {
-  [263, 0, 263, 210, -11, -142, sheet]  // 【手调】照抄 t_G1_sty_cyl_a_v1
+  [263, 0, 263, 209, -11, -141, sheet]  // 【手调】照抄 t_G1_sty_cyl_a_v1
 }
 template t_G1_sty_cyl_blue_a_v2(sheet) {
-  [526, 0, 263, 210, -131, -202, sheet]  // 【手调】照抄 t_G1_sty_cyl_a_v2
+  [526, 0, 263, 209, -131, -201, sheet]  // 【手调】照抄 t_G1_sty_cyl_a_v2
 }
 template t_G1_sty_cyl_blue_a_v3(sheet) {
-  [789, 0, 263, 210, -251, -142, sheet]  // 【手调】照抄 t_G1_sty_cyl_a_v3
+  [789, 0, 263, 209, -251, -141, sheet]  // 【手调】照抄 t_G1_sty_cyl_a_v3
 }
 template t_G1_sty_cyl_blue_b_v0(sheet) {
-  [1052, 0, 263, 210, -131, -82, sheet]  // 【手调】照抄 t_G1_sty_cyl_b_v0
+  [1052, 0, 263, 209, -131, -81, sheet]  // 【手调】照抄 t_G1_sty_cyl_b_v0
 }
 template t_G1_sty_cyl_blue_b_v1(sheet) {
-  [1315, 0, 263, 210, -28, -139, sheet]  // 【手调】照抄 t_G1_sty_cyl_b_v1
+  [1315, 0, 263, 209, -28, -138, sheet]  // 【手调】照抄 t_G1_sty_cyl_b_v1
 }
 template t_G1_sty_cyl_blue_b_v2(sheet) {
-  [1578, 0, 263, 210, -131, -202, sheet]  // 【手调】照抄 t_G1_sty_cyl_b_v2
+  [1578, 0, 263, 209, -131, -201, sheet]  // 【手调】照抄 t_G1_sty_cyl_b_v2
 }
 template t_G1_sty_cyl_blue_b_v3(sheet) {
-  [1841, 0, 263, 210, -225, -142, sheet]  // 【手调】照抄 t_G1_sty_cyl_b_v3
+  [1841, 0, 263, 209, -225, -141, sheet]  // 【手调】照抄 t_G1_sty_cyl_b_v3
 }
 
 // ---------------------------------------------------------------------------
@@ -3029,36 +3033,38 @@ template t_G3_tunnel3_over_b_v3(sheet) {
 //   ★ 摆位值**逐字照抄 C1**（`G1_pylon_a|_b`）：C2 与 C1 只差柱基/柱身两行
 //     （`box` + `concrete` → `cyl` + `concrete_mid`）+ 多一根下臂/斜撑，
 //     腕臂 / 绝缘子 / 柱顶帽高度全都不动 ⇒ 取景框与逐朝向的算法锚点**本应完全一致**。
-//   ★ 摆位值 = C1 的行，但 **格位 210（C1 也是 210）、yrel +0**
-//     —— 2026-10-05 改矮（柱顶 0.676 → 0.480）后两表的取景框**正好又一样高**：
-//     catenary 210 / pyloncyl 210，算法 yrel 都是 −78 ⇒ C2 与 C1 现行值**逐字相同**。
-//     （第二版曾因"圆柱比外接方盒小 1 px"而差 1：C1 241 / C2 240，yrel 差 1。这次没有了。）
+//   ★ 摆位值 = C1 的行，但 **格位 209（C1 是 210）、yrel +1**
+//     —— 2026-11-18 精细化那一轮：C2 的柱基从"一个 cyl"变成"两级圆台 + 底板"，
+//     内容最低点的投影高了 1 px ⇒ 格位 210 → **209**、yrel 全部 −78 → **−77**
+//     ⇒ 这 8 条相对 C1 的增量整体 +1（xrel 不变）。
+//     （2026-10-05 改矮后两表曾**正好一样高**：catenary 210 / pyloncyl 210，
+//       算法 yrel 都是 −78 —— 那个"逐字相同"从这一轮起不再成立。）
 //   ⚠ C1 那组里 v1/v3 的手调量是 ±(120,64)（= 半格），那是人工按实机画面调的对位，
 //     与"腕臂该指哪"绑定 —— C2 的臂与 C1 同向，所以必须一起继承。
 // ---------------------------------------------------------------------------
 template t_G1_sty_cyl_a_v0(sheet) {
-  [0, 0, 263, 210, -131, -82, sheet]  // 【手调】源 t_G1_pylon_a_v0
+  [0, 0, 263, 209, -131, -81, sheet]  // 【手调】源 t_G1_pylon_a_v0（格位 209 ⇒ yrel +1）
 }
 template t_G1_sty_cyl_a_v1(sheet) {
-  [263, 0, 263, 210, -11, -142, sheet]  // 【手调】源 t_G1_pylon_a_v1
+  [263, 0, 263, 209, -11, -141, sheet]  // 【手调】源 t_G1_pylon_a_v1
 }
 template t_G1_sty_cyl_a_v2(sheet) {
-  [526, 0, 263, 210, -131, -202, sheet]  // 【手调】源 t_G1_pylon_a_v2
+  [526, 0, 263, 209, -131, -201, sheet]  // 【手调】源 t_G1_pylon_a_v2
 }
 template t_G1_sty_cyl_a_v3(sheet) {
-  [789, 0, 263, 210, -251, -142, sheet]  // 【手调】源 t_G1_pylon_a_v3
+  [789, 0, 263, 209, -251, -141, sheet]  // 【手调】源 t_G1_pylon_a_v3
 }
 template t_G1_sty_cyl_b_v0(sheet) {
-  [1052, 0, 263, 210, -131, -82, sheet]  // 【手调】源 t_G1_pylon_b_v0
+  [1052, 0, 263, 209, -131, -81, sheet]  // 【手调】源 t_G1_pylon_b_v0
 }
 template t_G1_sty_cyl_b_v1(sheet) {
-  [1315, 0, 263, 210, -28, -139, sheet]  // 【手调】源 t_G1_pylon_b_v1
+  [1315, 0, 263, 209, -28, -138, sheet]  // 【手调】源 t_G1_pylon_b_v1
 }
 template t_G1_sty_cyl_b_v2(sheet) {
-  [1578, 0, 263, 210, -131, -202, sheet]  // 【手调】源 t_G1_pylon_b_v2
+  [1578, 0, 263, 209, -131, -201, sheet]  // 【手调】源 t_G1_pylon_b_v2
 }
 template t_G1_sty_cyl_b_v3(sheet) {
-  [1841, 0, 263, 210, -225, -142, sheet]  // 【手调】源 t_G1_pylon_b_v3
+  [1841, 0, 263, 209, -225, -141, sheet]  // 【手调】源 t_G1_pylon_b_v3
 }
 
 
