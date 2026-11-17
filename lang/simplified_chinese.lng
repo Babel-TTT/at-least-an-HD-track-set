@@ -45,5 +45,7 @@ STR_RAIL_SACd                               :地铁轨道 {LTBLUE}1.5kVDC
 STR_RAIL_SBCd                               :现代化地铁轨道 {LTBLUE}1.5kVDC
 STR_RAIL_SACZ                               :地铁轨道 {LTBLUE}1.5kVDC{GREEN}+第三轨
 STR_RAIL_NACN                               :窄轨铁路
+STR_RAIL_NBCN                               :现代窄轨铁路
+STR_RAIL_NBCA                               :电气化窄轨铁路 {RED}25kVAC
 STR_RAIL_SBEN                               :现代重载铁路
 STR_RAIL_SBEA                               :电气化重载铁路 {RED}25kVAC

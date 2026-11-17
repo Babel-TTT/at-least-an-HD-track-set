@@ -274,6 +274,23 @@ export const SHEETS = [
     match: /^G13_/,
   },
   {
+    // A16 组（`NBCN` 现代窄轨 / `NBCA` 电气化窄轨）的**洞口**：
+    //   就是 A15 的 `TUN-7`（**逐字照抄**，只把洞内那层 SLE-1 木枕换成 SLE-2 混凝土枕）。
+    //   几何由 tools/gen-a16-narrow-modern.mjs 生成（底板 = A15 产物，枕木借 A3 的 SLE-2）。
+    // ⚠ 必须登记在下面的 narrowmodern **之前**：那个表的正则是 /^G14_/，会先吃掉 G14_tunnel7_*。
+    key: 'tunnel7modern',
+    title: '现代窄轨洞口 TUN-7（小断面拱，洞内 SLE-2；NBCN / NBCA）',
+    match: /^G14_tunnel7/,
+  },
+  {
+    // A16 组（`NBCN` / `NBCA`）的轨道：BAL-D 道床 + **SLE-2 混凝土枕** + RAI-7 窄轨（米轨 1000mm）。
+    //   与 A15（`NACN`）**只差轨枕那一层**（SLE-1 木枕 → SLE-2 混凝土枕），道床 / 钢轨 / 洞口逐面相同。
+    // 单独一张表（同 rail / metro / narrow 表的理由：混进去会把已有几十条 rect 顶移位）。
+    key: 'narrowmodern',
+    title: '现代窄轨（BAL-D + SLE-2 + RAI-7，k=0.70；NBCN / NBCA）',
+    match: /^G14_/,
+  },
+  {
     // A15 组（`NACN` 窄轨）的**洞口**：TUN-7 小断面拱（端墙外形照 TUN-1，
     // 只把拱洞与洞内轨道按 k = 0.70 收窄；几何由 tools/gen-a15-narrow.mjs 从 TUN-1 收窄而来）。
     // ⚠ 必须登记在下面的 narrow **之前**：那个表的正则是 /^G5_/，会先把 G5_tunnel7_* 吃掉。

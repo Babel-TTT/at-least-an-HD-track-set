@@ -46,5 +46,7 @@ STR_RAIL_SACd                               :Metro {LTBLUE}1.5kVDC
 STR_RAIL_SBCd                               :Modern metro {LTBLUE}1.5kVDC
 STR_RAIL_SACZ                               :Metro {LTBLUE}1.5kVDC{GREEN}+3rd Rail
 STR_RAIL_NACN                               :Narrow gauge
+STR_RAIL_NBCN                               :Modern narrow gauge
+STR_RAIL_NBCA                               :Electric narrow gauge {RED}25kVAC
 STR_RAIL_SBEN                               :Heavy haul
 STR_RAIL_SBEA                               :Electrified heavy haul {RED}25kVAC

@@ -1278,6 +1278,91 @@ spriteset(probe_bridge_surfaces_narrow, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
 }
 
 /* ===========================================================================
+   A16 组（`NBCN` 现代窄轨 / `NBCA` 电气化窄轨）—— underlay / track_overlay / 洞口 / 道口 / 桥面
+
+   分表：轨道 = `gfx/narrowmodern.png`（263×144）、洞口 = `gfx/tunnel7modern.png`（263×167）。
+   模型由 `tools/gen-a16-narrow-modern.mjs`（人工 2026-11-17 批准新建）生成：
+   **底板 = A15 的产物**（BAL-D + RAI-7 + TUN-7，逐面照搬），**只把枕木那一层换成 A3 的 SLE-2**
+   （混凝土枕 Ⅱ 型，U 形承轨槽）⇒ 与 A15 的差别**只有枕木**。
+
+   ★ 56 张精灵的 `rect` / `xrel` / `yrel` / `centerAnchor` 与 `G5_*` **逐条相同**
+     （渲完全量核对：56/56）⇒ 下面几段**逐条照抄 A15 那几段**，只换名字与分表。
+   ★ 电气化（只有 `NBCA`）走共用的 `probe_catenary_pylons_cyl`（`PYL-C2` 圆柱，
+     人工 2026-11-17：「柱子按原来的」）+ `probe_catenary_wire` —— 与 `SCDA` / `SDDA` 同一套。
+   =========================================================================== */
+spriteset(probe_underlay_narrowmodern, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G14_track_x_v0("gfx/narrowmodern.png")         //  0  RTO_X        X
+    t_G14_track_x_v3("gfx/narrowmodern.png")         //  1  RTO_Y        Y
+    t_G14_track_half_v0("gfx/narrowmodern.png")      //  2  RTO_N        UPPER（切 N 角）
+    t_G14_track_half_v2("gfx/narrowmodern.png")      //  3  RTO_S        LOWER
+    t_G14_track_half_v3("gfx/narrowmodern.png")      //  4  RTO_E        RIGHT
+    t_G14_track_half_v1("gfx/narrowmodern.png")      //  5  RTO_W        LEFT
+    t_G14_track_slope_v0("gfx/narrowmodern.png")     //  6  RTO_SLOPE_NE   v0（右上抬）
+    t_G14_track_slope_v3("gfx/narrowmodern.png")     //  7  RTO_SLOPE_SE   v3（右下抬）
+    t_G14_track_slope_v2("gfx/narrowmodern.png")     //  8  RTO_SLOPE_SW   v2（左下抬）
+    t_G14_track_slope_v1("gfx/narrowmodern.png")     //  9  RTO_SLOPE_NW   v1（左上抬）
+    t_G14_crossing_v0("gfx/narrowmodern.png")        // 10  RTO_CROSSING_XY（自带两组钢轨）
+    t_G14_junction3_v0("gfx/narrowmodern.png")       // 11  RTO_JUNCTION_SW（只有道床）
+    t_G14_junction3_v2("gfx/narrowmodern.png")       // 12  RTO_JUNCTION_NE（v2）
+    t_G14_junction3_v1("gfx/narrowmodern.png")       // 13  RTO_JUNCTION_SE（v1）
+    t_G14_junction3_v3("gfx/narrowmodern.png")       // 14  RTO_JUNCTION_NW（v3）
+    t_G14_junction4_v0("gfx/narrowmodern.png")       // 15  RTO_JUNCTION_NSEW（只有道床）
+}
+
+spriteset(probe_overlay_narrowmodern, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G14_rail_straight_v0("gfx/narrowmodern.png")   // 0  RTO_X        纯钢轨层
+    t_G14_rail_straight_v3("gfx/narrowmodern.png")   // 1  RTO_Y
+    t_G14_rail_half_v0("gfx/narrowmodern.png")       // 2  RTO_N
+    t_G14_rail_half_v2("gfx/narrowmodern.png")       // 3  RTO_S
+    t_G14_rail_half_v3("gfx/narrowmodern.png")       // 4  RTO_E
+    t_G14_rail_half_v1("gfx/narrowmodern.png")       // 5  RTO_W
+    t_G14_rail_slope_v0("gfx/narrowmodern.png")      // 6  RTO_SLOPE_NE
+    t_G14_rail_slope_v3("gfx/narrowmodern.png")      // 7  RTO_SLOPE_SE
+    t_G14_rail_slope_v2("gfx/narrowmodern.png")      // 8  RTO_SLOPE_SW
+    t_G14_rail_slope_v1("gfx/narrowmodern.png")      // 9  RTO_SLOPE_NW
+}
+
+/* 洞口 TUN-7（A16 版：洞内是 SLE-2 混凝土枕）—— 两层 × A/B 两组 = 8 张
+   槽位 = DiagDirection，顺序 NE / SE / SW / NW ⇒ 喂图 **v0, v3, v2(_b), v1(_b)**。 */
+spriteset(probe_tunnels_narrowmodern, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G14_tunnel7_v0("gfx/tunnel7modern.png")          // 0  DiagDir NE ← v0   A 组（远半）
+    t_G14_tunnel7_v3("gfx/tunnel7modern.png")          // 1  DiagDir SE ← v3   A 组
+    t_G14_tunnel7_b_v2("gfx/tunnel7modern.png")        // 2  DiagDir SW ← v2   B 组（近半）
+    t_G14_tunnel7_b_v1("gfx/tunnel7modern.png")        // 3  DiagDir NW ← v1   B 组
+}
+
+spriteset(probe_tunnel_over_narrowmodern, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G14_tunnel7_over_v0("gfx/tunnel7modern.png")     // 0  DiagDir NE ← v0   A 组（近半 + 洞顶）
+    t_G14_tunnel7_over_v3("gfx/tunnel7modern.png")     // 1  DiagDir SE ← v3   A 组
+    t_G14_tunnel7_over_b_v2("gfx/tunnel7modern.png")   // 2  DiagDir SW ← v2   B 组（远半 + 洞顶）
+    t_G14_tunnel7_over_b_v1("gfx/tunnel7modern.png")   // 3  DiagDir NW ← v1   B 组
+}
+
+// 平交道口 —— 10 格（2 方向 × 1 张轨道图 + 4 张占位；道口灯/栏杆仍未做，与 G1 / A15 一样）
+spriteset(probe_level_crossing_narrowmodern, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G14_levelcrossing_v0("gfx/narrowmodern.png")              // 0  X 方向：轨道图
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png")        // 1  X 方向：道口灯 1（占位）
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png")        // 2  X 方向：道口灯 2（占位）
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png")        // 3  X 方向：栏杆 1（占位）
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png")        // 4  X 方向：栏杆 2（占位）
+    t_G14_levelcrossing_v3("gfx/narrowmodern.png")              // 5  Y 方向：轨道图
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png")        // 6  Y 方向：道口灯 1（占位）
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png")        // 7  Y 方向：道口灯 2（占位）
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png")        // 8  Y 方向：栏杆 1（占位）
+    t_G1_levelcrossing_blank_v0("gfx/levelcrossing.png")        // 9  Y 方向：栏杆 2（占位）
+}
+
+// 桥面 —— 6 格（平 X / 平 Y / 坡 NE / SE / SW / NW）
+spriteset(probe_bridge_surfaces_narrowmodern, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G14_track_x_v0("gfx/narrowmodern.png")         // 0  平 — X
+    t_G14_track_x_v3("gfx/narrowmodern.png")         // 1  平 — Y
+    t_G14_track_slope_v0("gfx/narrowmodern.png")     // 2  坡 NE
+    t_G14_track_slope_v3("gfx/narrowmodern.png")     // 3  坡 SE
+    t_G14_track_slope_v2("gfx/narrowmodern.png")     // 4  坡 SW
+    t_G14_track_slope_v1("gfx/narrowmodern.png")     // 5  坡 NW
+}
+
+/* ===========================================================================
    A5 组（`SBEN` / `SBEA` 重载）—— underlay / track_overlay / 洞口 / 道口 / 桥面
 
    分表：轨道 = `gfx/heavy.png`、洞口 = `gfx/tunnel6.png`（见 tools/sheets.mjs）。

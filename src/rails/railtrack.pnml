@@ -1797,3 +1797,121 @@ item(FEAT_RAILTYPES, rail_SACZ, 27) {
         catenary_wire:   probe_catenary_wire;
     }
 }
+
+/* ---------------------------------------------------------------------------
+   A16 组（现代窄轨）—— `NBCN` 非电 / `NBCA` 25kV AC
+   同一套几何（`BAL-D` + **`SLE-2`** + `RAI-7` + `TUN-7`，k = 0.70 米轨 1000mm），
+   两支只差**电气化**：`NBCA` 多挂接触网（`PYL-C2` 圆柱 + 导线；25kV ⇒ 无标牌）。
+   与 A15（`NACN`）**只差轨枕**：`SLE-1` 木枕 → `SLE-2` 混凝土枕（U 形承轨槽）。
+   --------------------------------------------------------------------------- */
+
+// NBCN —— 现代窄轨铁路（1930 · B 档 130km/h · 23t · 非电）
+item(FEAT_RAILTYPES, rail_NBCN, 28) {
+    property {
+        label:                  "NBCN";
+        introduction_date:      date(1930, 1, 1);
+        name:                   string(STR_RAIL_NBCN);
+        toolbar_caption:        string(STR_RAIL_NBCN);
+        menu_text:              string(STR_RAIL_NBCN);
+        build_window_caption:   string(STR_RAIL_NBCN);
+        autoreplace_text:       string(STR_RAIL_NBCN);
+        new_engine_text:        string(STR_RAIL_NBCN);
+        /* 兼容 / powered 与 `NACN`（同一条窄轨族）**逐条相同** —— 含"窄轨与准轨互通"那套
+           全量 label；口径与待裁定项见 `rail_NACN` 那两行上面的注释。 */
+        compatible_railtype_list: ["RAIL", "ELRL",
+                                    "NACN", "NBCN", "NBCA", "NCCA", "dBCN",
+                                    "SADN", "SBDN", "SCDN", "SDDN", "SEDN", "SFDN", "SGDN",
+                                    "SADA", "SBDA", "SCDA", "SDDA", "SEDA", "SFDA", "SGDA",
+                                    "SADd", "SBDd", "SCDd", "SDDd", "SEDd",
+                                    "SAEd", "SBEd", "SCEd", "SDEd", "SEEd",
+                                    "SADD", "SBDD", "SCDD", "SDDD", "SEDD",
+                                    "DADN", "DBDN", "DADA", "DBDA"];
+        powered_railtype_list:    ["RAIL", "ELRL",
+                                    "NACN", "NBCN", "NBCA", "NCCA", "dBCN",
+                                    "SADN", "SBDN", "SCDN", "SDDN", "SEDN", "SFDN", "SGDN",
+                                    "SADA", "SBDA", "SCDA", "SDDA", "SEDA", "SFDA", "SGDA",
+                                    "SADd", "SBDd", "SCDd", "SDDd", "SEDd",
+                                    "SAEd", "SBEd", "SCEd", "SDEd", "SEEd",
+                                    "SADD", "SBDD", "SCDD", "SDDD", "SEDD",
+                                    "DADN", "DBDN", "DADA", "DBDA"];
+        /* 非电 ⇒ 不设 CATENARY；**允许平交道口**（同 `NACN`：窄轨乡间线有道口）。 */
+        railtype_flags:         0;
+        curve_speed_multiplier: 1;
+        station_graphics:       RAILTYPE_STATION_NORMAL;
+        /* 费用系数 = CSV 的 3 ⇒ 建设 3 / 维护 1（比 `NACN` 高，比电化线低）。 */
+        construction_cost:      3;
+        maintenance_cost:       1;
+        /* 速度按标准化编码的字母档（C5 裁定）：N 轨距的 B 档 = **130 km/h**（CSV 也是 130）。 */
+        speed_limit:            130 km/h;
+        acceleration_model:     ACC_MODEL_RAIL;
+        map_colour:             0x6C;
+        sort_order:             SORT_EARLY;
+    }
+    /* ★ 2026-11-17：A16 组第一条。模型由 `tools/gen-a16-narrow-modern.mjs` 生成：
+       底板 = A15 的产物（`G5_*` 逐面照搬），**只把枕木那层换成 A3 的 `SLE-2`**；
+       分表 `gfx/narrowmodern.png`（263×144）+ `gfx/tunnel7modern.png`（263×167）。 */
+    graphics {
+        underlay:        probe_underlay_narrowmodern;
+        track_overlay:   probe_overlay_narrowmodern;
+        tunnels:         probe_tunnels_narrowmodern;
+        tunnel_overlay:  probe_tunnel_over_narrowmodern;
+        level_crossings: probe_level_crossing_narrowmodern;
+        bridge_surfaces: probe_bridge_surfaces_narrowmodern;
+    }
+}
+
+// NBCA —— 电气化窄轨铁路（25kV AC · 1950 · B 档 130km/h · 23t）
+item(FEAT_RAILTYPES, rail_NBCA, 29) {
+    property {
+        label:                  "NBCA";
+        introduction_date:      date(1950, 1, 1);
+        name:                   string(STR_RAIL_NBCA);
+        toolbar_caption:        string(STR_RAIL_NBCA);
+        menu_text:              string(STR_RAIL_NBCA);
+        build_window_caption:   string(STR_RAIL_NBCA);
+        autoreplace_text:       string(STR_RAIL_NBCA);
+        new_engine_text:        string(STR_RAIL_NBCA);
+        /* 与 `NBCN` **逐条相同**（同一套几何、同一个窄轨族）。 */
+        compatible_railtype_list: ["RAIL", "ELRL",
+                                    "NACN", "NBCN", "NBCA", "NCCA", "dBCN",
+                                    "SADN", "SBDN", "SCDN", "SDDN", "SEDN", "SFDN", "SGDN",
+                                    "SADA", "SBDA", "SCDA", "SDDA", "SEDA", "SFDA", "SGDA",
+                                    "SADd", "SBDd", "SCDd", "SDDd", "SEDd",
+                                    "SAEd", "SBEd", "SCEd", "SDEd", "SEEd",
+                                    "SADD", "SBDD", "SCDD", "SDDD", "SEDD",
+                                    "DADN", "DBDN", "DADA", "DBDA"];
+        powered_railtype_list:    ["RAIL", "ELRL",
+                                    "NACN", "NBCN", "NBCA", "NCCA", "dBCN",
+                                    "SADN", "SBDN", "SCDN", "SDDN", "SEDN", "SFDN", "SGDN",
+                                    "SADA", "SBDA", "SCDA", "SDDA", "SEDA", "SFDA", "SGDA",
+                                    "SADd", "SBDd", "SCDd", "SDDd", "SEDd",
+                                    "SAEd", "SBEd", "SCEd", "SDEd", "SEEd",
+                                    "SADD", "SBDD", "SCDD", "SDDD", "SEDD",
+                                    "DADN", "DBDN", "DADA", "DBDA"];
+        /* `CATENARY`：25kV AC 架空接触网；**允许平交道口**（与 `NBCN` 一致）。 */
+        railtype_flags:         bitmask(RAILTYPE_FLAG_CATENARY);
+        curve_speed_multiplier: 1;
+        station_graphics:       RAILTYPE_STATION_NORMAL;
+        /* 费用系数 = CSV 的 6 ⇒ 建设 6 / 维护 3。 */
+        construction_cost:      6;
+        maintenance_cost:       3;
+        speed_limit:            130 km/h;
+        acceleration_model:     ACC_MODEL_RAIL;
+        map_colour:             0x6D;
+        sort_order:             SORT_ELECTRIC;
+    }
+    /* ★ 2026-11-17：与 `NBCN` **同一套模型 / 同一批模板 / 同一张分表** ——
+       只多接接触网两项。人工 2026-11-17「柱子按原来的」⇒ 用共用的 `PYL-C2` 圆柱
+       （`probe_catenary_pylons_cyl`，与 `SCDA` / `SDDA` 同一套），25kV ⇒ **无标牌**；
+       导线同样用共用 `probe_catenary_wire`。 */
+    graphics {
+        underlay:        probe_underlay_narrowmodern;
+        track_overlay:   probe_overlay_narrowmodern;
+        tunnels:         probe_tunnels_narrowmodern;
+        tunnel_overlay:  probe_tunnel_over_narrowmodern;
+        level_crossings: probe_level_crossing_narrowmodern;
+        bridge_surfaces: probe_bridge_surfaces_narrowmodern;
+        catenary_pylons: probe_catenary_pylons_cyl;
+        catenary_wire:   probe_catenary_wire;
+    }
+}
