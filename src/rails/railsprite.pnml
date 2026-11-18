@@ -2347,21 +2347,25 @@ spriteset(probe_bridge_surfaces_maglev, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
 //
 //   ★ 槽位（wiki `NML:Railtypes` §depots，顺序不许动）：
 //       0 SE 地面层 · 1 SE 结构层 · 2 SW 地面层 · 3 SW 结构层 · 4 NE 结构层 · 5 NW 结构层
-//     **地面层与朝向无关**（场坪 / 轨道 / 内墙都对称）⇒ 槽 0 与槽 2 用同一张 `na` v0。
-//     结构层四个朝向：槽 1 ← v0 · 槽 3 ← v3 · 槽 4 ← v1 · 槽 5 ← v2
+//     **地面层与朝向无关**（场坪 / 轨道 / 内墙都对称）⇒ 槽 0 与槽 2 用 `na` 的 v0 / v3。
+//     结构层四个朝向：槽 1 ← `a` v0 · 槽 3 ← **`nb` v3** · 槽 4 ← `a` v1 · 槽 5 ← `a` v2
 //     （flatiso v0=NE v1=NW v2=SW v3=SE，引擎槽序 NE/SE/SW/NW ⇒ 喂图 v0,v3,v2,v1）。
 //
 //   ★ 模型是**端头库房**（+y 一樘门 / −y 实墙），人工裁定：
 //     「黑洞的问题不是有黑洞，而是两头都有洞，正常背面应该是墙」。
 //
-//   ⚠ 六张精灵的 `xrel/yrel` **全部 (−131,−52)**（同一趟绘制，没有层偏移）——
-//     见 templates.pnml 那段注释：任何一张用了别的值，实机就是「两栋错开的房子」。
+//   ★ **v67 门柱拆层**（人工 2026-11-19）：「类似隧道那样，远离视角一侧的洞柱图像是在
+//     地面层上的，这样车经过时才能被遮住」。⇒ 远柱在 `na`（槽 0/2），近柱在结构层；
+//     近柱逐朝向翻转 ⇒ 结构层两版 `a`（v0 近柱 UD1）/ `nb`（v3 近柱 UD0）。
+//
+//   ⚠ 偏移：`na` 两行 (−131,−52)；结构层按**逐朝向**给值（v0 −131,−52 / v1 −3,−116 /
+//     v2 −131,−180 / v3 −259,−116）—— 见 templates.pnml 那段注释与实机截图结论。
 // ===========================================================================
 spriteset(depot_SADN, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
-    t_G1_depot_na_v0("gfx/depot.png")        // 0  SE 地面层（场坪/库内/道砟枕木钢轨）
-    t_G1_depot_a_v0("gfx/depot.png")         // 1  SE 结构层（墙/屋面/门套/门楣牌）
-    t_G1_depot_na_v3("gfx/depot.png")        // 2  SW 地面层（v3；门槛要跟着转到门口那侧）
-    t_G1_depot_a_v3("gfx/depot.png")         // 3  SW 结构层（v3）
+    t_G1_depot_na_v0("gfx/depot.png")        // 0  SE 地面层（场坪/库内/道砟枕木钢轨 + 两根门柱）
+    t_G1_depot_a_v0("gfx/depot.png")         // 1  SE 结构层（墙/屋面/门樘/近柱/门楣牌）
+    t_G1_depot_na_v3("gfx/depot.png")        // 2  SW 地面层（v3）
+    t_G1_depot_nb_v3("gfx/depot.png")        // 3  SW 结构层（v3，近柱在另一头）
     t_G1_depot_a_v1("gfx/depot.png")         // 4  NE 结构层（v1）
     t_G1_depot_a_v2("gfx/depot.png")         // 5  NW 结构层（v2）
 }
