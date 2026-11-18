@@ -2333,3 +2333,27 @@ spriteset(probe_bridge_surfaces_maglev, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
     t_G24_track_slope_v2("gfx/maglev.png")       // 4  坡 SW
     t_G24_track_slope_v1("gfx/maglev.png")       // 5  坡 NW
 }
+
+// ===========================================================================
+// 机车库「库 A」（2026-11-18 建模；本轮只接 `SADN` 做样本）
+//
+//   槽位顺序（官方 wiki `NML:Railtypes` §depots）**不许动**：
+//     0 SE 近墙 · 1 SE 建筑 · 2 SW 近墙 · 3 SW 建筑 · 4 NE 建筑 · 5 NW 建筑
+//
+//   绘制顺序 **建筑 → 车 → 近墙** ⇒ 槽 0/2 那两张近墙压在车上面，
+//   门洞里留空 ⇒ 车头露得出来（近墙与建筑同格位同锚点，见 templates.pnml）。
+//
+//   ⚠ 槽 1/3/4/5 是同一栋房的 4 个朝向：
+//       v0 = {+x,+y} 可见面   v1 = {+x,-y}   v2 = {-x,-y}   v3 = {-x,+y}
+//     实机若发现某个方向的**门朝墙**（朝向↔入口方向配错），按下面这张表现换：
+//       槽 1 ← v0 / 槽 3 ← v1 / 槽 4 ← v2 / 槽 5 ← v3
+//     "门朝墙"时把三个建筑槽整体挪一位即可，不用改模型。
+// ===========================================================================
+spriteset(depot_SADN, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G1_depot_na_v0("gfx/depot.png")        // 0  SE 近墙（剖切面 x+y>1，配 v0）
+    t_G1_depot_a_v0("gfx/depot.png")         // 1  SE 建筑
+    t_G1_depot_nb_v1("gfx/depot.png")        // 2  SW 近墙（剖切面 x>y， 配 v1）
+    t_G1_depot_a_v1("gfx/depot.png")         // 3  SW 建筑
+    t_G1_depot_a_v2("gfx/depot.png")         // 4  NE 建筑
+    t_G1_depot_a_v3("gfx/depot.png")         // 5  NW 建筑
+}

@@ -482,6 +482,10 @@ item(FEAT_RAILTYPES, rail_SADN, 7) {
            人工裁定：**直接按普通铁轨来** —— 全部指向 underlay 那几张现成的轨道，
            没有新模型/新模板/新图集。哪个是 X 哪个是 Y 是推出来的，实机看一眼再定。 */
         bridge_surfaces: probe_bridge_surfaces_brown;
+        /* 机车库「库 A」（美术要素方案.md §1.7；2026-11-18 建模）。
+           本轮**只接 SADN 一条**做样本：装进游戏核「4 朝向 ↔ 4 入口方向」与
+           「近墙叠得严不严」（§1.7.7 ①②）。核通后再铺满 31 条。 */
+        depots:          depot_SADN;
     }
 }
 
