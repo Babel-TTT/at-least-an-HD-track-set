@@ -610,8 +610,21 @@ const DB = {
 DB.YI0 = DB.YB + DB.T;
 
 const MB = {
-  plinth: 'granite_grey', wall: 'tile_grey', seam: 'tile_grey_seam',
-  band: 'trim_blue', fascia: 'metal_dark',
+  plinth: 'granite_grey',
+  // 人工 2026-11-19：「能把外墙弄得更白一些，然后有金属光泽吗」
+  //
+  //   ① 白：tile_grey(198,195,188) → **trim_white(240,237,230)**。
+  //      比 tile_white(228) 再白一档，而且要的是它 **颗粒 0** 的属性 ——
+  //      tile_* 族有 ±3.8% 颗粒，4x 下整片墙看起来像砂岩/瓷砖；
+  //      金属漆面是**光洁**的，所以宁可要"没有颗粒"也不要"更白但有颗粒"。
+  //   ② 金属：flatiso 的 `spec` 是 `pow(N·H, 26)`，只有法线贴着半角向量的面才吃到，
+  //      **平面墙永远是 0**（实测：加了也不亮）。所以墙面能做的只有三件：
+  //        a. 光洁无颗粒（上面那条）
+  //        b. **冷灰硬缝**（metal_seam 122,127,132）代替同色系缝 → 像压型板的折边阴影
+  //        c. 缝边再画一条**冷金属棱**（metal_pale 190,195,199）→ 明暗成对
+  //      真高光得把墙做成**有棱面的压型板**（法线 ±15° 才吃 spec），那是下一轮的事。
+  wall: 'trim_white', seam: 'metal_seam', ribHi: 'metal_pale',
+  band: 'trim_blue', fascia: 'metal',
   roof: 'roof_metal', rib: 'metal_rib', ridge: 'metal',
   metal: 'metal', metalLite: 'metal_pale', metalDark: 'metal_dark',
   glass: 'glass_blue', sign: 'sign_cn_red',
@@ -634,10 +647,22 @@ function bandsB(b, side, at, u0, u1) {
   b.face(side, at + out, u0, u1, DB.ZF0, DB.ZF1, MB.fascia);
 }
 
-/** 彩钢板竖缝：只画在实墙上（窗带上下各一段，绝不跨窗） */
+/**
+ * 彩钢板竖缝：**一条暗缝 + 一条亮棱**（成对出现才是"压型钢板"，单靠暗缝像贴砖）
+ *
+ *   courses 的分缝位置 = u0 + i·(u1−u0)/n（只画内部 n−1 条），
+ *   所以把**两个端点同时平移** 0.012，整组缝就整体平移 —— 不用逐条算。
+ *   亮棱用 `trim_white`（240，颗粒 0，光洁），暗缝用 `metal_seam`（122，冷灰），
+ *   两者中心距 0.012 ⇒ 4x 下"1 px 亮 + 1 px 暗"紧挨着，就是一道受光的棱。
+ *   只画在实墙上（窗带上下各一段，绝不跨窗）。
+ */
 function seamsB(b, side, at, u0, u1) {
+  const out = side === '+x' || side === '+y' ? 0.0015 : -0.0015;
+  const A = at + out;
   for (const [z0, z1] of [[DB.ZPL, DB.WINW.z0], [DB.WINW.z1, DB.ZW]]) {
-    b.line(`courses ${side} ${N(at)} ${N(u0)} ${N(u1)} ${N(z0)} ${N(z1)} 1 8  ${MB.seam} w=0.006`);
+    b.line(`courses ${side} ${N(A)} ${N(u0)} ${N(u1)} ${N(z0)} ${N(z1)} 1 8  ${MB.seam} w=0.008`);
+    b.line(`courses ${side} ${N(A)} ${N(u0 + 0.012)} ${N(u1 + 0.012)}`
+      + ` ${N(z0)} ${N(z1)} 1 8  ${MB.ribHi} w=0.006`);
   }
 }
 
@@ -674,13 +699,18 @@ function frontGableB(b, part) {
   b.face('+y', YF + 0.0015, s0, s1, DB.ZB0, DB.ZB1, MB.band);
   // 檐口板：整半幅通长
   b.face('+y', YF + 0.0015, x0, x1, DB.ZF0, DB.ZF1, MB.fascia);
+  // 竖缝 + 亮棱：只贴实墙垛（门洞两侧那两块），不跨门洞
+  b.line(`courses +y ${N(YF + 0.0015)} ${N(s0)} ${N(s1)}`
+    + ` ${N(DB.ZPL)} ${N(DB.ZE)} 1 2  ${MB.seam} w=0.008`);
+  b.line(`courses +y ${N(YF + 0.0015)} ${N(s0 + 0.012)} ${N(s1 + 0.012)}`
+    + ` ${N(DB.ZPL)} ${N(DB.ZE)} 1 2  ${MB.ribHi} w=0.006`);
   // 洞口那一条的门樘内壁（墙厚方向）
   b.face(hi ? '-x' : '+x', hi ? DB.D1 : DB.D0, YF - DB.T, YF, 0.0000, DB.ZD, MB.metal);
   // 卷帘门导轨（本半幅那一根）
   if (hi) {
-    b.box(DB.D1, YF - 0.002, 0.0000, DB.D1 + DB.GUIDE.w, YF + DB.GUIDE.out, DB.ZD, MB.metalDark);
+    b.box(DB.D1, YF - 0.002, 0.0000, DB.D1 + DB.GUIDE.w, YF + DB.GUIDE.out, DB.ZD, MB.metal);
   } else {
-    b.box(DB.D0 - DB.GUIDE.w, YF - 0.002, 0.0000, DB.D0, YF + DB.GUIDE.out, DB.ZD, MB.metalDark);
+    b.box(DB.D0 - DB.GUIDE.w, YF - 0.002, 0.0000, DB.D0, YF + DB.GUIDE.out, DB.ZD, MB.metal);
   }
   // 卷帘箱：门洞正上方那个盒子，只出一次（近半幅；它正好在门宽之内）
   if (near) {
