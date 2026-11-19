@@ -95,6 +95,7 @@ const D = {
   ZR: 0.500,                     // 屋脊
   OVER: 0.035,                   // 出檐
   D0: 0.320, D1: 0.680,          // 门洞 x 范围（0.36 宽 = 5.0 m）
+  MID: 0.500,                    // 门洞中线：**只有一半是可通的门洞**（见下）
   ZD: 0.300,                     // 门洞高（4.2 m；车高约 0.29，净高 0.30 是硬指标）
   PW: 0.022,                     // 门套立柱宽
   PR: 0.008,                     // 门套挑出墙面
@@ -208,7 +209,8 @@ function windowAt(b, side, at, u0, u1, z0, z1) {
 // =============================================================================
 // 图层 A —— 地面与门洞里面（槽 0/2，画在车之前，会被列车压住）
 // =============================================================================
-function emitGround(b) {
+function emitGround(b, inner) {
+  const [IX0, IX1] = inner;
   // ① 场坪
   b.quad([[0.020, 0.020, 0.0040], [0.980, 0.020, 0.0040],
     [0.980, 0.980, 0.0040], [0.020, 0.980, 0.0040]], 'concrete_pad', [0, 0, 1]);
@@ -216,13 +218,13 @@ function emitGround(b) {
   // ② 门洞里能看见的三块暗面 —— 这就是 xUSSR 那 24×25 小块的内容
   //    只画门洞宽度：多画没用（壳体在车之后，会把洞外的一切盖住），只会把小块做大。
   //    暗地坪
-  b.quad([[D.D0, D.YI0, 0.0046], [D.D1, D.YI0, 0.0046],
-    [D.D1, D.YF, 0.0046], [D.D0, D.YF, 0.0046]], M.floor, [0, 0, 1]);
+  b.quad([[IX0, D.YI0, 0.0046], [IX1, D.YI0, 0.0046],
+    [IX1, D.YF, 0.0046], [IX0, D.YF, 0.0046]], M.floor, [0, 0, 1]);
   //    暗后墙内面（法线朝 +y，朝库内）
-  b.face('+y', D.YI0 + 0.001, D.D0, D.D1, 0.0040, D.ZD, M.wallIn);
+  b.face('+y', D.YI0 + 0.001, IX0, IX1, 0.0040, D.ZD, M.wallIn);
   //    暗天花（法线朝下）
-  b.quad([[D.D0, D.YI0, D.ZD], [D.D0, D.YF, D.ZD],
-    [D.D1, D.YF, D.ZD], [D.D1, D.YI0, D.ZD]], M.ceil, [0, 0, -1]);
+  b.quad([[IX0, D.YI0, D.ZD], [IX0, D.YF, D.ZD],
+    [IX1, D.YF, D.ZD], [IX1, D.YI0, D.ZD]], M.ceil, [0, 0, -1]);
 
   // ③ 道砟 + 枕木 + 钢轨（贯穿整格；钢轨就是小块里那几条"铁轨图案"）
   b.box(TR.B0, 0.0000, 0.0000, TR.B1, 1.0000, TR.BED, M.ballast, M.ballast);
@@ -238,21 +240,22 @@ function emitGround(b) {
 // =============================================================================
 // 图层 B —— 壳体（槽 1/3/4/5，画在车之后；门洞里一个像素都不许有）
 // =============================================================================
-function emitShell(b) {
+function emitShell(b, hole) {
+  const [H0, H1] = hole;
   // ---------------------------------------------------------------- 前山墙（+y）
   // 门洞是一刀真洞；`reveal=no` 免得补出"洞下沿"那条假门槛
   b.line(`wall +y ${N(D.YF)} ${N(D.XL)} ${N(D.XR)} 0.0000 ${N(D.ZE)}`
-    + `  ${N(D.D0)},0.0000,${N(D.D1)},${N(D.ZD)}  ${S.wall} thick=${N(D.T)} reveal=no`);
+    + `  ${N(H0)},0.0000,${N(H1)},${N(D.ZD)}  ${S.wall} thick=${N(D.T)} reveal=no`);
   // 勒脚贴面（门洞两侧）
-  for (const [u0, u1] of [[D.XL, D.D0], [D.D1, D.XR]]) {
+  for (const [u0, u1] of [[D.XL, H0], [H1, D.XR]]) {
     b.face('+y', D.YF + 0.002, u0, u1, 0.0000, D.ZPL, M.plinth);
   }
   // 门洞两侧内壁（洞的左右侧面，进深 = 墙厚）
-  b.face('+x', D.D0, D.YF - D.T, D.YF, 0.0000, D.ZD, M.jamb);
-  b.face('-x', D.D1, D.YF - D.T, D.YF, 0.0000, D.ZD, M.jamb);
+  b.face('+x', H0, D.YF - D.T, D.YF, 0.0000, D.ZD, M.jamb);
+  b.face('-x', H1, D.YF - D.T, D.YF, 0.0000, D.ZD, M.jamb);
   // 门套立柱（挑出墙面）
-  b.box(D.D0 - D.PW, D.YF - 0.002, 0.0000, D.D0, D.YF + D.PR, D.ZD, M.jamb);
-  b.box(D.D1, D.YF - 0.002, 0.0000, D.D1 + D.PW, D.YF + D.PR, D.ZD, M.jamb);
+  b.box(H0 - D.PW, D.YF - 0.002, 0.0000, H0, D.YF + D.PR, D.ZD, M.jamb);
+  b.box(H1, D.YF - 0.002, 0.0000, H1 + D.PW, D.YF + D.PR, D.ZD, M.jamb);
   // 门楣牌（贴在山墙上，不做独立过梁 —— v74 那个过梁是多余改动，已撤）
   b.face('+y', D.YF + 0.003, D.SIGN.u0, D.SIGN.u1, D.SIGN.z0, D.SIGN.z1, M.sign);
 
@@ -286,11 +289,22 @@ function emitShell(b) {
 // ⚠ 名字必须以 `G1_depot` 开头（`tools/sheets.mjs` 用 /^G1_depot/ 分表）
 // ⚠ 三个模型 zmax 都钉 0.5200 ⇒ 同格位 263×184 ⇒ templates.pnml 六行 (−131,−52) 不用改
 // =============================================================================
+// ⚠ "远端一半"逐朝向翻转：同一份壳体模型没法在 v0 和 v3 都让远侧是洞
+//   ⇒ 两个壳体模型（互为 x 镜像）+ 两个地面模型，一共 16 张，正好 8×2 一张表。
 const JOBS = [
-  { name: 'G1_depot', layer: 'shell', why: '壳体 → 槽 1/3/4/5（车之后画，挡住车）' },
-  { name: 'G1_depot_wa', layer: 'ground', why: '地面 + 门洞里面 → 槽 0（车之前画，被车压住）' },
-  { name: 'G1_depot_wb', layer: 'ground', why: '同 wa → 槽 2（车之前画）' },
+  { name: 'G1_depot', layer: 'shell', hole: 'far',
+    why: '壳体 A（门洞开在 x 0.32~0.50 远端一半）→ 槽 1/4/5' },
+  { name: 'G1_depot_wa', layer: 'ground', inner: 'far',
+    why: '地面 A（暗库内只填 x 0.32~0.50）→ 槽 0（车之前画）' },
+  { name: 'G1_depot_wb', layer: 'ground', inner: 'near',
+    why: '地面 B（暗库内只填 x 0.50~0.68）→ 槽 2（车之前画）' },
+  { name: 'G1_depot_x', layer: 'shell', hole: 'near',
+    why: '壳体 B（门洞开在 x 0.50~0.68，A 的镜像）→ 槽 3' },
 ];
+const SPAN = {
+  far: [D.D0, D.MID],
+  near: [D.MID, D.D1],
+};
 
 const header = (job) => `# =============================================================================
 # ${job.name} —— 机车库「库 A」（${job.why}）
@@ -313,8 +327,8 @@ export function generateDepots() {
   const made = [];
   for (const job of JOBS) {
     const b = new Builder();
-    if (job.layer === 'shell') emitShell(b);
-    else emitGround(b);
+    if (job.layer === 'shell') emitShell(b, SPAN[job.hole]);
+    else emitGround(b, SPAN[job.inner]);
     const text = header(job)
       + `name      ${job.name}\n`
       + 'group     misc\n'
