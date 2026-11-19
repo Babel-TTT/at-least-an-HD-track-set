@@ -485,7 +485,7 @@ item(FEAT_RAILTYPES, rail_SADN, 7) {
         /* 机车库「库 A」（美术要素方案.md §1.7；2026-11-18 建模）。
            本轮**只接 SADN 一条**做样本：装进游戏核「4 朝向 ↔ 4 入口方向」与
            「近墙叠得严不严」（§1.7.7 ①②）。核通后再铺满 31 条。 */
-        depots:          depot_SADN;
+        depots:          depot_A;
     }
 }
 
@@ -548,6 +548,7 @@ item(FEAT_RAILTYPES, rail_SBDN, 8) {
         tunnel_overlay:  probe_tunnel_over_2;
         level_crossings: probe_level_crossing;
         bridge_surfaces: probe_bridge_surfaces;
+        depots:          depot_A;
     }
 }
 
@@ -678,6 +679,7 @@ item(FEAT_RAILTYPES, rail_SBDA, 10) {
         /* ★ 2026-10-02 接上导线（30 格，见 railsprite.pnml 的 probe_catenary_wire）。
            wiki 写 28、引擎枚举是 30 ⇒ 按 30 写（多给安全）。 */
         catenary_wire:   probe_catenary_wire;
+        depots:          depot_A;
     }
 }
 
@@ -785,6 +787,7 @@ item(FEAT_RAILTYPES, rail_SBEd, 12) {
         bridge_surfaces: probe_bridge_surfaces;
         catenary_pylons: probe_catenary_pylons_early_blue;
         catenary_wire:   probe_catenary_wire;
+        depots:          depot_A;
     }
 }
 
@@ -844,6 +847,7 @@ item(FEAT_RAILTYPES, rail_SBDD, 13) {
         bridge_surfaces: probe_bridge_surfaces;
         catenary_pylons: probe_catenary_pylons_early_dkblue;
         catenary_wire:   probe_catenary_wire;
+        depots:          depot_A;
     }
 }
 
@@ -964,6 +968,7 @@ item(FEAT_RAILTYPES, rail_NACN, 15) {
         tunnel_overlay:  probe_tunnel_over_narrow;
         level_crossings: probe_level_crossing_narrow;
         bridge_surfaces: probe_bridge_surfaces_narrow;
+        depots:          depot_A;
     }
 }
 
@@ -1024,6 +1029,7 @@ item(FEAT_RAILTYPES, rail_SBEN, 16) {
         tunnel_overlay:  probe_tunnel_over_heavy;
         level_crossings: probe_level_crossing_heavy;
         bridge_surfaces: probe_bridge_surfaces_heavy;
+        depots:          depot_A;
     }
 }
 
@@ -1069,6 +1075,7 @@ item(FEAT_RAILTYPES, rail_SBEA, 17) {
         bridge_surfaces: probe_bridge_surfaces_heavy;
         catenary_pylons: probe_catenary_pylons;
         catenary_wire:   probe_catenary_wire;
+        depots:          depot_A;
     }
 }
 
@@ -1868,6 +1875,7 @@ item(FEAT_RAILTYPES, rail_NBCN, 28) {
         tunnel_overlay:  probe_tunnel_over_narrowmodern;
         level_crossings: probe_level_crossing_narrowmodern;
         bridge_surfaces: probe_bridge_surfaces_narrowmodern;
+        depots:          depot_A;
     }
 }
 
@@ -1914,6 +1922,7 @@ item(FEAT_RAILTYPES, rail_NBCA, 29) {
         bridge_surfaces: probe_bridge_surfaces_narrowmodern;
         catenary_pylons: probe_catenary_pylons_cyl;
         catenary_wire:   probe_catenary_wire;
+        depots:          depot_A;
     }
 }
 
@@ -1972,6 +1981,7 @@ item(FEAT_RAILTYPES, rail_NCCA, 30) {
         bridge_surfaces: probe_bridge_surfaces_narrowhs;
         catenary_pylons: probe_catenary_pylons_steel;
         catenary_wire:   probe_catenary_wire;
+        depots:          depot_A;
     }
 }
 
@@ -2028,6 +2038,7 @@ item(FEAT_RAILTYPES, rail_SAEN, 31) {
         tunnel_overlay:  probe_tunnel_over_2;
         level_crossings: probe_level_crossing_heavywood;
         bridge_surfaces: probe_bridge_surfaces_heavywood;
+        depots:          depot_A;
     }
 }
 
@@ -2198,6 +2209,7 @@ item(FEAT_RAILTYPES, rail_dBCN, 33) {
         tunnel_overlay:  probe_tunnel_over_dual;
         level_crossings: probe_level_crossing_dual;
         bridge_surfaces: probe_bridge_surfaces_dual;
+        depots:          depot_A;
     }
 }
 
@@ -2278,6 +2290,7 @@ item(FEAT_RAILTYPES, rail_DBDN, 34) {
         tunnel_overlay:  probe_tunnel_over_dualwide;
         level_crossings: probe_level_crossing_dualwide;
         bridge_surfaces: probe_bridge_surfaces_dualwide;
+        depots:          depot_A;
     }
 }
 
@@ -2324,6 +2337,7 @@ item(FEAT_RAILTYPES, rail_BBDN, 35) {
         tunnel_overlay:  probe_tunnel_over_wide;
         level_crossings: probe_level_crossing_wide;
         bridge_surfaces: probe_bridge_surfaces_wide;
+        depots:          depot_A;
     }
 }
 
@@ -2393,6 +2407,7 @@ item(FEAT_RAILTYPES, rail_DBDA, 36) {
         bridge_surfaces: probe_bridge_surfaces_dualwidemodern;
         catenary_pylons: probe_catenary_pylons;
         catenary_wire:   probe_catenary_wire;
+        depots:          depot_A;
     }
 }
 
@@ -2437,6 +2452,7 @@ item(FEAT_RAILTYPES, rail_BBDA, 37) {
         bridge_surfaces: probe_bridge_surfaces_widemodern;
         catenary_pylons: probe_catenary_pylons;
         catenary_wire:   probe_catenary_wire;
+        depots:          depot_A;
     }
 }
 

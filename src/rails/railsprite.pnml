@@ -2362,7 +2362,18 @@ spriteset(probe_bridge_surfaces_maglev, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
 //
 //   ⚠ 偏移：见 templates.pnml 那六行（逐朝向，人工在自行微调）。
 // ===========================================================================
-// depot_SADN —— 机车库「库 A」（样本，只接 `SADN`）
+// depot_A —— 机车库「库 A」（红砖机车库，**库 A 的 17 条轨道共用**）
+//
+//   ★ 分组口径见 `美术要素方案.md` §1.7.2（人工裁定）：
+//       库 A = 80~120 km/h 的 `S*DN` / `S*EN` / `S*EA` / `S*Ed` + 窄轨/宽轨/套轨全部
+//       清单：SADN SBDN SBDA SBEd SBDD SAEN SBEN SBEA NACN NBCN NBCA NCCA dBCN BBDN BBDA DBDN DBDA
+//       库 B（彩钢，≥160 的 8 条）与库 C（地铁 6 条）**还没建模**，那 14 条仍走原版精灵。
+//
+//   ★ 现在 17 条**共用同一套 6 张图**（近墙还只有一版）。方案里"18 种近墙"是用来
+//     区分制式（非电/25kV/1500V/3000V）与道床的，还没做 —— 做完后这里要拆成 17 个 spriteset。
+//
+//   ★ 已知取舍（§1.7.5，别当 bug 报）：窄轨 NACN/NBCN 的轨距是 1.004 m，库内轨道仍是
+//     准轨 1435（`TR.RAIL_X`）；门口靠后来的"门槛遮挡条"盖住端头，现在还没有那条。
 //
 //   ★ 架构照**官方 NML 例子**的 `tmpl_depot`（见 templates.pnml 那段注释）：
 //       槽 0/2 = **门口近侧那一小块的副本**（引擎**最后**画 ⇒ 压在车上面）
@@ -2375,9 +2386,9 @@ spriteset(probe_bridge_surfaces_maglev, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
 //     近侧半幅逐朝向翻转 ⇒ 近墙两版：槽 0 ← `wa` v0（x 大那半）· 槽 2 ← `wb` v3（x 小那半）
 //     整栋四朝向：槽 1 ← v0 · 槽 3 ← v3 · 槽 4 ← v1 · 槽 5 ← v2
 //
-//   ⚠ 偏移：**六张全部 (−131,−52)**（同一张分表、同一格位）。
+//   ⚠ 偏移：见 templates.pnml 那六行（逐朝向，人工在自行微调）。
 // ===========================================================================
-spriteset(depot_SADN, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+spriteset(depot_A, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
     t_G1_depot_wa_v0("gfx/depot.png")        // 0  SE 近墙小块（后画，压住车）
     t_G1_depot_v0("gfx/depot.png")           // 1  SE 整栋（先画）
     t_G1_depot_wb_v3("gfx/depot.png")        // 2  SW 近墙小块（后画）
