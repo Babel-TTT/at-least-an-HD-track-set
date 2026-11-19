@@ -203,14 +203,18 @@ function jambLining(b, u0, u1) {
 function interiorParts(b) {
   b.quad([[A.PAD0, A.PAD0, 0.0040], [A.PAD1, A.PAD0, 0.0040],
     [A.PAD1, A.PAD1, 0.0040], [A.PAD0, A.PAD1, 0.0040]], 'concrete_pad', [0, 0, 1]);
+  // ★ v73：库内只画**门洞透视范围**（x = 门洞宽度 UD0..UD1）。
+  //   这一段就是"从门洞看进去能看到的东西"：暗地坪 + 暗后墙内面 + 暗天花。
+  //   画出界也没用 —— 壳体（车之后画）会把洞外的一切盖住，只是白白把小块做大。
+  const HX0 = A.UD0, HX1 = A.UD1;
   // 库内地坪（暗灰）：flatiso 不做室内遮蔽，暗材质才像室内
-  b.quad([[XI0, YI0, 0.0046], [XI1, YI0, 0.0046], [XI1, A.YF, 0.0046], [XI0, A.YF, 0.0046]],
+  b.quad([[HX0, YI0, 0.0046], [HX1, YI0, 0.0046], [HX1, A.YF, 0.0046], [HX0, A.YF, 0.0046]],
     M.floor, [0, 0, 1]);
-  for (const [at, side] of [[XI0 + 0.002, '+x'], [XI1 - 0.002, '-x']]) {
-    b.face(side, at, YI0, A.YF, 0.0046, A.Z_DOOR, M.wallIn);
-  }
-  b.quad([[XI0, YI0, A.Z_DOOR], [XI0, A.YF, A.Z_DOOR],
-    [XI1, A.YF, A.Z_DOOR], [XI1, YI0, A.Z_DOOR]], M.ceil, [0, 0, -1]);
+  // 后墙内面（暗）：后山墙从 YB 往 +y 做 thick ⇒ 内表面在 y = YI0；法线朝 +y（朝库内）
+  b.face('+y', YI0 + 0.001, HX0, HX1, 0.0040, A.Z_DOOR, M.wallIn);
+  // 天花（暗）：门顶那一面
+  b.quad([[HX0, YI0, A.Z_DOOR], [HX0, A.YF, A.Z_DOOR],
+    [HX1, A.YF, A.Z_DOOR], [HX1, YI0, A.Z_DOOR]], M.ceil, [0, 0, -1]);
   // 道砟 + 枕木 + 钢轨（贯穿整格）
   b.box(TR.B0, 0.0000, 0.0000, TR.B1, 1.0000, TR.BED, M.ballast, M.ballast);
   for (let y = TR.SL_Y0, k = 0; y + TR.SL_T <= TR.SL_Y1 + 1e-9; y += TR.SL_STEP, k++) {
