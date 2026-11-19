@@ -623,7 +623,10 @@ const MB = {
   //        b. **冷灰硬缝**（metal_seam 122,127,132）代替同色系缝 → 像压型板的折边阴影
   //        c. 缝边再画一条**冷金属棱**（metal_pale 190,195,199）→ 明暗成对
   //      真高光得把墙做成**有棱面的压型板**（法线 ±15° 才吃 spec），那是下一轮的事。
-  wall: 'trim_white', seam: 'metal_seam', ribHi: 'metal_pale',
+  //   ③ 白又偏黄 → 人工 2026-11-19「有点偏黄」→ 在色表里加了 `metal_white: M(223,237,255)`：
+  //      墙面各通道衰减约 R×0.84 / G×0.78 / B×0.735，所以蓝通道得顶到 255 才中性，
+  //      渲出来 ≈ (187,187,187)。实测：trim_white 是 (202,188,171) R−B+31（黄）。
+  wall: 'metal_white', seam: 'metal_seam', ribHi: 'metal_pale',
   band: 'trim_blue', fascia: 'metal',
   roof: 'roof_metal', rib: 'metal_rib', ridge: 'metal',
   metal: 'metal', metalLite: 'metal_pale', metalDark: 'metal_dark',
