@@ -300,7 +300,8 @@ const LIB_C = ['SACd', 'SBCd', 'SAC3', 'SBC3', 'SACZ', 'SACL'];
 
 // ★ 人工 2026-11-19：「弄地铁的车库，也是先打个样」
 //   ⇒ 先只出 `SAC3`（第三轨 + 木质覆盖板 + 黄条，是库 C 里最有辨识度的一条）。
-const LIB_C_DO = ['SAC3'];
+// ★ 人工 2026-11-19：「推广到其他轨道吧」⇒ 改成 `LIB_C`（6 条全出）。
+const LIB_C_DO = LIB_C;
 
 /** 兼容旧口径：准轨断面（模板 `t_G1_depot_wa_v0` 那一组仍是它） */
 const TR = TRACK_SPECS.SBDN;

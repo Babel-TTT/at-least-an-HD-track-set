@@ -2639,8 +2639,8 @@ spriteset(depot_B_SGCA, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
 //
 //   ★ 分组口径见 `美术要素方案.md` §1.7.2：库 C = **地铁 6 条**
 //       SACd SBCd（架空 1500V）· SAC3 SBC3（第三轨）· SACZ（悬浮板）· SACL（直线电机）
-//   ★ 人工 2026-11-19：「弄地铁的车库，也是先打个样」
-//     ⇒ **先只接 `SAC3` 一条**（`tools/gen-g1-depot.mjs` 的 `LIB_C_DO`）。
+//   ★ 人工 2026-11-19：「弄地铁的车库，也是先打个样」→ 先只接 `SAC3`；
+//     同日「推广到其他轨道吧」⇒ **6 条全部接上**（壳体两版，6 条共用）。
 //
 //   ★ 与 A/B 的差别：
 //       **平顶 + 女儿墙 + 压顶**（没有坡屋面、没有檐口）· 屋面两台机组
@@ -2648,12 +2648,57 @@ spriteset(depot_B_SGCA, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
 //       门洞 0.36×0.31 · 卷帘门（卷帘箱 + 导轨）· 门上**黄黑警示条** sign_yellow
 //       招牌 `sign_white`「车辆段」· 洞内 `trim_black` + **第三轨黄条**（在轨道那层）
 //
-//   ★ 槽位与库 A/B 完全相同；偏移逐槽同值（同格位同锚点），见 templates.pnml。
+//   ★ 槽位与库 A/B 完全相同；偏移逐槽同值（同格位同锚点），见 templates.pnml 那 16 行。
 // ===========================================================================
 spriteset(depot_C_SAC3, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
     t_G1_depot_zzz_SAC3_se_v0("gfx/depot.png")  // 0  SE 地面层（SAC3 的整体道床 + 第三轨）
     t_G1_depot_zzz_v0("gfx/depot.png")          // 1  SE 整栋
     t_G1_depot_zzz_SAC3_sw_v3("gfx/depot.png")  // 2  SW 地面层（镜像）
+    t_G1_depot_zzz_x_v3("gfx/depot.png")        // 3  SW 整栋
+    t_G1_depot_zzz_v1("gfx/depot.png")          // 4  NE 整栋
+    t_G1_depot_zzz_x_v2("gfx/depot.png")        // 5  NW 整栋
+}
+
+spriteset(depot_C_SACd, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G1_depot_zzz_SACd_se_v0("gfx/depot.png")  // 0  SE 地面层（SACd 架空 1500V，无第三轨）
+    t_G1_depot_zzz_v0("gfx/depot.png")          // 1  SE 整栋
+    t_G1_depot_zzz_SACd_sw_v3("gfx/depot.png")  // 2  SW 地面层（镜像）
+    t_G1_depot_zzz_x_v3("gfx/depot.png")        // 3  SW 整栋
+    t_G1_depot_zzz_v1("gfx/depot.png")          // 4  NE 整栋
+    t_G1_depot_zzz_x_v2("gfx/depot.png")        // 5  NW 整栋
+}
+
+spriteset(depot_C_SBCd, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G1_depot_zzz_SBCd_se_v0("gfx/depot.png")  // 0  SE 地面层（SBCd）
+    t_G1_depot_zzz_v0("gfx/depot.png")          // 1  SE 整栋
+    t_G1_depot_zzz_SBCd_sw_v3("gfx/depot.png")  // 2  SW 地面层（镜像）
+    t_G1_depot_zzz_x_v3("gfx/depot.png")        // 3  SW 整栋
+    t_G1_depot_zzz_v1("gfx/depot.png")          // 4  NE 整栋
+    t_G1_depot_zzz_x_v2("gfx/depot.png")        // 5  NW 整栋
+}
+
+spriteset(depot_C_SBC3, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G1_depot_zzz_SBC3_se_v0("gfx/depot.png")  // 0  SE 地面层（SBC3 第三轨）
+    t_G1_depot_zzz_v0("gfx/depot.png")          // 1  SE 整栋
+    t_G1_depot_zzz_SBC3_sw_v3("gfx/depot.png")  // 2  SW 地面层（镜像）
+    t_G1_depot_zzz_x_v3("gfx/depot.png")        // 3  SW 整栋
+    t_G1_depot_zzz_v1("gfx/depot.png")          // 4  NE 整栋
+    t_G1_depot_zzz_x_v2("gfx/depot.png")        // 5  NW 整栋
+}
+
+spriteset(depot_C_SACZ, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G1_depot_zzz_SACZ_se_v0("gfx/depot.png")  // 0  SE 地面层（SACZ 悬浮板）
+    t_G1_depot_zzz_v0("gfx/depot.png")          // 1  SE 整栋
+    t_G1_depot_zzz_SACZ_sw_v3("gfx/depot.png")  // 2  SW 地面层（镜像）
+    t_G1_depot_zzz_x_v3("gfx/depot.png")        // 3  SW 整栋
+    t_G1_depot_zzz_v1("gfx/depot.png")          // 4  NE 整栋
+    t_G1_depot_zzz_x_v2("gfx/depot.png")        // 5  NW 整栋
+}
+
+spriteset(depot_C_SACL, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G1_depot_zzz_SACL_se_v0("gfx/depot.png")  // 0  SE 地面层（SACL 直线电机：多一块反应板）
+    t_G1_depot_zzz_v0("gfx/depot.png")          // 1  SE 整栋
+    t_G1_depot_zzz_SACL_sw_v3("gfx/depot.png")  // 2  SW 地面层（镜像）
     t_G1_depot_zzz_x_v3("gfx/depot.png")        // 3  SW 整栋
     t_G1_depot_zzz_v1("gfx/depot.png")          // 4  NE 整栋
     t_G1_depot_zzz_x_v2("gfx/depot.png")        // 5  NW 整栋

@@ -1155,6 +1155,7 @@ item(FEAT_RAILTYPES, rail_SBC3, 18) {
         tunnels:         probe_tunnels_metro;
         tunnel_overlay:  probe_tunnel_over_metro;
         bridge_surfaces: probe_bridge_surfaces_floatslab;
+        depots:          depot_C_SBC3;
     }
 }
 
@@ -1693,6 +1694,7 @@ item(FEAT_RAILTYPES, rail_SACd, 25) {
         bridge_surfaces: probe_bridge_surfaces_dcmetro;
         catenary_pylons: probe_catenary_pylons_cyl_blue;
         catenary_wire:   probe_catenary_wire;
+        depots:          depot_C_SACd;
     }
 }
 
@@ -1755,6 +1757,7 @@ item(FEAT_RAILTYPES, rail_SBCd, 26) {
         bridge_surfaces: probe_bridge_surfaces_dcmetro;
         catenary_pylons: probe_catenary_pylons_cyl_blue;
         catenary_wire:   probe_catenary_wire;
+        depots:          depot_C_SBCd;
     }
 }
 
@@ -1837,6 +1840,7 @@ item(FEAT_RAILTYPES, rail_SACZ, 27) {
         bridge_surfaces: probe_bridge_surfaces_floatslab;
         catenary_pylons: probe_catenary_pylons_cyl_blue;
         catenary_wire:   probe_catenary_wire;
+        depots:          depot_C_SACZ;
     }
 }
 
@@ -2124,6 +2128,7 @@ item(FEAT_RAILTYPES, rail_SACL, 32) {
         tunnels:         probe_tunnels_linear;
         tunnel_overlay:  probe_tunnel_over_metro;
         bridge_surfaces: probe_bridge_surfaces_linear;
+        depots:          depot_C_SACL;
     }
 }
 
