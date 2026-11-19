@@ -113,10 +113,12 @@ const WIN = [[0.200, 0.340], [0.420, 0.560], [0.640, 0.780]];
 // z 0.010~0.023，贯穿 y 0~1；砟顶 0.0078；枕木 0.012 起、步距 0.040。
 const TR = {
   B0: 0.320, B1: 0.680,
-  // 引轨终点：**门口那一端要伸出 tile**（y=1.0 只到边界，门外只剩 0.56 m 轨道，
-  // 看上去像铁轨停在墙根）。tile 之后画，所以伸出这一截会压住门口外侧的轨道 tile，
-  // 视觉上就连成一条。flatiso 允许超出占地 0.0625 格 ⇒ 取 1.0625（门外 1.4 m）。
-  Y1: 1.0625,
+  // 引轨：**只有钢轨**略微伸出门口（几个像素），道砟和枕木留在 tile 内。
+  //   v79 把三样一起伸到 1.0625，人工说"伸出太多、灰色底板要短一点"⇒ 拆成两个数：
+  //   Y_BED  道砟/枕木 → 0.9800（收进场坪边缘以内，门口外面不留灰板）
+  //   Y_RAIL 钢轨       → 1.0250（门外约 3 px，看着连上，又不显眼）
+  Y_BED: 0.9800,
+  Y_RAIL: 1.0250,
   BED: 0.0078,
   SL_TOP: 0.0100, SL_STEP: 0.0400, SL_HALF: 0.0900, SL_T: 0.0200,
   SL_Y0: 0.0120, SL_Y1: 0.9880,
@@ -290,14 +292,14 @@ function emitGround(b, job) {
   const inAt = sink === '+x' ? D.XR - D.T - 0.001 : D.XL + D.T + 0.001;
   b.face(inSide, inAt, D.YI0, D.YF, 0.0000, D.ZE, M.wallIn);
 
-  // ③ 道砟 + 枕木 + 钢轨（贯穿整格，**门口那一端伸到 TR.Y1**）
-  b.box(TR.B0, 0.0000, 0.0000, TR.B1, TR.Y1, TR.BED, M.ballast, M.ballast);
-  for (let y = TR.SL_Y0, k = 0; y + TR.SL_T <= TR.Y1 + 1e-9; y += TR.SL_STEP, k++) {
+  // ③ 道砟 + 枕木 + 钢轨（道砟/枕木到 tile 边界，只有钢轨略微伸出门口）
+  b.box(TR.B0, 0.0000, 0.0000, TR.B1, TR.Y_BED, TR.BED, M.ballast, M.ballast);
+  for (let y = TR.SL_Y0, k = 0; y + TR.SL_T <= TR.Y_BED + 1e-9; y += TR.SL_STEP, k++) {
     b.box(0.5 - TR.SL_HALF, y, 0.0000, 0.5 + TR.SL_HALF, y + TR.SL_T, TR.SL_TOP,
       k % 2 ? M.sleeperB : M.sleeperA, M.sleeperB);
   }
   for (const [x0, x1] of TR.RAIL_X) {
-    b.box(x0, 0.0000, TR.RAIL_BASE, x1, TR.Y1, TR.RAIL_TOP, 'rust', 'metal');
+    b.box(x0, 0.0000, TR.RAIL_BASE, x1, TR.Y_RAIL, TR.RAIL_TOP, 'rust', 'metal');
   }
 
   // ④ 前端墙的**远侧墙垛**（被车遮住 ⇒ 和地面同层）
