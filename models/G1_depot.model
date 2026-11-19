@@ -1,5 +1,5 @@
 # =============================================================================
-# G1_depot —— 机车库「库 A」（壳体：后山墙/两侧纵墙/屋面 + 前端墙近侧墙垛（遮车）→ 槽 1/4/5）
+# G1_depot —— 机车库「库 A」（壳体：后山墙/近侧纵墙/屋面 + 前端墙近侧墙垛与横槛（遮车）→ 槽 1/4）
 #
 # 【本文件由 tools/gen-g1-depot.mjs 生成，请勿手改】风格：brick
 #
@@ -18,7 +18,7 @@ group     misc
 footprint 1 1
 zmax      0.5200
 
-wall +y 0.9600 0.6800 0.8600 0.0000 0.3400  brick_brown thick=0.0500 reveal=no
+wall +y 0.9600 0.3200 0.8600 0.0000 0.3400  0.3200,0.0000,0.6800,0.3000  brick_brown thick=0.0500 reveal=no
 quad 0.6800 0.9620 0.0500  0.8600 0.9620 0.0500  0.8600 0.9620 0.0000  0.6800 0.9620 0.0000   concrete_dark
 quad 0.6800 0.9100 0.3000  0.6800 0.9600 0.3000  0.6800 0.9600 0.0000  0.6800 0.9100 0.0000   concrete
 quad 0.6800 0.9580 0.3000  0.7020 0.9580 0.3000  0.7020 0.9680 0.3000  0.6800 0.9680 0.3000   concrete
@@ -27,6 +27,7 @@ quad 0.7020 0.9580 0.0000  0.7020 0.9680 0.0000  0.7020 0.9680 0.3000  0.7020 0.
 quad 0.7020 0.9680 0.0000  0.6800 0.9680 0.0000  0.6800 0.9680 0.3000  0.7020 0.9680 0.3000   concrete
 quad 0.6800 0.9680 0.0000  0.6800 0.9580 0.0000  0.6800 0.9580 0.3000  0.6800 0.9680 0.3000   concrete
 quad 0.6800 0.9580 0.0000  0.7020 0.9580 0.0000  0.7020 0.9580 0.3000  0.6800 0.9580 0.3000   concrete
+quad 0.3400 0.9630 0.3350  0.6600 0.9630 0.3350  0.6600 0.9630 0.3050  0.3400 0.9630 0.3050   sign_white
 wall -y 0.0400 0.1400 0.8600 0.0000 0.0500  concrete_dark thick=0.0500
 wall -y 0.0400 0.1400 0.8600 0.0500 0.3400  brick_brown thick=0.0500
 win -y 0.0390 0.3200 0.6800 0.2150 0.2950  glass_dark frame=metal_dark frameW=0.014 mull=2 depth=0.010 inset=0 sill=metal_dark
@@ -35,8 +36,8 @@ wall +x 0.8600 0.0400 0.9600 0.0500 0.3400  brick_brown thick=0.0500
 win +x 0.8610 0.2000 0.3400 0.2150 0.2950  glass_dark frame=metal_dark frameW=0.014 mull=2 depth=0.010 inset=0 sill=metal_dark
 win +x 0.8610 0.4200 0.5600 0.2150 0.2950  glass_dark frame=metal_dark frameW=0.014 mull=2 depth=0.010 inset=0 sill=metal_dark
 win +x 0.8610 0.6400 0.7800 0.2150 0.2950  glass_dark frame=metal_dark frameW=0.014 mull=2 depth=0.010 inset=0 sill=metal_dark
-wall -x 0.1400 0.0400 0.9600 0.0000 0.0500  concrete_dark thick=0.0500
-wall -x 0.1400 0.0400 0.9600 0.0500 0.3400  brick_brown thick=0.0500
+quad 0.1400 0.0400 0.0500  0.1400 0.9600 0.0500  0.1400 0.9600 0.0000  0.1400 0.0400 0.0000   concrete_dark
+quad 0.1400 0.0400 0.3400  0.1400 0.9600 0.3400  0.1400 0.9600 0.0500  0.1400 0.0400 0.0500   brick_brown
 win -x 0.1390 0.2000 0.3400 0.2150 0.2950  glass_dark frame=metal_dark frameW=0.014 mull=2 depth=0.010 inset=0 sill=metal_dark
 win -x 0.1390 0.4200 0.5600 0.2150 0.2950  glass_dark frame=metal_dark frameW=0.014 mull=2 depth=0.010 inset=0 sill=metal_dark
 win -x 0.1390 0.6400 0.7800 0.2150 0.2950  glass_dark frame=metal_dark frameW=0.014 mull=2 depth=0.010 inset=0 sill=metal_dark
