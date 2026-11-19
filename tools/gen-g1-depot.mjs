@@ -1,41 +1,57 @@
 // =============================================================================
-// tools/gen-g1-depot.mjs —— 生成 **车库**「库 A」的 3 个模型（照官方 NML 例子的 tmpl_depot）
+// tools/gen-g1-depot.mjs —— 机车库「库 A」模型生成器
 //
-//   node tools/gen-g1-depot.mjs                 # 默认风格 brick（v65 样式 + 不艳的砖色）
+//   ★ 2026-11-19 v74：**整份重写**。旧文件里 na/nb/nc/a/wa/wb 那一串历史包袱
+//     全部作废；这里只有一张尺寸表 + 两个发射函数，一切按下面【一】的结论生成。
+//
+//   node tools/gen-g1-depot.mjs                 # 默认 brick（不艳的砖色）
 //   node tools/gen-g1-depot.mjs --style=red     # 鲜艳红砖
 //   node tools/gen-g1-depot.mjs --style=grey    # 青砖
 //
-// 产出（**整份重写，别手改**）：
-//   G1_depot      **壳体**：前山墙(真门洞)/后山墙/两侧纵墙/屋面/门樘/门楣牌/勒脚
-//                 → 槽 1 / 3 / 4 / 5，**画在车之后**（所以车被墙挡住，只有门洞是通的）
-//   G1_depot_wa   **库内**：场坪 + 暗地坪 + 两片暗内墙 + 天花 + 道砟枕木钢轨
-//                 → 槽 0（v0），**画在车之前**（被车压住的那一层）
-//   G1_depot_wb   同上（v3 用，两格内容相同）→ 槽 2
+// -----------------------------------------------------------------------------
+// 【一、xUSSR / 官方例子量出来的结论，以及它对应的每一处构造】
+//
+//   (1) 绘制顺序：**槽 0/2 → 列车 → 槽 1/3/4/5**
+//       ⇒ 库内(0/2) 是被车压住的那层；壳体(1/3/4/5) 是挡车的那层。
+//
+//   (2) xUSSR 那块 24×25（291 px）画的是「门洞里面」：暗内墙 + 地坪 + 钢轨，
+//       与整栋像素重合率仅 8% ⇒ 它不是副本，是**补整栋缺掉的那块**。
+//       ⇒ 本文件：壳体把门洞开成一刀真洞（洞里 0 像素）；
+//                  地面层在**门洞透视范围内**画暗地坪 / 暗后墙内面 / 暗天花 + 轨道。
+//
+//   (3) 量法：xUSSR `depot.png` 的 槽1(SE入口) 与 槽5(NW入口,转180°) 对减，
+//       「只有槽1 缺」的整块 = 列41-59 × 行31-48（约 19×18，平行四边形，
+//       左边竖直、上下 2:1 斜边）⇒ 缺口贴在 **+y 那面竖墙**上。
+//       另：槽1 与 槽3 左右镜像逐像素差 = 0 ⇒ 两个"开门"朝向是同一张图翻转。
+//       ⇒ 本文件：门洞就开在 +y 山墙上（朝屏幕右下，正面朝 +y 是本工地的铁律）。
+//
+//   (4) 小块占整栋 19%（291/1532 px），官方例子那块 16×8 占 5.3%
+//       ⇒ 门洞不该占满整面墙。本文件：门洞 0.42 格宽（墙长 0.74 的 57%），
+//         高 0.30 格，两侧各留 0.16 的墙垛；门洞以上还有 0.035 的过梁带。
+//
+//   (5) 门套 / 门楣 / 门楣牌 放在**壳体**里（车之后画）⇒ 它们会切在车前面，
+//       车头被门框削一刀；小块里不放任何"应该压在车上"的东西。
 //
 // -----------------------------------------------------------------------------
-// 【★★ 绘制顺序（2026-11-19 v72 定案，人工指点）★★】
+// 【二、三个模型（wa/wb 内容相同，只为让 templates.pnml 六行不用改）】
 //
-//     库内(槽 0/2)  →  列车  →  壳体(槽 1/3/4/5)
-//
-//   槽 0/2 **不是**"压在车上的覆盖贴图"，而是**被车压住**的那一块 ——
-//   所以 xUSSR `depot.png` 里那块 24×25 带着**铁轨图案**、画的是**视角远端**的
-//   内墙 / 地坪 / 钢轨；官方例子那块 16×8 也是同一位置的一小片。
-//   壳体在车之后画 ⇒ 车被墙挡住，只有门洞是通的，从门洞看进去才看到车；
-//   而门洞里"远的那一半"就是 0/2 这一层的暗内墙 + 地坪 + 铁轨。
-//
-//   ⚠ v70/v71 把这条顺序**搞反了**（把小块当成"压在车上的覆盖贴图"），
-//     甚至 v65~v68 还把整层地面塞进 0/2 —— 结果都是：门洞被堵死或被糊上一片墙。
-//
-//   ⚠ 偏移：三张图同格位（263×184，pivot 在 (131,116)）⇒ **六张全部 (−131,−52)**，
-//     `src/rails/templates.pnml` 那六行**不动**（人工在自行微调）。
+//   G1_depot      壳体 → 槽 1/3/4/5 : 前山墙(门洞真洞) / 洞内壁 / 门套 / 门楣 /
+//                                     后山墙 / 两侧纵墙 / 勒脚 / 屋面 / 脊瓦 / 封檐
+//   G1_depot_wa   地面 → 槽 0       : 场坪 / 道砟枕木钢轨(整格) /
+//   G1_depot_wb   地面 → 槽 2         门洞透视范围内的暗地坪·暗后墙内面·暗天花
 //
 // -----------------------------------------------------------------------------
-// 【形体（格；1 格 = 13.9 m，4x 下 1 px = 0.089 m）· v65 样式】
+// 【三、形体（格；1 格 = 13.9 m，4x 下 1 px = 0.089 m）】
 //
 //   占地 1×1 · 端头库房：+y 山墙一樘大门、−y 山墙实墙（+ 一樘高窗）
-//   勒脚 0~0.050 · 墙身 0.050~0.340 · 屋脊 0.500
-//   墙体 0.14~0.86 × 0.04~0.96（10.0 × 12.8 m）· 墙厚 0.050 · 出檐 0.035
-//   门洞 0.36 宽 × 0.30 高（5.0 × 4.2 m）——净高 0.30 是硬指标，车高约 0.29
+//   墙外皮    x 0.130 ~ 0.870（10.3 m）· y 0.030 ~ 0.970（13.1 m）
+//   墙厚      0.030（0.42 m）
+//   勒脚      0 ~ 0.045（0.63 m）`concrete_dark`
+//   檐口      0.335（4.7 m）· 屋脊 0.500（7.0 m）· 出檐 0.030
+//   门洞      0.290 ~ 0.710（0.42 格 = 5.8 m 宽）× 高 0.300（4.2 m，车高约 0.29）
+//             门套立柱 0.020 宽、挑出墙面 0.008；门楣过梁挑出 0.012
+//   侧墙      每侧 3 樘贴面窗（窗台 0.215，上沿 0.405）
+//   zmax      0.5200（脊瓦顶）—— 与旧版一致，**格位必须仍是 263×184**
 // =============================================================================
 
 import fs from 'node:fs';
@@ -43,21 +59,22 @@ import path from 'node:path';
 
 import { ROOT, log, rel, isMain } from './util.mjs';
 
-// ---------------------------------------------------------------- 小工具
+// ---------------------------------------------------------------- 数值小工具
 const N = (v) => {
   const s = v.toFixed(4);
   return s === '-0.0000' ? '0.0000' : s;
 };
-const V = {
-  dot: (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2],
-  len: (a) => Math.hypot(a[0], a[1], a[2]),
-};
+const dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+const norm = (a) => Math.sqrt(dot(a, a));
 
-/** Newell 法线（与 `core/mesh.mjs` 的 newell 逐字同式，只是不归一） */
+/** Newell 法线（定绕序用，不归一化） */
 function newellRaw(pts) {
-  let nx = 0, ny = 0, nz = 0;
+  let nx = 0;
+  let ny = 0;
+  let nz = 0;
   for (let i = 0; i < pts.length; i++) {
-    const a = pts[i], b = pts[(i + 1) % pts.length];
+    const a = pts[i];
+    const b = pts[(i + 1) % pts.length];
     nx += (a[1] - b[1]) * (a[2] + b[2]);
     ny += (a[2] - b[2]) * (a[0] + b[0]);
     nz += (a[0] - b[0]) * (a[1] + b[1]);
@@ -65,43 +82,48 @@ function newellRaw(pts) {
   return [nx, ny, nz];
 }
 
-// ---------------------------------------------------------------- 口径（库 A）
-const A = {
-  XL: 0.140, XR: 0.860,          // 墙体外皮（跨度 0.72 格 = 10.0 m）
-  YB: 0.040, YF: 0.960,          // 进深（0.92 格 = 12.8 m）
-  T: 0.050,                      // 墙厚
-  Z_PL: 0.050,                   // 勒脚顶（砖墙起点）
-  Z_EAVE: 0.340,                 // 檐口（4.7 m）
-  Z_RIDGE: 0.500,                // 屋脊（6.9 m）
-  Z_DOOR: 0.300,                 // 门洞净高（4.2 m）
-  UD0: 0.320, UD1: 0.680,        // 门洞（0.36 格 = 5.0 m）
+// ---------------------------------------------------------------- 尺寸表
+const D = {
+  // ⚠ 这四个数一起决定"取景框高度"。格位必须留在 263×184，
+  //    否则 templates.pnml 里人工调的 (−131,−52) 全部要重来。
+  //    实测：XL=0.130 / YB=0.030 会把最上沿（封檐板外角 x+y=0.094）顶高 1 px ⇒ 格位变 185。
+  XL: 0.140, XR: 0.860,          // 墙外皮 x
+  YB: 0.040, YF: 0.960,          // 墙外皮 y（+y = 大门面）
+  T: 0.030,                      // 墙厚（v74：0.050 → 0.030，0.42 m）
+  ZPL: 0.050,                    // 勒脚顶
+  ZE: 0.340,                     // 檐口
+  ZR: 0.500,                     // 屋脊
   OVER: 0.035,                   // 出檐
-  JAMB: 0.022,                   // 门套宽（挑在墙垛上）
-  PROUD: 0.008,                  // 门套挑出墙面
-  LIN: 0.008,                    // 门樘内衬厚
-  PAD0: 0.020, PAD1: 0.980,      // 场坪边
-  MID: 0.500,                    // 近/远半幅的分界（前山墙按它切）
+  D0: 0.290, D1: 0.710,          // 门洞 x 范围
+  ZD: 0.300,                     // 门洞高
+  PW: 0.020,                     // 门套立柱宽
+  PR: 0.008,                     // 门套挑出墙面
+  LINT: 0.012,                   // 门楣挑出
+  ZW0: 0.215, ZW1: 0.405,        // 侧墙窗台 / 上沿
+  BW: { u0: 0.330, u1: 0.670, z0: 0.215, z1: 0.300 },   // 后墙高窗
 };
-const XI0 = A.XL + A.T, XI1 = A.XR - A.T;   // 洞内净空 0.19 / 0.81
-const YI0 = A.YB + A.T, YI1 = A.YF - A.T;   // 0.09 / 0.91
+D.YI0 = D.YB + D.T;              // 库内净空起点（后墙内表面）
 
-/** 侧墙窗（三樘，z 0.215~0.295；4x 下 20 × 12.5 px） */
-const WIN = [[0.200, 0.340], [0.420, 0.560], [0.640, 0.780]];
-const Z_W0 = 0.215, Z_W1 = 0.295;
+/** 侧墙贴面窗：三樘 */
+const WIN = [[0.100, 0.300], [0.350, 0.550], [0.600, 0.800]];
 
-/** 后山墙高窗 */
-const BWIN = { u0: 0.320, u1: 0.680, z0: 0.215, z1: 0.295 };
+// ---------------------------------------------------------------- 库内轨道
+// 口径照抄 `models/G1_rail_straight.model`：轨 x 0.4444~0.4524 / 0.5476~0.5556，
+// z 0.010~0.023，贯穿 y 0~1；砟顶 0.0078；枕木 0.012 起、步距 0.040。
+const TR = {
+  B0: 0.320, B1: 0.680,
+  BED: 0.0078,
+  SL_TOP: 0.0100, SL_STEP: 0.0400, SL_HALF: 0.0900, SL_T: 0.0200,
+  SL_Y0: 0.0120, SL_Y1: 0.9880,
+  RAIL_BASE: 0.0100, RAIL_TOP: 0.0230,
+  RAIL_X: [[0.4444, 0.4524], [0.5476, 0.5556]],
+};
 
-/** 门楣牌（白底；三个汉字要 CJK 点阵表，见方案 §1.7.7 ⑤） */
-const SIGN = { u0: 0.340, u1: 0.660, z0: 0.305, z1: 0.335 };
-
-// ---------------------------------------------------------------- 风格表
-//
-// 风格只换**材质名**，几何完全一样 ⇒ 三套的格位、模板、偏移一字不差。
+// ---------------------------------------------------------------- 材质
 const STYLES = {
-  brick: { wall: 'brick_brown', roof: 'roof_slate', roofSeam: 'roof_slate_seam', ridge: 'roof_slate_dark' },
-  red: { wall: 'brick_red', roof: 'roof_slate', roofSeam: 'roof_slate_seam', ridge: 'roof_slate_dark' },
-  grey: { wall: 'brick_grey', roof: 'roof_slate', roofSeam: 'roof_slate_seam', ridge: 'roof_slate_dark' },
+  brick: { wall: 'brick_brown', roof: 'roof_slate', seam: 'roof_slate_seam', ridge: 'roof_slate_dark' },
+  red: { wall: 'brick_red', roof: 'roof_slate', seam: 'roof_slate_seam', ridge: 'roof_slate_dark' },
+  grey: { wall: 'brick_grey', roof: 'roof_slate', seam: 'roof_slate_seam', ridge: 'roof_slate_dark' },
 };
 const argOf = (k, d) => {
   const a = process.argv.find((s) => s.startsWith(`--${k}=`));
@@ -111,44 +133,40 @@ const STYLE_NAME = argOf('style', 'brick');
 const S = STYLES[STYLE_NAME];
 if (!S) throw new Error(`未知风格「${STYLE_NAME}」，可用：${Object.keys(STYLES).join(' / ')}`);
 
-/** 固定材质（不随风格变） */
+/** 固定材质 */
 const M = {
-  plinth: 'concrete_dark', jamb: 'concrete', sign: 'sign_white',
-  frame: 'metal_dark', glass: 'glass_dark', fascia: 'trim_dark',
+  plinth: 'concrete_dark', jamb: 'concrete', lintel: 'concrete',
+  sign: 'sign_white', frame: 'metal_dark', glass: 'glass_dark',
+  fascia: 'trim_dark', soffit: 'trim_dark',
   floor: 'trim_dark', ceil: 'trim_black', wallIn: 'trim_dark',
   ballast: 'panel_seam', sleeperA: 'wood_dark', sleeperB: 'wood_seam',
 };
 
-// ---------------------------------------------------------------- 库内轨道
-/**
- * 口径照抄 `models/G1_rail_straight.model`：钢轨 x 0.4444~0.4524 / 0.5476~0.5556，
- * z 0.010~0.023，**贯穿 y 0~1**（rust 身 + metal 顶）；砟顶 0.0078；枕木 0.012 起步、步距 0.04。
- */
-const TR = {
-  B0: 0.3200, B1: 0.6800,
-  BED: 0.0078,
-  SLEEPER_TOP: 0.0100,
-  RAIL_BASE: 0.0100, RAIL_TOP: 0.0230,
-  RAIL_X: [[0.4444, 0.4524], [0.5476, 0.5556]],
-  SL_STEP: 0.0400, SL_HALF: 0.0900, SL_T: 0.0200,
-  SL_Y0: 0.0120, SL_Y1: 0.9880,
-};
-
 // ---------------------------------------------------------------- 发射器
+//
+// `.model` 只能是一行行字面量；这个类只负责把坐标算好、绕序摆正、数字格式化。
 class Builder {
-  constructor() { this.lines = []; this.quads = 0; }
+  constructor() {
+    this.lines = [];
+    this.quads = 0;
+  }
 
+  /** 任意四边形；`hint` 是期望朝向，反了就整体反序 */
   quad(pts, mat, hint) {
     const nn = newellRaw(pts);
-    if (V.len(nn) < 1e-9) throw new Error('退化面（法线为 0）：' + JSON.stringify(pts));
-    const p = V.dot(nn, hint) < 0 ? pts.slice().reverse() : pts;
+    if (norm(nn) < 1e-9) throw new Error('退化面（法线为 0）：' + JSON.stringify(pts));
+    const p = dot(nn, hint) < 0 ? pts.slice().reverse() : pts;
     this.lines.push('quad ' + p.map((q) => N(q[0]) + ' ' + N(q[1]) + ' ' + N(q[2])).join('  ')
       + '   ' + mat);
     this.quads++;
   }
 
+  /** 实心盒（6 面，顶面可换材质） */
   box(x0, y0, z0, x1, y1, z1, mat, top) {
-    const a = [x0, y0], b = [x1, y0], c = [x1, y1], d = [x0, y1];
+    const a = [x0, y0];
+    const b = [x1, y0];
+    const c = [x1, y1];
+    const d = [x0, y1];
     const p = (q, z) => [q[0], q[1], z];
     this.quad([p(a, z1), p(b, z1), p(c, z1), p(d, z1)], top || mat, [0, 0, 1]);
     this.quad([p(a, z0), p(b, z0), p(c, z0), p(d, z0)], mat, [0, 0, -1]);
@@ -158,67 +176,58 @@ class Builder {
     this.quad([p(a, z0), p(b, z0), p(b, z1), p(a, z1)], mat, [0, -1, 0]);
   }
 
+  /** 竖直墙面上的一块面（`side` 决定平面基，见 skill §2） */
   face(side, at, u0, u1, z0, z1, mat) {
     const hint = { '+x': [1, 0, 0], '-x': [-1, 0, 0], '+y': [0, 1, 0], '-y': [0, -1, 0] }[side];
     const p = (u, z) => (side === '+x' || side === '-x' ? [at, u, z] : [u, at, z]);
     this.quad([p(u0, z0), p(u1, z0), p(u1, z1), p(u0, z1)], mat, hint);
   }
 
-  line(s) { this.lines.push(s); }
-  text() { return this.lines.join('\n') + '\n'; }
+  /** 原样写入一行（`wall` / `win` / `gable` 这类构件关键字） */
+  line(s) {
+    this.lines.push(s);
+  }
+
+  text() {
+    return this.lines.join('\n') + '\n';
+  }
 }
 
-/** 墙身：勒脚（concrete_dark）+ 墙身（wallMat）两段，**都不挖洞**（窗是贴面窗） */
-function wall2(b, side, at, u0, u1) {
-  b.line(`wall ${side} ${N(at)} ${N(u0)} ${N(u1)} 0.0000 ${N(A.Z_PL)}  ${M.plinth} thick=${N(A.T)}`);
-  b.line(`wall ${side} ${N(at)} ${N(u0)} ${N(u1)} ${N(A.Z_PL)} ${N(A.Z_EAVE)}  ${S.wall} thick=${N(A.T)}`);
+/** 一段带勒脚的墙（勒脚 + 墙身，都不挖洞；窗是贴面窗） */
+function wallWithPlinth(b, side, at, u0, u1) {
+  b.line(`wall ${side} ${N(at)} ${N(u0)} ${N(u1)} 0.0000 ${N(D.ZPL)}  ${M.plinth} thick=${N(D.T)}`);
+  b.line(`wall ${side} ${N(at)} ${N(u0)} ${N(u1)} ${N(D.ZPL)} ${N(D.ZE)}  ${S.wall} thick=${N(D.T)}`);
 }
 
-/** 贴面窗（不挖洞）：metal_dark 窗框 + 深色玻璃 + metal_dark 窗台（v65 样式） */
+/** 一樘贴面窗 */
 function windowAt(b, side, at, u0, u1, z0, z1) {
   b.line(`win ${side} ${N(at)} ${N(u0)} ${N(u1)} ${N(z0)} ${N(z1)}  ${M.glass}`
     + ` frame=${M.frame} frameW=0.014 mull=2 depth=0.010 inset=0 sill=${M.frame}`);
 }
 
-/** 门套立柱（0.022 宽、0.30 高、挑出墙面 0.008） */
-function doorPost(b, u0, u1) {
-  b.box(u0, A.YF - 0.002, 0.0000, u1, A.YF + A.PROUD, A.Z_DOOR, M.jamb);
-}
+// =============================================================================
+// 图层 A —— 地面与门洞里面（槽 0/2，画在车之前，会被列车压住）
+// =============================================================================
+function emitGround(b) {
+  // ① 场坪
+  b.quad([[0.020, 0.020, 0.0040], [0.980, 0.020, 0.0040],
+    [0.980, 0.980, 0.0040], [0.020, 0.980, 0.0040]], 'concrete_pad', [0, 0, 1]);
 
-/** 门樘内衬（一条混凝土，贴在洞口侧壁上） */
-function jambLining(b, u0, u1) {
-  b.box(u0, A.YF - A.T, 0.0000, u1, A.YF + 0.001, A.Z_DOOR, M.jamb);
-}
+  // ② 门洞里能看见的三块暗面 —— 这就是 xUSSR 那 24×25 小块的内容
+  //    只画门洞宽度：多画没用（壳体在车之后，会把洞外的一切盖住），只会把小块做大。
+  //    暗地坪
+  b.quad([[D.D0, D.YI0, 0.0046], [D.D1, D.YI0, 0.0046],
+    [D.D1, D.YF, 0.0046], [D.D0, D.YF, 0.0046]], M.floor, [0, 0, 1]);
+  //    暗后墙内面（法线朝 +y，朝库内）
+  b.face('+y', D.YI0 + 0.001, D.D0, D.D1, 0.0040, D.ZD, M.wallIn);
+  //    暗天花（法线朝下）
+  b.quad([[D.D0, D.YI0, D.ZD], [D.D0, D.YF, D.ZD],
+    [D.D1, D.YF, D.ZD], [D.D1, D.YI0, D.ZD]], M.ceil, [0, 0, -1]);
 
-/**
- * 库内（槽 0/2）—— **画在车之前，被列车盖住的那一层**。
- *
- * ★ 2026-11-19 v72 定案（人工指点）：
- *   `depots` 的槽 0/2 **不是**"压在车上的覆盖贴图"，它是**被车压住**的那一块，
- *   所以参考图里它带**铁轨图案**、而且是**视角远端**（远端的内墙/地坪/钢轨）。
- *   ⇒ 绘制顺序：**库内(0/2) → 车 → 壳体(1/3/4/5)**。
- *   壳体在车之后画 ⇒ 车被壳体挡住 ⇒ 只有门洞是通的，从门洞看进去才看到车；
- *   而门洞里"远的那一半"就是这一层：暗地坪 + 内墙 + 天花 + 道砟枕木钢轨。
- */
-function interiorParts(b) {
-  b.quad([[A.PAD0, A.PAD0, 0.0040], [A.PAD1, A.PAD0, 0.0040],
-    [A.PAD1, A.PAD1, 0.0040], [A.PAD0, A.PAD1, 0.0040]], 'concrete_pad', [0, 0, 1]);
-  // ★ v73：库内只画**门洞透视范围**（x = 门洞宽度 UD0..UD1）。
-  //   这一段就是"从门洞看进去能看到的东西"：暗地坪 + 暗后墙内面 + 暗天花。
-  //   画出界也没用 —— 壳体（车之后画）会把洞外的一切盖住，只是白白把小块做大。
-  const HX0 = A.UD0, HX1 = A.UD1;
-  // 库内地坪（暗灰）：flatiso 不做室内遮蔽，暗材质才像室内
-  b.quad([[HX0, YI0, 0.0046], [HX1, YI0, 0.0046], [HX1, A.YF, 0.0046], [HX0, A.YF, 0.0046]],
-    M.floor, [0, 0, 1]);
-  // 后墙内面（暗）：后山墙从 YB 往 +y 做 thick ⇒ 内表面在 y = YI0；法线朝 +y（朝库内）
-  b.face('+y', YI0 + 0.001, HX0, HX1, 0.0040, A.Z_DOOR, M.wallIn);
-  // 天花（暗）：门顶那一面
-  b.quad([[HX0, YI0, A.Z_DOOR], [HX0, A.YF, A.Z_DOOR],
-    [HX1, A.YF, A.Z_DOOR], [HX1, YI0, A.Z_DOOR]], M.ceil, [0, 0, -1]);
-  // 道砟 + 枕木 + 钢轨（贯穿整格）
+  // ③ 道砟 + 枕木 + 钢轨（贯穿整格；钢轨就是小块里那几条"铁轨图案"）
   b.box(TR.B0, 0.0000, 0.0000, TR.B1, 1.0000, TR.BED, M.ballast, M.ballast);
   for (let y = TR.SL_Y0, k = 0; y + TR.SL_T <= TR.SL_Y1 + 1e-9; y += TR.SL_STEP, k++) {
-    b.box(0.5 - TR.SL_HALF, y, 0.0000, 0.5 + TR.SL_HALF, y + TR.SL_T, TR.SLEEPER_TOP,
+    b.box(0.5 - TR.SL_HALF, y, 0.0000, 0.5 + TR.SL_HALF, y + TR.SL_T, TR.SL_TOP,
       k % 2 ? M.sleeperB : M.sleeperA, M.sleeperB);
   }
   for (const [x0, x1] of TR.RAIL_X) {
@@ -226,81 +235,91 @@ function interiorParts(b) {
   }
 }
 
-/**
- * 壳体（槽 1/3/4/5）—— **画在车之后**，所以车被它挡住，只有门洞是通的。
- * ⚠ 门洞里**不许**有任何东西（库内在 0/2 那一层），否则车又看不见了。
- */
-function shellParts(b) {
-  // 前山墙：门洞是一刀真洞；`reveal=no` 免得补出"洞下沿"那条假门槛
-  b.line(`wall +y ${N(A.YF)} ${N(A.XL)} ${N(A.XR)} 0.0000 ${N(A.Z_EAVE)}`
-    + `  ${N(A.UD0)},0.0000,${N(A.UD1)},${N(A.Z_DOOR)}  ${S.wall} thick=${N(A.T)} reveal=no`);
+// =============================================================================
+// 图层 B —— 壳体（槽 1/3/4/5，画在车之后；门洞里一个像素都不许有）
+// =============================================================================
+function emitShell(b) {
+  // ---------------------------------------------------------------- 前山墙（+y）
+  // 门洞是一刀真洞；`reveal=no` 免得补出"洞下沿"那条假门槛
+  b.line(`wall +y ${N(D.YF)} ${N(D.XL)} ${N(D.XR)} 0.0000 ${N(D.ZE)}`
+    + `  ${N(D.D0)},0.0000,${N(D.D1)},${N(D.ZD)}  ${S.wall} thick=${N(D.T)} reveal=no`);
   // 勒脚贴面（门洞两侧）
-  for (const [u0, u1] of [[A.XL, A.UD0], [A.UD1, A.XR]]) {
-    b.face('+y', A.YF + 0.002, u0, u1, 0.0000, A.Z_PL, M.plinth);
+  for (const [u0, u1] of [[D.XL, D.D0], [D.D1, D.XR]]) {
+    b.face('+y', D.YF + 0.002, u0, u1, 0.0000, D.ZPL, M.plinth);
   }
-  // 门樘内衬 + 两根门套立柱
-  jambLining(b, A.UD0, A.UD0 + A.LIN);
-  jambLining(b, A.UD1 - A.LIN, A.UD1);
-  doorPost(b, A.UD0 - A.JAMB, A.UD0);
-  doorPost(b, A.UD1, A.UD1 + A.JAMB);
+  // 门洞两侧内壁（洞的左右侧面，进深 = 墙厚）
+  b.face('+x', D.D0, D.YF - D.T, D.YF, 0.0000, D.ZD, M.jamb);
+  b.face('-x', D.D1, D.YF - D.T, D.YF, 0.0000, D.ZD, M.jamb);
+  // 门套立柱（挑出墙面）
+  b.box(D.D0 - D.PW, D.YF - 0.002, 0.0000, D.D0, D.YF + D.PR, D.ZD, M.jamb);
+  b.box(D.D1, D.YF - 0.002, 0.0000, D.D1 + D.PW, D.YF + D.PR, D.ZD, M.jamb);
+  // 门楣过梁（横跨门洞，挑出 0.012）
+  b.box(D.D0 - 0.030, D.YF - 0.002, D.ZD, D.D1 + 0.030, D.YF + D.LINT, D.ZD + 0.028, M.lintel);
   // 门楣牌
-  b.face('+y', A.YF + 0.003, SIGN.u0, SIGN.u1, SIGN.z0, SIGN.z1, M.sign);
-  // 后山墙（实墙 + 一樘高窗）
-  wall2(b, '-y', A.YB, A.XL, A.XR);
-  windowAt(b, '-y', A.YB - 0.001, BWIN.u0, BWIN.u1, BWIN.z0, BWIN.z1);
-  // 两侧纵墙（三樘贴面窗）
+  b.face('+y', D.YF + D.LINT + 0.001, D.D0 + 0.040, D.D1 - 0.040,
+    D.ZD + 0.004, D.ZD + 0.022, M.sign);
+
+  // ---------------------------------------------------------------- 后山墙（−y）
+  wallWithPlinth(b, '-y', D.YB, D.XL, D.XR);
+  windowAt(b, '-y', D.YB - 0.001, D.BW.u0, D.BW.u1, D.BW.z0, D.BW.z1);
+
+  // ---------------------------------------------------------------- 两侧纵墙
   for (const side of ['+x', '-x']) {
-    const at = side === '+x' ? A.XR : A.XL;
-    wall2(b, side, at, A.YB, A.YF);
+    const at = side === '+x' ? D.XR : D.XL;
+    wallWithPlinth(b, side, at, D.YB, D.YF);
     const off = side === '+x' ? 0.001 : -0.001;
-    for (const [u0, u1] of WIN) windowAt(b, side, at + off, u0, u1, Z_W0, Z_W1);
+    for (const [u0, u1] of WIN) windowAt(b, side, at + off, u0, u1, D.ZW0, D.ZW1);
   }
-  // 屋面（双坡，屋脊沿 y，6 × 16 瓦垄）+ 脊瓦 + 封檐板
-  const tile = ` tileRows=6 tileCols=16 tileW=0.009 tileMat=${S.roofSeam}`;
-  b.line(`gable ${N(A.XL)} ${N(A.YB)} ${N(A.XR)} ${N(A.YF)} ${N(A.Z_EAVE)} ${N(A.Z_RIDGE)}`
-    + ` y ${N(A.OVER)}  ${S.roof} side=${S.wall} bottom=trim_dark` + tile);
-  b.box(0.478, 0.030, A.Z_RIDGE - 0.014, 0.522, 0.970, A.Z_RIDGE + 0.016, S.ridge, S.ridge);
-  for (const [x, d] of [[A.XL - A.OVER, -1], [A.XR + A.OVER, 1]]) {
-    b.box(d < 0 ? x - 0.006 : x, A.YB - A.OVER, A.Z_EAVE - 0.012,
-      d < 0 ? x : x + 0.006, A.YF + A.OVER, A.Z_EAVE + 0.010, M.fascia);
+
+  // ---------------------------------------------------------------- 屋面
+  b.line(`gable ${N(D.XL)} ${N(D.YB)} ${N(D.XR)} ${N(D.YF)} ${N(D.ZE)} ${N(D.ZR)}`
+    + ` y ${N(D.OVER)}  ${S.roof} side=${S.wall} bottom=${M.soffit}`
+    + ` tileRows=6 tileCols=16 tileW=0.009 tileMat=${S.seam}`);
+  // 脊瓦
+  b.box(0.478, D.YB, D.ZR - 0.014, 0.522, D.YF, D.ZR + 0.016, S.ridge, S.ridge);
+  // 封檐板（沿 y 两条）
+  for (const [x, d] of [[D.XL - D.OVER, -1], [D.XR + D.OVER, 1]]) {
+    b.box(d < 0 ? x - 0.006 : x, D.YB - D.OVER, D.ZE - 0.012,
+      d < 0 ? x : x + 0.006, D.YF + D.OVER, D.ZE + 0.010, M.fascia);
   }
 }
 
-// ---------------------------------------------------------------- 模型清单
-// ⚠ 名字决定分表列序：G1_depot < G1_depot_wa < G1_depot_wb ⇒ 列 0-3 / 4-7 / 8-11
-//   `templates.pnml` 里六行不动（wa_v0→槽0 · v0→槽1 · wb_v3→槽2 · v3→槽3 · v1→槽4 · v2→槽5），
-//   所以这里必须仍然产出 3 个模型：壳体 1 个 + 库内 2 个（两格内容相同，浪费就浪费）。
+// =============================================================================
+// 模型清单
+// ⚠ 名字必须以 `G1_depot` 开头（`tools/sheets.mjs` 用 /^G1_depot/ 分表）
+// ⚠ 三个模型 zmax 都钉 0.5200 ⇒ 同格位 263×184 ⇒ templates.pnml 六行 (−131,−52) 不用改
+// =============================================================================
 const JOBS = [
-  { name: 'G1_depot', kind: 'shell', why: '壳体（墙/屋面/勒脚/门洞通）→ 槽 1/3/4/5，**车之后画**' },
-  { name: 'G1_depot_wa', kind: 'inside', why: '库内（地坪/内墙/天花/道砟枕木钢轨）→ 槽 0，**车之前画**' },
-  { name: 'G1_depot_wb', kind: 'inside', why: '库内，同上（v3 那两格用）→ 槽 2，**车之前画**' },
+  { name: 'G1_depot', layer: 'shell', why: '壳体 → 槽 1/3/4/5（车之后画，挡住车）' },
+  { name: 'G1_depot_wa', layer: 'ground', why: '地面 + 门洞里面 → 槽 0（车之前画，被车压住）' },
+  { name: 'G1_depot_wb', layer: 'ground', why: '同 wa → 槽 2（车之前画）' },
 ];
 
-// ---------------------------------------------------------------- 模型清单
-// ⚠ 名字决定分表列序：G1_depot < G1_depot_wa < G1_depot_wb ⇒ 列 0-3 / 4-7 / 8-11
-const HDR = (job) =>
-  '# =============================================================================\n'
-  + '# ' + job.name + ' —— 机车库「库 A」（' + job.why + '）\n'
-  + '#\n'
-  + '# 【本文件由 tools/gen-g1-depot.mjs 生成，请勿手改】风格：' + STYLE_NAME + '\n'
-  + '#\n'
-  + '#   占地 1×1 · 端头库房（+y 一樘大门 / −y 实墙）· 勒脚 0.050 / 檐口 0.340 / 屋脊 0.500\n'
-  + '#   墙体 0.14~0.86 × 0.04~0.96 · 墙厚 0.050 · 出檐 0.035 · 脊瓦顶 0.516\n'
-  + '#   库内轨道：道砟 0.32~0.68 / 枕顶 0.010 / 轨顶 0.023（与 G1_rail_straight 同一套，贯穿 y 0~1）\n'
-  + '#\n'
-  + '#   ⚠ 绘制顺序：**库内(槽 0/2) → 车 → 壳体(槽 1/3/4/5)**。\n'
-  + '#     槽 0/2 是**被车压住**的那一层（所以带铁轨图案、是视角远端的内墙/地坪）；\n'
-  + '#     壳体画在车之后 ⇒ 车被墙挡住，只有门洞是通的，从门洞看进去才看到车。\n'
-  + '# =============================================================================\n\n';
+const header = (job) => `# =============================================================================
+# ${job.name} —— 机车库「库 A」（${job.why}）
+#
+# 【本文件由 tools/gen-g1-depot.mjs 生成，请勿手改】风格：${STYLE_NAME}
+#
+#   图层：库内(0/2) → 列车 → 壳体(1/3/4/5)
+#     壳体 = 墙/屋面/门樘/门楣（门洞是真洞，洞里 0 像素）
+#     地面 = 场坪 + 道砟枕木钢轨 + 门洞透视范围内的暗地坪/暗后墙内面/暗天花
+#
+#   占地 1×1 · 墙皮 x ${N(D.XL)}~${N(D.XR)} × y ${N(D.YB)}~${N(D.YF)} · 墙厚 ${N(D.T)}
+#   勒脚 ${N(D.ZPL)} · 檐口 ${N(D.ZE)} · 屋脊 ${N(D.ZR)} · 出檐 ${N(D.OVER)}
+#   门洞 x ${N(D.D0)}~${N(D.D1)} × 高 ${N(D.ZD)} · 门套 ${N(D.PW)} 宽 / 挑出 ${N(D.PR)}
+#   库内轨道：道砟 ${N(TR.B0)}~${N(TR.B1)} / 枕顶 ${N(TR.SL_TOP)} / 轨顶 ${N(TR.RAIL_TOP)}
+# =============================================================================
+
+`;
 
 export function generateDepots() {
   const made = [];
   for (const job of JOBS) {
     const b = new Builder();
-    if (job.kind === 'shell') shellParts(b);
-    else interiorParts(b);
-    const text = HDR(job)
-      + 'name      ' + job.name + '\n'
+    if (job.layer === 'shell') emitShell(b);
+    else emitGround(b);
+    const text = header(job)
+      + `name      ${job.name}\n`
       + 'group     misc\n'
       + 'footprint 1 1\n'
       + 'zmax      0.5200\n\n'
@@ -315,10 +334,10 @@ export function generateDepots() {
 }
 
 if (isMain(import.meta.url)) {
-  log('生成机车库「库 A」（风格 ' + STYLE_NAME + '；整栋 1 + 近墙小块 2 = 3 个模型 × 4 朝向 = 12 张精灵）：');
+  log('生成机车库「库 A」（风格 ' + STYLE_NAME + '；壳体 1 + 地面 2 = 3 个模型 × 4 朝向）：');
   const made = generateDepots();
   const tot = made.reduce((s, m) => s + m.quads, 0);
   log('');
   log('  合计 ' + made.length + ' 个模型 / ' + tot + ' 个四边形面');
-  log('  下一步：node tools/build.mjs --step render → node tools/sprites.mjs');
+  log('  下一步：node tools/build.mjs --step render → node tools/check.mjs');
 }
