@@ -610,6 +610,10 @@ item(FEAT_RAILTYPES, rail_SCDN, 9) {
         tunnel_overlay:  probe_tunnel_over_3;
         level_crossings: probe_level_crossing_quasi;
         bridge_surfaces: probe_bridge_surfaces_quasi;
+        /* 机车库「库 B」（现代动车段，`美术要素方案.md` §1.7.2）。
+           人工 2026-11-19：「先做一种轨道，调好了再铺开」⇒ 本轮只接 SCDN 一条，
+           其余 7 条（SCDA SDDA SCCA SDCA SECA SFCA SGCA）仍走原版精灵。 */
+        depots:          depot_B_SCDN;
     }
 }
 
