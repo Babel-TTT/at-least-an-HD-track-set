@@ -234,6 +234,53 @@ const TRACK_SPECS = {
     blocks: { x: [[0.4284, 0.4564], [0.5436, 0.5716]], z1: 0.0175, mat: 'concrete' },
     sleeper: null,
     rails: [[0.4444, 0.4524], [0.5476, 0.5556]], rz: [0.0100, 0.0230], railMat: ['metal_dark', 'metal_pale'] },
+
+  // ===========================================================================
+  // 库 C（地铁 6 条）—— 2026-11-19 同样从 `models/G*_track_x.model` 实测：
+  //   G4  = `SAC3`（第三轨）      G7  = `SBC3` / `SACZ`（第三轨 / 悬浮板）
+  //   G13 = `SACd` / `SBCd`（架空 1500V）  G17 = `SACL`（直线电机）
+  // 共同断面（四条都一样）：**整体道床 BAL-H** `concrete_mid` 0.32~0.68 × z 0~0.010
+  //   扣件座 SLE-5 `granite_grey` 0.4344~0.5656 × 0.010~0.0175（每 0.04 一组，25 组）
+  //   钢轨 RAI-1 准轨（锈色）0.4444 / 0.5476 · 轨顶 0.0230
+  // 第三轨（G4/G7/G17）：`rust` 0.5890~0.5960 z 0.010~0.018
+  //   + **木质覆盖板** `wood_dark` 0.5840~0.6010 z 0.018~0.021（顶面画黄条 ⇒ 第三轨警示）
+  // 直线电机（G17）另加中央**反应板** `metal_dark` 0.4872~0.5128 z 0.010~0.017
+  // ===========================================================================
+  SAC3: { bed: [0.3200, 0.6800, 0.0100, 'concrete_mid'],
+    sleeper: { y0: 0.4344, y1: 0.5656, z1: 0.0175, side: 'granite_grey', top: 'granite_grey' },
+    rails: [[0.4444, 0.4524], [0.5476, 0.5556]], rz: [0.0100, 0.0230],
+    extras: [
+      { y0: 0.5890, y1: 0.5960, z0: 0.0100, z1: 0.0180, mat: 'rust', top: 'metal' },
+      { y0: 0.5840, y1: 0.6010, z0: 0.0180, z1: 0.0210, mat: 'wood_dark', top: 'sign_yellow' },
+    ] },
+  SBC3: { bed: [0.3200, 0.6800, 0.0100, 'concrete_mid'],
+    sleeper: { y0: 0.4344, y1: 0.5656, z1: 0.0175, side: 'granite_grey', top: 'granite_grey' },
+    rails: [[0.4444, 0.4524], [0.5476, 0.5556]], rz: [0.0100, 0.0230],
+    extras: [
+      { y0: 0.5890, y1: 0.5960, z0: 0.0100, z1: 0.0180, mat: 'rust', top: 'metal' },
+      { y0: 0.5840, y1: 0.6010, z0: 0.0180, z1: 0.0210, mat: 'wood_dark', top: 'sign_yellow' },
+    ] },
+  SACZ: { bed: [0.3200, 0.6800, 0.0100, 'concrete_mid'],
+    sleeper: { y0: 0.4344, y1: 0.5656, z1: 0.0175, side: 'granite_grey', top: 'granite_grey' },
+    rails: [[0.4444, 0.4524], [0.5476, 0.5556]], rz: [0.0100, 0.0230],
+    extras: [
+      { y0: 0.5890, y1: 0.5960, z0: 0.0100, z1: 0.0180, mat: 'rust', top: 'metal' },
+      { y0: 0.5840, y1: 0.6010, z0: 0.0180, z1: 0.0210, mat: 'wood_dark', top: 'sign_yellow' },
+    ] },
+  SACd: { bed: [0.3200, 0.6800, 0.0100, 'concrete_mid'],
+    sleeper: { y0: 0.4344, y1: 0.5656, z1: 0.0175, side: 'granite_grey', top: 'granite_grey' },
+    rails: [[0.4444, 0.4524], [0.5476, 0.5556]], rz: [0.0100, 0.0230] },
+  SBCd: { bed: [0.3200, 0.6800, 0.0100, 'concrete_mid'],
+    sleeper: { y0: 0.4344, y1: 0.5656, z1: 0.0175, side: 'granite_grey', top: 'granite_grey' },
+    rails: [[0.4444, 0.4524], [0.5476, 0.5556]], rz: [0.0100, 0.0230] },
+  SACL: { bed: [0.3200, 0.6800, 0.0100, 'concrete_mid'],
+    sleeper: { y0: 0.4344, y1: 0.5656, z1: 0.0175, side: 'granite_grey', top: 'granite_grey' },
+    rails: [[0.4444, 0.4524], [0.5476, 0.5556]], rz: [0.0100, 0.0230],
+    extras: [
+      { y0: 0.4872, y1: 0.5128, z0: 0.0100, z1: 0.0170, mat: 'metal_dark', top: 'metal_dark' },
+      { y0: 0.5890, y1: 0.5960, z0: 0.0100, z1: 0.0180, mat: 'rust', top: 'metal' },
+      { y0: 0.5840, y1: 0.6010, z0: 0.0180, z1: 0.0210, mat: 'wood_dark', top: 'sign_yellow' },
+    ] },
 };
 
 /** 库 A 的 17 条（与 `美术要素方案.md` §1.7.2 的分组一致） */
@@ -247,6 +294,13 @@ const LIB_B = ['SCDN', 'SCDA', 'SDDA', 'SCCA', 'SDCA', 'SECA', 'SFCA', 'SGCA'];
 //   ⇒ 先只出 `SCDN` 一种地面层（第一轮就是这么调的）。
 // ★ 人工 2026-11-19：「推广到其他轨道类型吧」⇒ 改成 `LIB_B`（8 条全出）。
 const LIB_B_DO = LIB_B;
+
+/** 库 C 的 6 条（地铁） */
+const LIB_C = ['SACd', 'SBCd', 'SAC3', 'SBC3', 'SACZ', 'SACL'];
+
+// ★ 人工 2026-11-19：「弄地铁的车库，也是先打个样」
+//   ⇒ 先只出 `SAC3`（第三轨 + 木质覆盖板 + 黄条，是库 C 里最有辨识度的一条）。
+const LIB_C_DO = ['SAC3'];
 
 /** 兼容旧口径：准轨断面（模板 `t_G1_depot_wa_v0` 那一组仍是它） */
 const TR = TRACK_SPECS.SBDN;
@@ -440,6 +494,10 @@ function emitTrack(b, sp) {
   // ⑤ 钢轨
   for (const [x0, x1] of sp.rails) {
     b.box(x0, 0.0000, sp.rz[0], x1, Y_RAIL, sp.rz[1], rm[0], rm[1]);
+  }
+  // ⑥ 附加件（地铁第三轨 / 木质覆盖板 / 反应板 —— 都是沿轨通长的一条）
+  for (const e of sp.extras || []) {
+    b.box(e.y0, 0.0000, e.z0, e.y1, Y_BED, e.z1, e.mat, e.top || e.mat);
   }
 }
 
@@ -829,6 +887,211 @@ const headerA = (job) => `# ====================================================
 
 `;
 
+// =============================================================================
+// 库 C —— 「地铁车辆段」（浅色混凝土 · 平顶 · 女儿墙 · 卷帘门）
+//
+//   人工 2026-11-19：「弄地铁的车库，也是先打个样」⇒ 先只出 `SAC3`（`LIB_C_DO`）。
+//
+//   `美术要素方案.md` §1.7.3 库 C 列：
+//     勒脚 `concrete_dark` 0 → 0.045 · 墙身 `concrete_light` 0.045 → 女儿墙顶
+//     **平屋面**（不做坡）· 压顶一道 · 屋面 `concrete_mid` + `metal_dark` 机组 ×2
+//     门洞 0.36 × 0.31（比库 A 宽 0.01、高 0.01）· 卷帘门 `metal`（蓝灰）
+//     门上 黄黑警示条 `sign_yellow` · 招牌 `sign_white`「车辆段」
+//     侧墙小窗带 · 洞内 `trim_black` + **第三轨黄条**（在 0/2 层，跟轨道走）
+//
+//   ⚠ 与库 B 同一个"天花板"约束：方案里女儿墙 0.440 / 檐口 0.420，
+//     那会把取景框从 263×184 顶到 263×198（库 A 的 40 行 rect 全废）。
+//     按人工上一轮「压矮塞进 184 的框」的同一口径，女儿墙顶压到 **0.374**
+//     （0.381 是数学上限，见 docs/建模经验.md §4.53/§4.55）⇒ unionFrame 仍 183。
+//   ⚠ 命名 `G1_depot_zzz*`：字母序排在 `G1_depot_zz_*`（库 B）之后，前 28 行不动。
+// =============================================================================
+const DC = {
+  XL: 0.140, XR: 0.860,          // 墙外皮 x
+  YB: 0.040, YF: 0.960,          // 墙外皮 y
+  T: 0.050,                      // 墙厚
+  ZPL: 0.045,                    // 勒脚顶
+  ZE: 0.374,                     // 女儿墙顶（＝取景框上限，别往上加）
+  ZC0: 0.360, ZC1: 0.374,        // 压顶（concrete_dark 一圈）
+  ZROOF: 0.348,                  // 平屋面板顶（低于压顶 ⇒ 女儿墙包住它）
+  D0: 0.320, D1: 0.680,          // 门洞 0.36 宽
+  ZD: 0.310,                     // 门洞高
+  DRUM: { z0: 0.3100, z1: 0.3280, out: 0.020 },   // 卷帘箱
+  GUIDE: { w: 0.014, out: 0.010 },                // 导轨
+  HAZ: { z0: 0.3300, z1: 0.3400 },                // 黄黑警示条（门上）
+  SIGN: { u0: 0.360, u1: 0.640, z0: 0.3420, z1: 0.3620 },   // 招牌 0.28 × 0.020
+  WINW: { u0: 0.100, u1: 0.900, z0: 0.205, z1: 0.260 },     // 侧墙小窗带
+  WINB: { u0: 0.240, u1: 0.760, z0: 0.210, z1: 0.265 },     // 后山墙小窗带
+  PIPE: 0.026,                   // 雨水管离墙角
+};
+DC.YI0 = DC.YB + DC.T;
+
+const MC = {
+  plinth: 'concrete_dark', wall: 'concrete_light', coping: 'concrete_dark',
+  seam: 'concrete_seam',
+  roof: 'concrete_mid', unit: 'metal_dark',
+  metal: 'metal', metalLite: 'metal_pale', metalDark: 'metal_dark',
+  glass: 'glass_dark', sign: 'sign_white', hazard: 'sign_yellow',
+  floor: 'trim_dark', ceil: 'trim_black', wallIn: 'trim_dark',
+};
+
+/** 库 C 的墙：勒脚 + 墙身一直做到女儿墙顶（平顶没有檐口这一段） */
+function wallC(b, side, at, u0, u1, holes = []) {
+  b.line(`wall ${side} ${N(at)} ${N(u0)} ${N(u1)} 0.0000 ${N(DC.ZPL)}  ${MC.plinth} thick=${N(DC.T)}`);
+  const hs = holes.length
+    ? '  ' + holes.map((h) => `${N(h[0])},${N(h[1])},${N(h[2])},${N(h[3])}`).join('  ')
+    : '';
+  b.line(`wall ${side} ${N(at)} ${N(u0)} ${N(u1)} ${N(DC.ZPL)} ${N(DC.ZE)}${hs}  ${MC.wall} thick=${N(DC.T)}`);
+}
+
+/** 压顶（女儿墙顶那一圈深色带）：贴面，无厚度 */
+function copingC(b, side, at, u0, u1) {
+  const out = side === '+x' || side === '+y' ? 0.0015 : -0.0015;
+  b.face(side, at + out, u0, u1, DC.ZC0, DC.ZC1, MC.coping);
+}
+
+/** 混凝土大板的分格缝（每面 3 道竖缝，只画实墙，不跨窗） */
+function seamsC(b, side, at, u0, u1) {
+  const out = side === '+x' || side === '+y' ? 0.0015 : -0.0015;
+  for (const [z0, z1] of [[DC.ZPL, DC.WINW.z0], [DC.WINW.z1, DC.ZC0]]) {
+    b.line(`courses ${side} ${N(at + out)} ${N(u0)} ${N(u1)}`
+      + ` ${N(z0)} ${N(z1)} 1 4  ${MC.seam} w=0.007`);
+  }
+}
+
+/** 小窗带（深色框 + 深玻璃，地铁车辆段那种"一条小黑窗"） */
+const WIN_INSET_C = 0.028;
+function windowC(b, side, at, u0, u1, z0, z1, mull) {
+  b.line(`win ${side} ${N(at)} ${N(u0)} ${N(u1)} ${N(z0)} ${N(z1)}  ${MC.glass}`
+    + ` frame=${MC.metalDark} frameW=0.010 mull=${mull} mullW=0.006 depth=0.012`
+    + ` inset=${N(WIN_INSET_C)} sill=no`);
+}
+
+/**
+ * 库 C 的前端墙（+y 山墙）—— 与库 A/B 同一刀：**会不会被车挡住**。
+ */
+function frontGableC(b, part) {
+  const YF = DC.YF;
+  const near = part === 'nearHi' || part === 'nearLo';
+  const hi = part === 'nearHi' || part === 'farHi';
+  const x0 = hi ? (near ? DC.D0 : DC.D1) : DC.XL;
+  const x1 = hi ? DC.XR : (near ? DC.D1 : DC.D0);
+  const hole = near ? `  ${N(DC.D0)},0.0000,${N(DC.D1)},${N(DC.ZD)}` : '';
+  b.line(`wall +y ${N(YF)} ${N(x0)} ${N(x1)} 0.0000 ${N(DC.ZE)}${hole}`
+    + `  ${MC.wall} thick=${N(DC.T)} reveal=no`);
+  const s0 = near ? (hi ? DC.D1 : x0) : x0;
+  const s1 = near ? (hi ? x1 : DC.D0) : x1;
+  // 勒脚 + 压顶：都只贴本半幅
+  b.face('+y', YF + 0.002, s0, s1, 0.0000, DC.ZPL, MC.plinth);
+  copingC(b, '+y', YF, x0, x1);
+  // 混凝土分格缝（只贴实墙垛）
+  b.line(`courses +y ${N(YF + 0.0015)} ${N(s0)} ${N(s1)}`
+    + ` ${N(DC.ZPL)} ${N(DC.ZC0)} 1 2  ${MC.seam} w=0.007`);
+  // 门樘内壁
+  b.face(hi ? '-x' : '+x', hi ? DC.D1 : DC.D0, YF - DC.T, YF, 0.0000, DC.ZD, MC.metal);
+  // 导轨（本半幅那一根）
+  if (hi) {
+    b.box(DC.D1, YF - 0.002, 0.0000, DC.D1 + DC.GUIDE.w, YF + DC.GUIDE.out, DC.ZD, MC.metal);
+  } else {
+    b.box(DC.D0 - DC.GUIDE.w, YF - 0.002, 0.0000, DC.D0, YF + DC.GUIDE.out, DC.ZD, MC.metal);
+  }
+  // 卷帘箱（跨门洞，只出一次）
+  if (near) {
+    b.box(DC.D0, YF - 0.002, DC.DRUM.z0, DC.D1, YF + DC.DRUM.out, DC.DRUM.z1, MC.metal, MC.metalLite);
+  }
+  // 黄黑警示条（门上一条，跨门洞 ⇒ 两半各画本半幅）
+  const hx0 = Math.max(DC.D0, x0);
+  const hx1 = Math.min(DC.D1, x1);
+  if (hx1 > hx0 + 1e-9) {
+    b.face('+y', YF + 0.003, hx0, hx1, DC.HAZ.z0, DC.HAZ.z1, MC.hazard);
+  }
+  // 招牌
+  const sx0 = Math.max(DC.SIGN.u0, x0);
+  const sx1 = Math.min(DC.SIGN.u1, x1);
+  if (sx1 > sx0 + 1e-9) b.face('+y', YF + 0.003, sx0, sx1, DC.SIGN.z0, DC.SIGN.z1, MC.sign);
+  // 墙角雨水管
+  for (const px of [DC.XL + DC.PIPE, DC.XR - DC.PIPE]) {
+    if (px < x0 - 1e-9 || px > x1 + 1e-9) continue;
+    b.box(px - 0.006, YF - 0.002, 0.0000, px + 0.006, YF + 0.012, DC.ZC1, MC.metal, MC.metalLite);
+  }
+}
+
+/** 库 C 地面层（槽 0/2） */
+function emitGroundC(b, job) {
+  const sink = job.sink;
+  b.quad([[0.020, 0.020, 0.0040], [0.980, 0.020, 0.0040],
+    [0.980, 0.980, 0.0040], [0.020, 0.980, 0.0040]], 'concrete_pad', [0, 0, 1]);
+  // 库内（暗）—— 地铁车辆段洞内是全黑 + 整体道床
+  const IX0 = DC.XL + DC.T;
+  const IX1 = DC.XR - DC.T;
+  b.quad([[IX0, DC.YI0, 0.0046], [IX1, DC.YI0, 0.0046],
+    [IX1, DC.YF, 0.0046], [IX0, DC.YF, 0.0046]], MC.floor, [0, 0, 1]);
+  b.face('+y', DC.YI0 + 0.001, IX0, IX1, 0.0040, DC.ZD, MC.wallIn);
+  b.quad([[IX0, DC.YI0, DC.ZD], [IX0, DC.YF, DC.ZD],
+    [IX1, DC.YF, DC.ZD], [IX1, DC.YI0, DC.ZD]], MC.ceil, [0, 0, -1]);
+  const inSide = sink === '+x' ? '-x' : '+x';
+  const inAt = sink === '+x' ? DC.XR - DC.T - 0.001 : DC.XL + DC.T + 0.001;
+  b.face(inSide, inAt, DC.YI0, DC.YF, 0.0000, DC.ZE, MC.wallIn);
+  // 库内轨道（整体道床 + 扣件座 + 第三轨 + 覆盖板黄条）
+  emitTrack(b, TRACK_SPECS[job.spec] || TR);
+  frontGableC(b, job.front);
+}
+
+/** 库 C 壳体（槽 1/3/4/5）：平顶 + 女儿墙 + 屋面机组 */
+function emitShellC(b, job) {
+  const sink = job.sink;
+  frontGableC(b, job.front);
+
+  // 后山墙
+  wallC(b, '-y', DC.YB, DC.XL, DC.XR, [[DC.WINB.u0, DC.WINB.z0, DC.WINB.u1, DC.WINB.z1]]);
+  windowC(b, '-y', DC.YB - 0.001, DC.WINB.u0, DC.WINB.u1, DC.WINB.z0, DC.WINB.z1, 4);
+  copingC(b, '-y', DC.YB, DC.XL, DC.XR);
+
+  // 两侧纵墙
+  for (const side of ['+x', '-x']) {
+    const at = side === '+x' ? DC.XR : DC.XL;
+    const off = side === '+x' ? 0.001 : -0.001;
+    if (side === sink) {
+      b.face(side, at, DC.YB, DC.YF, 0.0000, DC.ZPL, MC.plinth);
+      b.face(side, at, DC.YB, DC.YF, DC.ZPL, DC.ZE, MC.wall);
+      windowC(b, side, at + off, DC.WINW.u0, DC.WINW.u1, DC.WINW.z0, DC.WINW.z1, 6);
+      copingC(b, side, at, DC.YB, DC.YF);
+      seamsC(b, side, at, DC.YB, DC.YF);
+      continue;
+    }
+    wallC(b, side, at, DC.YB, DC.YF, [[DC.WINW.u0, DC.WINW.z0, DC.WINW.u1, DC.WINW.z1]]);
+    windowC(b, side, at + off, DC.WINW.u0, DC.WINW.u1, DC.WINW.z0, DC.WINW.z1, 6);
+    copingC(b, side, at, DC.YB, DC.YF);
+    seamsC(b, side, at, DC.YB, DC.YF);
+  }
+
+  // 平屋面板（低 x+y 那侧的最外角是 (XL, YB) —— 女儿墙 0.374 已把它压住）
+  const RX0 = DC.XL + DC.T;
+  const RX1 = DC.XR - DC.T;
+  b.quad([[RX0, DC.YI0, DC.ZROOF], [RX1, DC.YI0, DC.ZROOF],
+    [RX1, DC.YF, DC.ZROOF], [RX0, DC.YF, DC.ZROOF]], MC.roof, [0, 0, 1]);
+  // 屋面机组 ×2（低于压顶，不然又会把取景框顶高）
+  b.box(0.280, 0.300, DC.ZROOF, 0.400, 0.420, DC.ZC0 - 0.002, MC.unit, MC.unit);
+  b.box(0.580, 0.600, DC.ZROOF, 0.700, 0.720, DC.ZC0 - 0.002, MC.unit, MC.unit);
+}
+
+// 库 C 的模型清单（2 个壳体 + 每条轨道 2 个地面层）
+const JOBS_C = [
+  { lib: 'C', name: 'G1_depot_zzz', layer: 'shell', front: 'nearHi', sink: '-x',
+    why: '库 C 壳体（槽 1/4）：浅色混凝土 + 平顶女儿墙 + 卷帘门 + 黄黑警示条' },
+  { lib: 'C', name: 'G1_depot_zzz_x', layer: 'shell', front: 'nearLo', sink: '+x',
+    why: '库 C 壳体镜像（槽 3/5）' },
+];
+for (const label of LIB_C_DO) {
+  JOBS_C.push({
+    lib: 'C', name: `G1_depot_zzz_${label}_se`, layer: 'ground', front: 'farLo', sink: '-x', spec: label,
+    why: `库 C SE 地面层 · ${label} 的库内轨道（第三轨 + 覆盖板）`,
+  });
+  JOBS_C.push({
+    lib: 'C', name: `G1_depot_zzz_${label}_sw`, layer: 'ground', front: 'farHi', sink: '+x', spec: label,
+    why: `库 C SW 地面层（镜像）· ${label} 的库内轨道`,
+  });
+}
+
 // ---------------------------------------------------------------------------
 // 库 B 的文件头
 // ---------------------------------------------------------------------------
@@ -865,13 +1128,42 @@ function SP_IS_SLAB(sp) {
   return !!(sp && (sp.joints || sp.blocks));
 }
 
-const headerOf = (job) => (job.lib === 'B' ? headerB(job) : headerA(job));
+// ---------------------------------------------------------------------------
+// 库 C 的文件头
+// ---------------------------------------------------------------------------
+const headerC = (job) => {
+  const sp = job.spec ? TRACK_SPECS[job.spec] : null;
+  return `# =============================================================================
+# ${job.name} —— 机车库「库 C」（${job.why}）
+#
+# 【本文件由 tools/gen-g1-depot.mjs 生成，请勿手改】
+#
+#   图层：库内(0/2) → 列车 → 壳体(1/3/4/5)
+#     壳体 = 墙/平顶/女儿墙/压顶/卷帘门/警示条/招牌（门洞是真洞，洞里 0 像素）
+#     地面 = 场坪 + 整体道床 + 第三轨 + 门洞透视范围内的暗地坪/暗后墙内面/暗天花
+#
+#   占地 1×1 · 墙皮 x ${N(DC.XL)}~${N(DC.XR)} × y ${N(DC.YB)}~${N(DC.YF)} · 墙厚 ${N(DC.T)}
+#   勒脚 ${N(DC.ZPL)} · 压顶 ${N(DC.ZC0)}~${N(DC.ZC1)} · 女儿墙顶 ${N(DC.ZE)} · 平屋面 ${N(DC.ZROOF)}
+#   门洞 x ${N(DC.D0)}~${N(DC.D1)} × 高 ${N(DC.ZD)}
+#   库内轨道：${job.spec
+    ? `${job.spec} —— 整体道床 ${N(sp.bed[0])}~${N(sp.bed[1])} 顶面 ${N(sp.bed[2])}`
+      + ` · 轨 ${sp.rails.length} 根 · 附加件 ${(sp.extras || []).length} 条`
+    : '—（壳体不含轨道）'}
+# =============================================================================
+
+`;
+};
+
+const headerOf = (job) => (job.lib === 'C' ? headerC(job) : job.lib === 'B' ? headerB(job) : headerA(job));
 
 export function generateDepots() {
   const made = [];
-  for (const job of [...JOBS, ...JOBS_B]) {
+  for (const job of [...JOBS, ...JOBS_B, ...JOBS_C]) {
     const b = new Builder();
-    if (job.lib === 'B') {
+    if (job.lib === 'C') {
+      if (job.layer === 'shell') emitShellC(b, job);
+      else emitGroundC(b, job);
+    } else if (job.lib === 'B') {
       if (job.layer === 'shell') emitShellB(b, job);
       else emitGroundB(b, job);
     } else if (job.layer === 'shell') {
@@ -895,7 +1187,8 @@ export function generateDepots() {
 }
 
 if (isMain(import.meta.url)) {
-  log('生成机车库「库 A」（风格 ' + STYLE_NAME + '）+ 库 B（先只出 ' + LIB_B_DO.join(' / ') + '）：');
+  log('生成机车库：库 A（风格 ' + STYLE_NAME + '）· 库 B（' + LIB_B_DO.length
+    + ' 条）· 库 C（' + LIB_C_DO.join(' / ') + '）：');
   const made = generateDepots();
   const tot = made.reduce((s, m) => s + m.quads, 0);
   log('');

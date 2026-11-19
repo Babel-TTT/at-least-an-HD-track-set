@@ -2633,3 +2633,28 @@ spriteset(depot_B_SGCA, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
     t_G1_depot_zz_v1("gfx/depot.png")          // 4  NE 整栋
     t_G1_depot_zz_x_v2("gfx/depot.png")        // 5  NW 整栋
 }
+
+// ===========================================================================
+// depot_C_<label> —— 机车库「库 C」（地铁车辆段：浅色混凝土 + 平顶女儿墙 + 卷帘门）
+//
+//   ★ 分组口径见 `美术要素方案.md` §1.7.2：库 C = **地铁 6 条**
+//       SACd SBCd（架空 1500V）· SAC3 SBC3（第三轨）· SACZ（悬浮板）· SACL（直线电机）
+//   ★ 人工 2026-11-19：「弄地铁的车库，也是先打个样」
+//     ⇒ **先只接 `SAC3` 一条**（`tools/gen-g1-depot.mjs` 的 `LIB_C_DO`）。
+//
+//   ★ 与 A/B 的差别：
+//       **平顶 + 女儿墙 + 压顶**（没有坡屋面、没有檐口）· 屋面两台机组
+//       墙身浅色混凝土（大板分格缝 3 道）· 侧墙**一条小窗带**（深框深玻璃）
+//       门洞 0.36×0.31 · 卷帘门（卷帘箱 + 导轨）· 门上**黄黑警示条** sign_yellow
+//       招牌 `sign_white`「车辆段」· 洞内 `trim_black` + **第三轨黄条**（在轨道那层）
+//
+//   ★ 槽位与库 A/B 完全相同；偏移逐槽同值（同格位同锚点），见 templates.pnml。
+// ===========================================================================
+spriteset(depot_C_SAC3, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G1_depot_zzz_SAC3_se_v0("gfx/depot.png")  // 0  SE 地面层（SAC3 的整体道床 + 第三轨）
+    t_G1_depot_zzz_v0("gfx/depot.png")          // 1  SE 整栋
+    t_G1_depot_zzz_SAC3_sw_v3("gfx/depot.png")  // 2  SW 地面层（镜像）
+    t_G1_depot_zzz_x_v3("gfx/depot.png")        // 3  SW 整栋
+    t_G1_depot_zzz_v1("gfx/depot.png")          // 4  NE 整栋
+    t_G1_depot_zzz_x_v2("gfx/depot.png")        // 5  NW 整栋
+}

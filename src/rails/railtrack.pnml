@@ -918,6 +918,10 @@ item(FEAT_RAILTYPES, rail_SAC3, 14) {
         tunnels:         probe_tunnels_metro;
         tunnel_overlay:  probe_tunnel_over_metro;
         bridge_surfaces: probe_bridge_surfaces_metro;
+        /* 机车库「库 C」（地铁车辆段，§1.7.2）。人工 2026-11-19：「弄地铁的车库，
+           也是先打个样」⇒ 本轮只接 `SAC3` 一条；其余 5 条（SACd SBCd SBC3 SACZ SACL）
+           仍走原版精灵。铺开后 `LIB_C_DO` 改成 `LIB_C` 即可。 */
+        depots:          depot_C_SAC3;
     }
 }
 
