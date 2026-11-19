@@ -99,8 +99,10 @@ const D = {
   ZD: 0.300,                     // 门洞高（4.2 m；车高约 0.29，净高 0.30 是硬指标）
   PW: 0.022,                     // 门套立柱宽
   PR: 0.008,                     // 门套挑出墙面
-  ZW0: 0.215, ZW1: 0.295,        // 侧墙窗台 / 上沿
-  BW: { u0: 0.320, u1: 0.680, z0: 0.215, z1: 0.295 },   // 后墙高窗
+  ZW0: 0.222, ZW1: 0.282,        // 侧墙窗台 / 上沿（v82：压扁到 0.06，窗台略上移）
+                                 //   顶面必须离檐口 ≥0.055：出檐 0.035 在 30° 视角下投影 ≈0.06，
+                                 //   再往上就被檐口阴影带压住，看着像从屋檐下挂下来的一条。
+  BW: { u0: 0.320, u1: 0.680, z0: 0.222, z1: 0.282 },   // 后墙高窗（跟着上移压扁）
   SIGN: { u0: 0.340, u1: 0.660, z0: 0.305, z1: 0.335 }, // 门楣牌
 };
 D.YI0 = D.YB + D.T;              // 库内净空起点（后墙内表面）
@@ -200,16 +202,32 @@ class Builder {
   }
 }
 
-/** 一段带勒脚的墙（勒脚 + 墙身，都不挖洞；窗是贴面窗） */
-function wallWithPlinth(b, side, at, u0, u1) {
+/**
+ * 一段带勒脚的墙（勒脚 + 墙身）。
+ * `holes` 是真窗洞 `[u0,z0,u1,z1]`，交给 `wall` 切成围洞的一圈实体 ——
+ * 玻璃再用 `win inset=<墙厚>` 沉到洞底，才真的有"凹进去"和内壁阴影（v82）。
+ */
+function wallWithPlinth(b, side, at, u0, u1, holes = []) {
   b.line(`wall ${side} ${N(at)} ${N(u0)} ${N(u1)} 0.0000 ${N(D.ZPL)}  ${M.plinth} thick=${N(D.T)}`);
-  b.line(`wall ${side} ${N(at)} ${N(u0)} ${N(u1)} ${N(D.ZPL)} ${N(D.ZE)}  ${S.wall} thick=${N(D.T)}`);
+  const hs = holes.length
+    ? '  ' + holes.map((h) => `${N(h[0])},${N(h[1])},${N(h[2])},${N(h[3])}`).join('  ')
+    : '';
+  b.line(`wall ${side} ${N(at)} ${N(u0)} ${N(u1)} ${N(D.ZPL)} ${N(D.ZE)}${hs}  ${S.wall} thick=${N(D.T)}`);
 }
 
-/** 一樘贴面窗（v81：去掉灰色窗框和窗台，只留一整块玻璃） */
+/**
+ * 一樘窗：玻璃沉进真窗洞，无框无窗台。
+ *
+ * `inset` 是玻璃离外墙面的距离。**不能给满墙厚 0.05**：镜头俯角 30°，
+ * 视线沿 (1,1,0.8165) 走，洞深 0.05 / 洞高 0.06 时，洞口上沿会把玻璃遮掉大半，
+ * 只剩顶上一条 2 px 的蓝线（v82 第一次就是这么翻车的）。
+ * 取 0.028 ⇒ 玻璃露出的高度约 0.042（约 6~7 px），既有洞壁阴影又不至于看不见。
+ */
+const WIN_INSET = 0.028;
+
 function windowAt(b, side, at, u0, u1, z0, z1) {
   b.line(`win ${side} ${N(at)} ${N(u0)} ${N(u1)} ${N(z0)} ${N(z1)}  ${M.glass}`
-    + ` frame=${M.glass} frameW=0.014 mull=2 depth=0.010 inset=0 sill=no`);
+    + ` frame=${M.glass} frameW=0.014 mull=2 depth=0.012 inset=${N(WIN_INSET)} sill=no`);
 }
 
 /**
@@ -315,10 +333,11 @@ function emitShell(b, job) {
   frontGable(b, job.front);
 
   // ---------------------------------------------------------------- 后山墙（−y）
-  wallWithPlinth(b, '-y', D.YB, D.XL, D.XR);
+  wallWithPlinth(b, '-y', D.YB, D.XL, D.XR, [[D.BW.u0, D.BW.z0, D.BW.u1, D.BW.z1]]);
   windowAt(b, '-y', D.YB - 0.001, D.BW.u0, D.BW.u1, D.BW.z0, D.BW.z1);
 
   // ---------------------------------------------------------------- 两侧纵墙
+  const sideHoles = WIN.map(([u0, u1]) => [u0, D.ZW0, u1, D.ZW1]);
   for (const side of ['+x', '-x']) {
     const at = side === '+x' ? D.XR : D.XL;
     const off = side === '+x' ? 0.001 : -0.001;
@@ -330,7 +349,7 @@ function emitShell(b, job) {
       for (const [u0, u1] of WIN) windowAt(b, side, at + off, u0, u1, D.ZW0, D.ZW1);
       continue;
     }
-    wallWithPlinth(b, side, at, D.YB, D.YF);
+    wallWithPlinth(b, side, at, D.YB, D.YF, sideHoles);
     for (const [u0, u1] of WIN) windowAt(b, side, at + off, u0, u1, D.ZW0, D.ZW1);
   }
 
