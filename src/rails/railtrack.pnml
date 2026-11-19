@@ -738,6 +738,8 @@ item(FEAT_RAILTYPES, rail_SCDA, 11) {
         bridge_surfaces: probe_bridge_surfaces_quasi;
         catenary_pylons: probe_catenary_pylons_cyl;
         catenary_wire:   probe_catenary_wire;
+        /* 机车库「库 B」（现代动车段）—— 2026-11-19 人工「推广到其他轨道类型吧」 */
+        depots:          depot_B_SCDA;
     }
 }
 
@@ -1228,6 +1230,7 @@ item(FEAT_RAILTYPES, rail_SGCA, 19) {
         bridge_surfaces: probe_bridge_surfaces_crts3;
         catenary_pylons: probe_catenary_pylons_steel;
         catenary_wire:   probe_catenary_wire;
+        depots:          depot_B_SGCA;
     }
 }
 
@@ -1303,6 +1306,7 @@ item(FEAT_RAILTYPES, rail_SCCA, 20) {
         bridge_surfaces: probe_bridge_surfaces_crts1;
         catenary_pylons: probe_catenary_pylons_steel;
         catenary_wire:   probe_catenary_wire;
+        depots:          depot_B_SCCA;
     }
 }
 
@@ -1367,6 +1371,7 @@ item(FEAT_RAILTYPES, rail_SDCA, 21) {
         bridge_surfaces: probe_bridge_surfaces_crts1;
         catenary_pylons: probe_catenary_pylons_steel;
         catenary_wire:   probe_catenary_wire;
+        depots:          depot_B_SDCA;
     }
 }
 
@@ -1448,6 +1453,7 @@ item(FEAT_RAILTYPES, rail_SECA, 22) {
         bridge_surfaces: probe_bridge_surfaces_hsballast;
         catenary_pylons: probe_catenary_pylons_steel;
         catenary_wire:   probe_catenary_wire;
+        depots:          depot_B_SECA;
     }
 }
 
@@ -1532,6 +1538,7 @@ item(FEAT_RAILTYPES, rail_SFCA, 23) {
         bridge_surfaces: probe_bridge_surfaces_crts2;
         catenary_pylons: probe_catenary_pylons_steel;
         catenary_wire:   probe_catenary_wire;
+        depots:          depot_B_SFCA;
     }
 }
 
@@ -1608,6 +1615,7 @@ item(FEAT_RAILTYPES, rail_SDDA, 24) {
         bridge_surfaces: probe_bridge_surfaces_quasifast;
         catenary_pylons: probe_catenary_pylons_cyl;
         catenary_wire:   probe_catenary_wire;
+        depots:          depot_B_SDDA;
     }
 }
 

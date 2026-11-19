@@ -244,8 +244,9 @@ const LIB_A = ['SADN', 'SBDN', 'SBDA', 'SBEd', 'SBDD', 'SAEN', 'SBEN', 'SBEA',
 const LIB_B = ['SCDN', 'SCDA', 'SDDA', 'SCCA', 'SDCA', 'SECA', 'SFCA', 'SGCA'];
 
 // ★ 人工 2026-11-19：「这个最好也先做一种轨道，调好了在铺开」
-//   ⇒ 库 B **先只出 `SCDN` 一种地面层**，壳体 + 库内轨道调好后，把它改成 `LIB_B` 即可铺开。
-const LIB_B_DO = ['SCDN'];
+//   ⇒ 先只出 `SCDN` 一种地面层（第一轮就是这么调的）。
+// ★ 人工 2026-11-19：「推广到其他轨道类型吧」⇒ 改成 `LIB_B`（8 条全出）。
+const LIB_B_DO = LIB_B;
 
 /** 兼容旧口径：准轨断面（模板 `t_G1_depot_wa_v0` 那一组仍是它） */
 const TR = TRACK_SPECS.SBDN;

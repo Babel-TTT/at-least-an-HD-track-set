@@ -3995,32 +3995,83 @@ template t_G1_depot_z_BBDA_sw_v3(sheet) {
 }
 
 // ---------------------------------------------------------------------------
-// 机车库「库 B」现代动车段（2026-11-19；人工：「先做一种轨道，调好了再铺开」）
+// 机车库「库 B」现代动车段（2026-11-19；人工：「推广到其他轨道类型吧」⇒ 8 条铺满）
 //
-//   模型名 G1_depot_zz*（`zz` 排在库 A 的 `z_*` 之后 ⇒ 图集前面 19 行一格不动）。
-//   库 B 只比库 A 高一点点（檐口 0.376 / 屋脊 0.460），**格位仍是 263×184**、
-//   锚点也逐朝向相同 ⇒ 下面六行的 xrel/yrel 与库 A 那六行**逐槽同值**。
-//   哪天库 A 那六行【手调】动了，这六行要一起动（同一套数）。
+//   模型名 G1_depot_zz*（`zz` 排在库 A 的 `z_*` 之后 ⇒ 图集前面库 A 的 19 行一格不动）。
+//   库 B 只比库 A 高一点点（檐口 0.376 / 屋脊 0.460），**格位一样是 263×184**、
+//   锚点也逐朝向相同 ⇒ 下面 20 行的 xrel/yrel 与库 A 那六行**逐槽同值**。
+//   哪天库 A 那六行【手调】动了，这 20 行要一起动（同一套数）：
+//     _se → (-127,-68) · _v0 → (-39,-113) · _sw → (-129,-68)
+//     _x_v3 → (-215,-112) · _v1 → (-211,-116) · _x_v2 → (-43,-116)
 //
-//   接图：槽0 ← G1_depot_zz_SCDN_se#0 · 槽1 ← G1_depot_zz#0
-//         槽2 ← G1_depot_zz_SCDN_sw#3 · 槽3 ← G1_depot_zz_x#3
-//         槽4 ← G1_depot_zz#1        · 槽5 ← G1_depot_zz_x#2
+//   8 条轨道（每条两版地面层，SE / SW）：SCCA SCDA SCDN SDCA SDDA SECA SFCA SGCA
+//   壳体只有两版（G1_depot_zz / G1_depot_zz_x），8 条共用。
 // ---------------------------------------------------------------------------
-template t_G1_depot_zz_SCDN_se_v0(sheet) {
-  [1052, 3496, 263, 184, -127, -68, sheet] // 【手调
-}
 template t_G1_depot_zz_v0(sheet) {
   [0, 3496, 263, 184, -39, -113, sheet] // 【手调
-}
-template t_G1_depot_zz_SCDN_sw_v3(sheet) {
-  [789, 3680, 263, 184, -129, -68, sheet] // 【手调
-}
-template t_G1_depot_zz_x_v3(sheet) {
-  [1841, 3680, 263, 184, -215, -112, sheet] // 【手调
 }
 template t_G1_depot_zz_v1(sheet) {
   [263, 3496, 263, 184, -211, -116, sheet] // 【手调
 }
+template t_G1_depot_zz_x_v3(sheet) {
+  [1841, 4968, 263, 184, -215, -112, sheet] // 【手调
+}
 template t_G1_depot_zz_x_v2(sheet) {
-  [1578, 3680, 263, 184, -43, -116, sheet] // 【手调
+  [1578, 4968, 263, 184, -43, -116, sheet] // 【手调
+}
+// ---- SCCA（无砟 CRTS-I）----------------------------------------------------
+template t_G1_depot_zz_SCCA_se_v0(sheet) {
+  [1052, 3496, 263, 184, -127, -68, sheet] // 【手调
+}
+template t_G1_depot_zz_SCCA_sw_v3(sheet) {
+  [789, 3680, 263, 184, -129, -68, sheet] // 【手调
+}
+// ---- SCDA（同 SCDN：BAL-A + U 形混凝土枕）---------------------------------
+template t_G1_depot_zz_SCDA_se_v0(sheet) {
+  [1052, 3680, 263, 184, -127, -68, sheet] // 【手调
+}
+template t_G1_depot_zz_SCDA_sw_v3(sheet) {
+  [789, 3864, 263, 184, -129, -68, sheet] // 【手调
+}
+// ---- SCDN（BAL-A + SLE-2 U 形混凝土枕 + RAI-1）-----------------------------
+template t_G1_depot_zz_SCDN_se_v0(sheet) {
+  [1052, 3864, 263, 184, -127, -68, sheet] // 【手调
+}
+template t_G1_depot_zz_SCDN_sw_v3(sheet) {
+  [789, 4048, 263, 184, -129, -68, sheet] // 【手调
+}
+// ---- SDCA（同 SCCA）--------------------------------------------------------
+template t_G1_depot_zz_SDCA_se_v0(sheet) {
+  [1052, 4048, 263, 184, -127, -68, sheet] // 【手调
+}
+template t_G1_depot_zz_SDCA_sw_v3(sheet) {
+  [789, 4232, 263, 184, -129, -68, sheet] // 【手调
+}
+// ---- SDDA（BAL-A 平断面 + SLE-3 宽枕 + RAI-3）------------------------------
+template t_G1_depot_zz_SDDA_se_v0(sheet) {
+  [1052, 4232, 263, 184, -127, -68, sheet] // 【手调
+}
+template t_G1_depot_zz_SDDA_sw_v3(sheet) {
+  [789, 4416, 263, 184, -129, -68, sheet] // 【手调
+}
+// ---- SECA（BAL-N 高速有砟，砟肩堆高 + SLE-3 + RAI-3）-----------------------
+template t_G1_depot_zz_SECA_se_v0(sheet) {
+  [1052, 4416, 263, 184, -127, -68, sheet] // 【手调
+}
+template t_G1_depot_zz_SECA_sw_v3(sheet) {
+  [789, 4600, 263, 184, -129, -68, sheet] // 【手调
+}
+// ---- SFCA（BAL-F 无砟 CRTS-II 纵连板）-------------------------------------
+template t_G1_depot_zz_SFCA_se_v0(sheet) {
+  [1052, 4600, 263, 184, -127, -68, sheet] // 【手调
+}
+template t_G1_depot_zz_SFCA_sw_v3(sheet) {
+  [789, 4784, 263, 184, -129, -68, sheet] // 【手调
+}
+// ---- SGCA（BAL-G 无砟板 + SLE-4 双块，无通长枕木）-------------------------
+template t_G1_depot_zz_SGCA_se_v0(sheet) {
+  [1052, 4784, 263, 184, -127, -68, sheet] // 【手调
+}
+template t_G1_depot_zz_SGCA_sw_v3(sheet) {
+  [789, 4968, 263, 184, -129, -68, sheet] // 【手调
 }
