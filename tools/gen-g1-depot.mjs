@@ -111,22 +111,94 @@ D.YI0 = D.YB + D.T;              // 库内净空起点（后墙内表面）
 const WIN = [[0.200, 0.340], [0.420, 0.560], [0.640, 0.780]];
 
 // ---------------------------------------------------------------- 库内轨道
-// 口径照抄 `models/G1_rail_straight.model`：轨 x 0.4444~0.4524 / 0.5476~0.5556，
-// z 0.010~0.023，贯穿 y 0~1；砟顶 0.0078；枕木 0.012 起、步距 0.040。
-const TR = {
-  B0: 0.320, B1: 0.680,
-  // 引轨：**只有钢轨**略微伸出门口（几个像素），道砟和枕木留在 tile 内。
-  //   v79 把三样一起伸到 1.0625，人工说"伸出太多、灰色底板要短一点"⇒ 拆成两个数：
-  //   Y_BED  道砟/枕木 → 0.9800（收进场坪边缘以内，门口外面不留灰板）
-  //   Y_RAIL 钢轨       → 1.0250（门外约 3 px，看着连上，又不显眼）
-  Y_BED: 0.9800,
-  Y_RAIL: 1.0250,
-  BED: 0.0078,
-  SL_TOP: 0.0100, SL_STEP: 0.0400, SL_HALF: 0.0900, SL_T: 0.0200,
-  SL_Y0: 0.0120, SL_Y1: 0.9880,
-  RAIL_BASE: 0.0100, RAIL_TOP: 0.0230,
-  RAIL_X: [[0.4444, 0.4524], [0.5476, 0.5556]],
+// 引轨：**只有钢轨**略微伸出门口（几个像素），道砟和枕木留在 tile 内。
+//   Y_BED  道砟/枕木 → 0.9800（收进场坪边缘以内，门口外面不留灰板）
+//   Y_RAIL 钢轨       → 1.0250（门外约 3 px，看着连上，又不显眼）
+const Y_BED = 0.9800;
+const Y_RAIL = 1.0250;
+const SL_STEP = 0.0400, SL_T = 0.0200, SL_Y0 = 0.0120;
+
+// ---------------------------------------------------------------- 轨道断面表
+// 库 A 的 17 条轨道**各做一套**（人工 2026-11-19：「就是每种轨道都做一种，类似隧道那样」）。
+// 数值全部从各族 `models/*_track_x.model` 的横断面**实测**（2026-11-19 量），
+// 不是估计值 —— 换一条轨道就换一组数，像隧道口那样逐条接。
+//
+//   bed     道床 [y0, y1, zTop, 顶面材质]
+//   sleeper 枕木 {y0,y1,z1, side, top}   —— 木枕 / 混凝土枕只差材质
+//   rails   每根钢轨的 [y0, y1]（1/2/4 根，各族的轨距与根数都在这里）
+//   rz      钢轨 [底 z, 顶 z]
+const TRACK_SPECS = {
+  // ---- A1：BAL-Cb 褐色道床 + SLE-1 木枕 + RAI-1 准轨 -------------------------
+  SADN: { bed: [0.3080, 0.6920, 0.0055, 'roof_shingle'],
+    sleeper: { y0: 0.4100, y1: 0.5900, z1: 0.0100, side: 'wood_dark', top: 'wood_seam' },
+    rails: [[0.4444, 0.4524], [0.5476, 0.5556]], rz: [0.0100, 0.0230] },
+  // ---- A1：BAL-C + SLE-1 + RAI-1 --------------------------------------------
+  SBDN: { bed: [0.3080, 0.6920, 0.0055, 'gravel'],
+    sleeper: { y0: 0.4100, y1: 0.5900, z1: 0.0100, side: 'wood_dark', top: 'wood_seam' },
+    rails: [[0.4444, 0.4524], [0.5476, 0.5556]], rz: [0.0100, 0.0230] },
+  SBEd: { bed: [0.3080, 0.6920, 0.0055, 'gravel'],
+    sleeper: { y0: 0.4100, y1: 0.5900, z1: 0.0100, side: 'wood_dark', top: 'wood_seam' },
+    rails: [[0.4444, 0.4524], [0.5476, 0.5556]], rz: [0.0100, 0.0230] },
+  SBDD: { bed: [0.3080, 0.6920, 0.0055, 'gravel'],
+    sleeper: { y0: 0.4100, y1: 0.5900, z1: 0.0100, side: 'wood_dark', top: 'wood_seam' },
+    rails: [[0.4444, 0.4524], [0.5476, 0.5556]], rz: [0.0100, 0.0230] },
+  // ---- A2：BAL-C + SLE-2 混凝土枕（带承轨槽）+ RAI-1 ------------------------
+  SBDA: { bed: [0.3080, 0.6920, 0.0055, 'gravel'],
+    sleeper: { y0: 0.4100, y1: 0.5900, z1: 0.0100, side: 'concrete', top: 'concrete', groove: [0.4300, 0.5700, 'trim_dark'] },
+    rails: [[0.4444, 0.4524], [0.5476, 0.5556]], rz: [0.0100, 0.0230] },
+  // ---- A4：BAL-B 宽砟 + SLE-1 木枕 + RAI-2 重载轨 ---------------------------
+  SAEN: { bed: [0.2867, 0.7133, 0.0065, 'gravel'],
+    sleeper: { y0: 0.4100, y1: 0.5900, z1: 0.0100, side: 'wood_dark', top: 'wood_seam' },
+    rails: [[0.4432, 0.4536], [0.5464, 0.5568]], rz: [0.0085, 0.0230] },
+  // ---- A5：BAL-B + SLE-3 新混凝土枕 + RAI-2 --------------------------------
+  SBEN: { bed: [0.2867, 0.7133, 0.0065, 'gravel'],
+    sleeper: { y0: 0.4050, y1: 0.5950, z1: 0.0100, side: 'concrete_mid', top: 'concrete_mid', groove: [0.4300, 0.5700, 'panel_seam'] },
+    rails: [[0.4432, 0.4536], [0.5464, 0.5568]], rz: [0.0085, 0.0230] },
+  SBEA: { bed: [0.2867, 0.7133, 0.0065, 'gravel'],
+    sleeper: { y0: 0.4050, y1: 0.5950, z1: 0.0100, side: 'concrete_mid', top: 'concrete_mid', groove: [0.4300, 0.5700, 'panel_seam'] },
+    rails: [[0.4432, 0.4536], [0.5464, 0.5568]], rz: [0.0085, 0.0230] },
+  // ---- A15/A16/A17：BAL-D 窄砟 + SLE-1/2/3 + RAI-7 窄轨（1067/1000）--------
+  NACN: { bed: [0.3656, 0.6344, 0.0055, 'gravel'],
+    sleeper: { y0: 0.4370, y1: 0.5630, z1: 0.0100, side: 'wood_dark', top: 'wood_seam' },
+    rails: [[0.4611, 0.4667], [0.5333, 0.5389]], rz: [0.0100, 0.0230] },
+  NBCN: { bed: [0.3656, 0.6344, 0.0055, 'gravel'],
+    sleeper: { y0: 0.4370, y1: 0.5630, z1: 0.0100, side: 'concrete', top: 'concrete', groove: [0.4510, 0.5490, 'trim_dark'] },
+    rails: [[0.4611, 0.4667], [0.5333, 0.5389]], rz: [0.0100, 0.0230] },
+  NBCA: { bed: [0.3656, 0.6344, 0.0055, 'gravel'],
+    sleeper: { y0: 0.4370, y1: 0.5630, z1: 0.0100, side: 'concrete', top: 'concrete', groove: [0.4510, 0.5490, 'trim_dark'] },
+    rails: [[0.4611, 0.4667], [0.5333, 0.5389]], rz: [0.0100, 0.0230] },
+  NCCA: { bed: [0.3656, 0.6344, 0.0055, 'gravel'],
+    sleeper: { y0: 0.4335, y1: 0.5665, z1: 0.0100, side: 'concrete_mid', top: 'concrete_mid', groove: [0.4510, 0.5490, 'panel_seam'] },
+    rails: [[0.4611, 0.4667], [0.5333, 0.5389]], rz: [0.0100, 0.0230] },
+  // ---- A18/A19/A22/A23/A24：BAL-K 加宽砟，钢轨根数各不同 --------------------
+  //   dBCN = 1435 外 + 1004 内（RAI-10，四根）
+  dBCN: { bed: [0.2867, 0.7133, 0.0065, 'gravel'],
+    sleeper: { y0: 0.4000, y1: 0.6000, z1: 0.0100, side: 'wood_dark', top: 'wood_seam' },
+    rails: [[0.4444, 0.4524], [0.4611, 0.4667], [0.5333, 0.5389], [0.5476, 0.5556]], rz: [0.0100, 0.0230] },
+  //   DBDN = 1435 内 + 1520 外（RAI-5，四根）
+  DBDN: { bed: [0.2867, 0.7133, 0.0065, 'gravel'],
+    sleeper: { y0: 0.4000, y1: 0.6000, z1: 0.0100, side: 'wood_dark', top: 'wood_seam' },
+    rails: [[0.4411, 0.4496], [0.4444, 0.4524], [0.5476, 0.5556], [0.5504, 0.5589]], rz: [0.0100, 0.0230] },
+  //   DBDA = 同 DBDN，换 SLE-2 混凝土枕
+  DBDA: { bed: [0.2867, 0.7133, 0.0065, 'gravel'],
+    sleeper: { y0: 0.4000, y1: 0.6000, z1: 0.0100, side: 'concrete', top: 'concrete', groove: [0.4222, 0.5778, 'trim_dark'] },
+    rails: [[0.4411, 0.4496], [0.4444, 0.4524], [0.5476, 0.5556], [0.5504, 0.5589]], rz: [0.0100, 0.0230] },
+  //   BBDN = 纯 1520 宽轨（RAI-9，两根）
+  BBDN: { bed: [0.2867, 0.7133, 0.0065, 'gravel'],
+    sleeper: { y0: 0.4000, y1: 0.6000, z1: 0.0100, side: 'wood_dark', top: 'wood_seam' },
+    rails: [[0.4411, 0.4496], [0.5504, 0.5589]], rz: [0.0100, 0.0230] },
+  //   BBDA = 同 BBDN，换 SLE-2
+  BBDA: { bed: [0.2867, 0.7133, 0.0065, 'gravel'],
+    sleeper: { y0: 0.4000, y1: 0.6000, z1: 0.0100, side: 'concrete', top: 'concrete', groove: [0.4222, 0.5778, 'trim_dark'] },
+    rails: [[0.4411, 0.4496], [0.5504, 0.5589]], rz: [0.0100, 0.0230] },
 };
+
+/** 库 A 的 17 条（与 `美术要素方案.md` §1.7.2 的分组一致） */
+const LIB_A = ['SADN', 'SBDN', 'SBDA', 'SBEd', 'SBDD', 'SAEN', 'SBEN', 'SBEA',
+  'NACN', 'NBCN', 'NBCA', 'NCCA', 'dBCN', 'DBDN', 'DBDA', 'BBDN', 'BBDA'];
+
+/** 兼容旧口径：准轨断面（模板 `t_G1_depot_wa_v0` 那一组仍是它） */
+const TR = TRACK_SPECS.SBDN;
 
 // ---------------------------------------------------------------- 材质
 const STYLES = {
@@ -310,14 +382,15 @@ function emitGround(b, job) {
   const inAt = sink === '+x' ? D.XR - D.T - 0.001 : D.XL + D.T + 0.001;
   b.face(inSide, inAt, D.YI0, D.YF, 0.0000, D.ZE, M.wallIn);
 
-  // ③ 道砟 + 枕木 + 钢轨（道砟/枕木到 tile 边界，只有钢轨略微伸出门口）
-  b.box(TR.B0, 0.0000, 0.0000, TR.B1, TR.Y_BED, TR.BED, M.ballast, M.ballast);
-  for (let y = TR.SL_Y0, k = 0; y + TR.SL_T <= TR.Y_BED + 1e-9; y += TR.SL_STEP, k++) {
-    b.box(0.5 - TR.SL_HALF, y, 0.0000, 0.5 + TR.SL_HALF, y + TR.SL_T, TR.SL_TOP,
-      k % 2 ? M.sleeperB : M.sleeperA, M.sleeperB);
+  // ③ 道砟 + 枕木 + 钢轨 —— **按本条轨道的断面表画**（17 条各不相同）
+  const sp = TRACK_SPECS[job.spec] || TR;
+  b.box(sp.bed[0], 0.0000, 0.0000, sp.bed[1], Y_BED, sp.bed[2], sp.bed[3], sp.bed[3]);
+  for (let y = SL_Y0, k = 0; y + SL_T <= Y_BED + 1e-9; y += SL_STEP, k++) {
+    b.box(sp.sleeper.y0, y, 0.0000, sp.sleeper.y1, y + SL_T, sp.sleeper.z1,
+      sp.sleeper.side, sp.sleeper.top);
   }
-  for (const [x0, x1] of TR.RAIL_X) {
-    b.box(x0, 0.0000, TR.RAIL_BASE, x1, TR.Y_RAIL, TR.RAIL_TOP, 'rust', 'metal');
+  for (const [x0, x1] of sp.rails) {
+    b.box(x0, 0.0000, sp.rz[0], x1, Y_RAIL, sp.rz[1], 'rust', 'metal');
   }
 
   // ④ 前端墙的**远侧墙垛**（被车遮住 ⇒ 和地面同层）
@@ -380,13 +453,31 @@ function emitShell(b, job) {
 const JOBS = [
   { name: 'G1_depot', layer: 'shell', front: 'nearHi', sink: '-x',
     why: '壳体：后山墙/近侧纵墙/屋面 + 前端墙近侧墙垛与横槛（遮车）→ 槽 1/4' },
-  { name: 'G1_depot_wa', layer: 'ground', front: 'farLo', sink: '-x',
+  { name: 'G1_depot_wa', layer: 'ground', front: 'farLo', sink: '-x', spec: 'SBDN',
     why: '地面+轨道+库内+远侧纵墙内皮+前端墙远侧墙垛（被车遮）→ 槽 0' },
-  { name: 'G1_depot_wb', layer: 'ground', front: 'farHi', sink: '+x',
+  { name: 'G1_depot_wb', layer: 'ground', front: 'farHi', sink: '+x', spec: 'SBDN',
     why: '同上，镜像 → 槽 2' },
   { name: 'G1_depot_x', layer: 'shell', front: 'nearLo', sink: '+x',
     why: '壳体，镜像（近侧墙垛在 x 小那头）→ 槽 3/5' },
 ];
+
+// ---------------------------------------------------------------------------
+// 库 A 的 17 条：**每条一套地面层**（人工 2026-11-19：「就是每种轨道都做一种，类似隧道那样」）。
+//   命名 `G1_depot_z_<label>_se|sw`：前缀 `z` 保证字母序排在 `G1_depot_x` **之后**
+//   ⇒ 图集前两行（原 4 个模型 16 格）位置不变 ⇒ `templates.pnml` 那六行不用动。
+//   `_se` = 槽 0 那版（近侧墙垛在 x 大端）· `_sw` = 槽 2 那版（镜像）。
+//   壳体（4 张）17 条共用，不重复出。
+// ---------------------------------------------------------------------------
+for (const label of LIB_A) {
+  JOBS.push({
+    name: `G1_depot_z_${label}_se`, layer: 'ground', front: 'farLo', sink: '-x', spec: label,
+    why: `SE 入口地面层 · ${label} 的库内轨道（${TRACK_SPECS[label].rails.length} 轨）`,
+  });
+  JOBS.push({
+    name: `G1_depot_z_${label}_sw`, layer: 'ground', front: 'farHi', sink: '+x', spec: label,
+    why: `SW 入口地面层（镜像）· ${label} 的库内轨道（${TRACK_SPECS[label].rails.length} 轨）`,
+  });
+}
 
 const header = (job) => `# =============================================================================
 # ${job.name} —— 机车库「库 A」（${job.why}）
@@ -400,7 +491,9 @@ const header = (job) => `# =====================================================
 #   占地 1×1 · 墙皮 x ${N(D.XL)}~${N(D.XR)} × y ${N(D.YB)}~${N(D.YF)} · 墙厚 ${N(D.T)}
 #   勒脚 ${N(D.ZPL)} · 檐口 ${N(D.ZE)} · 屋脊 ${N(D.ZR)} · 出檐 ${N(D.OVER)}
 #   门洞 x ${N(D.D0)}~${N(D.D1)} × 高 ${N(D.ZD)} · 门套 ${N(D.PW)} 宽 / 挑出 ${N(D.PR)}
-#   库内轨道：道砟 ${N(TR.B0)}~${N(TR.B1)} / 枕顶 ${N(TR.SL_TOP)} / 轨顶 ${N(TR.RAIL_TOP)}
+#   库内轨道：${job.spec ? `${job.spec} —— 道砟 ${N(TRACK_SPECS[job.spec].bed[0])}~${N(TRACK_SPECS[job.spec].bed[1])}`
+    + ` · 轨 ${TRACK_SPECS[job.spec].rails.length} 根 · 枕 ${TRACK_SPECS[job.spec].sleeper.top}`
+    : `准轨 · 轨 ${TR.rails.length} 根`}
 # =============================================================================
 
 `;

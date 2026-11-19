@@ -3881,3 +3881,115 @@ template t_G1_depot_v1(sheet) {
 template t_G1_depot_v2(sheet) {
   [526, 0, 263, 184, -43, -116, sheet] // 【手调
 }
+
+// ---------------------------------------------------------------------------
+// 机车库「库 A」17 条轨道的**逐条地面层**（2026-11-19，人工「每种轨道都做一种」）
+//
+//   每条轨道的库内道床 / 枕木 / 钢轨断面不同（数值见 tools/gen-g1-depot.mjs 的 TRACK_SPECS，
+//   从各族 models/*_track_x.model 实测）。模型名 G1_depot_z_<label>_se|sw。
+//
+//   偏移：_se 用 (-127,-68)（= 上面 wa 那一档）· _sw 用 (-129,-68)（= wb 那一档）；
+//         同格位同锚点 ⇒ 同值。**人工改上面两档时，这 34 条要跟着改。**
+// ---------------------------------------------------------------------------
+template t_G1_depot_z_SADN_se_v0(sheet) {
+  [0, 1840, 263, 184, -127, -68, sheet] // 【手调
+}
+template t_G1_depot_z_SADN_sw_v3(sheet) {
+  [1841, 1840, 263, 184, -129, -68, sheet] // 【手调
+}
+template t_G1_depot_z_SBDN_se_v0(sheet) {
+  [0, 2576, 263, 184, -127, -68, sheet] // 【手调
+}
+template t_G1_depot_z_SBDN_sw_v3(sheet) {
+  [1841, 2576, 263, 184, -129, -68, sheet] // 【手调
+}
+template t_G1_depot_z_SBDA_se_v0(sheet) {
+  [0, 2208, 263, 184, -127, -68, sheet] // 【手调
+}
+template t_G1_depot_z_SBDA_sw_v3(sheet) {
+  [1841, 2208, 263, 184, -129, -68, sheet] // 【手调
+}
+template t_G1_depot_z_SBEd_se_v0(sheet) {
+  [0, 3128, 263, 184, -127, -68, sheet] // 【手调
+}
+template t_G1_depot_z_SBEd_sw_v3(sheet) {
+  [1841, 3128, 263, 184, -129, -68, sheet] // 【手调
+}
+template t_G1_depot_z_SBDD_se_v0(sheet) {
+  [0, 2392, 263, 184, -127, -68, sheet] // 【手调
+}
+template t_G1_depot_z_SBDD_sw_v3(sheet) {
+  [1841, 2392, 263, 184, -129, -68, sheet] // 【手调
+}
+template t_G1_depot_z_SAEN_se_v0(sheet) {
+  [0, 2024, 263, 184, -127, -68, sheet] // 【手调
+}
+template t_G1_depot_z_SAEN_sw_v3(sheet) {
+  [1841, 2024, 263, 184, -129, -68, sheet] // 【手调
+}
+template t_G1_depot_z_SBEN_se_v0(sheet) {
+  [0, 2944, 263, 184, -127, -68, sheet] // 【手调
+}
+template t_G1_depot_z_SBEN_sw_v3(sheet) {
+  [1841, 2944, 263, 184, -129, -68, sheet] // 【手调
+}
+template t_G1_depot_z_SBEA_se_v0(sheet) {
+  [0, 2760, 263, 184, -127, -68, sheet] // 【手调
+}
+template t_G1_depot_z_SBEA_sw_v3(sheet) {
+  [1841, 2760, 263, 184, -129, -68, sheet] // 【手调
+}
+template t_G1_depot_z_NACN_se_v0(sheet) {
+  [0, 1104, 263, 184, -127, -68, sheet] // 【手调
+}
+template t_G1_depot_z_NACN_sw_v3(sheet) {
+  [1841, 1104, 263, 184, -129, -68, sheet] // 【手调
+}
+template t_G1_depot_z_NBCN_se_v0(sheet) {
+  [0, 1472, 263, 184, -127, -68, sheet] // 【手调
+}
+template t_G1_depot_z_NBCN_sw_v3(sheet) {
+  [1841, 1472, 263, 184, -129, -68, sheet] // 【手调
+}
+template t_G1_depot_z_NBCA_se_v0(sheet) {
+  [0, 1288, 263, 184, -127, -68, sheet] // 【手调
+}
+template t_G1_depot_z_NBCA_sw_v3(sheet) {
+  [1841, 1288, 263, 184, -129, -68, sheet] // 【手调
+}
+template t_G1_depot_z_NCCA_se_v0(sheet) {
+  [0, 1656, 263, 184, -127, -68, sheet] // 【手调
+}
+template t_G1_depot_z_NCCA_sw_v3(sheet) {
+  [1841, 1656, 263, 184, -129, -68, sheet] // 【手调
+}
+template t_G1_depot_z_dBCN_se_v0(sheet) {
+  [0, 3312, 263, 184, -127, -68, sheet] // 【手调
+}
+template t_G1_depot_z_dBCN_sw_v3(sheet) {
+  [1841, 3312, 263, 184, -129, -68, sheet] // 【手调
+}
+template t_G1_depot_z_DBDN_se_v0(sheet) {
+  [0, 920, 263, 184, -127, -68, sheet] // 【手调
+}
+template t_G1_depot_z_DBDN_sw_v3(sheet) {
+  [1841, 920, 263, 184, -129, -68, sheet] // 【手调
+}
+template t_G1_depot_z_DBDA_se_v0(sheet) {
+  [0, 736, 263, 184, -127, -68, sheet] // 【手调
+}
+template t_G1_depot_z_DBDA_sw_v3(sheet) {
+  [1841, 736, 263, 184, -129, -68, sheet] // 【手调
+}
+template t_G1_depot_z_BBDN_se_v0(sheet) {
+  [0, 552, 263, 184, -127, -68, sheet] // 【手调
+}
+template t_G1_depot_z_BBDN_sw_v3(sheet) {
+  [1841, 552, 263, 184, -129, -68, sheet] // 【手调
+}
+template t_G1_depot_z_BBDA_se_v0(sheet) {
+  [0, 368, 263, 184, -127, -68, sheet] // 【手调
+}
+template t_G1_depot_z_BBDA_sw_v3(sheet) {
+  [1841, 368, 263, 184, -129, -68, sheet] // 【手调
+}

@@ -2362,15 +2362,19 @@ spriteset(probe_bridge_surfaces_maglev, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
 //
 //   ⚠ 偏移：见 templates.pnml 那六行（逐朝向，人工在自行微调）。
 // ===========================================================================
-// depot_A —— 机车库「库 A」（红砖机车库，**库 A 的 17 条轨道共用**）
+// depot_A_<label> —— 机车库「库 A」（红砖机车库，17 条轨道**各一个 spriteset**）
 //
 //   ★ 分组口径见 `美术要素方案.md` §1.7.2（人工裁定）：
 //       库 A = 80~120 km/h 的 `S*DN` / `S*EN` / `S*EA` / `S*Ed` + 窄轨/宽轨/套轨全部
 //       清单：SADN SBDN SBDA SBEd SBDD SAEN SBEN SBEA NACN NBCN NBCA NCCA dBCN BBDN BBDA DBDN DBDA
 //       库 B（彩钢，≥160 的 8 条）与库 C（地铁 6 条）**还没建模**，那 14 条仍走原版精灵。
 //
-//   ★ 现在 17 条**共用同一套 6 张图**（近墙还只有一版）。方案里"18 种近墙"是用来
-//     区分制式（非电/25kV/1500V/3000V）与道床的，还没做 —— 做完后这里要拆成 17 个 spriteset。
+//   ★ 2026-11-19（人工「就是每种轨道都做一种，类似隧道那样」）：**每条一套地面层**。
+//     地面层（槽 0/2）里装的是库内地坪 + **本条轨道的道床/枕木/钢轨**，
+//     17 条的断面各不相同（`tools/gen-g1-depot.mjs` 的 `TRACK_SPECS`，数值从
+//     各族 `models/*_track_x.model` 实测）：道床宽 0.252 / 0.36 / 0.40、
+//     枕木 木/混凝土、钢轨 1 对 / 2 对 / 宽轨 / 窄轨。
+//     壳体（4 张建筑）17 条共用，不重复出。
 //
 //   ★ 已知取舍（§1.7.5，别当 bug 报）：窄轨 NACN/NBCN 的轨距是 1.004 m，库内轨道仍是
 //     准轨 1435（`TR.RAIL_X`）；门口靠后来的"门槛遮挡条"盖住端头，现在还没有那条。
@@ -2388,11 +2392,155 @@ spriteset(probe_bridge_surfaces_maglev, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
 //
 //   ⚠ 偏移：见 templates.pnml 那六行（逐朝向，人工在自行微调）。
 // ===========================================================================
-spriteset(depot_A, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
-    t_G1_depot_wa_v0("gfx/depot.png")        // 0  SE 近墙小块（后画，压住车）
-    t_G1_depot_v0("gfx/depot.png")           // 1  SE 整栋（先画）
-    t_G1_depot_wb_v3("gfx/depot.png")        // 2  SW 近墙小块（后画）
-    t_G1_depot_x_v3("gfx/depot.png")        // 3  SW 整栋（x 镜像版：门洞远侧那半）
-    t_G1_depot_v1("gfx/depot.png")           // 4  NE 整栋
-    t_G1_depot_v2("gfx/depot.png")           // 5  NW 整栋
+spriteset(depot_A_SADN, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G1_depot_z_SADN_se_v0("gfx/depot.png")   // 0  SE 地面层（SADN 的库内轨道）
+    t_G1_depot_v0("gfx/depot.png")             // 1  SE 整栋
+    t_G1_depot_z_SADN_sw_v3("gfx/depot.png")   // 2  SW 地面层（镜像）
+    t_G1_depot_x_v3("gfx/depot.png")           // 3  SW 整栋
+    t_G1_depot_v1("gfx/depot.png")             // 4  NE 整栋
+    t_G1_depot_v2("gfx/depot.png")             // 5  NW 整栋
+}
+
+spriteset(depot_A_SBDN, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G1_depot_z_SBDN_se_v0("gfx/depot.png")   // 0  SE 地面层（SBDN 的库内轨道）
+    t_G1_depot_v0("gfx/depot.png")             // 1  SE 整栋
+    t_G1_depot_z_SBDN_sw_v3("gfx/depot.png")   // 2  SW 地面层（镜像）
+    t_G1_depot_x_v3("gfx/depot.png")           // 3  SW 整栋
+    t_G1_depot_v1("gfx/depot.png")             // 4  NE 整栋
+    t_G1_depot_v2("gfx/depot.png")             // 5  NW 整栋
+}
+
+spriteset(depot_A_SBDA, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G1_depot_z_SBDA_se_v0("gfx/depot.png")   // 0  SE 地面层（SBDA 的库内轨道）
+    t_G1_depot_v0("gfx/depot.png")             // 1  SE 整栋
+    t_G1_depot_z_SBDA_sw_v3("gfx/depot.png")   // 2  SW 地面层（镜像）
+    t_G1_depot_x_v3("gfx/depot.png")           // 3  SW 整栋
+    t_G1_depot_v1("gfx/depot.png")             // 4  NE 整栋
+    t_G1_depot_v2("gfx/depot.png")             // 5  NW 整栋
+}
+
+spriteset(depot_A_SBEd, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G1_depot_z_SBEd_se_v0("gfx/depot.png")   // 0  SE 地面层（SBEd 的库内轨道）
+    t_G1_depot_v0("gfx/depot.png")             // 1  SE 整栋
+    t_G1_depot_z_SBEd_sw_v3("gfx/depot.png")   // 2  SW 地面层（镜像）
+    t_G1_depot_x_v3("gfx/depot.png")           // 3  SW 整栋
+    t_G1_depot_v1("gfx/depot.png")             // 4  NE 整栋
+    t_G1_depot_v2("gfx/depot.png")             // 5  NW 整栋
+}
+
+spriteset(depot_A_SBDD, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G1_depot_z_SBDD_se_v0("gfx/depot.png")   // 0  SE 地面层（SBDD 的库内轨道）
+    t_G1_depot_v0("gfx/depot.png")             // 1  SE 整栋
+    t_G1_depot_z_SBDD_sw_v3("gfx/depot.png")   // 2  SW 地面层（镜像）
+    t_G1_depot_x_v3("gfx/depot.png")           // 3  SW 整栋
+    t_G1_depot_v1("gfx/depot.png")             // 4  NE 整栋
+    t_G1_depot_v2("gfx/depot.png")             // 5  NW 整栋
+}
+
+spriteset(depot_A_SAEN, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G1_depot_z_SAEN_se_v0("gfx/depot.png")   // 0  SE 地面层（SAEN 的库内轨道）
+    t_G1_depot_v0("gfx/depot.png")             // 1  SE 整栋
+    t_G1_depot_z_SAEN_sw_v3("gfx/depot.png")   // 2  SW 地面层（镜像）
+    t_G1_depot_x_v3("gfx/depot.png")           // 3  SW 整栋
+    t_G1_depot_v1("gfx/depot.png")             // 4  NE 整栋
+    t_G1_depot_v2("gfx/depot.png")             // 5  NW 整栋
+}
+
+spriteset(depot_A_SBEN, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G1_depot_z_SBEN_se_v0("gfx/depot.png")   // 0  SE 地面层（SBEN 的库内轨道）
+    t_G1_depot_v0("gfx/depot.png")             // 1  SE 整栋
+    t_G1_depot_z_SBEN_sw_v3("gfx/depot.png")   // 2  SW 地面层（镜像）
+    t_G1_depot_x_v3("gfx/depot.png")           // 3  SW 整栋
+    t_G1_depot_v1("gfx/depot.png")             // 4  NE 整栋
+    t_G1_depot_v2("gfx/depot.png")             // 5  NW 整栋
+}
+
+spriteset(depot_A_SBEA, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G1_depot_z_SBEA_se_v0("gfx/depot.png")   // 0  SE 地面层（SBEA 的库内轨道）
+    t_G1_depot_v0("gfx/depot.png")             // 1  SE 整栋
+    t_G1_depot_z_SBEA_sw_v3("gfx/depot.png")   // 2  SW 地面层（镜像）
+    t_G1_depot_x_v3("gfx/depot.png")           // 3  SW 整栋
+    t_G1_depot_v1("gfx/depot.png")             // 4  NE 整栋
+    t_G1_depot_v2("gfx/depot.png")             // 5  NW 整栋
+}
+
+spriteset(depot_A_NACN, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G1_depot_z_NACN_se_v0("gfx/depot.png")   // 0  SE 地面层（NACN 的库内轨道）
+    t_G1_depot_v0("gfx/depot.png")             // 1  SE 整栋
+    t_G1_depot_z_NACN_sw_v3("gfx/depot.png")   // 2  SW 地面层（镜像）
+    t_G1_depot_x_v3("gfx/depot.png")           // 3  SW 整栋
+    t_G1_depot_v1("gfx/depot.png")             // 4  NE 整栋
+    t_G1_depot_v2("gfx/depot.png")             // 5  NW 整栋
+}
+
+spriteset(depot_A_NBCN, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G1_depot_z_NBCN_se_v0("gfx/depot.png")   // 0  SE 地面层（NBCN 的库内轨道）
+    t_G1_depot_v0("gfx/depot.png")             // 1  SE 整栋
+    t_G1_depot_z_NBCN_sw_v3("gfx/depot.png")   // 2  SW 地面层（镜像）
+    t_G1_depot_x_v3("gfx/depot.png")           // 3  SW 整栋
+    t_G1_depot_v1("gfx/depot.png")             // 4  NE 整栋
+    t_G1_depot_v2("gfx/depot.png")             // 5  NW 整栋
+}
+
+spriteset(depot_A_NBCA, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G1_depot_z_NBCA_se_v0("gfx/depot.png")   // 0  SE 地面层（NBCA 的库内轨道）
+    t_G1_depot_v0("gfx/depot.png")             // 1  SE 整栋
+    t_G1_depot_z_NBCA_sw_v3("gfx/depot.png")   // 2  SW 地面层（镜像）
+    t_G1_depot_x_v3("gfx/depot.png")           // 3  SW 整栋
+    t_G1_depot_v1("gfx/depot.png")             // 4  NE 整栋
+    t_G1_depot_v2("gfx/depot.png")             // 5  NW 整栋
+}
+
+spriteset(depot_A_NCCA, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G1_depot_z_NCCA_se_v0("gfx/depot.png")   // 0  SE 地面层（NCCA 的库内轨道）
+    t_G1_depot_v0("gfx/depot.png")             // 1  SE 整栋
+    t_G1_depot_z_NCCA_sw_v3("gfx/depot.png")   // 2  SW 地面层（镜像）
+    t_G1_depot_x_v3("gfx/depot.png")           // 3  SW 整栋
+    t_G1_depot_v1("gfx/depot.png")             // 4  NE 整栋
+    t_G1_depot_v2("gfx/depot.png")             // 5  NW 整栋
+}
+
+spriteset(depot_A_dBCN, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G1_depot_z_dBCN_se_v0("gfx/depot.png")   // 0  SE 地面层（dBCN 的库内轨道）
+    t_G1_depot_v0("gfx/depot.png")             // 1  SE 整栋
+    t_G1_depot_z_dBCN_sw_v3("gfx/depot.png")   // 2  SW 地面层（镜像）
+    t_G1_depot_x_v3("gfx/depot.png")           // 3  SW 整栋
+    t_G1_depot_v1("gfx/depot.png")             // 4  NE 整栋
+    t_G1_depot_v2("gfx/depot.png")             // 5  NW 整栋
+}
+
+spriteset(depot_A_DBDN, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G1_depot_z_DBDN_se_v0("gfx/depot.png")   // 0  SE 地面层（DBDN 的库内轨道）
+    t_G1_depot_v0("gfx/depot.png")             // 1  SE 整栋
+    t_G1_depot_z_DBDN_sw_v3("gfx/depot.png")   // 2  SW 地面层（镜像）
+    t_G1_depot_x_v3("gfx/depot.png")           // 3  SW 整栋
+    t_G1_depot_v1("gfx/depot.png")             // 4  NE 整栋
+    t_G1_depot_v2("gfx/depot.png")             // 5  NW 整栋
+}
+
+spriteset(depot_A_DBDA, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G1_depot_z_DBDA_se_v0("gfx/depot.png")   // 0  SE 地面层（DBDA 的库内轨道）
+    t_G1_depot_v0("gfx/depot.png")             // 1  SE 整栋
+    t_G1_depot_z_DBDA_sw_v3("gfx/depot.png")   // 2  SW 地面层（镜像）
+    t_G1_depot_x_v3("gfx/depot.png")           // 3  SW 整栋
+    t_G1_depot_v1("gfx/depot.png")             // 4  NE 整栋
+    t_G1_depot_v2("gfx/depot.png")             // 5  NW 整栋
+}
+
+spriteset(depot_A_BBDN, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G1_depot_z_BBDN_se_v0("gfx/depot.png")   // 0  SE 地面层（BBDN 的库内轨道）
+    t_G1_depot_v0("gfx/depot.png")             // 1  SE 整栋
+    t_G1_depot_z_BBDN_sw_v3("gfx/depot.png")   // 2  SW 地面层（镜像）
+    t_G1_depot_x_v3("gfx/depot.png")           // 3  SW 整栋
+    t_G1_depot_v1("gfx/depot.png")             // 4  NE 整栋
+    t_G1_depot_v2("gfx/depot.png")             // 5  NW 整栋
+}
+
+spriteset(depot_A_BBDA, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
+    t_G1_depot_z_BBDA_se_v0("gfx/depot.png")   // 0  SE 地面层（BBDA 的库内轨道）
+    t_G1_depot_v0("gfx/depot.png")             // 1  SE 整栋
+    t_G1_depot_z_BBDA_sw_v3("gfx/depot.png")   // 2  SW 地面层（镜像）
+    t_G1_depot_x_v3("gfx/depot.png")           // 3  SW 整栋
+    t_G1_depot_v1("gfx/depot.png")             // 4  NE 整栋
+    t_G1_depot_v2("gfx/depot.png")             // 5  NW 整栋
 }
