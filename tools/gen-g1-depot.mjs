@@ -203,14 +203,10 @@ function jambLining(b, u0, u1) {
 function groundParts(b) {
   b.quad([[A.PAD0, A.PAD0, 0.0040], [A.PAD1, A.PAD0, 0.0040],
     [A.PAD1, A.PAD1, 0.0040], [A.PAD0, A.PAD1, 0.0040]], 'concrete_pad', [0, 0, 1]);
-  // 库内地坪（暗灰）：flatiso 不做室内遮蔽，亮材质会让洞内像露天院子。
-  b.quad([[XI0, YI0, 0.0046], [XI1, YI0, 0.0046], [XI1, A.YF, 0.0046], [XI0, A.YF, 0.0046]],
-    M.floor, [0, 0, 1]);
-  for (const [at, side] of [[XI0 + 0.002, '+x'], [XI1 - 0.002, '-x']]) {
-    b.face(side, at, YI0, A.YF, 0.0046, A.Z_DOOR, M.wallIn);
-  }
-  b.quad([[XI0, YI0, A.Z_DOOR], [XI0, A.YF, A.Z_DOOR],
-    [XI1, A.YF, A.Z_DOOR], [XI1, YI0, A.Z_DOOR]], M.ceil, [0, 0, -1]);
+  // ★ v71：库内地坪 / 两片内墙 / 天花 **一律不画**。
+  //   xUSSR 与官方例子都是「建筑精灵的近端敞口是空的」，车才透得出来；
+  //   这几块是实心暗色，正对着门洞 ⇒ 等于把洞堵死（v70 的病根之二）。
+  //   洞里的"地面"由下面这层场坪 + 道砟 + 钢轨负责，够用。
   // 道砟 + 枕木 + 钢轨（贯穿整格）
   b.box(TR.B0, 0.0000, 0.0000, TR.B1, 1.0000, TR.BED, M.ballast, M.ballast);
   for (let y = TR.SL_Y0, k = 0; y + TR.SL_T <= TR.SL_Y1 + 1e-9; y += TR.SL_STEP, k++) {
@@ -260,24 +256,34 @@ function structureParts(b) {
 }
 
 /**
- * 近墙小块 = 前山墙**近侧那半幅**的副本（和整栋里一模一样，只是裁了一半）。
- * `near` = 'hi'（x 0.50~0.86，v0 的近侧）· 'lo'（x 0.14~0.50，v3 的近侧）。
- * ⚠ 这一块**必须和整栋里那半幅逐像素重合**，否则压上去会露边。
+ * 门口小块（槽 0/2）= **门框那一小条**，不是半扇山墙。
+ *
+ * 依据（xUSSR `src/rails/depot.png` + 官方 `depot_normal.png`）：
+ *   覆盖贴图 = 24×25 / 16×8 的**门洞近侧门框**，只占整栋的 5~19%；
+ *   它的像素和建筑的重合率只有 8% ⇒ 是**另画的一小块**，不是整片墙的副本。
+ *   v70 把它做成了「前山墙近侧半幅（0.36 × 全高）」⇒ 压到车上等于糊了一片墙。
+ *
+ * 范围：洞口边往里 IN（0.04，盖住门洞内壁一点）、往外 OUT（0.16，墙垛上一小段砖），
+ *       高度 0 ~ 门顶 + TOP（0.02，把过梁下沿带上）。
+ * `near` = 'hi'（近侧洞边是 UD1，v0/v1）· 'lo'（近侧洞边是 UD0，v2/v3）。
  */
-function wallPatch(b, near) {
+const PP = { IN: 0.040, OUT: 0.160, TOP: 0.020 };
+function portalPatch(b, near) {
   const hi = near === 'hi';
-  const u0 = hi ? A.MID : A.XL;
-  const u1 = hi ? A.XR : A.MID;
-  const h0 = hi ? A.MID : A.UD0;          // 这一段里的门洞部分
-  const h1 = hi ? A.UD1 : A.MID;
-  const pier = hi ? [A.UD1, A.XR] : [A.XL, A.UD0];
-  b.line(`wall +y ${N(A.YF)} ${N(u0)} ${N(u1)} 0.0000 ${N(A.Z_EAVE)}`
-    + `  ${N(h0)},0.0000,${N(h1)},${N(A.Z_DOOR)}  ${S.wall} thick=${N(A.T)} reveal=no`);
-  b.face('+y', A.YF + 0.002, pier[0], pier[1], 0.0000, A.Z_PL, M.plinth);
+  const edge = hi ? A.UD1 : A.UD0;
+  const u0 = hi ? edge - PP.IN : edge - PP.OUT;
+  const u1 = hi ? edge + PP.OUT : edge + PP.IN;
+  const zt = A.Z_DOOR + PP.TOP;
   if (hi) {
+    b.line(`wall +y ${N(A.YF)} ${N(u0)} ${N(u1)} 0.0000 ${N(zt)}`
+      + `  ${N(u0)},0.0000,${N(edge)},${N(A.Z_DOOR)}  ${S.wall} thick=${N(A.T)} reveal=no`);
+    b.face('+y', A.YF + 0.002, edge, u1, 0.0000, A.Z_PL, M.plinth);
     jambLining(b, A.UD1 - A.LIN, A.UD1);
     doorPost(b, A.UD1, A.UD1 + A.JAMB);
   } else {
+    b.line(`wall +y ${N(A.YF)} ${N(u0)} ${N(u1)} 0.0000 ${N(zt)}`
+      + `  ${N(edge)},0.0000,${N(u1)},${N(A.Z_DOOR)}  ${S.wall} thick=${N(A.T)} reveal=no`);
+    b.face('+y', A.YF + 0.002, u0, edge, 0.0000, A.Z_PL, M.plinth);
     jambLining(b, A.UD0, A.UD0 + A.LIN);
     doorPost(b, A.UD0 - A.JAMB, A.UD0);
   }
@@ -286,9 +292,9 @@ function wallPatch(b, near) {
 // ---------------------------------------------------------------- 模型清单
 // ⚠ 名字决定分表列序：G1_depot < G1_depot_wa < G1_depot_wb ⇒ 列 0-3 / 4-7 / 8-11
 const JOBS = [
-  { name: 'G1_depot', kind: 'full', why: '整栋（含地面/库内/轨道）→ 槽 1/3/4/5，**先画**' },
-  { name: 'G1_depot_wa', kind: 'wall', near: 'hi', why: '近墙小块（x 0.50~0.86）→ 槽 0，**后画压车**' },
-  { name: 'G1_depot_wb', kind: 'wall', near: 'lo', why: '近墙小块（x 0.14~0.50）→ 槽 2，**后画压车**' },
+  { name: 'G1_depot', kind: 'full', why: '整栋（场坪/道砟/钢轨 + 墙/屋面/门樘，**库内不画**）→ 槽 1/3/4/5' },
+  { name: 'G1_depot_wa', kind: 'wall', near: 'hi', why: '门口小块（近侧门框，UD1 那一侧）→ 槽 0，**后画压车**' },
+  { name: 'G1_depot_wb', kind: 'wall', near: 'lo', why: '门口小块（近侧门框，UD0 那一侧）→ 槽 2，**后画压车**' },
 ];
 
 const HDR = (job) =>
@@ -301,8 +307,8 @@ const HDR = (job) =>
   + '#   墙体 0.14~0.86 × 0.04~0.96 · 墙厚 0.050 · 出檐 0.035 · 脊瓦顶 0.516\n'
   + '#   库内轨道：道砟 0.32~0.68 / 枕顶 0.010 / 轨顶 0.023（与 G1_rail_straight 同一套，贯穿 y 0~1）\n'
   + '#\n'
-  + '#   ⚠ 槽 1/3/4/5 = **整栋**（先画，车盖住库内）；槽 0/2 = **近墙小块**（后画，压住车）。\n'
-  + '#     槽 0/2 **不是**一整层地面 —— 那是 v65~v68 的病根（暗库内压在屋顶上）。\n'
+  + '#   ⚠ 槽 1/3/4/5 = **整栋**（先画）；槽 0/2 = **门口门框那一小条**（后画，压在车前面）。\n'
+  + '#     槽 0/2 既不是"一整层地面"，也不是"半扇山墙" —— 只到门顶高、宽 0.20。\n'
   + '# =============================================================================\n\n';
 
 export function generateDepots() {
@@ -310,7 +316,7 @@ export function generateDepots() {
   for (const job of JOBS) {
     const b = new Builder();
     if (job.kind === 'full') { groundParts(b); structureParts(b); }
-    else wallPatch(b, job.near);
+    else portalPatch(b, job.near);
     const text = HDR(job)
       + 'name      ' + job.name + '\n'
       + 'group     misc\n'
