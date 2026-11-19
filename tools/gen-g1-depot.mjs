@@ -206,6 +206,30 @@ function windowAt(b, side, at, u0, u1, z0, z1) {
     + ` frame=${M.frame} frameW=0.014 mull=2 depth=0.010 inset=0 sill=${M.frame}`);
 }
 
+/**
+ * 前端墙（+y 山墙）—— **画在 0/2 层（车之前）**。
+ *
+ * 依据 docs/建模经验.md §4.52：这块端墙会被车挡住，所以它和地面、轨道同层；
+ * 壳体（车之后画）里**整块不画**，挖掉范围与这里严丝合缝（同一份代码生成）。
+ */
+function frontGable(b) {
+  // 墙身 + 一刀真门洞（reveal=no 免得补出"洞下沿"那条假门槛）
+  b.line(`wall +y ${N(D.YF)} ${N(D.XL)} ${N(D.XR)} 0.0000 ${N(D.ZE)}`
+    + `  ${N(D.D0)},0.0000,${N(D.D1)},${N(D.ZD)}  ${S.wall} thick=${N(D.T)} reveal=no`);
+  // 勒脚贴面（门洞两侧）
+  for (const [u0, u1] of [[D.XL, D.D0], [D.D1, D.XR]]) {
+    b.face('+y', D.YF + 0.002, u0, u1, 0.0000, D.ZPL, M.plinth);
+  }
+  // 门洞两侧内壁（进深 = 墙厚）
+  b.face('+x', D.D0, D.YF - D.T, D.YF, 0.0000, D.ZD, M.jamb);
+  b.face('-x', D.D1, D.YF - D.T, D.YF, 0.0000, D.ZD, M.jamb);
+  // 门套立柱（挑出墙面）
+  b.box(D.D0 - D.PW, D.YF - 0.002, 0.0000, D.D0, D.YF + D.PR, D.ZD, M.jamb);
+  b.box(D.D1, D.YF - 0.002, 0.0000, D.D1 + D.PW, D.YF + D.PR, D.ZD, M.jamb);
+  // 门楣牌
+  b.face('+y', D.YF + 0.003, D.SIGN.u0, D.SIGN.u1, D.SIGN.z0, D.SIGN.z1, M.sign);
+}
+
 // =============================================================================
 // 图层 A —— 地面与门洞里面（槽 0/2，画在车之前，会被列车压住）
 // =============================================================================
@@ -235,29 +259,18 @@ function emitGround(b, inner) {
   for (const [x0, x1] of TR.RAIL_X) {
     b.box(x0, 0.0000, TR.RAIL_BASE, x1, 1.0000, TR.RAIL_TOP, 'rust', 'metal');
   }
+
+  // ④ 前端墙（会被车挡住 ⇒ 和地面同层）
+  frontGable(b);
 }
 
 // =============================================================================
 // 图层 B —— 壳体（槽 1/3/4/5，画在车之后；门洞里一个像素都不许有）
 // =============================================================================
 function emitShell(b, hole) {
-  const [H0, H1] = hole;
-  // ---------------------------------------------------------------- 前山墙（+y）
-  // 门洞是一刀真洞；`reveal=no` 免得补出"洞下沿"那条假门槛
-  b.line(`wall +y ${N(D.YF)} ${N(D.XL)} ${N(D.XR)} 0.0000 ${N(D.ZE)}`
-    + `  ${N(H0)},0.0000,${N(H1)},${N(D.ZD)}  ${S.wall} thick=${N(D.T)} reveal=no`);
-  // 勒脚贴面（门洞两侧）
-  for (const [u0, u1] of [[D.XL, H0], [H1, D.XR]]) {
-    b.face('+y', D.YF + 0.002, u0, u1, 0.0000, D.ZPL, M.plinth);
-  }
-  // 门洞两侧内壁（洞的左右侧面，进深 = 墙厚）
-  b.face('+x', H0, D.YF - D.T, D.YF, 0.0000, D.ZD, M.jamb);
-  b.face('-x', H1, D.YF - D.T, D.YF, 0.0000, D.ZD, M.jamb);
-  // 门套立柱（挑出墙面）
-  b.box(H0 - D.PW, D.YF - 0.002, 0.0000, H0, D.YF + D.PR, D.ZD, M.jamb);
-  b.box(H1, D.YF - 0.002, 0.0000, H1 + D.PW, D.YF + D.PR, D.ZD, M.jamb);
-  // 门楣牌（贴在山墙上，不做独立过梁 —— v74 那个过梁是多余改动，已撤）
-  b.face('+y', D.YF + 0.003, D.SIGN.u0, D.SIGN.u1, D.SIGN.z0, D.SIGN.z1, M.sign);
+  // ★ v77：**前端墙整块不画**（见 docs/建模经验.md §4.52）。
+  //   它「会被车挡住」⇒ 和地面一起搬到 0/2 层（emitGround 里的 frontGable）。
+  //   这里只画不会被车挡住的部分：后山墙 / 两侧纵墙 / 屋面 / 脊瓦 / 封檐。
 
   // ---------------------------------------------------------------- 后山墙（−y）
   wallWithPlinth(b, '-y', D.YB, D.XL, D.XR);
@@ -293,13 +306,13 @@ function emitShell(b, hole) {
 //   ⇒ 两个壳体模型（互为 x 镜像）+ 两个地面模型，一共 16 张，正好 8×2 一张表。
 const JOBS = [
   { name: 'G1_depot', layer: 'shell', hole: 'far',
-    why: '壳体 A（门洞开在 x 0.32~0.50 远端一半）→ 槽 1/4/5' },
+    why: '壳体（不含前端墙）→ 槽 1/4/5' },
   { name: 'G1_depot_wa', layer: 'ground', inner: 'far',
-    why: '地面 A（暗库内只填 x 0.32~0.50）→ 槽 0（车之前画）' },
+    why: '地面+轨道+前端墙 → 槽 0（车之前画）' },
   { name: 'G1_depot_wb', layer: 'ground', inner: 'near',
-    why: '地面 B（暗库内只填 x 0.50~0.68）→ 槽 2（车之前画）' },
+    why: '同上 → 槽 2（车之前画）' },
   { name: 'G1_depot_x', layer: 'shell', hole: 'near',
-    why: '壳体 B（门洞开在 x 0.50~0.68，A 的镜像）→ 槽 3' },
+    why: '壳体（同上，x 对称 ⇒ 与 A 相同）→ 槽 3' },
 ];
 const SPAN = {
   far: [D.D0, D.MID],
