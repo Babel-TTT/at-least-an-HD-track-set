@@ -2362,11 +2362,26 @@ spriteset(probe_bridge_surfaces_maglev, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
 //
 //   ⚠ 偏移：见 templates.pnml 那六行（逐朝向，人工在自行微调）。
 // ===========================================================================
+// depot_SADN —— 机车库「库 A」（样本，只接 `SADN`）
+//
+//   ★ 架构照**官方 NML 例子**的 `tmpl_depot`（见 templates.pnml 那段注释）：
+//       槽 0/2 = **门口近侧那一小块的副本**（引擎**最后**画 ⇒ 压在车上面）
+//       槽 1/3/4/5 = **整栋**（含地面/库内/轨道，**先画** ⇒ 车盖住库内）
+//     ⚠ 曾经把整层地面塞进槽 0/2 —— 结果库内的暗内墙被最后画到屋顶上面
+//       （实机那块 127×112 纯黑），见 `docs/建模经验.md` §4.50。
+//
+//   ★ 槽位（wiki `NML:Railtypes` §depots / `Action3/Railtypes` 08，顺序不许动）：
+//       0 SE 近墙 · 1 SE 整栋 · 2 SW 近墙 · 3 SW 整栋 · 4 NE 整栋 · 5 NW 整栋
+//     近侧半幅逐朝向翻转 ⇒ 近墙两版：槽 0 ← `wa` v0（x 大那半）· 槽 2 ← `wb` v3（x 小那半）
+//     整栋四朝向：槽 1 ← v0 · 槽 3 ← v3 · 槽 4 ← v1 · 槽 5 ← v2
+//
+//   ⚠ 偏移：**六张全部 (−131,−52)**（同一张分表、同一格位）。
+// ===========================================================================
 spriteset(depot_SADN, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
-    t_G1_depot_na_v0("gfx/depot.png")        // 0  SE 地面层（场坪/库内/道砟枕木钢轨 + 远侧内衬）
-    t_G1_depot_a_v0("gfx/depot.png")         // 1  SE 结构层（墙/屋面/门樘/近侧内衬/门楣牌）
-    t_G1_depot_nc_v3("gfx/depot.png")        // 2  SW 地面层（v3，远侧换到 UD1）
-    t_G1_depot_nb_v3("gfx/depot.png")        // 3  SW 结构层（v3，近侧换到 UD0）
-    t_G1_depot_a_v1("gfx/depot.png")         // 4  NE 结构层（v1）
-    t_G1_depot_a_v2("gfx/depot.png")         // 5  NW 结构层（v2）
+    t_G1_depot_wa_v0("gfx/depot.png")        // 0  SE 近墙小块（后画，压住车）
+    t_G1_depot_v0("gfx/depot.png")           // 1  SE 整栋（先画）
+    t_G1_depot_wb_v3("gfx/depot.png")        // 2  SW 近墙小块（后画）
+    t_G1_depot_v3("gfx/depot.png")           // 3  SW 整栋
+    t_G1_depot_v1("gfx/depot.png")           // 4  NE 整栋
+    t_G1_depot_v2("gfx/depot.png")           // 5  NW 整栋
 }
