@@ -47,7 +47,6 @@
 // ============================================================================
 
 #include "templates.pnml"
-#include "templates-g1depot.pnml"
 
 /* ===========================================================================
    轨道 —— underlay / track_overlay
@@ -2382,7 +2381,7 @@ spriteset(depot_SADN, ZOOM_LEVEL_IN_4X, BIT_DEPTH_32BPP) {
     t_G1_depot_wa_v0("gfx/depot.png")        // 0  SE 近墙小块（后画，压住车）
     t_G1_depot_v0("gfx/depot.png")           // 1  SE 整栋（先画）
     t_G1_depot_wb_v3("gfx/depot.png")        // 2  SW 近墙小块（后画）
-    t_G1_depot_x3("gfx/depot.png")          // 3  SW 整栋（x 镜像版：门洞远侧那半）
+    t_G1_depot_x_v3("gfx/depot.png")        // 3  SW 整栋（x 镜像版：门洞远侧那半）
     t_G1_depot_v1("gfx/depot.png")           // 4  NE 整栋
     t_G1_depot_v2("gfx/depot.png")           // 5  NW 整栋
 }
