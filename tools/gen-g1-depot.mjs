@@ -206,10 +206,10 @@ function wallWithPlinth(b, side, at, u0, u1) {
   b.line(`wall ${side} ${N(at)} ${N(u0)} ${N(u1)} ${N(D.ZPL)} ${N(D.ZE)}  ${S.wall} thick=${N(D.T)}`);
 }
 
-/** 一樘贴面窗 */
+/** 一樘贴面窗（v81：去掉灰色窗框和窗台，只留一整块玻璃） */
 function windowAt(b, side, at, u0, u1, z0, z1) {
   b.line(`win ${side} ${N(at)} ${N(u0)} ${N(u1)} ${N(z0)} ${N(z1)}  ${M.glass}`
-    + ` frame=${M.frame} frameW=0.014 mull=2 depth=0.010 inset=0 sill=${M.frame}`);
+    + ` frame=${M.glass} frameW=0.014 mull=2 depth=0.010 inset=0 sill=no`);
 }
 
 /**

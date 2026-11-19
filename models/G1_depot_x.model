@@ -30,17 +30,17 @@ quad 0.2980 0.9580 0.0000  0.3200 0.9580 0.0000  0.3200 0.9580 0.3000  0.2980 0.
 quad 0.3400 0.9630 0.3350  0.6600 0.9630 0.3350  0.6600 0.9630 0.3050  0.3400 0.9630 0.3050   sign_white
 wall -y 0.0400 0.1400 0.8600 0.0000 0.0500  concrete_dark thick=0.0500
 wall -y 0.0400 0.1400 0.8600 0.0500 0.3400  brick_brown thick=0.0500
-win -y 0.0390 0.3200 0.6800 0.2150 0.2950  glass_dark frame=metal_dark frameW=0.014 mull=2 depth=0.010 inset=0 sill=metal_dark
+win -y 0.0390 0.3200 0.6800 0.2150 0.2950  glass_dark frame=glass_dark frameW=0.014 mull=2 depth=0.010 inset=0 sill=no
 quad 0.8600 0.0400 0.0000  0.8600 0.9600 0.0000  0.8600 0.9600 0.0500  0.8600 0.0400 0.0500   concrete_dark
 quad 0.8600 0.0400 0.0500  0.8600 0.9600 0.0500  0.8600 0.9600 0.3400  0.8600 0.0400 0.3400   brick_brown
-win +x 0.8610 0.2000 0.3400 0.2150 0.2950  glass_dark frame=metal_dark frameW=0.014 mull=2 depth=0.010 inset=0 sill=metal_dark
-win +x 0.8610 0.4200 0.5600 0.2150 0.2950  glass_dark frame=metal_dark frameW=0.014 mull=2 depth=0.010 inset=0 sill=metal_dark
-win +x 0.8610 0.6400 0.7800 0.2150 0.2950  glass_dark frame=metal_dark frameW=0.014 mull=2 depth=0.010 inset=0 sill=metal_dark
+win +x 0.8610 0.2000 0.3400 0.2150 0.2950  glass_dark frame=glass_dark frameW=0.014 mull=2 depth=0.010 inset=0 sill=no
+win +x 0.8610 0.4200 0.5600 0.2150 0.2950  glass_dark frame=glass_dark frameW=0.014 mull=2 depth=0.010 inset=0 sill=no
+win +x 0.8610 0.6400 0.7800 0.2150 0.2950  glass_dark frame=glass_dark frameW=0.014 mull=2 depth=0.010 inset=0 sill=no
 wall -x 0.1400 0.0400 0.9600 0.0000 0.0500  concrete_dark thick=0.0500
 wall -x 0.1400 0.0400 0.9600 0.0500 0.3400  brick_brown thick=0.0500
-win -x 0.1390 0.2000 0.3400 0.2150 0.2950  glass_dark frame=metal_dark frameW=0.014 mull=2 depth=0.010 inset=0 sill=metal_dark
-win -x 0.1390 0.4200 0.5600 0.2150 0.2950  glass_dark frame=metal_dark frameW=0.014 mull=2 depth=0.010 inset=0 sill=metal_dark
-win -x 0.1390 0.6400 0.7800 0.2150 0.2950  glass_dark frame=metal_dark frameW=0.014 mull=2 depth=0.010 inset=0 sill=metal_dark
+win -x 0.1390 0.2000 0.3400 0.2150 0.2950  glass_dark frame=glass_dark frameW=0.014 mull=2 depth=0.010 inset=0 sill=no
+win -x 0.1390 0.4200 0.5600 0.2150 0.2950  glass_dark frame=glass_dark frameW=0.014 mull=2 depth=0.010 inset=0 sill=no
+win -x 0.1390 0.6400 0.7800 0.2150 0.2950  glass_dark frame=glass_dark frameW=0.014 mull=2 depth=0.010 inset=0 sill=no
 gable 0.1400 0.0400 0.8600 0.9600 0.3400 0.5000 y 0.0350  roof_slate side=brick_brown bottom=trim_dark tileRows=6 tileCols=16 tileW=0.009 tileMat=roof_slate_seam
 quad 0.4780 0.0400 0.5160  0.5220 0.0400 0.5160  0.5220 0.9600 0.5160  0.4780 0.9600 0.5160   roof_slate_dark
 quad 0.4780 0.9600 0.4860  0.5220 0.9600 0.4860  0.5220 0.0400 0.4860  0.4780 0.0400 0.4860   roof_slate_dark
