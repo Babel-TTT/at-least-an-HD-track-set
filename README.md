@@ -4,6 +4,8 @@ OpenTTD 的 **32bpp 4x** 中国风格铁路轨道 NewGRF。
 美术用 [flatiso](../../ottd/建筑测试/flatiso) 的等距预渲染管线从**手写 `.model`** 离线烘焙，
 GRF 用 NML 编译，轨道编码遵循**标准化轨道编码方案**（与中国包列车互通）。
 
+制作当中参考了xUSSR轨道包以及JP+轨道包。
+
 **感谢Mikhail的大力资助**
 
 ---
